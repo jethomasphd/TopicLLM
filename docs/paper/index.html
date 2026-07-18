@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coherence-Optimized Topic Modeling with Democratic LLM Interpretation — Preprint</title>
+<style>
+  :root { color-scheme: light dark;
+    --ink: #1a1a1a; --ink-2: #4c4c4c; --bg: #ffffff; --rule: #d9d9d4; --accent: #2a5db0; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink: #eaeaea; --ink-2: #b5b5ad; --bg: #161615; --rule: #343431; --accent: #6ea3e8; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif; line-height: 1.65; font-size: 16.5px; }
+  .page { max-width: 820px; margin: 0 auto; padding: 40px 26px 80px; }
+  .banner { font-family: system-ui, sans-serif; font-size: 13px; letter-spacing: .04em;
+    text-transform: uppercase; color: var(--ink-2); border: 1px solid var(--rule);
+    border-radius: 6px; padding: 8px 12px; margin-bottom: 28px; }
+  h1 { font-size: 27px; line-height: 1.3; margin: 0 0 14px; }
+  .authors { margin: 0 0 4px; font-size: 17px; }
+  .affil { color: var(--ink-2); font-size: 14.5px; margin: 0 0 2px; }
+  h2 { font-size: 21px; margin: 38px 0 10px; }
+  h3 { font-size: 17.5px; margin: 26px 0 8px; }
+  .abstract { border-top: 2px solid var(--ink); border-bottom: 1px solid var(--rule);
+    padding: 18px 0; margin: 26px 0; }
+  .abstract h2 { margin: 0 0 8px; font-size: 18px; }
+  .abstract p { margin: 0; text-align: justify; }
+  .keywords { color: var(--ink-2); font-size: 14.5px; margin-top: 10px; }
+  p { margin: 0 0 14px; text-align: justify; }
+  figure { margin: 26px 0; }
+  figure img { max-width: 100%; border: 1px solid var(--rule); border-radius: 4px; background:#fff; }
+  figcaption { font-size: 14.5px; color: var(--ink-2); margin-top: 8px; }
+  .tablewrap { overflow-x: auto; margin: 22px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px;
+    font-family: system-ui, sans-serif; }
+  caption { text-align: left; font-size: 14.5px; color: var(--ink-2);
+    margin-bottom: 8px; caption-side: top; }
+  th, td { border-top: 1px solid var(--rule); padding: 8px 10px; text-align: left; vertical-align: top; }
+  thead th { border-top: 2px solid var(--ink); border-bottom: 1px solid var(--ink); }
+  tbody tr:last-child td { border-bottom: 2px solid var(--ink); }
+  .tnote { font-size: 13.5px; color: var(--ink-2); margin-top: 6px; }
+  .prompt { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13.5px;
+    background: rgba(125,125,125,.08); border: 1px solid var(--rule); border-radius: 6px;
+    padding: 12px 14px; margin: 14px 0; white-space: pre-wrap; }
+  .prompt strong { font-family: system-ui, sans-serif; }
+  .refs p { font-size: 14.5px; text-align: left; padding-left: 24px; text-indent: -24px; margin-bottom: 9px; overflow-wrap: break-word; }
+  a { color: var(--accent); }
+  .placeholder { color: var(--ink-2); font-style: italic; }
+  em.dc { font-style: italic; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="banner">Preprint · Not yet peer-reviewed · A working browser implementation of this pipeline
+accompanies this paper at <a href="../index.html">the companion web application</a> ·
+<a href="Coherence_Optimized_Topic_Modeling_Preprint.pdf">PDF</a></div>
+
+<h1>Coherence-Optimized Topic Modeling with Democratic Large Language Model Interpretation:
+A Human-in-the-Loop Pipeline for Public Health Surveillance of Social Media</h1>
+
+<p class="authors">Jacob E. Thomas, PhD¹ <span class="placeholder">[additional co-authors and
+affiliations per authorship agreement]</span></p>
+<p class="affil">¹Department of Kinesiology and Health Education, The University of Texas at Austin, Austin, TX, USA</p>
+<p class="affil">Correspondence: jethomasphd@gmail.com</p>
+
+<div class="abstract">
+<h2>Abstract</h2>
+<p>Public health surveillance of social media requires converting large volumes of unstructured text
+into a small set of interpretable, analyzable themes. Transformer-based topic models such as BERTopic
+automate topic discovery, but two bottlenecks remain: topic interpretation, which is subjective and
+vulnerable to researcher bias, and corpus-scale classification, which is required before themes can
+enter statistical models. We present a five-stage, human-in-the-loop pipeline that addresses both
+bottlenecks. Stage 1 discovers topics with BERTopic under randomized hyperparameter search, evaluating
+1,200 candidate models and selecting the configuration that maximizes c<sub>v</sub> coherence. Stage 2
+interprets each topic democratically: a large language model (GPT-4o) is queried 5,000 independent
+times per topic and the modal label is adopted, stabilizing stochastic outputs and buffering the
+a&nbsp;priori expectations a human labeler may hold. Stage 3 synthesizes topics into higher-order
+themes through a structured two-researcher consensus protocol grounded in the Theme and Topic system.
+Stage 4 classifies every document into the resulting theme taxonomy using an LLM prompt benchmarked
+against 250 human-labeled documents (&gt;85% agreement) and piloted against a Boolean dictionary
+alternative. Stage 5 carries theme classifications into downstream statistics, including proportional
+z-tests, LIWC psycholinguistic profiling, and cross-lagged panel models. We demonstrate the pipeline
+on 5,872 alcohol-brand tweets posted before, during, and after the initial COVID-19 lockdowns, where
+it identified five marketing themes at a coherence of 0.768 and scaled to classify 486,786
+user-generated tweets. All prompts are released verbatim, and complete materials are provided for
+reproduction: archival implementations of every computational stage, the full psycholinguistic profile
+output, and a maintained end-to-end pipeline written against the current OpenAI SDK.</p>
+<p class="keywords"><strong>Keywords:</strong> topic modeling; BERTopic; large language models; text
+classification; human-in-the-loop; infodemiology; public health surveillance</p>
+</div>
+
+<h2>1. Introduction</h2>
+<p>Social media platforms generate continuous, population-scale records of marketing activity, health
+discourse, and crisis communication. Twitter (now X) in particular offers real-time, extensive data
+from diverse users and has proven valuable for sociological research (Murthy, 2018), and it served as
+a primary channel for information exchange during the COVID-19 pandemic (Haman et al., 2020; Rufai et
+al., 2020). The surveillance value of such data, however, depends on a difficult conversion: reducing
+hundreds of thousands of short, noisy documents to a small number of coherent themes whose prevalence
+can be measured, compared across time, and entered into inferential models.</p>
+<p>Topic models automate the discovery half of this conversion. Classical approaches such as latent
+Dirichlet allocation identify statistically derived patterns of word co-occurrence (Blei et al.,
+2003), and topic modeling has been advanced as a means of reviewing text corpora at scales beyond
+manual capacity (Nunez-Mir et al., 2016). Transformer-based successors, most prominently BERTopic
+(Grootendorst, 2022), combine dense sentence embeddings with density-based clustering and class-based
+TF-IDF term weighting, producing coherent topics on short, heterogeneous documents such as tweets
+(Egger &amp; Yu, 2022). Two human bottlenecks nonetheless remain. First, a topic is only an array of
+representative words; assigning it meaning is an interpretive act that qualitative methodology has
+long recognized as vulnerable to researcher expectations (Braun &amp; Clarke, 2006; Nowell et al.,
+2017). Second, once themes are defined, every document in the corpus must be classified into the
+taxonomy before prevalence can be estimated or modeled, a task whose volume forecloses manual
+coding.</p>
+<p>The Theme and Topic system (Gillies et al., 2022) formalizes the division of labor for the first
+bottleneck: topics are statistically derived patterns found autonomously by computation, while themes
+are meaningful patterns that emerge through human interpretation, and the two proceed in parallel so
+that machine learning augments rather than replaces human insight. Large language models (LLMs) open
+new options on both fronts. Preliminary work indicates that LLMs can label topics robustly and,
+notably, without the anchoring bias a human coder with an a&nbsp;priori hypothesis may introduce (Li
+et al., 2023; Chae &amp; Davidson, 2023), and a recent survey documents strong LLM performance across
+text classification tasks (Fields et al., 2024). Applied precedent exists in public health
+surveillance: coherence-scored BERTopic modeling has been used to identify e-cigarette marketing
+content on social media (Lee et al., 2024).</p>
+<p>This paper contributes a complete, reproducible pipeline that integrates these elements and extends
+them in one specific way: interpretation by democratic LLM ensemble. Rather than accepting a single
+stochastic LLM label per topic, the pipeline queries the model thousands of independent times and
+adopts the modal answer, treating topic naming as an estimation problem with a central tendency rather
+than a one-shot generation. The full pipeline comprises (1) coherence-optimized topic discovery via
+randomized hyperparameter search over the joint UMAP, HDBSCAN, and topic-count space; (2) democratic
+LLM interpretation of each topic; (3) a structured human-in-the-loop synthesis stage that preserves
+qualitative accountability; (4) validated corpus-scale LLM classification that bridges themes to
+statistics; and (5) downstream analyses, including proportional z-tests, Linguistic Inquiry and Word
+Count (LIWC) psycholinguistic profiling (Boyd et al., 2022), and cross-lagged panel modeling (Kuiper
+&amp; Ryan, 2018). We demonstrate the pipeline on alcohol-industry marketing surveillance during the
+COVID-19 pandemic, where downstream interpretation was framed by the Differential Susceptibility to
+Media Effects Model (Valkenburg &amp; Peter, 2013), although the pipeline itself is theory-agnostic.
+Complete code is released as supplementary material.</p>
+
+<h2>2. The Pipeline</h2>
+<h3>2.1 Preprocessing</h3>
+<p>Documents are prepared with a conventional natural language processing sequence implemented in
+Python 3.9.12 (Python Software Foundation, 2022) using NLTK (Bird et al., 2009): removal of
+non-alphabetic characters, conversion to lowercase, tokenization, lemmatization, and removal of
+stopwords. The stopword list combines NLTK's standard English list with a custom domain-specific
+list; in the demonstration case this included brand terms that appear ubiquitously in the corpus
+(e.g., budlight) and temporal references common on Twitter but uninformative of topics (e.g., am, pm,
+weekday and month names). Domain stopwords are the analyst's first, and deliberately transparent,
+modeling decision: they should be enumerated in supplementary material. The demonstration list — the
+eleven brand names and standard temporal terms — is released with the Stage 1 code supplement as its
+expected custom_stopwords input.</p>
+
+<h3>2.2 Stage 1: Coherence-optimized topic discovery</h3>
+<p>Topic discovery uses BERTopic (Grootendorst, 2022) with five components: (i) sentence embedding
+with the SentenceTransformer model all-MiniLM-L6-v2, selected for its balance of performance and
+computational efficiency (Wang et al., 2020); (ii) dimensionality reduction with Uniform Manifold
+Approximation and Projection (UMAP; McInnes et al., 2018) under the cosine metric; (iii) clustering
+with HDBSCAN (Campello et al., 2013) using excess-of-mass cluster selection, chosen for its robustness
+to noise and to clusters of varying density; (iv) topic extraction by class-based TF-IDF (Ramos,
+2003); and (v) topic reduction to merge similar and remove less coherent topics (Grootendorst,
+2022).</p>
+<p>Rather than fixing hyperparameters, the pipeline searches the joint configuration space by random
+sampling (Bergstra &amp; Bengio, 2012). In the reference implementation, 50 iterations each draw UMAP
+parameters (n_neighbors from 5–35, n_components from 3–10, min_dist from 0.01–0.5) and HDBSCAN
+parameters (min_cluster_size from 5–35), and each sampled configuration is evaluated across maximum
+topic solutions from 2 to 25, yielding 1,200 candidate models. Every model is scored with the
+c<sub>v</sub> coherence measure from Gensim's CoherenceModel (Röder et al., 2015), selected because
+coherence correlates with human interpretability of topics (Newman et al., 2010) and has precedent in
+social media surveillance of tobacco marketing (Lee et al., 2024). The configuration and topic number
+maximizing coherence become the final topic model; the implementation persists, for every iteration,
+the hyperparameters, the topics with representative words, an intertopic distance visualization, and
+a topic similarity matrix, so that model selection is fully auditable.</p>
+
+<h3>2.3 Stage 2: Democratic LLM interpretation</h3>
+<p>The principal output of the topic model is, for each topic, an array of representative words that
+must be synthesized into an understandable name (e.g., a hypothetical array of "teacher, student,
+classroom, math, history, science" synthesizes to "education"). The pipeline delegates this synthesis
+to GPT-4o (OpenAI, 2024) under a democratic protocol: the OpenAI API is prompted to name the topic
+given the domain context and the representative words, the query is repeated 5,000 independent times
+per topic, and the label with the most "votes" is selected. In the reference implementation each
+query decodes a single completion at temperature 0.5 with a 15-token maximum, and failed calls are
+retried up to five times under exponential backoff; the prompt is given verbatim in section 2.7.
+Preliminary research suggests LLM topic labeling is robust and particularly good at naming topics
+without the inherent bias that may result from a human with an a&nbsp;priori hypothesis assigning the
+labels (Li et al., 2023). The ensemble extends that logic: because decoding is stochastic, any single
+response is a draw from a distribution over plausible labels; plurality voting over a large number of
+draws estimates the distribution's mode instead of gambling on one sample. The vote tally itself is
+informative diagnostics — a fragmented vote signals a semantically ambiguous topic that deserves
+closer human scrutiny in Stage 3.</p>
+
+<h3>2.4 Stage 3: Human-in-the-loop synthesis of themes</h3>
+<p>Following the Theme and Topic system (Gillies et al., 2022), machine-derived topics and their modal
+LLM labels are then synthesized into higher-order themes by human interpretation under a structured
+two-researcher protocol. The primary researcher reviews the BERTopic output, samples tweets mapped to
+each topic, confirms that the modal LLM interpretation is relevant to the sampled documents, and
+identifies overlapping thematic connections between topics, reading all materials against the current
+literature of the target domain. Topics are grouped by conceptual similarity into candidate themes —
+in the demonstration case, for example, the topics "Virtual NFL Draft Party with Celebrity Hosts" and
+"Home Sports Challenge Campaigns" grouped into a single Sports theme. The senior researcher
+independently reviews and critiques the proposed interpretations, and consensus is reached through
+discussion. This stage keeps a named human analyst accountable for every theme while confining human
+labor to the low-volume, high-judgment portion of the task, in alignment with recommendations from
+the Theme and Topic system and with established practice (Gillies et al., 2022; Lee et al., 2024).</p>
+
+<h3>2.5 Stage 4: Validated corpus-scale classification</h3>
+<p>Prevalence estimation requires that every document receive exactly one label from the theme
+taxonomy (including "not belonging to any theme"). The pipeline pilots two candidate classifiers and
+scales whichever performs better against a benchmark of 250 human-labeled documents. The first
+candidate is a rule-based Boolean classifier that maps documents against each theme's dictionary
+words with logical operators (AND, OR, NOT), scoring documents containing more dictionary words as
+more theme-relevant. The second is an LLM classifier: a prompt instructs GPT-4o to assign a verbatim
+document to one option from the fixed list of themes plus "not belonging to any theme," and the
+procedure loops over the corpus with independent API calls, each decoding a single completion at
+temperature 0.5 with a 30-token maximum (OpenAI, 2024); the prompt is given verbatim in section 2.7.
+LLMs are well suited to this task, with recent review indicating strong performance and versatility
+across text classification settings (Fields et al., 2024). During prompt engineering, LLM
+classifications are compared with the human-labeled benchmark to ensure greater than 85% agreement
+before scaling. In the demonstration case the LLM classifier was selected and scaled to the full
+corpus.</p>
+
+<h3>2.6 Stage 5: From classifications to inference</h3>
+<p>Because Stage 4 yields a label for every document, theme prevalence within any partition of the
+corpus is directly computable, and the pipeline terminates in whatever statistics the research design
+requires. Three downstream analyses are packaged in the reference implementation. First, proportional
+z-tests compare theme prevalence across time periods, with Bonferroni correction proportional to the
+number of themes multiplied by the number of tests per theme (Bland &amp; Altman, 1995). Second, each
+theme's concatenated corpus is profiled with LIWC-22 (Chung &amp; Pennebaker, 2012; Boyd et al.,
+2022), whose empirically constructed dictionaries quantify cognitive, emotional, and excitative
+dimensions of language (Tausczik &amp; Pennebaker, 2010); in media effects applications these profiles
+map onto the response states of the Differential Susceptibility to Media Effects Model (Valkenburg
+&amp; Peter, 2013). Third, per-account counts of theme-classified documents can serve as variables in
+longitudinal models; the reference implementation feeds them into cross-lagged panel models estimated
+by generalized structural equation modeling (Kuiper &amp; Ryan, 2018; Rabe-Hesketh et al., 2022;
+StataCorp, 2021), permitting mixed continuous and binary variables. The pipeline is thus a measurement
+instrument whose output plugs into standard epidemiologic and communication-science designs.</p>
+
+<h3>2.7 Prompt specifications</h3>
+<p>Because label distributions can shift across model versions, the prompts are a measurement
+instrument and are released verbatim. Both use a fixed system message and a user message assembled
+from the domain context and the item under evaluation; the italicized domain-context clause is the
+only domain-specific text in the pipeline. The Stage 2 naming prompt, issued once per vote, is:</p>
+<div class="prompt"><strong>Stage 2 — topic naming</strong> (system message: "You are an expert at naming topics.")
+
+The following words represent a topic derived from <em class="dc">[tweets generated by alcohol companies
+during the COVID-19 pandemic]</em>: {representative words}. Please provide a concise, meaningful topic
+name that clearly summarizes these words.</div>
+<p>The Stage 4 classification prompt enumerates the consensus themes from Stage 3 plus the exhaustive
+residual option, and instructs a verbatim response so that outputs map deterministically onto the
+taxonomy:</p>
+<div class="prompt"><strong>Stage 4 — classification</strong> (system message: "You are an expert at classifying text into themes.")
+
+Classify the following text into one of the following 6 themes: 1. Alcohol Delivery and Isolation
+Drinking, 2. Restaurant Support, 3. Social Media Promotions, 4. Sports, 5. Gaming, 6. The text does
+not fit into any of these themes. Text: {verbatim document}. Respond with verbatim classification
+using only the specified 6 options.</div>
+<p>Redeploying the pipeline in a new domain therefore requires changing only the bracketed
+domain-context clause, the theme list produced by Stage 3, and the literature lens the Stage 3
+researchers read against. Implementations should pin and report the model identifier alongside these
+prompts (here, GPT-4o; OpenAI, 2024).</p>
+
+<h2>3. Demonstration: Alcohol Marketing on Twitter During COVID-19</h2>
+<p>The pipeline was developed for surveillance of alcohol-industry marketing before, during, and after
+the initial COVID-19 lockdowns. The corpus comprised 5,872 tweets posted by 11 prominent alcohol
+companies between January 2019 and July 2021, drawn from the Prevention Research Lab at UT-Austin
+Twitter Marketing Study (PRL-TMS), in which trained research assistants audited verified brand
+accounts and recorded verbatim tweet text under weekly quality-control review; the study was reviewed
+by the UT-Austin institutional review board and determined to be non-human-subjects research. The 11
+companies were selected to span popular beverage types (beer, spirits, hard seltzer), each with at
+least 10,000 followers; they tweeted between 117 and 1,142 times each (mean 534, approximately 17 per
+month) and held nearly 1.2 million combined followers in a cross-sectional audit near the early
+pandemic period. Themes documented by prior pandemic-era research (e.g., isolation drinking,
+delivery, corporate social responsibility; Martino et al., 2021) supplied the literature lens for
+Stage 3.</p>
+<p>Across the 1,200 candidate models of Stage 1, the highest-coherence configuration (0.768) used 15
+UMAP neighbors, 4 components, a minimum distance of 0.01, an HDBSCAN minimum cluster size of 20, and
+a maximum topic solution of 23, and yielded seven topics (Figure 1). Stage 2 named the seven topics by
+democratic vote, and the Stage 3 protocol synthesized them into five themes: Alcohol Delivery and
+Isolation Drinking, Restaurant Support, Social Media Promotions, Sports, and Gaming (Table 1). In
+Stage 4, the LLM classifier exceeded the 85% agreement threshold against 250 human-labeled tweets and
+was scaled to the corpus, enabling the Stage 5 proportional z-tests (Bonferroni-corrected α = 0.0033).
+Three of the five themes rose significantly from the pre-pandemic to the lockdown period — Alcohol
+Delivery and Isolation Drinking from 9.1% to 17.4%, Restaurant Support from 1.9% to 5.5%, and Social
+Media Promotions from 6.6% to 16.5% (all p &lt; 0.001) — while Sports and Gaming did not differ across
+periods (Table 2), and LIWC profiles differentiated emotionally-oriented from cognitively-oriented
+themes (Supplementary File S4); those substantive findings are reported in a companion empirical paper
+<span class="placeholder">[citation to companion Study 1 manuscript]</span>. The classifier
+subsequently scaled far beyond the discovery corpus: in a second companion study, the identical Stage
+4 procedure classified 486,786 user-generated tweets from 66,303 U.S. accounts, and the resulting
+counts served as variables in a cross-lagged panel model of industry-to-public content dynamics
+<span class="placeholder">[citation to companion Study 2 manuscript]</span>. The demonstration thus
+exercises every stage, from raw text to inferential model, on corpora spanning three orders of
+magnitude.</p>
+
+<figure>
+  <img src="figure1.png" alt="Line chart of coherence scores across candidate topic solutions for 50 BERTopic iterations; the highest-coherence model (0.77) occurs at iteration 25 with 23 allowable topics.">
+  <figcaption><strong>Figure 1.</strong> Topic model performance. Coherence scores across candidate
+  topic solutions for the best-performing hyperparameter configurations; the selected model
+  (coherence = 0.768) yielded seven topics.</figcaption>
+</figure>
+
+<div class="tablewrap">
+<table>
+<caption><strong>Table 1.</strong> Theme structure and representative content produced by the
+demonstration pipeline (Stages 1–3).</caption>
+<thead><tr><th>Theme</th><th>Constituent Topics (LLM Interpretation)</th><th>Representative Words</th><th>Example Tweets</th></tr></thead>
+<tbody>
+<tr><td>Alcohol Delivery and Isolation Drinking</td><td>Pandemic Alcohol Delivery and Enjoyment</td>
+<td>sunshine, drizly<sup>a</sup>, bit, day, order, happy, part, original, drink, get</td>
+<td>"Pro tip: Put your beer in a coffee mug and no one knows you're drinking on the video conference."<br><br>
+"Bring the beachside vibe <em>inside</em> with Malibu delivered to your door in 60 minutes or less
+Get $5 off your first order, courtesy of Drizly, with code 'Sunshine20'!"</td></tr>
+<tr><td>Restaurant Support</td><td>COVID-19 Restaurant Support and Donation Initiatives</td>
+<td>restaurant, donate, support, worker, help, fund, restaurantstrong, strong, covid, donation</td>
+<td>"Yeah, we miss bars too. But we can still support restaurant and bar workers today. Order takeout
+and we'll buy your first round when they reopen."<br><br>
+"ATTENTION TWITTER: The people who serve us every day are depending on our support. Restaurants and
+bars, let us know that you're #OpenForTakeout, so we can spread the word."</td></tr>
+<tr><td rowspan="2">Social Media Promotions</td><td>Virtual Bar Tours &amp; Live Instagram Events</td>
+<td>live, instagram, tune, tonight, ig, go, dive, tour, bar, edition</td>
+<td>"Going live now! doing a little thing with @budlight tonight on IG and facebook live. come hang
+6pm pst / 9pm est #divebartour"</td></tr>
+<tr><td>Pandemic Social Engagement &amp; Promotions</td>
+<td>whassup, say, tag, win, merch, friend, chance, need, collection, week</td>
+<td>"Win fresh Bud Whassup crewnecks for your happy hour crew! RETWEET + FOLLOW for the chance to
+outfit your crew."</td></tr>
+<tr><td rowspan="2">Sports</td><td>Virtual NFL Draft Party with Celebrity Hosts</td>
+<td>draft, boo, commish, nfl, youtube, drafterparty, robgronkowski, guest, host, camillekostek</td>
+<td>"TONIGHT!!!! @nfl @budlight"</td></tr>
+<tr><td>Home Sports Challenge Campaigns</td>
+<td>challenge, team, house, sport, league, submit, home, athlete, chance, video</td>
+<td>"Want to win a @trulyseltzer putting mat? Show us your #dailyninesetup. Photo, video, putting,
+chipping, whatever. Show us."</td></tr>
+<tr><td>Gaming</td><td>Charity Gaming Events by Alcohol Brands</td>
+<td>royale, twitch, tv, charity, money, tonight, dkm, therealgavinlux, snellzilla, final</td>
+<td>"Excited to announce the Bud Light Seltzer Charity Royale. 24 pro athletes compete in Call of
+Duty: Warzone to raise money for awesome local causes."<br><br>
+"Live right now on http://Twitch.tv/BudLight. Tune in!"</td></tr>
+</tbody>
+</table>
+<p class="tnote"><sup>a</sup> Delivery app company, acquired by Uber.</p>
+</div>
+
+<div class="tablewrap">
+<table>
+<caption><strong>Table 2.</strong> Theme prevalence across periods in the demonstration corpus
+(Stages 4–5).</caption>
+<thead><tr><th>Theme</th><th>Pre-Pandemic Response (%)</th><th>Peri-Pandemic Response (%)</th><th>Post-Pandemic Response (%)</th></tr></thead>
+<tbody>
+<tr><td>Alcohol Delivery and Isolation Drinking</td><td>9.1*</td><td>17.4†</td><td>11.9*†</td></tr>
+<tr><td>Restaurant Support</td><td>1.9*</td><td>5.5†</td><td>1.7*</td></tr>
+<tr><td>Social Media Promotions</td><td>6.6*</td><td>16.5†</td><td>10.6*†</td></tr>
+<tr><td>Sports</td><td>8.2</td><td>11.4</td><td>8.9</td></tr>
+<tr><td>Gaming</td><td>1.1</td><td>2.0</td><td>1.6</td></tr>
+</tbody>
+</table>
+<p class="tnote">* Statistical difference from the peri-pandemic response period, p &lt; 0.0033.
+† Statistical difference from the pre-pandemic response period, p &lt; 0.0033 (Bonferroni-corrected α).</p>
+</div>
+
+<h2>4. Discussion</h2>
+<p>The pipeline's design responds to a specific epistemic problem in computational text analysis: the
+seam between statistical output and human meaning is where bias enters and where reproducibility is
+usually lost. Randomized, coherence-scored model selection makes the discovery stage auditable;
+democratic LLM interpretation converts a stochastic generation step into an estimable quantity; the
+two-researcher consensus protocol keeps interpretation accountable to named analysts and to the
+literature; and the validated classifier gives every downstream statistic a documented measurement
+pedigree. Each stage emits artifacts (hyperparameter logs, vote tallies, benchmark agreement) that can
+be published alongside findings.</p>
+<p>Several limitations warrant acknowledgment, consistent with those recognized in the demonstration
+research. Synthesizing information from topic modeling and AI-generated outputs into themes retains
+inherent subjectivity; despite extensive iterative human-AI validation, subtle biases stemming from
+language complexity and contextual nuance may persist. LIWC's dictionary-based approach may overlook
+nuanced meanings better captured by alternative sentiment methods, and its profiles here are
+descriptive rather than inferential. The interpretation and classification stages depend on a
+closed-weight commercial model; label distributions may shift across model versions, so
+implementations should pin and report the model identifier, release all prompts verbatim, and retain
+vote tallies and benchmark sets so that future replications can quantify drift. The 5,000-query
+ensemble and corpus-scale classification also carry nontrivial API cost, which practitioners can tune
+by monitoring the stability of the modal label as votes accumulate. Finally, the 85% human-agreement
+threshold, while consistent with applied precedent, is a design choice that should be justified
+against the error tolerance of the downstream analysis.</p>
+<p>The framework generalizes directly. Because every stage is domain-agnostic — only the domain
+context sentence in the prompts and the literature lens of Stage 3 change — the same pipeline can
+surveil marketing by other consumer-product industries, discourse on other platforms, and
+communication during other societal disruptions such as elections or natural disasters. In public
+health specifically, it offers an innovative instrument for ongoing surveillance of commercial
+messaging: capable of detecting what an industry is saying, how its language is constructed, and,
+when paired with longitudinal designs, how that messaging moves through the public.</p>
+
+<h2>5. Code and Data Availability</h2>
+<p>Complete materials are provided as supplementary files. S1, S2, and S3 are the archival
+implementations of the computational stages exactly as executed in the source research — S1, BERTopic
+optimization with randomized hyperparameter search and coherence-based model selection; S2,
+democratic LLM topic naming; S3, corpus-scale LLM classification — released as plain text for
+archival transparency, with S2 and S3 written against the openai==0.27.0 API and annotated
+accordingly. S4 is the complete LIWC-22 output for all five theme corpora (117 variables per corpus),
+from which the Stage 5 psycholinguistic profiles derive. Because the legacy OpenAI interface has since
+been retired, the supplements are accompanied by a maintained working pipeline — configuration, the
+five stage scripts, an orchestrator, and a synthetic-data generator for cost-free smoke testing —
+written against the current OpenAI SDK with identical prompts, decoding parameters, and search
+spaces, a seeded hyperparameter search, and an enforced benchmark-agreement gate before corpus-scale
+classification. Each stage emits its audit artifacts (hyperparameter logs, vote ballots and tallies,
+benchmark reports, test results) so that any deployment can publish its measurement pedigree
+alongside its findings. A browser-based implementation of the full pipeline, which runs client-side
+with the user's own LLM API key, accompanies this preprint.</p>
+
+<h2>References</h2>
+<div class="refs">
+<p>Bergstra, J., &amp; Bengio, Y. (2012). Random search for hyper-parameter optimization. <em>Journal of Machine Learning Research, 13</em>(2). https://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf</p>
+<p>Bird, S., Klein, E., &amp; Loper, E. (2009). <em>Natural language processing with Python.</em> O'Reilly Media, Inc. https://www.nltk.org/book/</p>
+<p>Bland, J. M., &amp; Altman, D. G. (1995). Multiple significance tests: the Bonferroni method. <em>BMJ, 310</em>, 170. https://doi.org/10.1136/bmj.310.6973.170</p>
+<p>Blei, D. M., Ng, A. Y., &amp; Jordan, M. I. (2003). Latent dirichlet allocation. <em>Journal of Machine Learning Research, 3</em>, 993–1022. https://www.jmlr.org/papers/volume3/blei03a/blei03a.pdf</p>
+<p>Boyd, R. L., Ashokkumar, A., Seraj, S., &amp; Pennebaker, J. W. (2022). <em>The development and psychometric properties of LIWC-22.</em> Austin, TX: University of Texas at Austin, 1–47. https://www.liwc.app/static/documents/LIWC-22%20Manual%20-%20Development%20and%20Psychometrics.pdf</p>
+<p>Braun, V., &amp; Clarke, V. (2006). Using thematic analysis in psychology. <em>Qualitative Research in Psychology, 3</em>(2), 77–101. https://doi.org/10.1191/1478088706qp063oa</p>
+<p>Campello, R. J., Moulavi, D., &amp; Sander, J. (2013, April). Density-based clustering based on hierarchical density estimates. In <em>Pacific-Asia conference on knowledge discovery and data mining</em> (pp. 160–172). Berlin, Heidelberg: Springer. https://doi.org/10.1007/978-3-642-37456-2_14</p>
+<p>Chae, Y., &amp; Davidson, T. (2023). Large language models for text classification: From zero-shot learning to fine-tuning. <em>Open Science Foundation.</em> https://doi.org/10.31235/osf.io/sthwk</p>
+<p>Chung, C. K., &amp; Pennebaker, J. W. (2012). Linguistic inquiry and word count (LIWC): pronounced "Luke,"… and other useful facts. In <em>Applied natural language processing: Identification, investigation and resolution</em> (pp. 206–229). IGI Global. http://doi.org/10.4018/978-1-60960-741-8.ch012</p>
+<p>Egger, R., &amp; Yu, J. (2022). A topic modeling comparison between LDA, NMF, Top2Vec, and BERTopic to demystify twitter posts. <em>Frontiers in Sociology, 7</em>, 886498. https://doi.org/10.3389/fsoc.2022.886498</p>
+<p>Fields, J., Chovanec, K., &amp; Madiraju, P. (2024). A survey of text classification with transformers: How wide? how large? how long? how accurate? how expensive? how safe? <em>IEEE Access, 12</em>, 6518–6531. https://doi.org/10.1109/ACCESS.2024.3349952</p>
+<p>Gillies, M., Murthy, D., Brenton, H., &amp; Olaniyan, R. (2022). Theme and Topic: How qualitative research and topic modeling can be brought together. <em>arXiv.</em> https://arxiv.org/abs/2210.00707</p>
+<p>Grootendorst, M. (2022). BERTopic: Neural topic modeling with a class-based TF-IDF procedure. <em>arXiv preprint</em> arXiv:2203.05794. https://doi.org/10.48550/arXiv.2203.05794</p>
+<p>Haman, M. (2020). The use of Twitter by state leaders and its impact on the public during the COVID-19 pandemic. <em>Heliyon, 6</em>(11). https://doi.org/10.1016/j.heliyon.2020.e05540</p>
+<p>Kuiper, R. M., &amp; Ryan, O. (2018). Drawing conclusions from cross-lagged relationships: Re-considering the role of the time-interval. <em>Structural Equation Modeling, 25</em>(4), 809–823. https://doi.org/10.1080/10705511.2018.1431046</p>
+<p>Lee, J., Ouellette, R. R., Murthy, D., Pretzer, B., Anand, T., &amp; Kong, G. (2024). Identifying e-cigarette content on TikTok: Using a BERTopic modeling approach. <em>Nicotine &amp; Tobacco Research</em>, ntae171. https://doi.org/10.1093/ntr/ntae171</p>
+<p>Li, D., Zhang, B., &amp; Zhou, Y. (2023, July 21). Can Large Language Models (LLM) label topics from a topic model? <em>SocArXiv.</em> https://doi.org/10.31235/osf.io/23x4m</p>
+<p>Martino, F., Brooks, R., Browne, J., Carah, N., Zorbas, C., Corben, K., Saleeba, E., Martin, J., Peeters, A., &amp; Backholer, K. (2021). The nature and extent of online marketing by Big Food and Big Alcohol during the COVID-19 pandemic in Australia: Content analysis study. <em>JMIR Public Health and Surveillance, 7</em>(3), e25202. https://doi.org/10.2196/25202</p>
+<p>McInnes, L., Healy, J., &amp; Melville, J. (2018). UMAP: Uniform manifold approximation and projection for dimension reduction. <em>arXiv preprint</em> arXiv:1802.03426. https://doi.org/10.48550/arXiv.1802.03426</p>
+<p>Murthy, D. (2018). <em>Twitter: Social communication in the twitter age</em> (2nd ed.). Polity Press. http://lccn.loc.gov/2017031442</p>
+<p>Murthy, D. (2024). Sociology of Twitter/X: Trends, challenges, and future research directions. <em>Annual Review of Sociology, 50</em>. https://doi.org/10.1146/annurev-soc-031021-035658</p>
+<p>Newman, D., Lau, J. H., Grieser, K., &amp; Baldwin, T. (2010, June). Automatic evaluation of topic coherence. In <em>Human Language Technologies: The 2010 Annual Conference of the North American Chapter of the ACL</em> (pp. 100–108). https://aclanthology.org/N10-1012.pdf</p>
+<p>Nowell, L. S., Norris, J. M., White, D. E., &amp; Moules, N. J. (2017). Thematic analysis: Striving to meet the trustworthiness criteria. <em>International Journal of Qualitative Methods, 16</em>(1). https://doi.org/10.1177/1609406917733847</p>
+<p>Nunez-Mir, G. C., Iannone III, B. V., Pijanowski, B. C., Kong, N., &amp; Fei, S. (2016). Automated content analysis: addressing the big literature challenge in ecology and evolution. <em>Methods in Ecology and Evolution, 7</em>(11), 1262–1272. https://doi.org/10.1111/2041-210X.12602</p>
+<p>OpenAI. (2024). <em>API Models.</em> https://platform.openai.com/docs/models/overview</p>
+<p>Python Software Foundation. (2022). <em>Python (version 3.9.12).</em> https://www.python.org/</p>
+<p>Rabe-Hesketh, S., &amp; Skrondal, A. (2022). <em>Multilevel and longitudinal modeling using Stata: Volume II: Categorical responses, counts, and survival</em> (4th ed.). Stata Press. https://www.stata.com/bookstore/multilevel-longitudinal-modeling-stata/</p>
+<p>Ramos, J. (2003, December). Using tf-idf to determine word relevance in document queries. In <em>Proceedings of the First Instructional Conference on Machine Learning</em> (Vol. 242, No. 1, pp. 29–48).</p>
+<p>Röder, M., Both, A., &amp; Hinneburg, A. (2015, February). Exploring the space of topic coherence measures. In <em>Proceedings of the Eighth ACM International Conference on Web Search and Data Mining</em> (pp. 399–408). https://doi.org/10.1145/2684822.2685324</p>
+<p>Rufai, S. R., &amp; Bunce, C. (2020). World leaders' usage of Twitter in response to the COVID-19 pandemic: a content analysis. <em>Journal of Public Health, 42</em>(3), 510–516. https://doi.org/10.1093/pubmed/fdaa049</p>
+<p>StataCorp. (2021). <em>Stata Statistical Software: Release 17.</em> StataCorp LLC. https://www.stata.com</p>
+<p>Tausczik, Y. R., &amp; Pennebaker, J. W. (2010). The psychological meaning of words: LIWC and computerized text analysis methods. <em>Journal of Language and Social Psychology, 29</em>(1), 24–54. https://doi.org/10.1177/0261927X09351676</p>
+<p>Valkenburg, P. M., &amp; Peter, J. (2013). The differential susceptibility to media effects model. <em>Journal of Communication, 63</em>(2), 221–243. https://doi.org/10.1111/jcom.12024</p>
+<p>Wang, W., et al. (2020). <em>all-MiniLM-L6-v2</em> [Pretrained transformer model]. Hugging Face. https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2</p>
+</div>
+
+</div>
+</body>
+</html>
