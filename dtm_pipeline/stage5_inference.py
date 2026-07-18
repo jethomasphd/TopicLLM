@@ -1,0 +1,135 @@
+"""
+stage5_inference.py — From classifications to inference (Stage 5).
+
+Three downstream analyses packaged with the reference implementation:
+  1. Proportional z-tests comparing theme prevalence across periods, with a
+     Bonferroni correction of alpha / (n_themes x tests_per_theme).
+  2. LIWC hand-off — per-theme concatenated corpora written as .txt for
+     LIWC-22 (commercial software; run externally, as in the paper).
+  3. Cross-lagged panel hand-off — generates the Stata .do file specifying
+     the GSEM model (Gaussian/identity for standardized continuous exposure,
+     Bernoulli/logit for binary user-generation indicators, robust SEs),
+     matching the reference specification.
+
+Inputs   : pipeline_output/stage4/classified_corpus.csv (needs a 'date'
+           column in the source CSV for the period comparisons)
+Artifacts: pipeline_output/stage5/
+             prevalence_by_period.csv
+             ztest_results.csv
+             liwc_corpora/<theme>.txt
+             crosslagged_gsem.do
+"""
+
+import os
+import re
+from itertools import combinations
+
+import pandas as pd
+from statsmodels.stats.proportion import proportions_ztest
+
+from config import CONFIG
+
+
+def slug(name: str) -> str:
+    """Filesystem-safe theme name."""
+    return re.sub(r"[^A-Za-z0-9]+", "_", name).strip("_")
+
+
+def run_stage5(cfg=CONFIG) -> str:
+    out = os.path.join(cfg.output_dir, "stage5")
+    os.makedirs(out, exist_ok=True)
+    corpus = pd.read_csv(os.path.join(cfg.output_dir, "stage4", "classified_corpus.csv"))
+
+    # ---- 1. Prevalence + proportional z-tests ------------------------------
+    if "date" in corpus.columns:
+        corpus["date"] = pd.to_datetime(corpus["date"], errors="coerce")
+        corpus["period"] = None
+        for name, (start, end) in cfg.periods.items():
+            mask = corpus["date"].between(pd.Timestamp(start), pd.Timestamp(end))
+            corpus.loc[mask, "period"] = name
+        in_period = corpus.dropna(subset=["period"])
+
+        totals = in_period.groupby("period").size()
+        prev_rows, test_rows = [], []
+        period_pairs = list(combinations(cfg.periods.keys(), 2))
+        # Bonferroni: alpha / (n_themes x tests per theme) — reference design
+        # runs 3 pairwise tests per theme (pre-peri, peri-post, pre-post).
+        alpha_adj = cfg.alpha / (len(cfg.themes) * len(period_pairs))
+        print(f"[stage5] Bonferroni-adjusted alpha = {cfg.alpha} / "
+              f"({len(cfg.themes)} themes x {len(period_pairs)} tests) = {alpha_adj:.4f}")
+
+        for theme in cfg.themes:
+            counts = (in_period.assign(hit=in_period["theme"] == theme)
+                      .groupby("period")["hit"].sum())
+            row = {"theme": theme}
+            for p in cfg.periods:
+                n, k = int(totals.get(p, 0)), int(counts.get(p, 0))
+                row[f"{p}_pct"] = round(100 * k / n, 2) if n else None
+                row[f"{p}_n"] = n
+            prev_rows.append(row)
+
+            for a, b in period_pairs:
+                ka, na = int(counts.get(a, 0)), int(totals.get(a, 0))
+                kb, nb = int(counts.get(b, 0)), int(totals.get(b, 0))
+                if min(na, nb) == 0:
+                    continue
+                z, p_val = proportions_ztest([ka, kb], [na, nb])
+                pa, pb = ka / na, kb / nb
+                test_rows.append({
+                    "theme": theme, "comparison": f"{a} vs {b}",
+                    f"prop_{a}": round(pa, 4), f"prop_{b}": round(pb, 4),
+                    "pct_change": round(100 * (pb - pa) / pa, 1) if pa else None,
+                    "z": round(float(z), 3), "p": float(p_val),
+                    "significant_bonferroni": bool(p_val < alpha_adj),
+                })
+
+        pd.DataFrame(prev_rows).to_csv(os.path.join(out, "prevalence_by_period.csv"), index=False)
+        pd.DataFrame(test_rows).to_csv(os.path.join(out, "ztest_results.csv"), index=False)
+        print(f"[stage5] Prevalence table and {len(test_rows)} z-tests written.")
+    else:
+        print("[stage5] No 'date' column — skipping period prevalence/z-tests.")
+
+    # ---- 2. LIWC hand-off ---------------------------------------------------
+    liwc_dir = os.path.join(out, "liwc_corpora")
+    os.makedirs(liwc_dir, exist_ok=True)
+    for theme in cfg.themes:
+        texts = corpus.loc[corpus["theme"] == theme, "tweet"].astype(str)
+        path = os.path.join(liwc_dir, f"{slug(theme)}.txt")
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("\n".join(texts))
+        print(f"[stage5]   LIWC corpus: {path} ({len(texts):,} documents)")
+    print("[stage5] Run LIWC-22 on liwc_corpora/*.txt to reproduce the "
+          "psycholinguistic profiles (LIWC is commercial software).")
+
+    # ---- 3. Cross-lagged panel hand-off (Stata GSEM) ------------------------
+    do_file = os.path.join(out, "crosslagged_gsem.do")
+    with open(do_file, "w") as f:
+        f.write(
+"""* crosslagged_gsem.do — generated by stage5_inference.py
+* Cross-lagged panel model (reference specification):
+*   exposure_t1/t2 : z-standardized potential-exposure indices (continuous)
+*   usergen_t1/t2  : binary indicators of user-generated theme content
+* Expected input: a per-account CSV with those four columns.
+
+import delimited "crosslagged_input.csv", clear
+
+* Standardize exposure indices (z-scores), as in the reference analysis
+egen z_exp_t1 = std(exposure_t1)
+egen z_exp_t2 = std(exposure_t2)
+
+* GSEM: autoregressive, cross-sectional, and cross-lagged paths.
+* Gaussian/identity links for continuous; Bernoulli/logit for binary.
+* Robust standard errors for heteroscedasticity / non-normality.
+gsem (z_exp_t2  <- z_exp_t1 usergen_t1, family(gaussian) link(identity)) ///
+     (usergen_t2 <- usergen_t1 z_exp_t1, family(bernoulli) link(logit)),  ///
+     vce(robust)
+
+estat ic
+""")
+    print(f"[stage5]   Stata model file: {do_file}")
+    print(f"[stage5] DONE — artifacts in {out}/")
+    return out
+
+
+if __name__ == "__main__":
+    run_stage5()
