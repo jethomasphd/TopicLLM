@@ -40,7 +40,8 @@ export async function embedMiniLM(docs, onProgress) {
     const res = await extractor(batch, { pooling: "mean", normalize: true });
     const [n, dim] = res.dims;
     for (let r = 0; r < n; r++) out.push(Float32Array.from(res.data.slice(r * dim, (r + 1) * dim)));
-    if (onProgress) onProgress(`embedding ${Math.min(i + BATCH, docs.length)}/${docs.length}`);
+    const done = Math.min(i + BATCH, docs.length);
+    if (onProgress) onProgress(`embedding ${done}/${docs.length}`, done / docs.length);
   }
   return out;
 }
@@ -87,7 +88,7 @@ export function embedHashed(docs, onProgress) {
     norm = Math.sqrt(norm) || 1;
     for (let i = 0; i < HASH_DIM; i++) v[i] /= norm;
     out.push(v);
-    if (onProgress && (d + 1) % 200 === 0) onProgress(`embedding ${d + 1}/${docs.length}`);
+    if (onProgress && (d + 1) % 200 === 0) onProgress(`embedding ${d + 1}/${docs.length}`, (d + 1) / docs.length);
   }
   return out;
 }
