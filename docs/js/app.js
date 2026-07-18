@@ -29,20 +29,78 @@ const DEFAULT_STOPWORDS = "budlight,budweiser,truly,malibu,jagermeister,samuelad
 const $ = id => document.getElementById(id);
 const on = (id, evt, fn) => $(id).addEventListener(evt, fn);
 
+/* ---------------------- terminal output plumbing ------------------------- */
+
+const GLYPH = { cmd: "$", info: "›", meta: "·", ok: "✓", best: "✓", warn: "!" };
+const termStart = {};   // boxId -> t0 of current run
+
+function stamp(boxId) {
+  if (!termStart[boxId]) termStart[boxId] = Date.now();
+  const s = (Date.now() - termStart[boxId]) / 1000;
+  return `[${String(Math.floor(s / 60)).padStart(2, "0")}:${(s % 60).toFixed(1).padStart(4, "0")}]`;
+}
+
 function log(boxId, text, level = "info") {
   const box = $(boxId);
   const line = document.createElement("div");
   line.className = "log-line " + level;
-  line.textContent = text;
-  box.appendChild(line);
+  line.innerHTML = `<span class="t">${stamp(boxId)}</span><span class="g">${GLYPH[level] || "›"}</span><span class="tx"></span>`;
+  line.querySelector(".tx").textContent = text;
+  // keep the progress line pinned to the bottom
+  const prog = box.querySelector(".log-progress");
+  box.insertBefore(line, prog || null);
   box.scrollTop = box.scrollHeight;
+}
+
+/** Echo the command being executed — the code-confirmation line. */
+function logCmd(boxId, code) {
+  termStart[boxId] = Date.now();   // a new command restarts the clock
+  log(boxId, code, "cmd");
+}
+
+const asciiBar = (frac, width = 24) => {
+  const f = Math.max(0, Math.min(width, Math.round(frac * width)));
+  return "█".repeat(f) + "░".repeat(width - f);
+};
+
+/** Live progress line, pinned at the terminal's bottom edge. */
+function setTermProgress(boxId, frac, label = "") {
+  const box = $(boxId);
+  let prog = box.querySelector(".log-progress");
+  if (frac == null) { if (prog) prog.remove(); return; }
+  if (!prog) {
+    prog = document.createElement("div");
+    prog.className = "log-line log-progress";
+    box.appendChild(prog);
+  }
+  prog.innerHTML = `<span class="t">${stamp(boxId)}</span><span class="g">▸</span><span class="tx"></span>`;
+  prog.querySelector(".tx").textContent =
+    `${asciiBar(frac)} ${String(Math.round(frac * 100)).padStart(3)}%  ${label}`;
+  box.scrollTop = box.scrollHeight;
+}
+
+function termStatus(n, text) {
+  const el = $(`tstat-${n}`);
+  if (el) el.textContent = text;
 }
 
 function setStageState(n, state, note = "") {
   const badge = $(`badge-${n}`);
-  badge.className = "badge " + state;
-  badge.textContent = { idle: "not run", running: "running…", done: "complete", blocked: "blocked", error: "error" }[state] || state;
-  if (note) badge.title = note;
+  if (badge) {
+    badge.className = "badge " + state;
+    badge.textContent = { idle: "not run", running: "running…", done: "complete", blocked: "blocked", error: "error" }[state] || state;
+    if (note) badge.title = note;
+  }
+  const term = $(`log-${n}`)?.closest(".term");
+  if (term) term.classList.toggle("running", state === "running");
+  termStatus(n, { idle: "idle", running: "running", done: "exit 0", blocked: "gate refused", error: "exit 1" }[state] || state);
+  const step = $(`step-${n}`);
+  if (step) {
+    step.classList.remove("running", "done", "blocked");
+    if (state === "running") step.classList.add("running");
+    else if (state === "done") step.classList.add("done");
+    else if (state === "blocked" || state === "error") step.classList.add("blocked");
+  }
 }
 
 /* --------------------------- data loading -------------------------------- */
@@ -58,34 +116,45 @@ function summarizeData() {
     (S.benchmark ? ` Benchmark: <strong>${S.benchmark.length}</strong> human-labeled documents.`
                  : " No benchmark loaded (needed for Stage 4).");
   $("run1").disabled = !S.corpus;
+  $("step-0")?.classList.toggle("done", !!S.corpus);
 }
 
 function loadDemo() {
+  logCmd("log-0", "make_demo_data(seed=7)   # synthetic corpus — no real data required");
   const { corpus, benchmark } = makeDemoData(7);
   S.corpus = corpus; S.benchmark = benchmark; S.textCol = "tweet"; S.isDemo = true;
   $("stopwords").value = "";  // demo corpus has no brand terms
   summarizeData();
-  log("log-1", "Demo corpus generated: 600 synthetic documents, 250-document benchmark.");
+  log("log-0", `corpus  → 600 documents across 5 latent themes + noise, dated 2019–2021`, "ok");
+  log("log-0", `benchmark → 250 human-labeled documents (columns: tweet, human_label)`, "ok");
+  log("log-0", "ready — run Stage 1 below", "meta");
+  termStatus(0, "corpus loaded");
 }
 
 async function readFileText(file) { return await file.text(); }
 
 async function loadCorpusFile(file) {
+  logCmd("log-0", `load_corpus("${file.name}")`);
   const { header, rows } = parseCSV(await readFileText(file));
-  if (!rows.length) { alert("No rows found in the CSV."); return; }
+  if (!rows.length) { log("log-0", "no rows found in the CSV", "warn"); return; }
   const textCol = header.includes("tweet") ? "tweet"
     : header.includes("text") ? "text" : header[0];
   S.corpus = rows; S.textCol = textCol; S.isDemo = false;
   summarizeData();
+  log("log-0", `parsed ${rows.length.toLocaleString()} rows · columns: ${header.join(", ")}`, "ok");
+  log("log-0", `text column → "${textCol}"${header.includes("date") ? " · date column found (Stage 5 enabled)" : " · no date column (Stage 5 period tests will be skipped)"}`, "meta");
+  termStatus(0, "corpus loaded");
 }
 
 async function loadBenchmarkFile(file) {
+  logCmd("log-0", `load_benchmark("${file.name}")`);
   const { header, rows } = parseCSV(await readFileText(file));
   if (!(header.includes("tweet") && header.includes("human_label"))) {
-    alert("Benchmark CSV needs columns: tweet, human_label"); return;
+    log("log-0", "benchmark CSV needs columns: tweet, human_label", "warn"); return;
   }
   S.benchmark = rows;
   summarizeData();
+  log("log-0", `parsed ${rows.length} human-labeled documents — Stage 4's measuring stick`, "ok");
 }
 
 /* ------------------------- provider settings ----------------------------- */
@@ -157,28 +226,40 @@ function stage1Config() {
 
 function runStage1() {
   if (!S.corpus) return;
+  const cfg = stage1Config();
   $("run1").disabled = true; $("cancel1").disabled = false;
   $("log-1").innerHTML = ""; $("stage1-results").hidden = true;
   setStageState(1, "running");
   let modelCount = 0;
+
+  logCmd("log-1", `run_stage1(seed=${cfg.randomSeed}, iterations=${cfg.searchIterations}, topic_range=[2,${cfg.topicMax}], embedder="${cfg.embedder}")`);
+  log("log-1", `umap_space    = {n_neighbors:[5..35], n_components:[3..10], min_dist:[0.01,0.05,0.1,0.5], metric:"cosine"}`, "meta");
+  log("log-1", `hdbscan_space = {min_cluster_size:[5..35], metric:"euclidean", selection:"eom"}`, "meta");
+  log("log-1", `objective     = argmax c_v coherence over ~${cfg.searchIterations * (cfg.topicMax - 1)} candidate models`, "meta");
 
   worker = new Worker(new URL("./worker1.js", import.meta.url), { type: "module" });
   worker.onmessage = (e) => {
     const msg = e.data;
     if (msg.type === "status") log("log-1", msg.text, msg.level || "info");
     else if (msg.type === "iteration") {
-      log("log-1", `Iteration ${msg.iteration}/${msg.total} — UMAP ${JSON.stringify(msg.umapParams)} · HDBSCAN ${JSON.stringify(msg.hdbParams)}`);
+      log("log-1", `--- iteration ${msg.iteration}/${msg.total} · draw: umap{k=${msg.umapParams.n_neighbors}, d=${msg.umapParams.n_components}, min_dist=${msg.umapParams.min_dist}} hdbscan{m=${msg.hdbParams.min_cluster_size}}`);
+    } else if (msg.type === "progress") {
+      setTermProgress("log-1", msg.frac, msg.label);
     } else if (msg.type === "model") {
       modelCount++;
-      if (modelCount % 5 === 0) $("s1-count").textContent = `${modelCount} candidate models scored`;
+      $("s1-count").textContent = `${modelCount} candidate models scored`;
     } else if (msg.type === "best") {
-      log("log-1", `** New best: coherence ${msg.coherence.toFixed(4)} at ${msg.nTopics} topics (iteration ${msg.iteration}) **`, "best");
+      log("log-1", `new best → coherence ${msg.coherence.toFixed(4)} at ${msg.nTopics} topics (iteration ${msg.iteration})`, "best");
     } else if (msg.type === "error") {
       log("log-1", msg.message, "warn"); setStageState(1, "error");
+      setTermProgress("log-1", null);
       $("run1").disabled = false; $("cancel1").disabled = true;
     } else if (msg.type === "done") {
       S.stage1 = msg.payload;
       S.stage2 = S.stage3 = S.stage4 = S.stage5 = null;
+      setTermProgress("log-1", null);
+      log("log-1", `${modelCount} models scored in ${(msg.payload.elapsedMs / 1000).toFixed(1)}s`, "ok");
+      log("log-1", "artifacts ready: all_iteration_results.json · parameters.json · topics_for_naming.csv · classified_tweets.csv", "meta");
       renderStage1();
       setStageState(1, "done");
       $("run1").disabled = false; $("cancel1").disabled = true;
@@ -189,14 +270,15 @@ function runStage1() {
   worker.postMessage({
     rows: S.corpus, textCol: S.textCol,
     customStopwords: $("stopwords").value,
-    config: stage1Config(),
+    config: cfg,
   });
 }
 
 function cancelStage1() {
   if (worker) { worker.terminate(); worker = null; }
   setStageState(1, "idle");
-  log("log-1", "Stage 1 cancelled.", "warn");
+  setTermProgress("log-1", null);
+  log("log-1", "^C — search cancelled", "warn");
   $("run1").disabled = false; $("cancel1").disabled = true;
 }
 
@@ -260,14 +342,18 @@ async function runStage2() {
 
   $("run2").disabled = true; setStageState(2, "running");
   $("log-2").innerHTML = ""; $("stage2-results").hidden = true;
-  log("log-2", `Model: ${provider.label} · up to ${votesPerTopic} votes/topic · early stop ${earlyStop ? "on" : "off"}`);
-  log("log-2", `Reference implementation uses 5,000 votes/topic; tune for cost as the paper discusses.`);
+  logCmd("log-2", `run_stage2(votes_per_topic=${votesPerTopic}, temperature=0.5, max_tokens=15, model="${provider.model}", concurrency=${concurrency}${earlyStop ? `, early_stop={window:${earlyWindow}, share:${earlyShare}}` : ""})`);
+  log("log-2", `prompt = "The following words represent a topic derived from ${domain}: {words}. Please provide a concise, meaningful topic name that clearly summarizes these words."`, "meta");
+  log("log-2", `system = "You are an expert at naming topics."  · reference budget: 5,000 votes/topic`, "meta");
+  if (provider.model === "mock-demo") log("log-2", "provider is the demo mock — labels are synthesized, not from a real LLM", "warn");
 
+  const totalPlanned = S.stage1.topicsForNaming.length * votesPerTopic;
+  let completedAll = 0;
   const ballots = [], winners = [];
   for (const t of S.stage1.topicsForNaming) {
     const counts = new Map(), display = new Map();
     let issued = 0, completed = 0, stopped = false;
-    log("log-2", `Topic ${t.topic}: [${t.words}]`);
+    log("log-2", `topic ${t.topic} ← [${t.words}]`);
     const prompt =
       `The following words represent a topic derived from ${domain}: ${t.words}. ` +
       `Please provide a concise, meaningful topic name that clearly summarizes these words. `;
@@ -290,10 +376,13 @@ async function runStage2() {
         counts.set(key, (counts.get(key) || 0) + 1);
         ballots.push({ topic: t.topic, vote_index: r.vote_index, label: r.label });
       }
+      completedAll += results.length;
       const [leadKey, leadN] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
-      $("s2-live").textContent = `Topic ${t.topic}: ${completed}/${votesPerTopic} votes — leader: “${display.get(leadKey)}” (${pct(leadN / completed)})`;
+      setTermProgress("log-2", completedAll / totalPlanned,
+        `topic ${t.topic} · ${completed}/${votesPerTopic} votes · leader “${display.get(leadKey)}” ${pct(leadN / completed)}`);
       if (earlyStop && completed >= earlyWindow && leadN / completed >= earlyShare) {
-        log("log-2", `Early stop at ${completed} votes (leader share ${pct(leadN / completed)} ≥ ${pct(earlyShare, 0)})`);
+        log("log-2", `early stop at ${completed} votes — leader share ${pct(leadN / completed)} ≥ ${pct(earlyShare, 0)}`, "ok");
+        completedAll += votesPerTopic - completed; // credit skipped votes to the bar
         stopped = true;
       }
     }
@@ -307,11 +396,14 @@ async function runStage2() {
       modal_share: +(winN / total).toFixed(4),
       margin_over_runner_up: +margin.toFixed(4),
     });
-    log("log-2", `WINNER — topic ${t.topic}: “${display.get(winKey)}” (${winN}/${total} = ${pct(winN / total)})`, "best");
+    log("log-2", `modal label — topic ${t.topic}: “${display.get(winKey)}” (${winN}/${total} = ${pct(winN / total)}${margin < 0.15 ? " · narrow margin, scrutinize in Stage 3" : ""})`, "best");
   }
 
   S.stage2 = { ballots, winners, model: provider.model };
   S.stage3 = S.stage4 = S.stage5 = null;
+  setTermProgress("log-2", null);
+  log("log-2", `${ballots.length.toLocaleString()} ballots cast · tallies written`, "ok");
+  log("log-2", "artifacts ready: vote_log.csv · vote_tallies.csv · topic_names.csv", "meta");
   renderStage2();
   setStageState(2, "done");
   $("run2").disabled = false;
@@ -389,6 +481,11 @@ function buildStage3() {
   });
   $("stage3-body").hidden = false;
   setStageState(3, "idle");
+  logCmd("log-3", `build_review_packet(topics=${S.stage2.winners.length}, sample_per_topic=15, seed=${parseInt($("cfg-seed").value, 10) || 42})`);
+  log("log-3", "packet assembled — for each topic: modal label, vote share, representative words, sampled documents", "ok");
+  log("log-3", "protocol: PRIMARY researcher reads samples against the domain literature and proposes themes;", "meta");
+  log("log-3", "SENIOR researcher independently critiques; consensus is recorded below. This stage is yours.", "meta");
+  termStatus(3, "awaiting consensus");
 }
 
 function recordConsensus() {
@@ -403,6 +500,11 @@ function recordConsensus() {
   if (!themes.length) { alert("Enter at least one consensus theme before recording."); return; }
   S.stage3 = { themeMap, themes };
   S.stage4 = S.stage5 = null;
+  logCmd("log-3", `record_consensus(themes=[${themes.map(t => `"${t}"`).join(", ")}])`);
+  for (const m of themeMap) {
+    log("log-3", `topic ${String(m.topic).padStart(2)} “${m.modal_label}” → ${m.theme || "(unmapped — treated as noise)"}`, m.theme ? "ok" : "meta");
+  }
+  log("log-3", "theme_map.csv written — Stage 4 unlocked", "ok");
   $("s3-summary").innerHTML =
     `Consensus recorded: <strong>${themes.length} themes</strong> — ${themes.map(escapeHTML).join(" · ")}. ` +
     `${themeMap.filter(m => !m.theme).length} topic(s) left unmapped (treated as noise).`;
@@ -498,7 +600,9 @@ async function llmClassify(provider, texts, concurrency, progressLabel) {
       () => provider.chat("You are an expert at classifying text into themes.", classifyPrompt(text), { temperature: 0.5, maxTokens: 30 }),
       5, (err, n, wait) => log("log-4", `API error (${String(err).slice(0, 80)}); retry ${n}/5 in ${wait / 1000}s`, "warn"))));
   return await pool(tasks, concurrency, (done, total) => {
-    if (done % 25 === 0 || done === total) $("s4-live").textContent = `${progressLabel}: ${done}/${total}`;
+    if (done % 5 === 0 || done === total) {
+      setTermProgress("log-4", done / total, `${progressLabel} · ${done}/${total} documents classified`);
+    }
   });
 }
 
@@ -517,10 +621,17 @@ async function runStage4() {
 
   $("run4").disabled = true; setStageState(4, "running");
   $("log-4").innerHTML = ""; $("stage4-results").hidden = true;
-  log("log-4", `Benchmarking against ${S.benchmark.length} human-labeled documents… (model: ${provider.label})`);
+  const options = optionList();
+  logCmd("log-4", `run_stage4(threshold=${threshold}, model="${provider.model}", temperature=0.5, max_tokens=30, concurrency=${concurrency})`);
+  log("log-4", `options = [${options.map((o, i) => `${i + 1}. ${o}`).join(", ")}]`, "meta");
+  log("log-4", `prompt  = "Classify the following text into one of the following ${options.length} themes: {options}. Text: {document}. Respond with verbatim classification…"`, "meta");
+  if (provider.model === "mock-demo") log("log-4", "provider is the demo mock — predictions are keyword-based, not from a real LLM", "warn");
 
+  log("log-4", `pilot A: boolean dictionaries from ${Object.keys(dict).length} themes (union of constituent topics' words, ≥2 hits to claim)`);
   const benchRows = S.benchmark.map(b => ({ tweet: b.tweet, human_label: b.human_label }));
   for (const b of benchRows) b.boolean_pred = booleanClassify(b.tweet, dict);
+  log("log-4", `boolean pilot classified ${benchRows.length} benchmark documents`, "ok");
+  log("log-4", `pilot B: LLM classifier on the same ${benchRows.length} documents…`);
   const llmPreds = await llmClassify(provider, benchRows.map(b => b.tweet), concurrency, "benchmark");
   benchRows.forEach((b, i) => { b.llm_pred = llmPreds[i]; });
 
@@ -532,13 +643,16 @@ async function runStage4() {
     boolean_agreement: +agree("boolean_pred").toFixed(4),
     threshold, model: provider.model,
   };
-  log("log-4", `LLM agreement: ${pct(report.llm_agreement)} · Boolean agreement: ${pct(report.boolean_agreement)}`);
+  setTermProgress("log-4", null);
+  log("log-4", `agreement vs human benchmark — LLM: ${pct(report.llm_agreement)} · boolean: ${pct(report.boolean_agreement)} · gate: ${pct(threshold, 0)}`, "ok");
 
   const winner = report.llm_agreement >= report.boolean_agreement
     ? ["llm", report.llm_agreement] : ["boolean", report.boolean_agreement];
   if (winner[1] < threshold) {
     setStageState(4, "blocked");
     S.stage4 = { report, benchRows, classified: null, winner: null };
+    log("log-4", `GATE REFUSED — best classifier ("${winner[0]}", ${pct(winner[1])}) < ${pct(threshold, 0)}. Nothing was scaled.`, "warn");
+    log("log-4", "refine the prompt or theme dictionaries (or revisit Stage 3 groupings) and re-benchmark", "meta");
     $("s4-summary").innerHTML =
       `<span class="fail">Gate refused:</span> best classifier (“${winner[0]}”, ${pct(winner[1])}) is below the ` +
       `${pct(threshold, 0)} agreement threshold. Refine the prompt or theme dictionaries and re-benchmark — ` +
@@ -548,7 +662,7 @@ async function runStage4() {
     $("run4").disabled = false;
     return;
   }
-  log("log-4", `Scaling the “${winner[0]}” classifier (${pct(winner[1])} agreement) to ${S.corpus.length.toLocaleString()} documents…`, "best");
+  log("log-4", `gate passed — scaling the "${winner[0]}" classifier (${pct(winner[1])} agreement) to ${S.corpus.length.toLocaleString()} documents…`, "best");
 
   let themes;
   const texts = S.corpus.map(r => r[S.textCol]);
@@ -558,6 +672,9 @@ async function runStage4() {
 
   S.stage4 = { report, benchRows, classified, winner: winner[0] };
   S.stage5 = null;
+  setTermProgress("log-4", null);
+  log("log-4", `${classified.length.toLocaleString()} documents labeled — every document has exactly one theme`, "ok");
+  log("log-4", "artifacts ready: benchmark_report.json · benchmark_predictions.csv · classified_corpus.csv", "meta");
   renderStage4();
   setStageState(4, "done");
   $("run4").disabled = false; $("run5").disabled = false;
@@ -611,6 +728,8 @@ function runStage5() {
   const hasDate = classified.some(r => r.date);
 
   setStageState(5, "running");
+  $("log-5").innerHTML = "";
+  logCmd("log-5", `run_stage5(periods={${Object.entries(periods).map(([n, [s, e]]) => `${n}:["${s}","${e}"]`).join(", ")}}, alpha=${alpha})`);
   let prevRows = [], testRows = [], alphaAdj = null;
 
   if (hasDate && Object.keys(periods).length >= 2) {
@@ -628,6 +747,8 @@ function runStage5() {
     const pairs = [];
     for (let i = 0; i < names.length; i++) for (let j = i + 1; j < names.length; j++) pairs.push([names[i], names[j]]);
     alphaAdj = alpha / (themes.length * pairs.length);
+    log("log-5", `${inPeriod.length.toLocaleString()} of ${classified.length.toLocaleString()} documents fall inside a period · docs/period: ${names.map(n => `${n}=${totals[n] || 0}`).join(", ")}`, "meta");
+    log("log-5", `bonferroni: alpha_adj = ${alpha} / (${themes.length} themes × ${pairs.length} comparisons) = ${alphaAdj.toFixed(4)}`, "meta");
 
     for (const theme of themes) {
       const counts = {};
@@ -643,21 +764,31 @@ function runStage5() {
         if (!na || !nb) continue;
         const { z, p } = proportionsZTest(ka, na, kb, nb);
         const [pa, pb] = [ka / na, kb / nb];
+        const sig = p < alphaAdj;
         testRows.push({
           theme, comparison: `${a} vs ${b}`,
           [`prop_${a}`]: +pa.toFixed(4), [`prop_${b}`]: +pb.toFixed(4),
           pct_change: pa ? +(100 * (pb - pa) / pa).toFixed(1) : null,
-          z: +z.toFixed(3), p: p, significant_bonferroni: p < alphaAdj,
+          z: +z.toFixed(3), p: p, significant_bonferroni: sig,
         });
+        log("log-5", `proportions_ztest("${theme}", ${a}→${b}): ${pct(pa)}→${pct(pb)}  z=${z.toFixed(3).padStart(7)}  p=${p < 0.0001 ? p.toExponential(2) : p.toFixed(4)}${sig ? "  ← significant" : ""}`, sig ? "ok" : "meta");
       }
     }
+    log("log-5", `${testRows.filter(t => t.significant_bonferroni).length} of ${testRows.length} comparisons significant at alpha_adj=${alphaAdj.toFixed(4)}`, "ok");
     S.stage5 = { prevRows, testRows, alphaAdj, periods: names };
     renderStage5();
   } else {
     S.stage5 = { prevRows: [], testRows: [], alphaAdj: null, periods: [] };
+    log("log-5", "no usable date column / periods — period prevalence and z-tests skipped", "warn");
     $("s5-summary").innerHTML = "No usable date column / periods — period tests skipped. LIWC corpora and the GSEM hand-off are still available below.";
     $("s5-chart").innerHTML = ""; $("s5-table").innerHTML = "";
   }
+  for (const theme of themes) {
+    const n = classified.filter(r => r.theme === theme).length;
+    log("log-5", `liwc corpus "${slug(theme)}.txt" ← ${n.toLocaleString()} documents (profile externally with LIWC-22)`, "meta");
+  }
+  log("log-5", "stata hand-off: crosslagged_gsem.do (gaussian/identity + bernoulli/logit, robust SEs)", "meta");
+  log("log-5", "artifacts ready: prevalence_by_period.csv · ztest_results.csv · liwc_corpora.zip · crosslagged_gsem.do", "ok");
   $("stage5-results").hidden = false;
   setStageState(5, "done");
 }
@@ -772,6 +903,13 @@ document.addEventListener("DOMContentLoaded", () => {
   restoreSettings();
   summarizeData();
   $("stopwords").value = DEFAULT_STOPWORDS;
+
+  // stepper: click scrolls to the stage card; states update via setStageState
+  document.querySelectorAll(".stepper li").forEach(li =>
+    li.addEventListener("click", () => {
+      document.querySelector('nav.tabs button[data-tab="analyze"]').click();
+      $(li.dataset.target)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }));
 
   on("btn-demo", "click", loadDemo);
   on("file-corpus", "change", e => e.target.files[0] && loadCorpusFile(e.target.files[0]));
