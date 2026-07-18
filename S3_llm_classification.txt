@@ -1,0 +1,60 @@
+# =============================================================================
+# Supplementary File S3
+# Corpus-scale LLM classification (Pipeline Stage 4)
+#
+# Archival transcription of Appendix 3 of the source dissertation:
+# Thomas, J. E. (2025). Alcohol Marketing on Social Media During the COVID-19
+# Pandemic: Historical Perspectives, Modern Evidence, and Future Regulation.
+# The University of Texas at Austin.
+#
+# Environment of record: Python 3.9.12; openai==0.27.0 (legacy SDK).
+# This file is preserved verbatim for archival transparency. A maintained
+# implementation against the current OpenAI SDK is provided with the working
+# pipeline that accompanies this paper (stage4_classification.py).
+# =============================================================================
+
+# Dependencies
+### This script was written under previous OpenAI API versions. Before Running:
+### pip install openai==0.27.0; after running: pip install --upgrade openai
+import openai
+import pandas as pd
+from tqdm import tqdm  # Import tqdm for the progress bar
+
+# Set up OpenAI API key
+openai.api_key = "********"  # Replace "api_key" with your actual OpenAI API key
+
+# Load the dataset
+df = pd.read_csv('tweet_data.csv')
+# Where tweet_data.csv is a dataset with two columns:
+# tweet (verbatim text from study), GPT (empty, to be filled by API Call)
+
+# Function to call GPT-4o and classify text
+def get_topic_name(words):
+    prompt = (f"Classify the following text into one of the following 6 themes: 1. Alcohol Delivery and Isolation Drinking, 2. Restaurant Support, 3. Social Media Promotions, 4. Sports, 5. Gaming, 6. The text does not fit into any of these themes."
+              f"Text: {words}."
+              f"Respond with verbatim classification using only the specified 6 options.")
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "You are an expert at classifying text into themes."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=30,
+        temperature=0.5,
+        n=1,
+        stop=None
+    )
+
+    topic_name = response['choices'][0]['message']['content'].strip()
+    return topic_name
+
+# Loop through each row and generate the topic name with a progress bar
+tqdm.pandas()
+
+df['GPT'] = df['tweet'].progress_apply(lambda words: get_topic_name(words))
+
+# Save the updated dataframe back to CSV
+df.to_csv('tweet_data_output.csv', index=False)
+
+print("Completed!")

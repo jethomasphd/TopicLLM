@@ -1,0 +1,292 @@
+# =============================================================================
+# Supplementary File S1
+# BERTopic optimization with randomized hyperparameter search and
+# coherence-based model selection (Pipeline Stage 1)
+#
+# Archival transcription of Appendix 1 of the source dissertation:
+# Thomas, J. E. (2025). Alcohol Marketing on Social Media During the COVID-19
+# Pandemic: Historical Perspectives, Modern Evidence, and Future Regulation.
+# The University of Texas at Austin.
+#
+# Environment of record: Python 3.9.12. Expected inputs:
+#   tweet_data.csv        - one column named 'tweet' (verbatim document text)
+#   custom_stopwords.txt  - comma-separated domain stopwords
+# =============================================================================
+
+# Dependencies
+import pandas as pd
+import numpy as np
+from bertopic import BERTopic
+from sklearn.feature_extraction.text import CountVectorizer
+from bertopic.vectorizers import ClassTfidfTransformer
+from umap import UMAP
+from hdbscan import HDBSCAN
+from sentence_transformers import SentenceTransformer
+import matplotlib.pyplot as plt
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from gensim.corpora import Dictionary
+from gensim.models.coherencemodel import CoherenceModel
+import os
+import scipy.cluster.hierarchy as sch
+from sklearn.metrics.pairwise import cosine_similarity
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import wordnet
+import json
+from itertools import product
+import shutil
+
+nltk.download('punkt', quiet=True)
+nltk.download('stopwords', quiet=True)
+nltk.download('averaged_perceptron_tagger', quiet=True)
+nltk.download('wordnet', quiet=True)
+
+print("Libraries imported and NLTK data downloaded successfully.")
+
+# Set up stopwords
+with open('custom_stopwords.txt', 'r') as f:
+    custom_stopwords = set(word.strip().lower() for word in f.read().split(','))
+
+stop_words = set(stopwords.words('english')).union(custom_stopwords)
+
+print(f"Total number of stopwords: {len(stop_words)}")
+
+# Define text cleaning and preprocessing functions
+lemmatizer = WordNetLemmatizer()
+
+def get_wordnet_pos(word):
+    tag = nltk.pos_tag([word])[0][1][0].upper()
+    tag_dict = {"J": wordnet.ADJ,
+                "N": wordnet.NOUN,
+                "V": wordnet.VERB,
+                "R": wordnet.ADV}
+    return tag_dict.get(tag, wordnet.NOUN)
+
+def clean_text(text):
+    text = re.sub(r'[^a-zA-Z]', ' ', text)
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text.lower()
+
+def preprocess_tweet(text):
+    cleaned_text = clean_text(text)
+    tokens = word_tokenize(cleaned_text)
+    lemmatized_tokens = [lemmatizer.lemmatize(token, get_wordnet_pos(token))
+                         for token in tokens if token not in stop_words]
+    return ' '.join(lemmatized_tokens)
+
+print("Text cleaning and preprocessing functions defined.")
+
+# Define coherence computation function
+def compute_coherence(topic_words, texts):
+    dictionary = Dictionary([text.split() for text in texts])
+    corpus = [dictionary.doc2bow(text.split()) for text in texts]
+    coherence_model = CoherenceModel(topics=topic_words,
+                                     texts=[text.split() for text in texts],
+                                     dictionary=dictionary,
+                                     coherence='c_v')
+    return coherence_model.get_coherence()
+
+print("Coherence computation function defined.")
+
+# Define BERTopic model creation function
+def create_bertopic_model(umap_params, hdbscan_params, nr_topics=None):
+    sentence_model = SentenceTransformer("all-MiniLM-L6-v2")
+    umap_model = UMAP(**umap_params)
+    hdbscan_model = HDBSCAN(**hdbscan_params)
+    vectorizer_model = CountVectorizer(stop_words=list(stop_words))
+    ctfidf_model = ClassTfidfTransformer()
+
+    return BERTopic(
+        nr_topics=nr_topics,
+        embedding_model=sentence_model,
+        umap_model=umap_model,
+        hdbscan_model=hdbscan_model,
+        vectorizer_model=vectorizer_model,
+        ctfidf_model=ctfidf_model,
+        verbose=True
+    )
+
+print("BERTopic model creation function defined.")
+
+# Define function to save iteration files
+def save_iteration_files(model, df, topics, n_topics, iteration, umap_params, hdbscan_params):
+    iteration_dir = f"iteration_{iteration}_topics_{n_topics}"
+    os.makedirs(iteration_dir, exist_ok=True)
+
+    df['topic'] = topics
+    tweets_with_topics = df[['tweet', 'topic']]
+    tweets_with_topics.to_csv(os.path.join(iteration_dir, 'classified_tweets.csv'), index=False)
+
+    model.visualize_topics().write_html(os.path.join(iteration_dir, "topic_visualization.html"))
+
+    if len(set(topics)) > 1:
+        model.visualize_hierarchy().write_html(os.path.join(iteration_dir, "topic_hierarchy.html"))
+        model.visualize_heatmap().write_html(os.path.join(iteration_dir, "topic_similarity.html"))
+    else:
+        print(f"Skipping hierarchy and heatmap visualizations for {n_topics} topics due to insufficient unique topics.")
+
+    top_topics = model.get_topic_info()
+    top_topics.to_csv(os.path.join(iteration_dir, 'topic_words.csv'), index=False)
+
+    # Save parameters
+    with open(os.path.join(iteration_dir, 'parameters.json'), 'w') as f:
+        json.dump({
+            'umap_params': {k: v if isinstance(v, (int, float, str)) else v.item() for k, v in umap_params.items()},
+            'hdbscan_params': {k: v if isinstance(v, (int, float, str)) else v.item() for k, v in hdbscan_params.items()},
+            'n_topics': n_topics
+        }, f, indent=2)
+
+print("Function to save iteration files defined.")
+
+# Define topic model evaluation function
+def evaluate_topic_model(documents, topic_range, df, umap_params, hdbscan_params, iteration):
+    results = []
+    for n_topics in topic_range:
+        try:
+            model = create_bertopic_model(umap_params, hdbscan_params, nr_topics=n_topics)
+            topics, _ = model.fit_transform(documents)
+
+            unique_topics = set(topics)
+            if len(unique_topics) < 2:
+                print(f"Skipping {n_topics} topics due to insufficient unique topics.")
+                continue
+
+            save_iteration_files(model, df, topics, n_topics, iteration, umap_params, hdbscan_params)
+
+            topic_words = [model.get_topic(topic) for topic in range(n_topics)]
+            topic_words = [[word for word, _ in topic] for topic in topic_words if topic]
+
+            if len(topic_words) < 2:
+                print(f"Skipping {n_topics} topics due to insufficient topic words.")
+                continue
+
+            coherence = compute_coherence(topic_words, documents)
+            results.append((n_topics, coherence))
+            print(f"Evaluated {n_topics} topics. Coherence: {coherence}")
+
+        except Exception as e:
+            print(f"Error evaluating {n_topics} topics: {str(e)}")
+            continue
+
+    return results
+
+print("Topic model evaluation function defined.")
+
+# Define parameter optimization function
+def optimize_bertopic_parameters(documents, df, topic_range, iterations=50):
+    umap_params = {
+        'n_neighbors': [5, 10, 15, 20, 25, 30, 35],
+        'n_components': [3, 4, 5, 6, 7, 8, 9, 10],
+        'min_dist': [0.01, 0.05, 0.1, 0.5],
+        'metric': ['cosine']
+    }
+
+    hdbscan_params = {
+        'min_cluster_size': [5, 10, 15, 20, 25, 30, 35],
+        'metric': ['euclidean'],
+        'cluster_selection_method': ['eom']
+    }
+
+    best_coherence = -float('inf')
+    best_params = None
+    all_iteration_results = []
+
+    for i in range(iterations):
+        umap_config = {k: np.random.choice(v) for k, v in umap_params.items()}
+        hdbscan_config = {k: np.random.choice(v) for k, v in hdbscan_params.items()}
+
+        print(f"Iteration {i + 1}/{iterations}")
+        print(f"UMAP parameters: {umap_config}")
+        print(f"HDBSCAN parameters: {hdbscan_config}")
+
+        iteration_results = evaluate_topic_model(documents, topic_range, df, umap_config, hdbscan_config, i + 1)
+
+        if iteration_results:
+            max_coherence = max(result[1] for result in iteration_results)
+            if max_coherence > best_coherence:
+                best_coherence = max_coherence
+                best_params = (umap_config, hdbscan_config)
+
+            iteration_result = {
+                'iteration': i + 1,
+                'umap_params': {k: v if isinstance(v, (int, float, str)) else v.item() for k, v in umap_config.items()},
+                'hdbscan_params': {k: v if isinstance(v, (int, float, str)) else v.item() for k, v in hdbscan_config.items()},
+                'results': [(int(n), float(c)) for n, c in iteration_results],
+                'max_coherence': float(max_coherence)
+            }
+            all_iteration_results.append(iteration_result)
+
+            print(f"Best coherence in this iteration: {max_coherence}")
+        else:
+            print("No valid results in this iteration.")
+
+        print("------")
+
+    if not all_iteration_results:
+        print("No valid results found across all iterations.")
+        return None, None
+
+    return all_iteration_results, best_params
+
+print("Parameter optimization function defined.")
+
+# Main execution
+if __name__ == "__main__":
+    # Load and preprocess tweet data
+    df = pd.read_csv('tweet_data.csv')
+    df['preprocessed_tweet'] = df['tweet'].apply(preprocess_tweet)
+    df[['tweet', 'preprocessed_tweet']].to_csv('preprocessed_tweets.csv', index=False)
+    print("Preprocessed tweets saved to 'preprocessed_tweets.csv'")
+
+    docs = df['preprocessed_tweet'].tolist()
+    with open('bertopic_input.txt', 'w', encoding='utf-8') as f:
+        for doc in docs:
+            f.write(f"{doc}\n")
+    print("BERTopic input saved to 'bertopic_input.txt'")
+
+    topic_range = range(2, 26, 1)
+    all_iteration_results, best_params = optimize_bertopic_parameters(docs, df, topic_range, iterations=50)
+
+    if all_iteration_results is not None:
+        # Save all iteration results
+        with open('all_iteration_results.json', 'w') as f:
+            json.dump(all_iteration_results, f, indent=2)
+
+        # Find the best overall iteration
+        best_iteration = max(all_iteration_results, key=lambda x: x['max_coherence'])
+
+        print("Best overall iteration:")
+        print(f"Iteration: {best_iteration['iteration']}")
+        print(f"UMAP parameters: {best_iteration['umap_params']}")
+        print(f"HDBSCAN parameters: {best_iteration['hdbscan_params']}")
+        print(f"Max coherence: {best_iteration['max_coherence']}")
+
+        # Create and evaluate the best model
+        best_model = create_bertopic_model(best_iteration['umap_params'], best_iteration['hdbscan_params'])
+        best_topics, _ = best_model.fit_transform(docs)
+
+        # Save the best model results
+        save_iteration_files(best_model, df, best_topics, "best", "final",
+                             best_iteration['umap_params'], best_iteration['hdbscan_params'])
+
+        print("Optimization completed. Results saved in 'all_iteration_results.json'")
+
+        # Plot results for the best model
+        best_results = best_iteration['results']
+
+        plt.figure(figsize=(10, 6))
+        plt.plot(*zip(*best_results))
+        plt.xlabel('Number of Topics')
+        plt.ylabel('Coherence Score')
+        plt.title('Topic Coherence Scores (Best Model)')
+        plt.savefig('best_model_coherence_scores.png')
+        plt.close()
+
+        optimal_topics = max(best_results, key=lambda x: x[1])[0]
+        print(f"Optimal number of topics for the best model: {optimal_topics}")
+    else:
+        print("No valid models could be created. Please check your data and parameters.")
+
+    print("Script execution completed.")
