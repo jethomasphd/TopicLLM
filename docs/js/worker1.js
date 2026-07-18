@@ -39,27 +39,32 @@ async function runStage1({ rows, textCol, customStopwords, config }) {
   const t0 = Date.now();
 
   // ---- preprocess ---------------------------------------------------------
-  post("status", { text: `Preprocessing ${rows.length.toLocaleString()} documents…` });
+  post("status", { text: `preprocess(): strip non-alpha → lowercase → tokenize → drop stopwords → lemmatize` , level: "meta" });
+  post("status", { text: `processing ${rows.length.toLocaleString()} documents…` });
   const stopwords = buildStopwords(customStopwords);
   const kept = preprocessCorpus(rows, textCol, stopwords);
-  post("status", { text: `${kept.length.toLocaleString()} non-empty documents retained.` });
+  post("status", { text: `${kept.length.toLocaleString()} non-empty documents retained (${stopwords.size} stopwords active)`, level: "ok" });
   const docs = kept.map(r => r.preprocessed);
   const tokenized = docs.map(tokenizeDoc);
 
   // ---- embed once, reuse across all candidate models ----------------------
   let embeddings, embedderUsed = cfg.embedder;
+  const embedProgress = (txt, frac) =>
+    post("progress", { frac: (frac ?? 0) * 0.25, label: txt });  // embedding ≈ first quarter
   if (cfg.embedder === "minilm") {
     try {
-      post("status", { text: "Loading all-MiniLM-L6-v2 (downloads once, runs locally)…" });
-      embeddings = await embedMiniLM(docs, txt => post("status", { text: txt }));
+      post("status", { text: "loading all-MiniLM-L6-v2 via transformers.js (one-time download, runs locally)…" });
+      embeddings = await embedMiniLM(docs, embedProgress);
+      post("status", { text: `encoded ${docs.length.toLocaleString()} documents → 384-dim unit vectors (MiniLM)`, level: "ok" });
     } catch (err) {
       post("status", { text: `MiniLM unavailable (${String(err).slice(0, 120)}…) — falling back to hashed embeddings.`, level: "warn" });
       embedderUsed = "hashed";
     }
   }
   if (!embeddings) {
-    post("status", { text: "Computing hashed bag-of-words embeddings (offline mode)…" });
-    embeddings = embedHashed(docs, txt => post("status", { text: txt }));
+    post("status", { text: "computing hashed bag-of-words embeddings (offline mode)…" });
+    embeddings = embedHashed(docs, embedProgress);
+    post("status", { text: `encoded ${docs.length.toLocaleString()} documents → 384-dim hashed vectors`, level: "ok" });
     embedderUsed = "hashed";
   }
 
@@ -95,18 +100,26 @@ async function runStage1({ rows, textCol, customStopwords, config }) {
         random: mulberry32(cfg.randomSeed * 1000 + it),
       });
       const reduced = await reducer.fitAsync(embeddings.map(v => Array.from(v)));
+      post("status", { text: `umap.fit_transform → ${docs.length}×${umapParams.n_components} embedding (cosine, ${umapParams.n_neighbors} neighbors)`, level: "meta" });
       const labels = hdbscan(reduced, hdbParams.min_cluster_size);
       const nClusters = new Set(Array.from(labels).filter(l => l !== -1)).size;
-      post("status", { text: `Iteration ${it}: HDBSCAN found ${nClusters} raw clusters.` });
+      const noise = Array.from(labels).filter(l => l === -1).length;
+      post("status", { text: `hdbscan(min_cluster_size=${hdbParams.min_cluster_size}, eom) → ${nClusters} raw clusters, ${noise} noise docs`, level: "meta" });
 
       const solutions = topicSolutions(tokenized, labels,
         { topicMin: cfg.topicMin, topicMax: cfg.topicMax });
+      let scored = 0;
       for (const sol of solutions) {
         if (sol.topics.length < 2) continue;
         const coherence = cvCoherence(sol.topics.map(t => t.words), coherenceCtx);
         if (!isFinite(coherence)) continue;
         results.push([sol.nTopics, coherence]);
+        scored++;
         post("model", { iteration: it, nTopics: sol.nTopics, coherence });
+        post("progress", {
+          frac: 0.25 + 0.75 * ((it - 1 + Math.min(scored / Math.max(solutions.length, 1), 0.98)) / cfg.searchIterations),
+          label: `iteration ${it}/${cfg.searchIterations} · ${sol.nTopics} topics · c_v ${coherence.toFixed(4)}`,
+        });
         if (!best || coherence > best.coherence) {
           best = {
             iteration: it, umapParams, hdbParams,
@@ -129,6 +142,8 @@ async function runStage1({ rows, textCol, customStopwords, config }) {
 
   if (!best) { post("error", { message: "No valid models across all iterations — check data/parameters." }); return; }
 
+  post("progress", { frac: 1, label: "search complete" });
+  post("status", { text: `argmax(c_v) → iteration ${best.iteration}, ${best.nTopics} topics, coherence ${best.coherence.toFixed(4)}`, level: "ok" });
   const bestIter = allIterations.find(a => a.iteration === best.iteration);
   post("done", {
     payload: {
