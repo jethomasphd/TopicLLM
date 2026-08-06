@@ -67,7 +67,7 @@ class PipelineConfig:
     benchmark_csv: str = "human_labels.csv"    # columns: tweet, human_label (n=250)
     agreement_threshold: float = 0.85          # do not scale below this
 
-    # ----- Stage 5: inference ------------------------------------------------
+    # ----- Stage 5: theme prevalence ----------------------------------------
     # Period boundaries for proportional z-tests (inclusive, YYYY-MM-DD).
     # Requires a 'date' column in the input CSV.
     periods: dict = field(default_factory=lambda: {

@@ -1,5 +1,5 @@
-/* stats.js — Stage 5 inference: two-proportion z-tests (pooled, two-sided),
- * matching statsmodels.stats.proportion.proportions_ztest defaults. */
+/* stats.js — Stage 5 theme-prevalence statistics: two-proportion z-tests
+ * (pooled, two-sided), matching statsmodels proportions_ztest defaults. */
 
 /** Standard normal CDF via the Abramowitz–Stegun erf approximation. */
 export function normalCDF(x) {
