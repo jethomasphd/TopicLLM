@@ -14,5 +14,5 @@ numpy>=1.24
 openai>=1.0
 tqdm>=4.66
 
-# Stage 5 — inference
+# Stage 5 — theme prevalence
 statsmodels>=0.14

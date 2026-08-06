@@ -14,7 +14,7 @@ actually runs the analysis end to end.
 | 2 | `stage2_democratic_naming.py` | Names each topic by plurality vote over thousands of independent LLM queries; writes ballots + tallies | yes |
 | 3 | `stage3_synthesis_worksheet.py` | Builds the two-researcher review packet; consensus is recorded by humans in `theme_map.csv` | none |
 | 4 | `stage4_classification.py` | Pilots Boolean-dictionary and LLM classifiers against a human benchmark; refuses to scale below the agreement threshold; classifies the full corpus | yes |
-| 5 | `stage5_inference.py` | Proportional z-tests with Bonferroni correction; per-theme corpora for LIWC-22; Stata `.do` file for the cross-lagged GSEM | none |
+| 5 | `stage5_inference.py` | Theme prevalence — whole-corpus counts and shares, prevalence by period, and proportional z-tests with Bonferroni correction | none |
 
 ## Quickstart
 
@@ -60,7 +60,8 @@ publishable.
 Every stage emits the evidence the paper says to publish alongside findings:
 `all_iteration_results.json` (hyperparameter log, seeded), `vote_log.csv` /
 `vote_tallies.csv` (the raw and counted ballots), `benchmark_report.json`
-(classifier agreement), and `ztest_results.csv`. Pin and report `llm_model`;
+(classifier agreement), and `theme_counts.csv` / `ztest_results.csv` (the
+prevalence estimates and tests). Pin and report `llm_model`;
 label distributions may shift across model versions.
 
 ## Relationship to the dissertation code
@@ -69,4 +70,5 @@ S1–S3 (plain-text supplements to the paper) are the archival implementations
 from the source dissertation, with S2/S3 written against `openai==0.27.0`.
 This package preserves their logic and parameters while modernizing the SDK
 surface, seeding the random search, and adding the benchmark gate, vote
-tallying, and Stage 3/5 hand-offs as runnable code.
+tallying, the Stage 3 worksheet hand-off, and the Stage 5 prevalence
+statistics as runnable code.
