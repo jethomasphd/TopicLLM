@@ -51,8 +51,8 @@
       two-researcher review packet; named human analysts group topics into themes and record consensus.</p></div>
     <div class="card"><h3><b class="idx">04</b> Validated classification</h3><p>Boolean-dictionary and LLM classifiers audition
       against your human-labeled benchmark. The pipeline refuses to scale below the agreement threshold.</p></div>
-    <div class="card"><h3><b class="idx">05</b> Inference</h3><p>Proportional z-tests with Bonferroni correction, per-theme
-      corpora for LIWC-22, and the Stata GSEM specification for cross-lagged panel models.</p></div>
+    <div class="card"><h3><b class="idx">05</b> Theme prevalence</h3><p>Labels become findings: theme prevalence in any
+      slice of the corpus, with proportional z-tests across periods under Bonferroni correction.</p></div>
     <div class="card"><h3><b class="idx">&gt;_</b> Reproducibility</h3><p>Hyperparameter logs, vote ballots and tallies,
       benchmark reports, test results — downloadable individually or as one <code>pipeline_output.zip</code>.</p></div>
   </div>
@@ -283,11 +283,11 @@
 
   <!-- Stage 5 -->
   <div class="card stage" id="card-5">
-    <h2>05 · From classifications to inference
-      <span class="info-chip" tabindex="0" data-tip="With every document labeled, theme prevalence is directly computable in any slice of the corpus. This stage runs the paper's packaged analyses and writes the hand-offs for LIWC-22 and Stata (§2.6).">?</span>
+    <h2>05 · From classifications to theme prevalence
+      <span class="info-chip" tabindex="0" data-tip="With every document labeled, theme prevalence is directly computable in any slice of the corpus. This stage runs the paper's packaged analysis: prevalence by period and proportional z-tests (§2.6).">?</span>
       <span class="badge idle" id="badge-5">not run</span></h2>
-    <p class="stage-sub">Turns labels into findings: prevalence by period, z-tests under Bonferroni,
-      LIWC corpora, and the cross-lagged GSEM hand-off.</p>
+    <p class="stage-sub">Turns labels into findings: theme prevalence by period and proportional
+      z-tests under Bonferroni correction.</p>
     <div class="periods">
       <div class="period-row grid-4">
         <label><span class="lbl">Period <span class="info-chip" tabindex="0"
@@ -313,11 +313,11 @@
       </div>
     </div>
     <div class="row">
-      <button class="btn primary" id="run5" disabled>Run inference</button>
+      <button class="btn primary" id="run5" disabled>Run prevalence analysis</button>
     </div>
     <div class="term">
       <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span>
-        <span class="term-title">stage5 — inference.stats</span>
+        <span class="term-title">stage5 — prevalence.stats</span>
         <span class="term-status" id="tstat-5">idle</span></div>
       <div class="log" id="log-5"></div>
     </div>
@@ -329,8 +329,7 @@
         <span class="dl-label">artifacts ↓</span>
         <button class="btn sm" data-dl="5:prev">prevalence_by_period.csv</button>
         <button class="btn sm" data-dl="5:ztest">ztest_results.csv</button>
-        <button class="btn sm" data-dl="5:liwc">liwc_corpora.zip</button>
-        <button class="btn sm" data-dl="5:stata">crosslagged_gsem.do</button>
+        <button class="btn sm" data-dl="5:themecounts">theme_counts.csv</button>
       </div>
     </div>
   </div>

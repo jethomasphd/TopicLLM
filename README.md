@@ -9,7 +9,7 @@ This repository carries the dissertation research from archive to instrument, in
 |---|---|---|
 | **Preprint** | [`Coherence_Optimized_Topic_Modeling_Preprint.docx`](Coherence_Optimized_Topic_Modeling_Preprint.docx) · [PDF](docs/paper/Coherence_Optimized_Topic_Modeling_Preprint.pdf) · [HTML](docs/paper/index.html) | The methods paper distilled from the dissertation ([THOMAS-PRIMARY-2025.pdf](THOMAS-PRIMARY-2025.pdf)) |
 | **Browser analysis service** | [`docs/`](docs/) | The full five-stage pipeline as a client-side web app — no server, no install; your data stays on your machine |
-| **Python reference pipeline** | [`dtm_pipeline/`](dtm_pipeline/) | The maintained implementation of record (current OpenAI SDK), plus archival supplements S1–S4 |
+| **Python reference pipeline** | [`dtm_pipeline/`](dtm_pipeline/) | The maintained implementation of record (current OpenAI SDK), plus archival supplements S1–S3 |
 
 ## The five stages
 
@@ -22,8 +22,8 @@ This repository carries the dissertation research from archive to instrument, in
    Topic system) groups topics into themes; deliberately not automated.
 4. **Validated corpus-scale classification** — Boolean-dictionary and LLM classifiers are piloted
    against a human benchmark; the pipeline refuses to scale below the agreement threshold.
-5. **Inference** — proportional z-tests with Bonferroni correction, per-theme corpora for LIWC-22,
-   and the Stata GSEM hand-off for cross-lagged panel models.
+5. **Theme prevalence** — whole-corpus theme counts and shares, prevalence by period, and
+   proportional z-tests with Bonferroni correction.
 
 ## The browser app (`docs/`)
 
@@ -71,8 +71,7 @@ python run_pipeline.py --stages 1   # discovery, no API cost
 ```
 
 Supplementary files at the repository root: **S1–S3** are the archival dissertation
-implementations (S2/S3 against `openai==0.27.0`, preserved as published); **S4** is the complete
-LIWC-22 output for the five demonstration theme corpora.
+implementations (S2/S3 against `openai==0.27.0`, preserved as published).
 
 ## Citation
 
