@@ -1,0 +1,21 @@
+topic,words,n_documents,majority_theme,theme_purity,majority_campaign
+0,"cheer, taste, room, small, slow, back, say, complete, record, sip",2924,The text does not fit into any of these themes,0.999,chatter
+1,"order, pourly, delivery, deliver, online, door, code, minute, must, get",415,Alcohol Delivery and Isolation Drinking,1.0,delivery_app
+2,"game, playoff, day, season, team, opening, gameday, ready, kickoff, root",388,Sports,0.956,game_day
+3,"win, chance, giveaway, follow, enter, winner, photo, howdyneighbor, post, caption",261,Social Media Promotions,0.996,contests
+4,"stay, home, drinking, fridge, homebarhours, couch, mug, stayhomesips, else, dress",145,Alcohol Delivery and Isolation Drinking,1.0,stay_home_sips
+5,"instagram, live, livingroomtour, set, tonight, facebook, edition, stream, kitchen, tune",142,Social Media Promotions,0.993,living_room_tour
+6,"restaurant, worker, fund, help, donate, support, servethemstrong, bartender, takeout, local",134,Restaurant Support,0.993,bar_partners
+7,"sunshine, alittlesunshine, bit, sunnier, beach, order, little, sunny, get, way",127,Alcohol Delivery and Isolation Drinking,1.0,little_sunshine
+8,"oz, shaken, juice, lemon, ice, sour, syrup, hard, sunrise, grenadine",111,The text does not fit into any of these themes,1.0,recipe
+9,"twitch, charity, royale, game, stream, gg, money, esports, watch, final",88,Gaming,1.0,game_night
+10,"couchleague, submit, video, challenge, home, team, sport, trick, workout, picked",79,Sports,1.0,couch_league
+11,"chance, retweet, merch, win, howdyneighbor, follow, new, tag, crewneck, collection",70,Social Media Promotions,1.0,howdy_neighbor
+12,"paint, mural, dock, load, head, brewer, room, crew, shift, taste",52,The text does not fit into any of these themes,1.0,chatter
+13,"ig, livingroomtour, bar, live, dive, real, living, tune, virtual, bring",50,Social Media Promotions,1.0,living_room_tour
+14,"rye, talk, stop, test, shift, crew, farm, head, brewer, night",46,The text does not fit into any of these themes,1.0,chatter
+15,"toddy, cinnamon, hot, stick, honey, lemon, water, oz, project, pale",46,The text does not fit into any of these themes,1.0,recipe
+16,"part, colada, smooth, cream, blend, coconut, pineapple, try, pale, project",42,The text does not fit into any of these themes,1.0,recipe
+17,"highball, topped, twist, sparkle, long, lemon, water, oz, project, pick",42,The text does not fit into any of these themes,1.0,recipe
+18,"could, merch, reply, share, friend, year, win, alert, would, right",42,Social Media Promotions,1.0,howdy_neighbor
+19,"bitter, dash, crowd, punch, coconut, juice, water, pineapple, batch, try",37,The text does not fit into any of these themes,1.0,recipe

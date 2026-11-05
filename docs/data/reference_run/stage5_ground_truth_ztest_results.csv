@@ -1,0 +1,16 @@
+theme,comparison,period_a,k_a,n_a,prop_a,period_b,k_b,n_b,prop_b,pct_change,z,p,alpha_bonferroni,significant_bonferroni
+Alcohol Delivery and Isolation Drinking,pre vs peri,pre,155,1707,0.0908,peri,140,806,0.1737,91.3,6.026,1.6826418913556564e-09,0.003333,True
+Alcohol Delivery and Isolation Drinking,pre vs post,pre,155,1707,0.0908,post,369,3106,0.1188,30.8,2.984,0.0028490989671964635,0.003333,True
+Alcohol Delivery and Isolation Drinking,peri vs post,peri,140,806,0.1737,post,369,3106,0.1188,-31.6,-4.128,3.663780476251389e-05,0.003333,True
+Restaurant Support,pre vs peri,pre,32,1707,0.0187,peri,44,806,0.0546,191.2,4.897,9.711487013763607e-07,0.003333,True
+Restaurant Support,pre vs post,pre,32,1707,0.0187,post,52,3106,0.0167,-10.7,-0.508,0.6114090621135914,0.003333,False
+Restaurant Support,peri vs post,peri,44,806,0.0546,post,52,3106,0.0167,-69.3,-6.188,6.077033617639163e-10,0.003333,True
+Social Media Promotions,pre vs peri,pre,113,1707,0.0662,peri,133,806,0.165,149.3,7.78,7.223910570591905e-15,0.003333,True
+Social Media Promotions,pre vs post,pre,113,1707,0.0662,post,330,3106,0.1062,60.5,4.598,4.266885287077974e-06,0.003333,True
+Social Media Promotions,peri vs post,peri,133,806,0.165,post,330,3106,0.1062,-35.6,-4.602,4.181704631652847e-06,0.003333,True
+Sports,pre vs peri,pre,140,1707,0.082,peri,92,806,0.1141,39.2,2.597,0.009405019483821567,0.003333,False
+Sports,pre vs post,pre,140,1707,0.082,post,277,3106,0.0892,8.7,0.846,0.3977750904424362,0.003333,False
+Sports,peri vs post,peri,92,806,0.1141,post,277,3106,0.0892,-21.9,-2.16,0.030738341958270014,0.003333,False
+Gaming,pre vs peri,pre,19,1707,0.0111,peri,16,806,0.0199,78.3,1.741,0.08165731699595982,0.003333,False
+Gaming,pre vs post,pre,19,1707,0.0111,post,50,3106,0.0161,44.6,1.387,0.16547398713242034,0.003333,False
+Gaming,peri vs post,peri,16,806,0.0199,post,50,3106,0.0161,-18.9,-0.737,0.4609880896215184,0.003333,False
