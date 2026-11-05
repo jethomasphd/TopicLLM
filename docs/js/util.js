@@ -38,6 +38,7 @@ export function choice(arr, rng) { return arr[Math.floor(rng() * arr.length)]; }
 
 /** RFC-4180-ish CSV parser. Returns { header: string[], rows: object[] }. */
 export function parseCSV(text) {
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);  // Excel's UTF-8 BOM
   const rows = [];
   let row = [], field = "", inQuotes = false;
   const pushField = () => { row.push(field); field = ""; };

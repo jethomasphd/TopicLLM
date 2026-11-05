@@ -1,0 +1,19 @@
+{
+  "iteration": 16,
+  "umap_params": {
+    "n_neighbors": 35,
+    "n_components": 8,
+    "min_dist": 0.05,
+    "metric": "cosine"
+  },
+  "hdbscan_params": {
+    "min_cluster_size": 35,
+    "metric": "euclidean",
+    "cluster_selection_method": "eom"
+  },
+  "max_topics": 21,
+  "n_topics": 20,
+  "coherence": 0.789620395994131,
+  "seed": 42,
+  "seed_umap": true
+}

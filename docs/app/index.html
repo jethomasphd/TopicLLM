@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Instrument — TopicLLM</title>
+<meta name="description" content="Run the five-stage TopicLLM pipeline entirely in your browser: coherence-optimized topic discovery, democratic LLM naming, two-researcher synthesis, validated classification, and theme prevalence.">
+<link rel="icon" href="../assets/sigil.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../app.css">
+<script>try{var t=localStorage.getItem("topicllm-theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<script type="module" src="../js/app.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="TopicLLM home">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><use href="../assets/sigil.svg#mark"/></svg>
+      <b>TopicLLM</b>
+    </a>
+    <nav class="topnav" aria-label="Site">
+      <a href="../#method">Method</a>
+      <a href="../#demonstration">Demonstration</a>
+      <a href="../#preprints">Preprints</a>
+      <a href="./" aria-current="page">Instrument</a>
+      <a href="../#data">Data</a>
+      <a href="../#code">Code</a>
+      <a href="../#cite">Cite</a>
+    </nav>
+    <button class="theme-toggle" type="button" aria-label="Toggle light and dark theme" data-theme-toggle>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Room IV · The instrument</p>
+    <h1>Run the five stages in your browser</h1>
+    <p class="tagline">Load the demonstration corpus or your own CSV and walk the pipeline end to end.
+      The embedding model runs on your machine, and there is no server. Stages 2 and 4 call the
+      language model you configure, with your own key, or a clearly labeled keyless mock.
+      Every stage streams its work to a live log and exports its audit artifacts.</p>
+    <nav class="tabs">
+      <button data-tab="analyze" class="active">Analyze</button>
+      <button data-tab="help">Help &amp; Methods</button>
+    </nav>
+  </div>
+</section>
+
+<main class="wrap">
+
+
+
+<!-- ============================ ANALYZE ============================= -->
+<section id="tab-analyze" class="tab">
+
+  <ol class="stepper">
+    <li id="step-0" data-target="card-data"><b>00</b> data</li>
+    <li id="step-1" data-target="card-1"><b>01</b> discover</li>
+    <li id="step-2" data-target="card-2"><b>02</b> name</li>
+    <li id="step-3" data-target="card-3"><b>03</b> synthesize</li>
+    <li id="step-4" data-target="card-4"><b>04</b> classify</li>
+    <li id="step-5" data-target="card-5"><b>05</b> prevalence</li>
+  </ol>
+
+  <!-- Data & settings -->
+  <div class="card" id="card-data">
+    <h2>00 · Data &amp; settings</h2>
+    <p class="stage-sub">Load a corpus, tune the search, and point Stages 2 &amp; 4 at an LLM.
+      Everything is parsed and analyzed locally.</p>
+    <div class="row">
+      <button class="btn primary" id="btn-demo"
+        data-tip="Loads the open demonstration corpus: 5,872 fully synthetic posts from 11 fictional brands (2019–2021), a 250-post human benchmark, and its stopword list. Built to mirror the published demonstration; contains no real data.">Load demonstration corpus</button>
+      <label class="btn file" data-tip="A CSV with a 'tweet' (or 'text') column. An optional 'date' column (YYYY-MM-DD) enables Stage 5's period comparisons.">Upload corpus CSV<input type="file" id="file-corpus" accept=".csv" hidden></label>
+      <label class="btn file" data-tip="Columns: tweet, human_label. These hand-coded documents are Stage 4's measuring stick — the reference implementation uses n=250.">Upload benchmark CSV<input type="file" id="file-benchmark" accept=".csv" hidden></label>
+    </div>
+    <p id="data-summary"></p>
+
+    <div class="term">
+      <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span>
+        <span class="term-title">session — data loader</span>
+        <span class="term-status" id="tstat-0">idle</span></div>
+      <div class="log" id="log-0"></div>
+    </div>
+
+    <details class="settings">
+      <summary>Stage 1 configuration</summary>
+      <div class="grid-4">
+        <label><span class="lbl">Random seed <span class="info-chip" tabindex="0"
+          data-tip="Fixes the random draw sequence so the exact same search can be re-run and audited. Reported in all_iteration_results.json.">?</span></span>
+          <input id="cfg-seed" type="number" value="42"></label>
+        <label><span class="lbl">Search iterations <span class="info-chip" tabindex="0"
+          data-tip="How many random UMAP/HDBSCAN configurations to try. The paper's reference run uses 50. Each is evaluated across the whole topic-count range, so time grows linearly.">?</span></span>
+          <input id="cfg-iters" type="number" value="8" min="1" max="50"></label>
+        <label><span class="lbl">Max topic solutions <span class="info-chip" tabindex="0"
+          data-tip="The upper end of the topic-count range evaluated per configuration (the paper evaluates 2–25).">?</span></span>
+          <input id="cfg-topicmax" type="number" value="25" min="2" max="25"></label>
+        <label><span class="lbl">Embeddings <span class="info-chip" tabindex="0"
+          data-tip="all-MiniLM-L6-v2 is the paper's sentence-embedding model — downloaded once (~25 MB), then run locally on WebAssembly/WebGPU. The hashed fallback needs no download but is demo-grade only.">?</span></span>
+          <select id="cfg-embedder">
+            <option value="minilm">all-MiniLM-L6-v2 (downloads ~25 MB once)</option>
+            <option value="hashed">Hashed fallback (instant, demo quality)</option>
+          </select></label>
+      </div>
+      <label class="wide"><span class="lbl">Custom domain stopwords (comma-separated) <span class="info-chip" tabindex="0"
+        data-tip="Domain words removed before modeling — brand names, boilerplate, temporal terms. The paper calls this your first, deliberately transparent modeling decision (§2.1); publish the list.">?</span></span>
+        <textarea id="stopwords" rows="2"></textarea></label>
+      <p class="note">Reference implementation: 50 iterations × 24 topic solutions = 1,200 candidate models.
+        Browser default is 8 iterations — raise it if you have time. The UMAP/HDBSCAN sampling spaces match the paper.</p>
+    </details>
+
+    <details class="settings">
+      <summary>LLM provider (Stages 2 &amp; 4)</summary>
+      <div class="grid-4">
+        <label><span class="lbl">Provider <span class="info-chip" tabindex="0"
+          data-tip="Where Stage 2/4 prompts are sent, straight from this tab. The demo mock is NOT a language model — it fabricates plausible outputs so you can rehearse the workflow for free.">?</span></span>
+          <select id="llm-provider">
+            <option value="mock">Demo mock — no key, not a real LLM</option>
+            <option value="openai">OpenAI-compatible</option>
+            <option value="anthropic">Anthropic</option>
+          </select></label>
+        <label><span class="lbl">Model <span class="info-chip" tabindex="0"
+          data-tip="Pin and report this identifier alongside your findings — label distributions can shift across model versions (§2.7).">?</span></span>
+          <input id="llm-model" type="text" placeholder="gpt-4o"></label>
+        <label><span class="lbl">API key <span class="info-chip" tabindex="0"
+          data-tip="Held in this browser only (optionally in localStorage) and sent only to the endpoint you configure. There is no server behind this app.">?</span></span>
+          <input id="llm-key" type="password" placeholder="sk-…"></label>
+        <label><span class="lbl">Base URL (OpenAI-compatible) <span class="info-chip" tabindex="0"
+          data-tip="Any OpenAI-compatible endpoint works: api.openai.com, OpenRouter, Groq, a local Ollama…">?</span></span>
+          <input id="llm-base" type="text" placeholder="https://api.openai.com/v1"></label>
+      </div>
+      <div class="grid-4">
+        <label><span class="lbl">Concurrent requests <span class="info-chip" tabindex="0"
+          data-tip="How many API calls fly in parallel. Raise for speed; lower if you hit rate limits. Failed calls retry up to 5× with exponential backoff, as in the paper.">?</span></span>
+          <input id="cfg-concurrency" type="number" value="6" min="1" max="32"></label>
+        <label><span class="lbl">Domain context <span class="info-chip" tabindex="0"
+          data-tip="The ONLY domain-specific text in the prompts. Change this one clause (plus your Stage 3 literature lens) to redeploy the pipeline in a completely different domain (§2.7).">?</span></span>
+          <input id="cfg-domain" type="text" value="tweets generated by alcohol companies during the COVID-19 pandemic"></label>
+        <label class="check"><input id="llm-remember" type="checkbox"> Remember key in this browser</label>
+      </div>
+    </details>
+  </div>
+
+  <!-- Stage 1 -->
+  <div class="card stage" id="card-1">
+    <h2>01 · Coherence-optimized topic discovery
+      <span class="info-chip" tabindex="0" data-tip="Embeds every document once, then samples random UMAP+HDBSCAN configurations, evaluates each across all topic counts, and keeps the model with the highest c_v coherence — a score that tracks how humanly interpretable a topic's words are (§2.2).">?</span>
+      <span class="badge idle" id="badge-1">not run</span></h2>
+    <p class="stage-sub">Finds the topics. A seeded random search over the model space; every candidate
+      is scored, every draw is logged, and the argmax wins.</p>
+    <div class="row">
+      <button class="btn primary" id="run1" disabled>Run discovery</button>
+      <button class="btn" id="cancel1" disabled>Cancel</button>
+      <span class="live" id="s1-count"></span>
+    </div>
+    <div class="term">
+      <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span>
+        <span class="term-title">stage1 — discovery.worker</span>
+        <span class="term-status" id="tstat-1">idle</span></div>
+      <div class="log" id="log-1"></div>
+    </div>
+    <div id="stage1-results" hidden>
+      <p id="s1-summary"></p>
+      <div class="chart-box" id="s1-chart"></div>
+      <div class="table-box" id="s1-topics"></div>
+      <div class="row dl">
+        <span class="dl-label" data-tip="Each stage's downloads mirror the Python pipeline's pipeline_output/ artifacts — publish them alongside your findings.">artifacts ↓</span>
+        <button class="btn sm" data-dl="1:audit">all_iteration_results.json</button>
+        <button class="btn sm" data-dl="1:params">parameters.json</button>
+        <button class="btn sm" data-dl="1:topics">topics_for_naming.csv</button>
+        <button class="btn sm" data-dl="1:pre">classified_tweets.csv</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 2 -->
+  <div class="card stage" id="card-2">
+    <h2>02 · Democratic LLM interpretation
+      <span class="info-chip" tabindex="0" data-tip="LLM decoding is stochastic — one response is a single draw from a distribution over plausible labels. Voting thousands of times and taking the modal answer estimates that distribution's mode instead of gambling on one sample (§2.3).">?</span>
+      <span class="badge idle" id="badge-2">not run</span></h2>
+    <p class="stage-sub">Names the topics. Many independent votes per topic; the modal label wins,
+      and the full ballot box is yours to publish.</p>
+    <div class="grid-4">
+      <label><span class="lbl">Votes per topic <span class="info-chip" tabindex="0"
+        data-tip="Independent naming queries per topic. The paper's reference budget is 5,000; fewer votes cost less and the tally tells you when the leader is stable.">?</span></span>
+        <input id="cfg-votes" type="number" value="100" min="5" max="5000"></label>
+      <label class="check"><input id="cfg-earlystop" type="checkbox"> <span class="lbl">Early stop <span class="info-chip" tabindex="0"
+        data-tip="The paper's cost control: halt a topic's vote once the leading label has held a stable share — monitor stability instead of always paying for the full budget.">?</span></span></label>
+      <label><span class="lbl">· after votes</span><input id="cfg-earlywindow" type="number" value="50" min="10"></label>
+      <label><span class="lbl">· at leader share</span><input id="cfg-earlyshare" type="number" value="0.6" step="0.05" min="0.5" max="1"></label>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="run2" disabled>Run democratic naming</button>
+      <span class="live" id="s2-live"></span>
+    </div>
+    <div class="term">
+      <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span>
+        <span class="term-title">stage2 — naming.votes</span>
+        <span class="term-status" id="tstat-2">idle</span></div>
+      <div class="log" id="log-2"></div>
+    </div>
+    <div id="stage2-results" hidden>
+      <div class="chart-box" id="s2-chart"></div>
+      <div class="table-box" id="s2-table"></div>
+      <div class="row dl">
+        <span class="dl-label">artifacts ↓</span>
+        <button class="btn sm" data-dl="2:log">vote_log.csv</button>
+        <button class="btn sm" data-dl="2:tallies">vote_tallies.csv</button>
+        <button class="btn sm" data-dl="2:names">topic_names.csv</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 3 -->
+  <div class="card stage" id="card-3">
+    <h2>03 · Human-in-the-loop theme synthesis
+      <span class="info-chip" tabindex="0" data-tip="Topics are statistical patterns found by the machine; themes are meaningful patterns made by people (the Theme and Topic system). This stage is deliberately manual so a named analyst stays accountable for every theme (§2.4).">?</span>
+      <span class="badge idle" id="badge-3">not run</span></h2>
+    <p class="stage-sub">You make the themes. Read each topic's evidence, group topics by conceptual
+      similarity, and record the two-researcher consensus.</p>
+    <div class="term">
+      <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span>
+        <span class="term-title">stage3 — consensus.protocol</span>
+        <span class="term-status" id="tstat-3">idle</span></div>
+      <div class="log" id="log-3"></div>
+    </div>
+    <div id="stage3-body" hidden>
+      <div id="s3-worksheet"></div>
+      <div class="row">
+        <button class="btn primary" id="btn-consensus"
+          data-tip="Locks in the topic→theme mapping and unlocks Stage 4. Unmapped topics are treated as noise.">Record consensus themes</button>
+      </div>
+      <p id="s3-summary"></p>
+      <div class="row dl">
+        <span class="dl-label">artifacts ↓</span>
+        <button class="btn sm" data-dl="3:worksheet">synthesis_worksheet.md</button>
+        <button class="btn sm" data-dl="3:map">theme_map.csv</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 4 -->
+  <div class="card stage" id="card-4">
+    <h2>04 · Validated corpus-scale classification
+      <span class="info-chip" tabindex="0" data-tip="Two classifiers audition on your human benchmark: a Boolean dictionary built from each theme's topic words, and an LLM prompted with the fixed theme list. Whichever agrees with the humans more gets to label the whole corpus — but only above the threshold (§2.5).">?</span>
+      <span class="badge idle" id="badge-4">not run</span></h2>
+    <p class="stage-sub">Labels every document — but only after a classifier earns it against your
+      human benchmark. Below the gate, nothing scales.</p>
+    <div class="grid-4">
+      <label><span class="lbl">Agreement threshold <span class="info-chip" tabindex="0"
+        data-tip="The gate. The best classifier must agree with your human-coded benchmark at least this often before it may label the full corpus. The paper uses 85%; justify any change against the error tolerance of your downstream analysis.">?</span></span>
+        <input id="cfg-threshold" type="number" value="0.85" step="0.01" min="0.5" max="1"></label>
+    </div>
+    <p class="note" id="s4-need">Requires the Stage 3 consensus and a human-labeled benchmark (or the demo benchmark).</p>
+    <div class="row">
+      <button class="btn primary" id="run4" disabled>Benchmark, gate, and scale</button>
+      <span class="live" id="s4-live"></span>
+    </div>
+    <div class="term">
+      <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span>
+        <span class="term-title">stage4 — classify.gate</span>
+        <span class="term-status" id="tstat-4">idle</span></div>
+      <div class="log" id="log-4"></div>
+    </div>
+    <div id="stage4-results" hidden>
+      <p id="s4-summary"></p>
+      <div class="table-box" id="s4-tables"></div>
+      <div class="row dl">
+        <span class="dl-label">artifacts ↓</span>
+        <button class="btn sm" data-dl="4:report">benchmark_report.json</button>
+        <button class="btn sm" data-dl="4:preds">benchmark_predictions.csv</button>
+        <button class="btn sm" data-dl="4:corpus">classified_corpus.csv</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 5 -->
+  <div class="card stage" id="card-5">
+    <h2>05 · From classifications to theme prevalence
+      <span class="info-chip" tabindex="0" data-tip="With every document labeled, theme prevalence is directly computable in any slice of the corpus. This stage runs the paper's packaged analysis: prevalence by period and proportional z-tests (§2.6).">?</span>
+      <span class="badge idle" id="badge-5">not run</span></h2>
+    <p class="stage-sub">Turns labels into findings: theme prevalence by period and proportional
+      z-tests under Bonferroni correction.</p>
+    <div class="periods">
+      <div class="period-row grid-4">
+        <label><span class="lbl">Period <span class="info-chip" tabindex="0"
+          data-tip="Named date windows compared by the z-tests (inclusive bounds). Defaults are the paper's pre/peri/post COVID-19 periods — edit them for your design.">?</span></span>
+          <input class="p-name" type="text" value="pre"></label>
+        <label><span class="lbl">Start</span><input class="p-start" type="date" value="2019-01-01"></label>
+        <label><span class="lbl">End</span><input class="p-end" type="date" value="2020-01-31"></label>
+      </div>
+      <div class="period-row grid-4">
+        <label><span class="lbl">Period</span><input class="p-name" type="text" value="peri"></label>
+        <label><span class="lbl">Start</span><input class="p-start" type="date" value="2020-03-01"></label>
+        <label><span class="lbl">End</span><input class="p-end" type="date" value="2020-05-31"></label>
+      </div>
+      <div class="period-row grid-4">
+        <label><span class="lbl">Period</span><input class="p-name" type="text" value="post"></label>
+        <label><span class="lbl">Start</span><input class="p-start" type="date" value="2020-06-01"></label>
+        <label><span class="lbl">End</span><input class="p-end" type="date" value="2021-07-31"></label>
+      </div>
+      <div class="grid-4">
+        <label><span class="lbl">α (before correction) <span class="info-chip" tabindex="0"
+          data-tip="Significance level before the Bonferroni correction. Adjusted α = α ÷ (themes × pairwise comparisons), exactly as in the paper — with 5 themes and 3 comparisons, 0.05 becomes 0.0033.">?</span></span>
+          <input id="cfg-alpha" type="number" value="0.05" step="0.01" min="0.001" max="0.2"></label>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="run5" disabled>Run prevalence analysis</button>
+    </div>
+    <div class="term">
+      <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span>
+        <span class="term-title">stage5 — prevalence.stats</span>
+        <span class="term-status" id="tstat-5">idle</span></div>
+      <div class="log" id="log-5"></div>
+    </div>
+    <div id="stage5-results" hidden>
+      <p id="s5-summary"></p>
+      <div class="chart-box" id="s5-chart"></div>
+      <div class="table-box" id="s5-table"></div>
+      <div class="row dl">
+        <span class="dl-label">artifacts ↓</span>
+        <button class="btn sm" data-dl="5:prev">prevalence_by_period.csv</button>
+        <button class="btn sm" data-dl="5:ztest">ztest_results.csv</button>
+        <button class="btn sm" data-dl="5:themecounts">theme_counts.csv</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Session archive</h2>
+    <p class="stage-sub">One ZIP mirroring the Python pipeline's <code>pipeline_output/</code> tree —
+      every audit artifact produced so far, ready to publish alongside your findings.</p>
+    <button class="btn primary" id="btn-archive">Download pipeline_output.zip</button>
+  </div>
+</section>
+
+
+
+<!-- ============================== HELP ============================== -->
+<section id="tab-help" class="tab" hidden>
+  <div class="card">
+    <h2>How this app relates to the paper</h2>
+    <p>Everything computational in the five-stage pipeline runs client-side: preprocessing, sentence
+    embedding (all-MiniLM-L6-v2 via transformers.js, executed locally with WebAssembly/WebGPU), UMAP
+    (umap-js), HDBSCAN (a JavaScript port with excess-of-mass selection), c-TF-IDF term weighting,
+    c<sub>v</sub> coherence, plurality-vote tallying, benchmark gating, and the Stage 5 statistics.
+    Stages 2 and 4 send prompts — verbatim from the paper's section 2.7 — directly from your browser
+    to the LLM endpoint you configure.</p>
+    <h3>Reading the terminals</h3>
+    <p>Each stage streams its work to a terminal panel: <code>$</code> lines echo the command being
+    executed with its exact parameters; <code>›</code> lines report steps; <code>·</code> lines are
+    configuration detail; <code>✓</code> lines confirm completed computations; <code>!</code> lines
+    are warnings; the <code>▸</code> line at the bottom is live progress. The status on the right
+    reads <code>exit 0</code> when a stage completes cleanly — and <code>gate refused</code> when
+    Stage 4 declines to scale an unvalidated classifier.</p>
+    <h3>Fidelity notes (browser vs. Python reference)</h3>
+    <ul>
+      <li>The Python reference (<code>dtm_pipeline/</code> in the repository) remains the implementation
+        of record for publication-grade runs; the archival dissertation code is Supplementary Files S1–S3.</li>
+      <li>The WordNet POS-aware lemmatizer is approximated with rule-based inflection stripping.</li>
+      <li>umap-js uses approximate nearest neighbors; results match the reference qualitatively, and the
+        seeded search remains fully auditable via <code>all_iteration_results.json</code>.</li>
+      <li>Equivalent topic solutions are deduplicated: clustering runs once per sampled configuration and
+        is reduced across the topic-count range, rather than refit per count (identical results, far faster).</li>
+      <li>The "hashed" embedder is a no-download fallback for demos — do not use it for real analyses.</li>
+      <li>The "demo mock" provider is <em>not</em> a language model; it exists so the workflow can be
+        exercised end-to-end without credentials. Artifacts it produces are labeled <code>mock-demo</code>.</li>
+    </ul>
+    <h3>Practical limits</h3>
+    <p>The browser build is comfortable up to roughly 5,000 documents (embedding is the bottleneck;
+    WebGPU helps). Beyond that, use the Python pipeline. Stage 2's reference budget of 5,000 votes per
+    topic is an API-cost decision — the early-stop control implements the stability-monitoring guidance
+    from the paper.</p>
+    <h3>Privacy</h3>
+    <p>No server exists: your corpus is parsed and analyzed in this tab. The only network traffic is
+    (a) the one-time model download from the Hugging Face Hub, and (b) Stage 2/4 prompts sent to the
+    LLM endpoint you configure with your own key.</p>
+    <h3>Citing</h3>
+    <p>Thomas, J. E. (2026). <em>Coherence-Optimized Topic Modeling with Democratic Large Language Model
+    Interpretation: A Human-in-the-Loop Pipeline for Public Health Surveillance of Social Media.</em>
+    Preprint.</p>
+  </div>
+</section>
+
+</main>
+<footer><div class="wrap"><p><a href="../">TopicLLM</a> · Thomas, Murthy, Pinedo, Loukas &amp; Pasch (2026) ·
+  <a href="../paper/">methods preprint</a> · the Python reference implementation and archival supplements are in the
+  <a href="https://github.com/jethomasphd/TopicLLM" rel="noopener">repository</a> · code MIT, text and data CC BY 4.0.</p></div></footer>
+<script>
+document.querySelectorAll("[data-theme-toggle]").forEach(function (b) {
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.dataset.theme ||
+      (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    var next = cur === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("topicllm-theme", next); } catch (e) {}
+  });
+});
+</script>
+</body>
+</html>

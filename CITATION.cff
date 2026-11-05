@@ -1,0 +1,73 @@
+cff-version: 1.2.0
+message: "If you use TopicLLM, please cite the methods preprint and the software."
+title: "TopicLLM: Coherence-Optimized Topic Modeling with Democratic Large Language Model Interpretation"
+type: software
+authors:
+  - family-names: Thomas
+    given-names: Jacob E.
+    affiliation: "Department of Kinesiology and Health Education, The University of Texas at Austin"
+    email: jethomasphd@gmail.com
+repository-code: "https://github.com/jethomasphd/TopicLLM"
+url: "https://jethomasphd.github.io/TopicLLM/"
+license: MIT
+version: "1.0.0"
+date-released: "2026-11-05"
+keywords:
+  - topic modeling
+  - BERTopic
+  - large language models
+  - text classification
+  - human-in-the-loop
+  - infodemiology
+  - public health surveillance
+preferred-citation:
+  type: article
+  title: "Coherence-Optimized Topic Modeling with Democratic Large Language Model Interpretation: A Human-in-the-Loop Pipeline for Public Health Surveillance of Social Media"
+  status: preprint
+  year: 2026
+  url: "https://jethomasphd.github.io/TopicLLM/paper/"
+  authors:
+    - family-names: Thomas
+      given-names: Jacob E.
+      affiliation: "Department of Kinesiology and Health Education, The University of Texas at Austin"
+    - family-names: Murthy
+      given-names: Dhiraj
+      affiliation: "School of Journalism and Media, The University of Texas at Austin"
+    - family-names: Pinedo
+      given-names: Miguel
+      affiliation: "Department of Kinesiology and Health Education, The University of Texas at Austin"
+    - family-names: Loukas
+      given-names: Alexandra
+      affiliation: "Department of Kinesiology and Health Education, The University of Texas at Austin"
+    - family-names: Pasch
+      given-names: Keryn E.
+      affiliation: "Department of Kinesiology and Health Education, The University of Texas at Austin"
+references:
+  - type: article
+    title: "Alcohol Marketing on Twitter During the COVID-19 Pandemic: Theme Identification, Prevalence Comparison, and Sentiment Analysis"
+    status: preprint
+    year: 2026
+    authors:
+      - {family-names: Thomas, given-names: Jacob E.}
+      - {family-names: Murthy, given-names: Dhiraj}
+      - {family-names: Pinedo, given-names: Miguel}
+      - {family-names: Loukas, given-names: Alexandra}
+      - {family-names: Pasch, given-names: Keryn E.}
+  - type: article
+    title: "Alcohol Information Dynamics During Crisis: A Longitudinal Analysis of Bidirectional Influence Between Alcohol Industry Marketing and User-Generated Content on Twitter During the COVID-19 Pandemic"
+    status: preprint
+    year: 2026
+    authors:
+      - {family-names: Thomas, given-names: Jacob E.}
+      - {family-names: Murthy, given-names: Dhiraj}
+      - {family-names: Pinedo, given-names: Miguel}
+      - {family-names: Loukas, given-names: Alexandra}
+      - {family-names: Pasch, given-names: Keryn E.}
+  - type: thesis
+    title: "Alcohol Marketing on Social Media During the COVID-19 Pandemic: Historical Perspectives, Modern Evidence, and Future Regulation"
+    thesis-type: "Doctoral dissertation"
+    year: 2025
+    institution:
+      name: "The University of Texas at Austin"
+    authors:
+      - {family-names: Thomas, given-names: Jacob E.}
