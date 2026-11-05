@@ -6,7 +6,7 @@
 
 import { parseCSV, toCSV, downloadText, downloadBlob, buildZip, mulberry32, sample, pct, escapeHTML } from "./util.js";
 import { createProvider, callWithRetries, pool } from "./llm.js";
-import { makeDemoData, NONE_LABEL } from "./demo.js";
+import { loadDemoData, NONE_LABEL } from "./demo.js";
 import { proportionsZTest } from "./stats.js";
 import { lineChart, hBarChart, groupedBarChart } from "./charts.js";
 
@@ -111,7 +111,7 @@ function summarizeData() {
   const hasDate = S.corpus.some(r => r.date);
   el.innerHTML =
     `<strong>${S.corpus.length.toLocaleString()}</strong> documents loaded` +
-    `${S.isDemo ? " (synthetic demo)" : ""} — text column <code>${escapeHTML(S.textCol)}</code>` +
+    `${S.isDemo ? " (demonstration corpus, synthetic)" : ""} — text column <code>${escapeHTML(S.textCol)}</code>` +
     `${hasDate ? ", with dates" : ", no date column (Stage 5 period tests disabled)"}.` +
     (S.benchmark ? ` Benchmark: <strong>${S.benchmark.length}</strong> human-labeled documents.`
                  : " No benchmark loaded (needed for Stage 4).");
@@ -119,14 +119,21 @@ function summarizeData() {
   $("step-0")?.classList.toggle("done", !!S.corpus);
 }
 
-function loadDemo() {
-  logCmd("log-0", "make_demo_data(seed=7)   # synthetic corpus — no real data required");
-  const { corpus, benchmark } = makeDemoData(7);
-  S.corpus = corpus; S.benchmark = benchmark; S.textCol = "tweet"; S.isDemo = true;
-  $("stopwords").value = "";  // demo corpus has no brand terms
+async function loadDemo() {
+  logCmd("log-0", "load_demonstration_corpus()   # open, fully synthetic — no real data");
+  termStatus(0, "loading…");
+  let data;
+  try { data = await loadDemoData(); }
+  catch (err) { log("log-0", `could not load the demonstration corpus: ${err.message}`, "warn"); termStatus(0, "error"); return; }
+  S.corpus = data.corpus; S.benchmark = data.benchmark; S.textCol = "tweet"; S.isDemo = true;
+  $("stopwords").value = data.stopwords;
+  // A browser-sized search: the reference implementation runs 50 iterations.
+  if (Number($("cfg-iters").value) > 4) $("cfg-iters").value = "4";
   summarizeData();
-  log("log-0", `corpus  → 600 documents across 5 latent themes + noise, dated 2019–2021`, "ok");
-  log("log-0", `benchmark → 250 human-labeled documents (columns: tweet, human_label)`, "ok");
+  log("log-0", `corpus  → ${S.corpus.length.toLocaleString()} posts from 11 fictional brands, Jan 2019 – Jul 2021`, "ok");
+  log("log-0", `benchmark → ${S.benchmark.length} human-labeled posts (columns: tweet, human_label)`, "ok");
+  log("log-0", "stopwords → brand terms + time words (demonstration_stopwords.txt)", "ok");
+  log("log-0", "search set to 4 iterations for the browser (reference: 50); raise it under Settings", "meta");
   log("log-0", "ready — run Stage 1 below", "meta");
   termStatus(0, "corpus loaded");
 }
@@ -137,8 +144,11 @@ async function loadCorpusFile(file) {
   logCmd("log-0", `load_corpus("${file.name}")`);
   const { header, rows } = parseCSV(await readFileText(file));
   if (!rows.length) { log("log-0", "no rows found in the CSV", "warn"); return; }
+  // Exact names first, then any column whose name mentions text (e.g. the PRL-TMS
+  // export's "Verbatim text in tweet ..."), then CML-COVID's "title".
   const textCol = header.includes("tweet") ? "tweet"
-    : header.includes("text") ? "text" : header[0];
+    : header.includes("text") ? "text"
+    : header.find(h => /text/i.test(h)) || (header.includes("title") ? "title" : header[0]);
   S.corpus = rows; S.textCol = textCol; S.isDemo = false;
   summarizeData();
   log("log-0", `parsed ${rows.length.toLocaleString()} rows · columns: ${header.join(", ")}`, "ok");
