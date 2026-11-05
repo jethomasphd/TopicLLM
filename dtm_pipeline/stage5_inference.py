@@ -21,12 +21,21 @@ import pandas as pd
 from statsmodels.stats.proportion import proportions_ztest
 
 from config import CONFIG
+from llm_backend import ERROR_LABEL
 
 
 def run_stage5(cfg=CONFIG) -> str:
     out = os.path.join(cfg.output_dir, "stage5")
     os.makedirs(out, exist_ok=True)
     corpus = pd.read_csv(os.path.join(cfg.output_dir, "stage4", "classified_corpus.csv"))
+
+    # Documents whose API call failed have no measurement: exclude them from
+    # numerators AND denominators rather than counting them as "does not fit".
+    failed = corpus["theme"] == ERROR_LABEL
+    if failed.any():
+        print(f"[stage5] WARNING: excluding {int(failed.sum()):,} documents labeled "
+              f"{ERROR_LABEL} — re-run Stage 4 to retry them.")
+        corpus = corpus[~failed].copy()
 
     # ---- 1. Whole-corpus theme prevalence ----------------------------------
     counts = corpus["theme"].value_counts()
@@ -45,6 +54,8 @@ def run_stage5(cfg=CONFIG) -> str:
             mask = corpus["date"].between(pd.Timestamp(start), pd.Timestamp(end))
             corpus.loc[mask, "period"] = name
         in_period = corpus.dropna(subset=["period"])
+        print(f"[stage5] {len(in_period):,} documents fall in the defined periods "
+              f"({len(corpus) - len(in_period):,} outside them, e.g. between periods).")
 
         totals = in_period.groupby("period").size()
         prev_rows, test_rows = [], []
@@ -70,13 +81,18 @@ def run_stage5(cfg=CONFIG) -> str:
                 kb, nb = int(counts.get(b, 0)), int(totals.get(b, 0))
                 if min(na, nb) == 0:
                     continue
-                z, p_val = proportions_ztest([ka, kb], [na, nb])
+                # Ordered (b, a) so z > 0 means prevalence rose from period a
+                # to period b — the same direction as pct_change and as the
+                # dissertation's reported statistics.
+                z, p_val = proportions_ztest([kb, ka], [nb, na])
                 pa, pb = ka / na, kb / nb
                 test_rows.append({
                     "theme": theme, "comparison": f"{a} vs {b}",
-                    f"prop_{a}": round(pa, 4), f"prop_{b}": round(pb, 4),
+                    "period_a": a, "k_a": ka, "n_a": na, "prop_a": round(pa, 4),
+                    "period_b": b, "k_b": kb, "n_b": nb, "prop_b": round(pb, 4),
                     "pct_change": round(100 * (pb - pa) / pa, 1) if pa else None,
                     "z": round(float(z), 3), "p": float(p_val),
+                    "alpha_bonferroni": round(alpha_adj, 6),
                     "significant_bonferroni": bool(p_val < alpha_adj),
                 })
 
