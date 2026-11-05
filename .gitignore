@@ -1,0 +1,9 @@
+# Local derived data (never committed)
+dtm_pipeline/data/
+# Pipeline run outputs (large; regenerate with run_pipeline.py)
+dtm_pipeline/pipeline_output*/
+dtm_pipeline/tweet_data.csv
+dtm_pipeline/human_labels.csv
+__pycache__/
+.pytest_cache/
+*.pyc

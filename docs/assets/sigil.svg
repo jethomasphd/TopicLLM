@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <symbol id="mark" viewBox="0 0 64 64">
+    <circle cx="32" cy="32" r="29" fill="none" stroke="currentColor" stroke-width="2.4"/>
+    <path d="M32 13 L50.1 26.1 L43.2 47.4 L20.8 47.4 L13.9 26.1 Z" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    <path d="M32 13 V32 M50.1 26.1 L32 32 M43.2 47.4 L32 32 M20.8 47.4 L32 32 M13.9 26.1 L32 32" stroke="currentColor" stroke-width="1"/>
+    <g fill="currentColor">
+      <circle cx="32" cy="13" r="3.4"/><circle cx="50.1" cy="26.1" r="3.4"/><circle cx="43.2" cy="47.4" r="3.4"/>
+      <circle cx="20.8" cy="47.4" r="3.4"/><circle cx="13.9" cy="26.1" r="3.4"/><circle cx="32" cy="32" r="5"/>
+    </g>
+  </symbol>
+  <use href="#mark" style="color:#b8901a"/>
+</svg>
