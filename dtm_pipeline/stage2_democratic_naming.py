@@ -28,9 +28,18 @@ from collections import Counter
 
 import pandas as pd
 
-from config import CONFIG
-from provenance import checkpoint_guard
-from llm_backend import ERROR_LABEL, LLMBackend, make_backend
+if __package__:
+    from .config import CONFIG
+else:
+    from config import CONFIG
+if __package__:
+    from .provenance import checkpoint_guard
+else:
+    from provenance import checkpoint_guard
+if __package__:
+    from .llm_backend import ERROR_LABEL, LLMBackend, make_backend
+else:
+    from llm_backend import ERROR_LABEL, LLMBackend, make_backend
 
 SYSTEM = "You are an expert at naming topics."
 
@@ -44,11 +53,12 @@ def build_naming_prompt(words: str, cfg=CONFIG) -> str:
     )
 
 
-def name_once(backend: LLMBackend, words: str, cfg=CONFIG) -> str:
+def name_once(backend: LLMBackend, words: str, cfg=CONFIG, request_key=None) -> str:
     """One independent naming query. Decoding parameters match the reference
     implementation: temperature 0.5, max_tokens 15, n=1."""
     return backend.complete(SYSTEM, build_naming_prompt(words, cfg),
-                            cfg.naming_max_tokens, cfg.naming_temperature, tag="stage2")
+                            cfg.naming_max_tokens, cfg.naming_temperature, tag="stage2",request_key=request_key,
+                            task_data={'task':'name','words':words,'domain':cfg.domain_context})
 
 
 def normalize(label: str) -> str:
@@ -111,7 +121,7 @@ def run_stage2(cfg=CONFIG) -> str:
         print(f"\n[stage2] Topic {topic_id}: [{words}]")
 
         for v in range(cfg.votes_per_topic):
-            label = name_once(backend, words, cfg)
+            label = name_once(backend, words, cfg,request_key=f'naming:{topic_id}:{v+1}')
             # Append immediately, including failed responses. A stopped/retried
             # topic must not erase the observations that preceded the stop.
             with open(os.path.join(out, 'all_naming_attempts.jsonl'), 'a', encoding='utf-8') as audit:

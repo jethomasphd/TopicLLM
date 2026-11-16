@@ -6,19 +6,20 @@ a human-in-the-loop pipeline for public health surveillance of social media.**
 Jacob E. Thomas, Dhiraj Murthy, Miguel Pinedo, Alexandra Loukas & Keryn E. Pasch ·
 The University of Texas at Austin
 
-**Website: <https://topicllm.jethomasphd.workers.dev/>** · [Instrument](https://topicllm.jethomasphd.workers.dev/app/) ·
+**Website: <https://topicllm.jethomasphd.workers.dev/>** · [Visual demo](https://topicllm.jethomasphd.workers.dev/app/) ·
 [Methods preprint (web)](https://topicllm.jethomasphd.workers.dev/paper/)
+
+**The website is a visual demonstration. The Python package and your own fork are the research workflow.** Explore the method with synthetic data, then give an agent the repository's [reproduction contract](AGENTS.md), run the acceptance checks, and retain researcher control of interpretation and validation. Start with [REPRODUCE.md](REPRODUCE.md) or the [web guide](https://topicllm.jethomasphd.workers.dev/reproduce/).
 
 TopicLLM turns large volumes of social media text into a small set of interpretable themes, and
 those themes into prevalence estimates you can test. It runs in five stages:
 
 1. **Discover.** BERTopic (MiniLM embeddings → UMAP → HDBSCAN → c-TF-IDF) runs under a randomized
-   hyperparameter search of 50 draws × 24 topic solutions, or 1,200 candidate models. The model
+   hyperparameter search of 50 draws × 24 topic solutions, or 1,200 planned candidate models. The model
    with the highest c_v coherence wins.
 2. **Name.** A language model names each topic thousands of times, independently, and the modal
-   label is adopted. A fragmented vote flags an ambiguous topic.
-3. **Synthesize.** Two researchers group topics into themes under the Theme and Topic system. This
-   stage is deliberately not automated.
+   label is adopted. Fragmented votes merit review; synonyms can also split votes.
+3. **Synthesize.** Two researchers group topics into themes under the Theme and Topic system. Research decisions require explicit human approval. Synthetic-only tests use a labeled generator-based fixture.
 4. **Classify.** Boolean and LLM classifiers are piloted against a human-labeled benchmark. The
    pipeline refuses to scale a classifier below the agreement threshold.
 5. **Estimate.** Theme prevalence is computed by period and compared with proportional z-tests
@@ -29,13 +30,14 @@ log, vote ballots and tallies, the theme map, the benchmark report, and the z-te
 
 ## Audited release
 
-The default workbench is a **seven-topic synthetic reconstruction**. Its known campaign assignments reproduce the dissertation’s seven-to-five structure; recalculation matches all 15 rounded prevalence percentages. It is explicitly not an unsupervised recovery of the private study. Exploratory discovery reports observed topic counts, including the archived 20-topic synthetic result.
+The default workbench is a **seven-topic synthetic reconstruction**. Its known campaign assignments reproduce the dissertation’s seven-to-five structure; recalculation matches all 15 rounded prevalence percentages. It is explicitly not an unsupervised recovery of the private study. Exploratory discovery reports its observed count. The full 50-draw validation found 21 topics at c_v = 0.7962; the seven-topic walkthrough remains a separate construction.
 
 The unchanged dissertation is the source of truth. `source-integrity.json` protects it, all existing PDF/Word preprints and S1–S3. The website’s chapter readers point to the original pages. Revised methods are separate from preserved earlier editions.
 
 - [Revised methods](docs/paper/index.html), [source audit](docs/audit/index.html), [agent protocol](docs/protocol.json)
+- [Measured synthetic validation](https://topicllm.jethomasphd.workers.dev/validation/) with downloadable run evidence and API usage
 - [Cloudflare deployment](DEPLOYMENT.md): static assets and a same-origin OpenAI Worker, with server secrets, access control and bounded requests
-- `pnpm install --frozen-lockfile && pnpm check` checks JavaScript/Worker behavior and source integrity; `pnpm dev` previews locally
+- Follow [the release build commands](DEPLOYMENT.md) before `pnpm check`, so Python downloads are present; `pnpm dev` previews locally.
 
 The source corpus cannot be shared because of privacy and research-governance constraints. No original records, model weights, human benchmark or naming ballots are represented as recovered in this release.
 
@@ -63,20 +65,31 @@ The implementation and source audit are recorded in [AUDIT.md](AUDIT.md). Cloudf
 | `S1_…`, `S2_…`, `S3_…` | Archival supplements: the dissertation's Stage 1, 2 and 4 code transcribed from the dissertation appendices (S2 and S3 use `openai==0.27.0`) |
 | [`CITATION.cff`](CITATION.cff) | Citation metadata (GitHub's "Cite this repository") |
 
-### Quickstart
+## Start here
 
-```bash
+```sh
 git clone https://github.com/jethomasphd/TopicLLM.git
-cd TopicLLM/dtm_pipeline
-pip install -r requirements.txt
-python run_pipeline.py --stages 1                  # discovery on the demonstration corpus, no API cost
-python run_pipeline.py --stages 2,3 --mock-llm     # keyless dry run (set OPENAI_API_KEY for the real thing)
-python run_pipeline.py --ground-truth --stages 5   # reference inference
-python -m pytest tests -q
+cd TopicLLM
+python -m venv .venv
+# Activate .venv for your shell, then:
+python -m pip install ".[dev]"
+topicllm --profile quickcheck --output-dir runs/quickcheck
 ```
 
-For the complete site, original source readers and Worker, run `pnpm install --frozen-lockfile`, `pnpm build`, then `pnpm dev` at the repository root. See [DEPLOYMENT.md](DEPLOYMENT.md).
-(Opening the files with `file://` won't work, because the instrument uses ES modules and a Web Worker.)
+This free check runs real inference on generator labels: 5,872 rows, five themes, 15 comparisons, all rounded prevalence targets matched. It does not evaluate a model. The installable wheel includes the synthetic data; no source checkout is required for this check.
+
+For discovery, install `".[ml,dev]"`. For a complete live synthetic run, set your own `OPENAI_API_KEY` privately, inspect the plan, then execute:
+
+```sh
+topicllm --profile synthetic-e2e --votes 20 --budget-usd 5 --max-api-calls 7000 --workers 6 --output-dir runs/synthetic-live --plan
+# Repeat without --plan after reviewing its cost and scope.
+```
+
+The synthetic profile runs all five stages with an explicitly generator-derived review fixture. Research runs require actual reviewer attestations and a separate annotated benchmark. API calls are budgeted, auditable and resumable. See [REPRODUCE.md](REPRODUCE.md) for research commands, artifact contracts and limitations, and [AGENTS.md](AGENTS.md) for the agent workflow.
+
+The public website offers a free guided reconstruction and fixed anonymous OpenAI examples, capped at ten calls per browser session/day, thirty per IP/day and $1/day/$5/month site-wide. It does not accept arbitrary research text for hosted calls. The local browser sandbox uses a teaching mock. Research data and credentials stay in the researcher's approved environment.
+
+For local site development, run `pnpm install --frozen-lockfile`, build the downloadable package with `python -m pip wheel . --no-deps --wheel-dir dist_wheels`, then `python scripts/package-release.py`, `pnpm build` and `pnpm dev`. Opening HTML with `file://` does not support modules or workers. See [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Data
 

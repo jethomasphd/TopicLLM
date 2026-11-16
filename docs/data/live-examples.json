@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "mode": "fixed-synthetic-examples",
+  "domain": "synthetic alcohol-company marketing posts",
+  "themes": [
+    "Alcohol Delivery and Isolation Drinking",
+    "Restaurant Support",
+    "Social Media Promotions",
+    "Sports",
+    "Gaming"
+  ],
+  "topics": [
+    {
+      "id": "0",
+      "words": "sunshine, drizly, bit, day, order, happy, part, original, drink, get"
+    },
+    {
+      "id": "1",
+      "words": "restaurant, donate, support, worker, help, fund, restaurantstrong, strong, covid, donation"
+    },
+    {
+      "id": "2",
+      "words": "live, instagram, tune, tonight, ig, go, dive, tour, bar, edition"
+    },
+    {
+      "id": "3",
+      "words": "whassup, say, tag, win, merch, friend, chance, need, collection, week"
+    },
+    {
+      "id": "4",
+      "words": "draft, boo, commish, nfl, youtube, drafterparty, robgronkowski, guest, host, camillekostek"
+    },
+    {
+      "id": "5",
+      "words": "challenge, team, house, sport, league, submit, home, athlete, chance, video"
+    },
+    {
+      "id": "6",
+      "words": "royale, twitch, tv, charity, money, tonight, dkm, therealgavinlux, snellzilla, final"
+    }
+  ],
+  "examples": [
+    {
+      "id": "0",
+      "text": "Stock the bar before the big game. Hollowmere Herbal Liqueur gift packs ship to your door. Order online today. Must be 21+ to order.",
+      "generator_theme": "Alcohol Delivery and Isolation Drinking"
+    },
+    {
+      "id": "1",
+      "text": "Meet the team behind your pint. Our hospitality fund helps Charlotte restaurant workers with emergency grants. Donate or apply today.",
+      "generator_theme": "Restaurant Support"
+    },
+    {
+      "id": "2",
+      "text": "Follow us on Instagram for exclusive giveaways and first looks at new releases. Winners chosen at random.",
+      "generator_theme": "Social Media Promotions"
+    },
+    {
+      "id": "3",
+      "text": "Grab an ice-cold Lanternlight and settle in for the big game. Go team.",
+      "generator_theme": "Sports"
+    },
+    {
+      "id": "4",
+      "text": "Stream starts soon. New partnership: Hollowmere Herbal Liqueur is teaming up with SlateRunner for a monthly gaming stream. GG everyone.",
+      "generator_theme": "Gaming"
+    },
+    {
+      "id": "5",
+      "text": "Just saying. Our brewmaster tastes every batch before it leaves the floor. #FrostlineCheers #Cheers",
+      "generator_theme": "The text does not fit into any of these themes"
+    }
+  ]
+}

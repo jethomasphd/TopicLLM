@@ -23,7 +23,10 @@ import os
 
 import pandas as pd
 
-from config import CONFIG
+if __package__:
+    from .config import CONFIG
+else:
+    from config import CONFIG
 
 SAMPLE_PER_TOPIC = 15  # documents sampled per topic for the review packet
 
@@ -47,13 +50,13 @@ def run_stage3(cfg=CONFIG) -> str:
         "   overlapping thematic connections between topics — reading against",
         "   the current literature of the target domain.",
         "2. Group topics by conceptual similarity into candidate themes.",
-        "3. SENIOR researcher: independently review and critique; reach",
+        "3. SENIOR researcher: review and critique; reach",
         "   consensus through discussion.",
         "4. Record the consensus in theme_map_TEMPLATE.csv (save as",
         "   theme_map.csv) and set `themes` in config.py accordingly.",
         "",
-        "A fragmented vote (low modal share) flags a semantically ambiguous",
-        "topic — give it extra scrutiny here.",
+        "A fragmented vote (low modal share) can reflect synonyms or ambiguity in a",
+        "topic — inspect the raw ballots and give it extra scrutiny here.",
         "",
     ]
 

@@ -56,8 +56,14 @@ from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 from umap import UMAP
 
-from config import CONFIG
-from provenance import environment
+if __package__:
+    from .config import CONFIG
+else:
+    from config import CONFIG
+if __package__:
+    from .provenance import environment
+else:
+    from provenance import environment
 
 NLTK_PACKAGES = {  # resource path -> downloadable package
     "tokenizers/punkt": "punkt",

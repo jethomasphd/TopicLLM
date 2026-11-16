@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "release": "0.3.0",
+  "description": "Declared synthetic fixtures. Deliberate generator changes require a new documented fixture release.",
+  "files": {
+    "demonstration_corpus.csv": "e6cb1d6ebc8e22df368889538ca26e696a38367e6538cbe0ee0ae3602854d0a1",
+    "demonstration_benchmark.csv": "599e2da6d3aab90aa58e82bff1d701246808747164dac99688c215a179eb49b9",
+    "demonstration_ground_truth.csv": "917e5462234b8a70d76d60ba20c3c87dcf263e2da45baa4c51c4db74f6f31db5",
+    "demonstration_stopwords.txt": "3d27f94b394680ae215976715871bdac13669c2861afa4253ccfc8a502de94fd",
+    "study.json": "74c179808f81fce7cefe61e6e5875d529180ae324e279ecaa7520316ed761319",
+    "study-demo.json": "6cf8301da7ccb4279777ea8f85a093bdf5ccf95390e782893684c2b2dafe723b"
+  }
+}

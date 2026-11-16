@@ -1,78 +1,103 @@
-/* Same-origin OpenAI gateway. Provider credentials never reach the browser. */
-const MAX_BODY = 24000;
-const json = (body, status = 200, extra = {}) => Response.json(body, {status, headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff', ...extra}});
-const textField = (value, max) => typeof value === 'string' && value.trim().length > 0 && value.length <= max;
+import examples from '../docs/data/live-examples.json' with {type:'json'};
+import {validateCall,sendOpenAI} from './provider.js';
+import {hash,sign,equal,session,issueSession} from './session.js';
+export {validateCall};
+export {DemoQuota} from './quota.js';
+const json=(data,status=200,headers={})=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers}});
+const configured=env=>!!(env.OPENAI_API_KEY&&env.RESEARCH_ACCESS_TOKEN&&env.OPENAI_MODEL==='gpt-4o-2024-08-06'&&env.RATE_LIMITER&&env.QUOTAS);
+const operator=async(request,env)=>equal(request.headers.get('Authorization')||'',`Bearer ${env.RESEARCH_ACCESS_TOKEN}`);
+const quota=(env,path,data)=>env.QUOTAS.get(env.QUOTAS.idFromName('topicllm-global-v1')).fetch(new Request('https://quota'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}));
 
-export function validateCall(data) {
-  if (!data || !['name','classify'].includes(data.task)) throw new Error('Choose a supported research task.');
-  if (data.task === 'name') {
-    if (!textField(data.words, 1200) || !textField(data.domain, 400)) throw new Error('Topic words or domain context are missing or too long.');
-    return {max_tokens:15, system:'You are an expert at naming topics.', user:`The following words represent a topic derived from ${data.domain}: ${data.words}. Please provide a concise, meaningful topic name that clearly summarizes these words. `};
-  }
-  if (!textField(data.text, 8000) || !Array.isArray(data.themes) || data.themes.length < 1 || data.themes.length > 25 || data.themes.some(t => !textField(t, 150)) || new Set(data.themes).size !== data.themes.length) throw new Error('Provide text and 1–25 unique theme names.');
-  const options = [...data.themes, 'The text does not fit into any of these themes'];
-  return {max_tokens:120, system:'You are an expert at classifying text into themes.', user:`Classify the following text into one of the following ${options.length} themes: ${options.map((v,i) => `${i+1}. ${v}`).join(', ')}.Text: ${data.text}.Respond with verbatim classification using only the specified ${options.length} options.`};
+async function readBody(request){
+  if(!request.headers.get('Content-Type')?.toLowerCase().startsWith('application/json'))throw Object.assign(new Error('Use application/json.'),{status:415});
+  const reader=request.body?.getReader();if(!reader)throw new Error('Request body is required.');
+  let size=0;const parts=[];
+  while(true){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>24000){await reader.cancel();throw Object.assign(new Error('Request too large.'),{status:413});}parts.push(value);}
+  const body=new Uint8Array(size);let offset=0;for(const part of parts){body.set(part,offset);offset+=part.length;}
+  return JSON.parse(new TextDecoder().decode(body));
 }
 
-async function authorized(request, env) {
-  const offered = request.headers.get('Authorization') || '';
-  const expected = `Bearer ${env.RESEARCH_ACCESS_TOKEN}`;
-  const digest = async s => new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)));
-  const [a,b] = await Promise.all([digest(offered),digest(expected)]);
-  return a.reduce((diff, value, i) => diff | (value ^ b[i]), 0) === 0;
+export function demoCall(input){
+  if(!input||!['name','classify'].includes(input.task))throw new Error('Select a synthetic example.');
+  const field=input.task==='name'?'topicId':'exampleId';
+  if(Object.keys(input).some(k=>!['task',field].includes(k)))throw new Error('The public demo accepts fixed synthetic example IDs only.');
+  if(input.task==='name'){
+    const topic=examples.topics.find(t=>t.id===input.topicId);if(!topic)throw new Error('Unknown synthetic topic.');
+    return {task:'name',words:topic.words,domain:examples.domain};
+  }
+  const example=examples.examples.find(e=>e.id===input.exampleId);if(!example)throw new Error('Unknown synthetic example.');
+  return {task:'classify',text:example.text,themes:examples.themes};
 }
 
-export default {
-  async fetch(request, env) {
-    const url = new URL(request.url);
-    if (!url.pathname.startsWith('/api/')) return env.ASSETS.fetch(request);
-    const ready = !!(env.OPENAI_API_KEY && env.RESEARCH_ACCESS_TOKEN && env.OPENAI_MODEL && env.RATE_LIMITER);
-    if (url.pathname === '/api/config' && request.method === 'GET') return json({ready, provider:'openai', model:env.OPENAI_MODEL || null, access:'research-token', maxTextLength:8000});
-    if (url.pathname !== '/api/llm') return json({error:'Not found.'},404);
-    if (request.method !== 'POST') return json({error:'Use POST.'},405, {'Allow':'POST'});
-    if (!ready) return json({error:'Hosted LLM access has not been configured. The synthetic walkthrough remains available.'},503);
-    const origin = request.headers.get('Origin');
-    if (origin && origin !== url.origin) return json({error:'Cross-origin calls are not allowed.'},403);
-    if (!await authorized(request,env)) return json({error:'Enter the research access code supplied by the site operator.'},401);
-    const limit = await env.RATE_LIMITER.limit({key:`research:${request.headers.get('CF-Connecting-IP') || 'unknown'}`});
-    if (!limit.success) return json({error:'Request rate exceeded. Wait one minute and retry.'},429, {'Retry-After':'60'});
-    if (!request.headers.get('Content-Type')?.toLowerCase().startsWith('application/json')) return json({error:'Use application/json.'},415);
-    if (Number(request.headers.get('Content-Length')) > MAX_BODY) return json({error:'Request too large.'},413);
-    let call;
-    try {
-      // Stream limit also covers requests without a Content-Length header.
-      const reader = request.body?.getReader();
-      if (!reader) return json({error:'Request body is required.'},400);
-      let size = 0; const parts = [];
-      while (true) { const {done,value} = await reader.read(); if (done) break; size += value.byteLength; if (size > MAX_BODY) { await reader.cancel(); return json({error:'Request too large.'},413); } parts.push(value); }
-      const body = new Uint8Array(size); let offset = 0; for (const part of parts) { body.set(part,offset); offset += part.length; }
-      call = validateCall(JSON.parse(new TextDecoder().decode(body)));
-    } catch (error) { return json({error:error instanceof SyntaxError ? 'Malformed JSON.' : error.message},400); }
-    try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method:'POST', signal:AbortSignal.timeout(45000),
-        headers:{'Content-Type':'application/json', Authorization:`Bearer ${env.OPENAI_API_KEY}`},
-        body:JSON.stringify({model:env.OPENAI_MODEL, messages:[{role:'system',content:call.system},{role:'user',content:call.user}], temperature:.5, max_tokens:call.max_tokens, n:1, store:false})
-      });
-      if (!response.ok) {
-        // Expose only allowlisted operational codes, never raw provider messages.
-        const failure = await response.json().catch(() => ({}));
-        const quotaMessages = {
-          insufficient_quota:'OpenAI API quota is unavailable. The site operator must check API credits and project limits before retrying.',
-          credit_balance_exhausted:'OpenAI API credits are exhausted. The site operator must add credits before retrying.',
-          organization_usage_limit_exceeded:'The OpenAI organization usage limit was reached. The site operator must review its approved limit.',
-          organization_spend_limit_exceeded:'The OpenAI organization spending limit was reached. The site operator must review that limit.',
-          project_spend_limit_exceeded:'The OpenAI project spending limit was reached. The site operator must review that limit.'
-        };
-        const code = Object.hasOwn(quotaMessages, failure.error?.code) ? failure.error.code : failure.error?.type === 'insufficient_quota' ? 'insufficient_quota' : null;
-        if (response.status === 429 && code) return json({error:quotaMessages[code], code, retryable:false, request_id:response.headers.get('x-request-id')},429);
-        const retryAfter = Number(response.headers.get('Retry-After'));
-        const headers = retryAfter > 0 && Number.isFinite(retryAfter) ? {'Retry-After':String(Math.min(60, Math.ceil(retryAfter)))} : {};
-        return json({error:response.status === 429 ? 'OpenAI rate limit reached. Wait and retry.' : 'OpenAI did not complete the request. No classification was recorded.', retryable:response.status === 429 || response.status >= 500, request_id:response.headers.get('x-request-id')},response.status === 429 ? 429 : 502,headers);
-      }
-      const data = await response.json(), choice = data.choices?.[0], content = choice?.message?.content;
-      if (!content?.trim() || choice.finish_reason !== 'stop') return json({error:'OpenAI returned an empty or incomplete response. No label was recorded.'},502);
-      return json({text:content.trim(), model:data.model, system_fingerprint:data.system_fingerprint || null, request_id:response.headers.get('x-request-id'), usage:data.usage || null, temperature:.5, max_tokens:call.max_tokens});
-    } catch { return json({error:'The LLM service timed out or could not be reached. Retry this step.'},504); }
+export default {async fetch(request,env){
+  const url=new URL(request.url),path=url.pathname;
+  if(!path.startsWith('/api/'))return env.ASSETS.fetch(request);
+  const ready=configured(env), publicLive=ready&&env.LIVE_DEMO_ENABLED==='true';
+  if(path==='/api/config'&&request.method==='GET')return json({ready,provider:'openai',model:env.OPENAI_MODEL||null,access:'anonymous-synthetic-examples',publicLive,maxTextLength:8000,sessionCallsPerDay:10,ipCallsPerDay:30});
+  if(path==='/api/health'&&request.method==='GET'){
+    try{
+      if(!ready)return json({status:'unconfigured',live_examples:false},503);
+      if(!(await env.RATE_LIMITER.limit({key:'health:'+(request.headers.get('CF-Connecting-IP')||'unknown')})).success)return json({status:'rate-limited'},429,{'Retry-After':'60'});
+      const response=await quota(env,'/status',{}),status=await response.json();
+      if(!response.ok||!status.utc_day||!status.buckets)throw new Error('Quota health unavailable');
+      return json({status:'ok',live_examples:publicLive,model:env.OPENAI_MODEL});
+    }catch{return json({status:'unavailable',live_examples:false},503);}
   }
-};
+  if(!['/api/session','/api/demo','/api/llm','/api/admin/status'].includes(path))return json({error:'Not found.'},404);
+  if(!ready)return json({error:'Live access is unavailable. The visual walkthrough remains available.'},503);
+  const origin=request.headers.get('Origin');
+  if(origin&&origin!==url.origin)return json({error:'Cross-origin calls are not allowed.'},403);
+  if(path==='/api/admin/status'){
+    if(!await operator(request,env))return json({error:'Operator authorization required.'},401);
+    const result=await quota(env,'/status',{});return json(await result.json(),result.status);
+  }
+  if(path==='/api/session'){
+    if(request.method!=='GET')return json({error:'Use GET.'},405,{Allow:'GET'});
+    if(!publicLive)return json({error:'Live examples are temporarily paused.'},503);
+    const ip=request.headers.get('CF-Connecting-IP');if(!ip)return json({error:'Client address unavailable.'},503);
+    if(!(await env.RATE_LIMITER.limit({key:'session:'+ip})).success)return json({error:'Please wait before starting another demo session.'},429,{'Retry-After':'60'});
+    if(await session(request,env))return json({ready:true});
+    return json({ready:true},200,{'Set-Cookie':`__Host-topicllm=${await issueSession(env)}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=86400`});
+  }
+  if(request.method!=='POST')return json({error:'Use POST.'},405,{Allow:'POST'});
+  const isPublic=path==='/api/demo';
+  let identity;
+  if(isPublic){
+    if(!publicLive)return json({error:'Live examples are temporarily paused.'},503);
+    if(origin!==url.origin)return json({error:'Open the live demo on this website.'},403);
+    identity=await session(request,env);if(!identity)return json({error:'Start a new demo session.',retryable:false},401);
+  }else{
+    if(env.OPERATOR_LLM_ENABLED!=='true')return json({error:'Operator calls are paused.'},503);
+    if(!await operator(request,env))return json({error:'Operator authorization required. Use the public visual demo or your own Python environment.'},401);
+    identity='operator';
+  }
+  const ip=request.headers.get('CF-Connecting-IP')||'local-operator';
+  const limiter=isPublic?env.RATE_LIMITER:(env.OPERATOR_RATE_LIMITER||env.RATE_LIMITER);
+  if(!(await limiter.limit({key:(isPublic?'demo:':'operator:')+ip})).success)return json({error:'Request rate exceeded. Wait one minute and retry.',retryable:true},429,{'Retry-After':'60'});
+  let call,input;
+  try{input=await readBody(request);call=validateCall(isPublic?demoCall(input):input);}catch(error){return json({error:error instanceof SyntaxError?'Malformed JSON.':error.message,retryable:false},error.status||400);}
+  const operation=request.headers.get('X-Request-ID')||crypto.randomUUID();
+  if(!/^[a-zA-Z0-9_-]{8,100}$/.test(operation))return json({error:'Invalid operation ID.'},400);
+  const key=`${identity}:${operation}`, fingerprint=await hash(JSON.stringify(call));
+  const ipHash=await sign(`ip:${new Date().toISOString().slice(0,10)}:${ip}`,env.RESEARCH_ACCESS_TOKEN);
+  const reserved=(new TextEncoder().encode(call.system+call.user).length+256)*2500+call.max_tokens*10000;
+  let reservation;
+  try{
+    const response=await quota(env,'/reserve',{scope:isPublic?'public':'operator',key,session:identity,ip:ipHash,fingerprint,reserved});
+    reservation=await response.json();
+    if(!response.ok)return json(reservation,response.status,reservation.retry_after?{'Retry-After':String(reservation.retry_after)}:{});
+    if(reservation.cached)return json({...reservation.response,cached:true},reservation.http_status);
+    if(reservation.allowed!==true)throw new Error('Reservation was not confirmed');
+  }catch{return json({error:'Usage controls are unavailable. No model request was sent.',retryable:false},503);}
+  const response=await sendOpenAI(call,env),providerResult=await response.json();
+  const result={...providerResult,...(isPublic?{mode:'live-synthetic-example',remaining_session:reservation.remaining_session}:{})};
+  const usage=result.usage;
+  const actual=Number.isInteger(usage?.prompt_tokens)&&Number.isInteger(usage?.completion_tokens)?usage.prompt_tokens*2500+usage.completion_tokens*10000:null;
+  try{
+    const settled=await quota(env,'/settle',{key,actual,ok:response.ok,response:result,http_status:response.status});
+    if(!settled.ok||(await settled.json()).settled!==true)throw new Error('Settlement failed');
+  }
+  catch{return json({error:'The response could not be recorded safely. No label was released; the allowance remains reserved.',retryable:false},503);}
+  const headers={};if(response.headers.has('Retry-After'))headers['Retry-After']=response.headers.get('Retry-After');
+  return json(result,response.status,headers);
+}};

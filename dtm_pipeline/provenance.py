@@ -6,10 +6,14 @@ from importlib.metadata import version, PackageNotFoundError
 from pathlib import Path
 
 def input_kind(path, bundled_filename):
-    from config import DEMO_DIR
-    source, bundled = Path(path), Path(DEMO_DIR) / bundled_filename
-    return ('bundled-synthetic' if source.is_file() and bundled.is_file()
-            and source.read_bytes() == bundled.read_bytes() else 'researcher-supplied-unverified')
+    if __package__:
+        from .config import DEMO_DIR
+    else:
+        from config import DEMO_DIR
+    source = Path(path)
+    expected = json.loads((Path(DEMO_DIR)/'synthetic-integrity.json').read_text(encoding='utf-8'))['files'].get(bundled_filename)
+    return ('bundled-synthetic' if expected and source.is_file()
+            and hashlib.sha256(source.read_bytes()).hexdigest() == expected else 'researcher-supplied-unverified')
 
 def fingerprint(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False,

@@ -1,0 +1,323 @@
+{
+  "checked_at": "2026-11-16T18:06:23.990Z",
+  "status": "passed",
+  "config": {
+    "ready": true,
+    "provider": "openai",
+    "model": "gpt-4o-2024-08-06",
+    "access": "anonymous-synthetic-examples",
+    "publicLive": true,
+    "maxTextLength": 8000,
+    "sessionCallsPerDay": 10,
+    "ipCallsPerDay": 30
+  },
+  "health": {
+    "status": "ok",
+    "live_examples": true,
+    "model": "gpt-4o-2024-08-06"
+  },
+  "checks": {
+    "live_fixed_example": true,
+    "cached_duplicate_same_request_id": true,
+    "arbitrary_text_rejected": 400,
+    "cross_origin_rejected": 403,
+    "unsigned_rejected": 401,
+    "ten_session_calls_succeeded": true,
+    "eleventh_call_rejected": 429,
+    "operator_route_paused": 503
+  },
+  "records": [
+    {
+      "text": "5. Gaming",
+      "model": "gpt-4o-2024-08-06",
+      "system_fingerprint": "fp_d00f95a9ec",
+      "request_id": "req_1784fc86d0714b4686bccd75c7543cd8",
+      "usage": {
+        "prompt_tokens": 124,
+        "completion_tokens": 3,
+        "total_tokens": 127,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "temperature": 0.5,
+      "max_tokens": 120,
+      "mode": "live-synthetic-example",
+      "remaining_session": 9
+    },
+    {
+      "text": "5. Gaming",
+      "model": "gpt-4o-2024-08-06",
+      "system_fingerprint": "fp_d00f95a9ec",
+      "request_id": "req_aedfed05172c4e6d99f9d07561bff330",
+      "usage": {
+        "prompt_tokens": 124,
+        "completion_tokens": 3,
+        "total_tokens": 127,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "temperature": 0.5,
+      "max_tokens": 120,
+      "mode": "live-synthetic-example",
+      "remaining_session": 8
+    },
+    {
+      "text": "Gaming",
+      "model": "gpt-4o-2024-08-06",
+      "system_fingerprint": "fp_d00f95a9ec",
+      "request_id": "req_42fa0523c2094748aeabc7795e600125",
+      "usage": {
+        "prompt_tokens": 124,
+        "completion_tokens": 1,
+        "total_tokens": 125,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "temperature": 0.5,
+      "max_tokens": 120,
+      "mode": "live-synthetic-example",
+      "remaining_session": 7
+    },
+    {
+      "text": "5. Gaming",
+      "model": "gpt-4o-2024-08-06",
+      "system_fingerprint": "fp_d00f95a9ec",
+      "request_id": "req_4c9d8696667e48dd8c10e87dfb3c4e0f",
+      "usage": {
+        "prompt_tokens": 124,
+        "completion_tokens": 3,
+        "total_tokens": 127,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "temperature": 0.5,
+      "max_tokens": 120,
+      "mode": "live-synthetic-example",
+      "remaining_session": 6
+    },
+    {
+      "text": "Gaming",
+      "model": "gpt-4o-2024-08-06",
+      "system_fingerprint": "fp_d00f95a9ec",
+      "request_id": "req_631f329b12d44e2887393536f9f9d4f1",
+      "usage": {
+        "prompt_tokens": 124,
+        "completion_tokens": 1,
+        "total_tokens": 125,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "temperature": 0.5,
+      "max_tokens": 120,
+      "mode": "live-synthetic-example",
+      "remaining_session": 5
+    },
+    {
+      "text": "5. Gaming",
+      "model": "gpt-4o-2024-08-06",
+      "system_fingerprint": "fp_d00f95a9ec",
+      "request_id": "req_6f3232038e0f4a989dbaa6164484a08c",
+      "usage": {
+        "prompt_tokens": 124,
+        "completion_tokens": 3,
+        "total_tokens": 127,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "temperature": 0.5,
+      "max_tokens": 120,
+      "mode": "live-synthetic-example",
+      "remaining_session": 4
+    },
+    {
+      "text": "Gaming",
+      "model": "gpt-4o-2024-08-06",
+      "system_fingerprint": "fp_d00f95a9ec",
+      "request_id": "req_b08bffa2aec74683aa6150ae972c562d",
+      "usage": {
+        "prompt_tokens": 124,
+        "completion_tokens": 1,
+        "total_tokens": 125,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "temperature": 0.5,
+      "max_tokens": 120,
+      "mode": "live-synthetic-example",
+      "remaining_session": 3
+    },
+    {
+      "text": "5. Gaming",
+      "model": "gpt-4o-2024-08-06",
+      "system_fingerprint": "fp_d00f95a9ec",
+      "request_id": "req_9f69c1c9ad6c44f892299de2c64a07da",
+      "usage": {
+        "prompt_tokens": 124,
+        "completion_tokens": 3,
+        "total_tokens": 127,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "temperature": 0.5,
+      "max_tokens": 120,
+      "mode": "live-synthetic-example",
+      "remaining_session": 2
+    },
+    {
+      "text": "Gaming",
+      "model": "gpt-4o-2024-08-06",
+      "system_fingerprint": "fp_d00f95a9ec",
+      "request_id": "req_2d47125789e14443b55bd9c8642828b3",
+      "usage": {
+        "prompt_tokens": 124,
+        "completion_tokens": 1,
+        "total_tokens": 125,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "temperature": 0.5,
+      "max_tokens": 120,
+      "mode": "live-synthetic-example",
+      "remaining_session": 1
+    },
+    {
+      "text": "5. Gaming",
+      "model": "gpt-4o-2024-08-06",
+      "system_fingerprint": "fp_d00f95a9ec",
+      "request_id": "req_c245155fb3f04e6da2475b88c98847f9",
+      "usage": {
+        "prompt_tokens": 124,
+        "completion_tokens": 3,
+        "total_tokens": 127,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "audio_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        }
+      },
+      "temperature": 0.5,
+      "max_tokens": 120,
+      "mode": "live-synthetic-example",
+      "remaining_session": 0
+    }
+  ],
+  "aggregate_usage": {
+    "utc_day": "2026-11-16",
+    "utc_month": "2026-11",
+    "buckets": {
+      "operator:day:2026-11-16": {
+        "charged": 2368295000,
+        "calls": 6292,
+        "success": 6292,
+        "errors": 0,
+        "denied": 0
+      },
+      "operator:month:2026-11": {
+        "charged": 2368295000,
+        "calls": 6292,
+        "success": 6292,
+        "errors": 0,
+        "denied": 0
+      },
+      "public:day:2026-11-16": {
+        "charged": 3320000,
+        "calls": 10,
+        "success": 10,
+        "errors": 0,
+        "denied": 1
+      },
+      "public:month:2026-11": {
+        "charged": 3320000,
+        "calls": 10,
+        "success": 10,
+        "errors": 0,
+        "denied": 1
+      },
+      "operator:validation:v1": {
+        "charged": 2368295000,
+        "calls": 6292,
+        "success": 6292,
+        "errors": 0,
+        "denied": 0
+      }
+    },
+    "pending": 0
+  }
+}

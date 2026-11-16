@@ -17,7 +17,7 @@ Real-corpus safeguards (Study 2 classified 486,786 tweets):
   * corpus classification checkpoints every `checkpoint_every` documents and
     resumes after an interruption; `classify_workers` > 1 runs calls
     concurrently;
-  * documents with no text are labeled "does not fit" without an API call.
+  * documents with no text are invalid and must be resolved before inference.
 
 Requires  : OPENAI_API_KEY in the environment (llm_backend = "openai").
 Inputs    : tweet_data.csv; human_labels.csv (columns: tweet, human_label);
@@ -41,10 +41,19 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd
 
-from config import CONFIG
-from provenance import checkpoint_guard, fingerprint, input_kind
+if __package__:
+    from .config import CONFIG
+else:
+    from config import CONFIG
+if __package__:
+    from .provenance import checkpoint_guard, fingerprint, input_kind
+else:
+    from provenance import checkpoint_guard, fingerprint, input_kind
 INVALID_LABEL = "__INVALID_RESPONSE__"
-from llm_backend import ERROR_LABEL, LLMBackend, make_backend
+if __package__:
+    from .llm_backend import ERROR_LABEL, LLMBackend, make_backend
+else:
+    from llm_backend import ERROR_LABEL, LLMBackend, make_backend
 
 SYSTEM = "You are an expert at classifying text into themes."
 
@@ -70,11 +79,12 @@ def build_prompt(text: str, cfg=CONFIG) -> str:
     )
 
 
-def classify_once(backend: LLMBackend, text: str, cfg=CONFIG) -> str:
+def classify_once(backend: LLMBackend, text: str, cfg=CONFIG, request_key=None) -> str:
     """One independent classification call. Decoding parameters match the
-    reference implementation: temperature 0.5, max_tokens 30, n=1."""
+    maintained implementation: temperature 0.5, max_tokens 120, n=1."""
     return backend.complete(SYSTEM, build_prompt(text, cfg),
-                            cfg.classify_max_tokens, cfg.classify_temperature, tag="stage4")
+                            cfg.classify_max_tokens, cfg.classify_temperature, tag="stage4",request_key=request_key,
+                            task_data={'task':'classify','text':text,'themes':cfg.themes})
 
 
 def canonicalize(raw: str, cfg=CONFIG) -> tuple[str, str]:
@@ -97,11 +107,11 @@ def is_blank(text) -> bool:
     return text is None or (isinstance(text, float) and pd.isna(text)) or not str(text).strip()
 
 
-def classify_text(backend: LLMBackend, text, cfg=CONFIG) -> tuple[str, str, str]:
+def classify_text(backend: LLMBackend, text, cfg=CONFIG, request_key=None) -> tuple[str, str, str]:
     """(label, status, raw_response) for one document."""
     if is_blank(text):
         return INVALID_LABEL, "empty", ""
-    raw = classify_once(backend, str(text), cfg)
+    raw = classify_once(backend, str(text), cfg,request_key=request_key)
     label, status = canonicalize(raw, cfg)
     return label, status, raw
 
@@ -241,7 +251,7 @@ def classify_corpus(backend: LLMBackend, corpus: pd.DataFrame, out: str, cfg=CON
           f"(workers={cfg.classify_workers}, checkpoint every {cfg.checkpoint_every}) ...")
 
     def work(i):
-        label, status, raw = classify_text(backend, corpus.at[i, "tweet"], cfg)
+        label, status, raw = classify_text(backend, corpus.at[i, "tweet"], cfg,request_key=f'corpus:{i}')
         return {"doc_index": i, "theme": label, "status": status, "raw_response": raw}
 
     rows = done.to_dict("records")
@@ -265,6 +275,11 @@ def classify_corpus(backend: LLMBackend, corpus: pd.DataFrame, out: str, cfg=CON
 def run_stage4(cfg=CONFIG) -> str:
     """Pilot both classifiers on the human benchmark; scale the winner if and
     only if it clears the agreement threshold."""
+    if __package__:
+        from .review import require_review
+    else:
+        from review import require_review
+    review = require_review(cfg)
     out = os.path.join(cfg.output_dir, "stage4")
     os.makedirs(out, exist_ok=True)
     backend = make_backend(cfg)
@@ -291,7 +306,7 @@ def run_stage4(cfg=CONFIG) -> str:
 
     preds = []
     for i, text in enumerate(bench["tweet"], 1):
-        preds.append(classify_text(backend, text, cfg))
+        preds.append(classify_text(backend, text, cfg,request_key=f'benchmark:{i}'))
         if i % 25 == 0:
             print(f"[stage4]   {i}/{len(bench)} benchmark documents classified")
     bench["llm_pred"] = [p[0] for p in preds]
@@ -310,6 +325,8 @@ def run_stage4(cfg=CONFIG) -> str:
         "benchmark_provenance": provenance,
         "corpus_provenance": input_kind(cfg.input_csv, 'demonstration_corpus.csv'),
         "threshold": cfg.agreement_threshold,
+        "review_mode": review['review_mode'],
+        "human_review_performed": review['human_review_performed'],
         "llm": score_labels(bench["human_label"], bench["llm_pred"], labels),
         "llm_unmatched_responses": int((bench["llm_status"] == "unmatched").sum()),
         "boolean": (score_labels(bench["human_label"], bench["boolean_pred"], labels)
@@ -348,6 +365,8 @@ def run_stage4(cfg=CONFIG) -> str:
 
     # ---- Scale to the full corpus ------------------------------------------
     corpus = pd.read_csv(cfg.input_csv)
+    if 'tweet' not in corpus or corpus.tweet.map(is_blank).any():
+        raise ValueError('Corpus contains missing text. Resolve exclusions before classification.')
     print(f"[stage4] Corpus: {len(corpus):,} documents")
     if winner == "llm":
         corpus = classify_corpus(backend, corpus, out, cfg)

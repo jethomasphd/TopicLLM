@@ -1,0 +1,414 @@
+{
+  "release": "0.3.0",
+  "date": "2026-11-16",
+  "status": "passed",
+  "scope": "software acceptance on generated data",
+  "human_validation": false,
+  "historical_recomputation": false,
+  "records": 5872,
+  "discovery": {
+    "draws": 50,
+    "candidate_status_counts": {
+      "insufficient_topics": 50,
+      "scored": 1150
+    },
+    "planned_candidates": 1200,
+    "iteration": 16,
+    "umap_params": {
+      "n_neighbors": 35,
+      "n_components": 8,
+      "min_dist": 0.05,
+      "metric": "cosine"
+    },
+    "hdbscan_params": {
+      "min_cluster_size": 35,
+      "metric": "euclidean",
+      "cluster_selection_method": "eom"
+    },
+    "max_topics": 22,
+    "n_topics": 21,
+    "coherence": 0.7961720879447172,
+    "seed": 42,
+    "seed_umap": true,
+    "outlier_records": 562,
+    "model_reload": {
+      "embedding_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+      "model_reload_assignments_match": true,
+      "elapsed_seconds": 985.8963446617126,
+      "search_iterations": 50,
+      "topic_ceiling_range": [
+        2,
+        25
+      ]
+    }
+  },
+  "naming": {
+    "votes_per_topic": 20,
+    "ballots": 420,
+    "historical_votes_per_topic": 5000
+  },
+  "review": {
+    "mode": "synthetic-oracle",
+    "human_review_performed": false,
+    "rule": "Majority generator theme in each discovered cluster; residual clusters unmapped."
+  },
+  "benchmark": {
+    "n_benchmark": 250,
+    "model": "gpt-4o-2024-08-06",
+    "backend": "gateway",
+    "benchmark_provenance": "bundled-synthetic",
+    "corpus_provenance": "bundled-synthetic",
+    "threshold": 0.85,
+    "review_mode": "synthetic-oracle",
+    "human_review_performed": false,
+    "llm": {
+      "agreement": 0.936,
+      "cohens_kappa": 0.9096,
+      "per_label": {
+        "Alcohol Delivery and Isolation Drinking": {
+          "human_n": 49,
+          "pred_n": 47,
+          "precision": 0.8936,
+          "recall": 0.8571
+        },
+        "Restaurant Support": {
+          "human_n": 10,
+          "pred_n": 10,
+          "precision": 1.0,
+          "recall": 1.0
+        },
+        "Social Media Promotions": {
+          "human_n": 47,
+          "pred_n": 50,
+          "precision": 0.94,
+          "recall": 1.0
+        },
+        "Sports": {
+          "human_n": 28,
+          "pred_n": 25,
+          "precision": 1.0,
+          "recall": 0.8929
+        },
+        "Gaming": {
+          "human_n": 3,
+          "pred_n": 5,
+          "precision": 0.6,
+          "recall": 1.0
+        },
+        "The text does not fit into any of these themes": {
+          "human_n": 113,
+          "pred_n": 113,
+          "precision": 0.9469,
+          "recall": 0.9469
+        }
+      },
+      "confusion": {
+        "Alcohol Delivery and Isolation Drinking": {
+          "Alcohol Delivery and Isolation Drinking": 42,
+          "Restaurant Support": 0,
+          "Social Media Promotions": 1,
+          "Sports": 0,
+          "Gaming": 0,
+          "The text does not fit into any of these themes": 6
+        },
+        "Restaurant Support": {
+          "Alcohol Delivery and Isolation Drinking": 0,
+          "Restaurant Support": 10,
+          "Social Media Promotions": 0,
+          "Sports": 0,
+          "Gaming": 0,
+          "The text does not fit into any of these themes": 0
+        },
+        "Social Media Promotions": {
+          "Alcohol Delivery and Isolation Drinking": 0,
+          "Restaurant Support": 0,
+          "Social Media Promotions": 47,
+          "Sports": 0,
+          "Gaming": 0,
+          "The text does not fit into any of these themes": 0
+        },
+        "Sports": {
+          "Alcohol Delivery and Isolation Drinking": 0,
+          "Restaurant Support": 0,
+          "Social Media Promotions": 1,
+          "Sports": 25,
+          "Gaming": 2,
+          "The text does not fit into any of these themes": 0
+        },
+        "Gaming": {
+          "Alcohol Delivery and Isolation Drinking": 0,
+          "Restaurant Support": 0,
+          "Social Media Promotions": 0,
+          "Sports": 0,
+          "Gaming": 3,
+          "The text does not fit into any of these themes": 0
+        },
+        "The text does not fit into any of these themes": {
+          "Alcohol Delivery and Isolation Drinking": 5,
+          "Restaurant Support": 0,
+          "Social Media Promotions": 1,
+          "Sports": 0,
+          "Gaming": 0,
+          "The text does not fit into any of these themes": 107
+        }
+      }
+    },
+    "llm_unmatched_responses": 0,
+    "boolean": {
+      "agreement": 0.92,
+      "cohens_kappa": 0.8861,
+      "per_label": {
+        "Alcohol Delivery and Isolation Drinking": {
+          "human_n": 49,
+          "pred_n": 48,
+          "precision": 0.9167,
+          "recall": 0.898
+        },
+        "Restaurant Support": {
+          "human_n": 10,
+          "pred_n": 10,
+          "precision": 1.0,
+          "recall": 1.0
+        },
+        "Social Media Promotions": {
+          "human_n": 47,
+          "pred_n": 53,
+          "precision": 0.8868,
+          "recall": 1.0
+        },
+        "Sports": {
+          "human_n": 28,
+          "pred_n": 20,
+          "precision": 0.9,
+          "recall": 0.6429
+        },
+        "Gaming": {
+          "human_n": 3,
+          "pred_n": 3,
+          "precision": 1.0,
+          "recall": 1.0
+        },
+        "The text does not fit into any of these themes": {
+          "human_n": 113,
+          "pred_n": 116,
+          "precision": 0.931,
+          "recall": 0.9558
+        }
+      },
+      "confusion": {
+        "Alcohol Delivery and Isolation Drinking": {
+          "Alcohol Delivery and Isolation Drinking": 44,
+          "Restaurant Support": 0,
+          "Social Media Promotions": 1,
+          "Sports": 1,
+          "Gaming": 0,
+          "The text does not fit into any of these themes": 3
+        },
+        "Restaurant Support": {
+          "Alcohol Delivery and Isolation Drinking": 0,
+          "Restaurant Support": 10,
+          "Social Media Promotions": 0,
+          "Sports": 0,
+          "Gaming": 0,
+          "The text does not fit into any of these themes": 0
+        },
+        "Social Media Promotions": {
+          "Alcohol Delivery and Isolation Drinking": 0,
+          "Restaurant Support": 0,
+          "Social Media Promotions": 47,
+          "Sports": 0,
+          "Gaming": 0,
+          "The text does not fit into any of these themes": 0
+        },
+        "Sports": {
+          "Alcohol Delivery and Isolation Drinking": 0,
+          "Restaurant Support": 0,
+          "Social Media Promotions": 5,
+          "Sports": 18,
+          "Gaming": 0,
+          "The text does not fit into any of these themes": 5
+        },
+        "Gaming": {
+          "Alcohol Delivery and Isolation Drinking": 0,
+          "Restaurant Support": 0,
+          "Social Media Promotions": 0,
+          "Sports": 0,
+          "Gaming": 3,
+          "The text does not fit into any of these themes": 0
+        },
+        "The text does not fit into any of these themes": {
+          "Alcohol Delivery and Isolation Drinking": 4,
+          "Restaurant Support": 0,
+          "Social Media Promotions": 0,
+          "Sports": 1,
+          "Gaming": 0,
+          "The text does not fit into any of these themes": 108
+        }
+      }
+    },
+    "llm_agreement": 0.936,
+    "boolean_agreement": 0.92,
+    "unsupported_themes": [],
+    "winner": "llm",
+    "gate_passed": true,
+    "sampling_period": {
+      "earliest_date": "2020-03-01",
+      "latest_date": "2020-05-30",
+      "scope": "250 sampled peri-period corpus records with generator labels"
+    }
+  },
+  "corpus": {
+    "rows": 5872,
+    "agreement_with_generator": 0.9581062670299727,
+    "exact_benchmark_overlap": 250,
+    "nonbenchmark_rows": 5622,
+    "nonbenchmark_agreement": 0.9583778014941302,
+    "duplicate_input_texts": 0
+  },
+  "inference": {
+    "status": "passed",
+    "mode": "synthetic-live-predictions",
+    "records": 5872,
+    "theme_rows": 5,
+    "comparisons": 15,
+    "prevalence_comparison": [
+      {
+        "theme": "Alcohol Delivery and Isolation Drinking",
+        "period": "pre",
+        "computed": 8.8,
+        "reported": 9.1
+      },
+      {
+        "theme": "Alcohol Delivery and Isolation Drinking",
+        "period": "peri",
+        "computed": 16.0,
+        "reported": 17.4
+      },
+      {
+        "theme": "Alcohol Delivery and Isolation Drinking",
+        "period": "post",
+        "computed": 10.9,
+        "reported": 11.9
+      },
+      {
+        "theme": "Restaurant Support",
+        "period": "pre",
+        "computed": 1.9,
+        "reported": 1.9
+      },
+      {
+        "theme": "Restaurant Support",
+        "period": "peri",
+        "computed": 5.5,
+        "reported": 5.5
+      },
+      {
+        "theme": "Restaurant Support",
+        "period": "post",
+        "computed": 1.7,
+        "reported": 1.7
+      },
+      {
+        "theme": "Social Media Promotions",
+        "period": "pre",
+        "computed": 6.8,
+        "reported": 6.6
+      },
+      {
+        "theme": "Social Media Promotions",
+        "period": "peri",
+        "computed": 16.0,
+        "reported": 16.5
+      },
+      {
+        "theme": "Social Media Promotions",
+        "period": "post",
+        "computed": 11.0,
+        "reported": 10.6
+      },
+      {
+        "theme": "Sports",
+        "period": "pre",
+        "computed": 7.7,
+        "reported": 8.2
+      },
+      {
+        "theme": "Sports",
+        "period": "peri",
+        "computed": 10.4,
+        "reported": 11.4
+      },
+      {
+        "theme": "Sports",
+        "period": "post",
+        "computed": 8.5,
+        "reported": 8.9
+      },
+      {
+        "theme": "Gaming",
+        "period": "pre",
+        "computed": 1.4,
+        "reported": 1.1
+      },
+      {
+        "theme": "Gaming",
+        "period": "peri",
+        "computed": 2.7,
+        "reported": 2.0
+      },
+      {
+        "theme": "Gaming",
+        "period": "post",
+        "computed": 1.7,
+        "reported": 1.6
+      }
+    ],
+    "human_validation": false,
+    "historical_recomputation": false,
+    "environment": {
+      "python": "3.12.14",
+      "platform": "Windows-10-10.0.19045-SP0",
+      "packages": {
+        "bertopic": "0.17.4",
+        "sentence-transformers": "6.3.0",
+        "umap-learn": "0.6.0",
+        "hdbscan": "0.8.44",
+        "gensim": "4.4.0",
+        "nltk": "3.10.4",
+        "pandas": "3.1.1",
+        "numpy": "2.5.5",
+        "scipy": "1.18.1",
+        "scikit-learn": "1.9.1",
+        "statsmodels": "0.15.0",
+        "openai": "3.51.0"
+      }
+    }
+  },
+  "api_usage": {
+    "price_date": "2026-11-16",
+    "model": "gpt-4o-2024-08-06",
+    "input_usd_per_million": 2.5,
+    "output_usd_per_million": 10,
+    "budget_usd": 5,
+    "call_ceiling": 7000,
+    "attempted_calls": 6547,
+    "successful_calls": 6542,
+    "conservatively_accounted_usd": 2.477165,
+    "prompt_tokens": 757189,
+    "completion_tokens": 56958
+  },
+  "known_usage_estimated_usd": 2.4625525,
+  "limitations": [
+    "All labels and texts originate from a generator; no human annotation or historical records.",
+    "The benchmark is 250 sampled peri-period corpus records; all records share templates. Synthetic mapping uses generator labels across the corpus.",
+    "Gaming has only three benchmark examples. These metrics do not establish real-world validity.",
+    "Twenty naming votes exercise the workflow; the historical protocol used 5,000 votes per topic.",
+    "Full synthetic discovery found 21 topics. The seven-topic website reconstruction is explicitly assigned.",
+    "Prices are estimates; uncertain failures retain reservations. Cloudflare charges are separate."
+  ],
+  "artifact_archive": {
+    "file": "synthetic-validation-2026-11-16.zip",
+    "sha256": "9aeb4de8a4e01fcf1cbbe55048c7277ffabe8f2d6fca353378a20f2c387f9282",
+    "files": 31
+  }
+}

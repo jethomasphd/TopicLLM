@@ -1,0 +1,72 @@
+"""Publish a completed bundled-synthetic run; omit private paths and model pickle."""
+import argparse, collections, hashlib, html, json, zipfile
+from pathlib import Path
+import pandas as pd
+
+parser=argparse.ArgumentParser();parser.add_argument('--run-dir',required=True);args=parser.parse_args()
+root=Path(__file__).resolve().parents[1];run=Path(args.run_dir).resolve()
+read=lambda name:json.loads((run/name).read_text(encoding='utf-8'))
+state=read('synthetic_run.json')
+if state['status']!='passed' or state['mode']!='synthetic-e2e':raise SystemExit('Publish only a completed synthetic acceptance run.')
+sha=lambda data:hashlib.sha256(data).hexdigest()
+corpus=pd.read_csv(root/'docs/data/demonstration_corpus.csv')
+if read('stage1/run_manifest.json')['input_sha256']!=sha((root/'docs/data/demonstration_corpus.csv').read_bytes()):raise SystemExit('Not the bundled synthetic corpus.')
+truth=pd.read_csv(root/'docs/data/demonstration_ground_truth.csv')[['post_id','theme']]
+pred=pd.read_csv(run/'stage4/classified_corpus.csv')
+if pred.post_id.tolist()!=corpus.post_id.tolist():raise SystemExit('Incomplete or reordered predictions.')
+joined=pred[['post_id','tweet','theme']].merge(truth,on='post_id',suffixes=('_pred','_truth'),validate='one_to_one')
+bench=pd.read_csv(root/'docs/data/demonstration_benchmark.csv')
+benchmark_dates=bench[['post_id']].merge(corpus[['post_id','date']],on='post_id',validate='one_to_one').date
+held=joined[~joined.tweet.isin(set(bench.tweet))]
+search=read('stage1/all_iteration_results.json');details=[d for i in search['iterations'] for d in i['details']]
+best=read('stage1/best_model/parameters.json');assign=pd.read_csv(run/'stage1/best_model/classified_tweets.csv')
+benchmark=read('stage4/benchmark_report.json');usage=read('api_usage.json');votes=pd.read_csv(run/'stage2/vote_log.csv')
+verification=read('verification.json')
+if len(details)!=1200 or len(search['iterations'])!=50 or len(votes)!=best['n_topics']*20:raise SystemExit('Incomplete full-profile artifacts.')
+summary={
+ 'release':'0.3.0','date':'2026-11-16','status':'passed','scope':'software acceptance on generated data',
+ 'human_validation':False,'historical_recomputation':False,'records':len(pred),
+ 'discovery':{'draws':len(search['iterations']),'candidate_status_counts':dict(collections.Counter(d['status'] for d in details)), 'planned_candidates':len(details),**best,'outlier_records':int((assign.topic==-1).sum()),'model_reload':read('discovery-verification.json')},
+ 'naming':{'votes_per_topic':20,'ballots':len(votes),'historical_votes_per_topic':5000},
+ 'review':{'mode':'synthetic-oracle','human_review_performed':False,'rule':'Majority generator theme in each discovered cluster; residual clusters unmapped.'},
+ 'benchmark':{**benchmark,'sampling_period':{'earliest_date':benchmark_dates.min(),'latest_date':benchmark_dates.max(),'scope':'250 sampled peri-period corpus records with generator labels'}},
+ 'corpus':{'rows':len(pred),'agreement_with_generator':float((joined.theme_pred==joined.theme_truth).mean()),'exact_benchmark_overlap':int(bench.tweet.isin(set(corpus.tweet)).sum()),'nonbenchmark_rows':len(held),'nonbenchmark_agreement':float((held.theme_pred==held.theme_truth).mean()),'duplicate_input_texts':int(corpus.tweet.duplicated().sum())},
+ 'inference':verification,'api_usage':usage,
+ 'known_usage_estimated_usd':(usage['prompt_tokens']*2.5+usage['completion_tokens']*10)/1e6,
+ 'limitations':['All labels and texts originate from a generator; no human annotation or historical records.', 'The benchmark is 250 sampled peri-period corpus records; all records share templates. Synthetic mapping uses generator labels across the corpus.', 'Gaming has only three benchmark examples. These metrics do not establish real-world validity.', 'Twenty naming votes exercise the workflow; the historical protocol used 5,000 votes per topic.', 'Full synthetic discovery found 21 topics. The seven-topic website reconstruction is explicitly assigned.', 'Prices are estimates; uncertain failures retain reservations. Cloudflare charges are separate.']}
+out=root/'docs/validation';out.mkdir(parents=True,exist_ok=True)
+def sanitize(value):
+    if isinstance(value,dict):return {k:sanitize(v) for k,v in value.items()}
+    if isinstance(value,list):return [sanitize(v) for v in value]
+    if isinstance(value,str):
+        for src,dest in [(str(run),'<run>'),(str(root),'<repo>'),(str(Path.home()),'<user>')]:value=value.replace(src,dest).replace(src.replace('\\','/'),dest)
+    return value
+summary=sanitize(summary)
+(out/'results.json').write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8')
+artifact_manifest=[]
+with zipfile.ZipFile(out/'synthetic-validation-2026-11-16.zip','w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as archive:
+    for path in sorted(run.rglob('*')):
+        if not path.is_file() or path.suffix not in ('.csv','.json','.jsonl','.md','.png') or '.partial.' in path.name:continue
+        original=path.read_bytes();data=original
+        if path.suffix=='.json':data=(json.dumps(sanitize(json.loads(original)),indent=2)+'\n').encode()
+        elif path.suffix in ('.jsonl','.md','.csv'):data=sanitize(original.decode('utf-8')).encode()
+        name=path.relative_to(run).as_posix()
+        archive.writestr(name,data)
+        artifact_manifest.append({'file':name,'original_sha256':sha(original),'public_sha256':sha(data),'bytes':len(data)})
+    archive.writestr('PUBLIC-EXPORT.json',json.dumps({'changes':'Machine-local paths replaced by <run>, <repo>, <user>; JSON reformatted. Numeric results and model responses unchanged. Executable model pickle and SQLite ledger omitted; JSON API ledger included.','files':artifact_manifest},indent=2))
+    archive.writestr('validation-summary.json',json.dumps(summary,indent=2))
+archive_sha=sha((out/'synthetic-validation-2026-11-16.zip').read_bytes())
+summary['artifact_archive']={'file':'synthetic-validation-2026-11-16.zip','sha256':archive_sha,'files':len(artifact_manifest)}
+(out/'results.json').write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8')
+(root/'verification/synthetic-validation-2026-11-16.json').write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8')
+e=html.escape
+rows=''.join(f'<tr><th scope="row">{e(label if not label.startswith("The text") else "Residual / no theme")}</th><td>{v["human_n"]}</td><td>{v["precision"]:.1%}</td><td>{v["recall"]:.1%}</td></tr>' for label,v in benchmark['llm']['per_label'].items())
+prevalence=''.join(f'<tr><th scope="row">{e(r["theme"])}</th><td>{e(r["period"])}</td><td>{r["reported"]:.1f}%</td><td>{r["computed"]:.1f}%</td><td>{r["computed"]-r["reported"]:+.1f} pp</td></tr>' for r in verification['prevalence_comparison'])
+passed_counts=', '.join(f'{v:,} {k.replace("_"," ")}' for k,v in summary['discovery']['candidate_status_counts'].items())
+page=f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Measured validation — TopicLLM</title><meta name="description" content="Measured full synthetic TopicLLM workflow: discovery, naming, benchmark, corpus classification, inference and recorded API cost."><link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../reproduce.css"><style>.metrics{{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin:36px 0}}.metric{{padding:24px;border:1px solid var(--rule)}}.metric strong{{display:block;font:48px var(--serif-display)}}.metric span{{font:13px var(--sans)}}.scroll{{overflow-x:auto}}table{{width:100%;border-collapse:collapse;font:14px/1.5 var(--sans)}}th,td{{padding:12px;text-align:left;border-bottom:1px solid var(--rule)}}.bar{{height:12px;background:var(--surface-2);margin:8px 0 20px}}.bar span{{display:block;height:100%;background:var(--accent)}}@media(max-width:650px){{.metrics{{grid-template-columns:1fr}}.metric strong{{font-size:38px}}}}</style></head><body><a class="skip" href="#main">Skip to validation results</a><header class="topbar"><div class="wrap"><a class="brand" href="../"><b>TopicLLM</b></a><nav class="topnav"><a href="../app/">Visual demo</a><a href="../reproduce/">Fork + reproduce</a><a href="../paper/">Methods</a></nav></div></header><main id="main" class="reproduce"><p class="eyebrow">Measured software validation · 16 November 2026</p><h1>Run the method.<br>Keep the evidence.</h1><p class="lede">All five stages completed on 5,872 synthetic records. These measurements establish how the software behaved on generated data. They do not reproduce private historical observations or establish research validity.</p><div class="cta"><a class="btn primary" href="synthetic-validation-2026-11-16.zip">Download the run evidence</a><a class="btn" href="results.json">Machine-readable results</a><a class="btn" href="../reproduce/">Reproduce in Python</a></div><div class="metrics"><div class="metric"><strong>1,200</strong><span>discovery candidates recorded</span></div><div class="metric"><strong>93.6%</strong><span>LLM benchmark agreement with generator labels</span></div><div class="metric"><strong>${usage['conservatively_accounted_usd']:.2f}</strong><span>conservatively accounted API cost · $5 ceiling</span></div></div>
+<section><p class="eyebrow">01 / Discovery and interpretation</p><h2>Twenty-one topics were found.</h2><p>The 50-draw search over ceilings 2–25 selected <strong>21 observed topics</strong> at ceiling 22, iteration 16; c<sub>v</sub> = {best['coherence']:.4f}. Candidate records: {passed_counts}. The saved model reloaded with identical assignments. The seven-topic guided reconstruction is a distinct teaching artifact with explicitly assigned categories.</p><p>The run collected <strong>{len(votes)} live naming ballots</strong>: twenty per topic, versus the historical 5,000 per topic. A disclosed generator-majority mapping exercised the synthesis step. No human review was claimed. Read the vote log, topic map and review record in the evidence download.</p></section>
+<section><p class="eyebrow">02 / Benchmark and scaling</p><h2>A comparison you can inspect.</h2><p>Both classifiers were evaluated on 250 generator-labeled corpus examples. OpenAI agreement was <strong>{benchmark['llm']['agreement']:.1%}</strong> (κ = {benchmark['llm']['cohens_kappa']:.4f}), compared with <strong>{benchmark['boolean']['agreement']:.1%}</strong> for Boolean matching. OpenAI passed the configured gate and classified all {len(pred):,} records with their IDs and order preserved.</p><p>OpenAI · {benchmark['llm']['agreement']:.1%}</p><div class="bar" aria-hidden="true"><span style="width:{benchmark['llm']['agreement']*100}%"></span></div><p>Boolean · {benchmark['boolean']['agreement']:.1%}</p><div class="bar" aria-hidden="true"><span style="width:{benchmark['boolean']['agreement']*100}%"></span></div><div class="scroll"><table><caption>Live benchmark performance against generator labels</caption><thead><tr><th>Theme</th><th>Support</th><th>Precision</th><th>Sensitivity</th></tr></thead><tbody>{rows}</tbody></table></div><p>The benchmark is sampled from the corpus, and all records share generator templates. Gaming has only three benchmark examples. The synthetic mapping uses generator labels across the corpus. These are software checks, not independent human validation.</p><p>Agreement across all corpus predictions was {summary['corpus']['agreement_with_generator']:.1%}; excluding the 250 benchmark texts, agreement on {len(held):,} remaining records was {summary['corpus']['nonbenchmark_agreement']:.1%}. This additional comparison still shares the same generator and mapping limitations.</p></section>
+<section><p class="eyebrow">03 / Inference</p><h2>Show the differences.</h2><p>The inference stage produced five theme rows and fifteen period comparisons. The guided reconstruction matches all reported one-decimal prevalence values by construction. Newly generated live predictions are shown below without forcing agreement. Differences are percentage points, based on displayed one-decimal values.</p><div class="scroll"><table><caption>Reported study prevalence versus new synthetic live predictions</caption><thead><tr><th>Theme</th><th>Period</th><th>Reported</th><th>Synthetic live</th><th>Difference</th></tr></thead><tbody>{prevalence}</tbody></table></div><p>Period denominators and exclusions, raw counts, later-minus-earlier z statistics, p values and Bonferroni thresholds are in the evidence archive. Synthetic statistics are not historical statistics.</p></section>
+<section><p class="eyebrow">04 / Cost and provenance</p><h2>Every attempt counts.</h2><p>{usage['successful_calls']:,} successful calls; {usage['attempted_calls']:,} attempts recorded. Returned usage: {usage['prompt_tokens']:,} input tokens and {usage['completion_tokens']:,} output tokens. Known-usage token estimate: ${summary['known_usage_estimated_usd']:.6f}. Including conservative reservations for uncertain failures: <strong>${usage['conservatively_accounted_usd']:.6f}</strong> of the authorized $5. The dated price schedule ignores caching discounts and is not a billing invoice.</p><p>Model: <code>gpt-4o-2024-08-06</code>. The archive contains candidate records, environment, input/model hashes, ballots, raw API response metadata, review record, benchmark predictions, corpus labels and inference outputs. Machine-local paths are redacted and JSON is reformatted; original and public hashes identify those changes. Executable model serialization and SQLite are omitted; the full JSON response ledger is included.</p><p>Archive SHA-256: <code style="overflow-wrap:anywhere">{archive_sha}</code></p><p>The public site's separate allowance is $1/day and $5/month, with fixed examples and durable controls. <a href="../privacy/">Data handling and service limits</a>.</p></section><section><h2>Bring this workflow to your research.</h2><p>Fork the repository or install the Python package. Have an agent verify sources and the environment, prepare a costed plan, retain evidence and assemble the review packet. Actual researchers approve the theme map and assess independent benchmark evidence before scaling. The package does not implement LIWC or Study 2 structural equation modeling.</p><a class="btn primary" href="../reproduce/">Fork + reproduce</a></section></main></body></html>'''
+(out/'index.html').write_text(page,encoding='utf-8')
+print(json.dumps({'archive_sha256':archive_sha,'files':len(artifact_manifest),'cost':usage['conservatively_accounted_usd'],'records':len(pred)}))

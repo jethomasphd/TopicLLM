@@ -15,10 +15,16 @@ from dataclasses import dataclass, field
 # obligations and are not available for this demonstration.
 DEMO_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                          "..", "docs", "data"))
+if not os.path.isdir(DEMO_DIR):
+    DEMO_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
 
 
 @dataclass
 class PipelineConfig:
+    run_mode: str = 'research' # synthetic-e2e is restricted to exact bundled inputs
+    api_budget_usd: float | None = None # explicit authorization before paid calls
+    max_api_calls: int = 10000
+    gateway_url: str = 'https://topicllm.jethomasphd.workers.dev'
     # ----- I/O ---------------------------------------------------------------
     input_csv: str = os.path.join(DEMO_DIR, "demonstration_corpus.csv")  # needs a 'tweet' column
     output_dir: str = "pipeline_output"        # all stage artifacts land here
