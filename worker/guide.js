@@ -44,5 +44,6 @@ export function guideResult(result,call){
  const ids=[...new Set(parsed.source_ids)];
  // Only server-validated source chips carry links. Never display a model-invented URL.
  const answer=parsed.answer.replace(/\[([^\]]+)\]\([^)]*\)/g,'$1').replace(/https?:\/\/[^\s<>]+/g,'the linked source').replace(/\*\*([^*]+)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1').trim();
- return {...result,text:answer,sources:ids.map(id=>call.sources.find(s=>s.id===id)),suggestions:parsed.suggestions,guide_version:GUIDE_VERSION};
+ const sources=[...new Map(ids.map(id=>call.sources.find(s=>s.id===id)).map(source=>[source.url,source])).values()];
+ return {...result,text:answer,sources,suggestions:parsed.suggestions,guide_version:GUIDE_VERSION};
 }
