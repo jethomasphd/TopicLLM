@@ -1,4 +1,8 @@
-# TopicLLM demonstration corpus — data card
+# Synthetic data and evidence provenance
+
+The default study walkthrough uses `study.json` (reported source facts) and `study-demo.json` (known synthetic assignments). Regenerate the latter with `python scripts/build-study-demo.py` from the repository root. It assigns seven teaching categories from generator campaigns; it does not fit a topic model or claim c_v = 0.768. Every calculated result is labeled synthetic.
+
+The counts 1,707 / 806 / 3,106 / 253 are synthetic calibration choices, not verified historical denominators. The `human_label` column in the bundled benchmark contains generator-assigned truth, not human coding. The archived 20-topic search is a separate exploratory run and remains unchanged.
 
 A fully synthetic corpus for running the TopicLLM pipeline end to end, released
 under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It stands in for
@@ -10,7 +14,7 @@ data* below).
 | File | Rows | Columns | Purpose |
 |---|---|---|---|
 | `demonstration_corpus.csv` | 5,872 | `post_id, brand, date, tweet` | The corpus (pipeline input) |
-| `demonstration_benchmark.csv` | 250 | `post_id, tweet, human_label` | Human-labeled benchmark for the Stage 4 gate |
+| `demonstration_benchmark.csv` | 250 | `post_id, tweet, human_label` | Generator-labeled synthetic benchmark for exercising Stage 4 |
 | `demonstration_ground_truth.csv` | 5,872 | `post_id, period, theme, campaign` | The theme and campaign behind every post |
 | `demonstration_stopwords.txt` | — | comma-separated | Domain stopwords: brand terms and time words |
 
@@ -75,7 +79,7 @@ this corpus, so you can check your own:
     gives each topic's words, size, and majority ground-truth theme. It is the answer key for a
     Stage 3 synthesis exercise.
 - **Stage 5** comes from `python run_pipeline.py --ground-truth --stages 5`.
-  - It reproduces the published prevalence table and significance pattern.
+  - It matches the published rounded prevalence and significance pattern by construction.
   - Files: `stage5_ground_truth_prevalence_by_period.csv`, `stage5_ground_truth_ztest_results.csv`,
     and `stage5_ground_truth_theme_counts.csv`.
 
@@ -102,13 +106,6 @@ python make_demo_data.py        # seeded: rewrites these four files byte for byt
 python -m pytest tests -q       # includes a check that the shipped files match the generator
 ```
 
-## Access to the dissertation data
+## Restricted study data
 
-The source data for the published demonstration are brand tweets recorded by
-the Prevention Research Lab Twitter Marketing Study (PRL-TMS), and user-generated
-tweets from the Computational Media Lab COVID-19 Twitter Dataset. They contain
-account-level information and content governed by the platform's terms of service
-and by the agreements under which they were collected, so they are not posted
-publicly. They are available from the corresponding author
-(jethomasphd@gmail.com) on reasonable request for non-commercial research, under
-a data use agreement consistent with those terms.
+Original study posts are not distributed because of privacy and IRB obligations. The public tool uses fully synthetic records only. No original records, fitted study model or historical ballots are available for this demonstration.

@@ -33,18 +33,31 @@ GROUND_TRUTH = os.path.join(DEMO_DIR, "demonstration_ground_truth.csv")
 def write_ground_truth_classification() -> None:
     """Reference run: give Stage 5 the demonstration corpus's ground-truth
     themes in place of a classifier's output. Because the corpus is
-    calibrated to the published demonstration, this returns the published
-    prevalence table and z statistics, which checks the inference code. A
-    real classifier's results approach it as its agreement with the ground
-    truth rises."""
+    calibrated to the published demonstration, this returns matching rounded
+    prevalence percentages. The z statistics are synthetic calculations,
+    not recovered historical estimates."""
     import pandas as pd
+    import hashlib
+    import json
+    from pathlib import Path
+    canonical = Path(DEMO_DIR) / "demonstration_corpus.csv"
+    if Path(CONFIG.input_csv).read_bytes() != canonical.read_bytes():
+        raise ValueError("--ground-truth requires the exact bundled synthetic corpus. Labels cannot be transferred to another dataset.")
     corpus = pd.read_csv(CONFIG.input_csv)
     truth = pd.read_csv(GROUND_TRUTH)[["post_id", "theme"]]
     out = os.path.join(CONFIG.output_dir, "stage4")
     os.makedirs(out, exist_ok=True)
     merged = corpus.merge(truth, on="post_id", how="left", validate="one_to_one")
+    if merged['theme'].isna().any():
+        raise ValueError("Synthetic truth does not cover every corpus post.")
     merged.assign(status="ground_truth", classifier="ground_truth").to_csv(
         os.path.join(out, "classified_corpus.csv"), index=False)
+    Path(out, 'ground_truth_manifest.json').write_text(json.dumps({
+        'mode':'synthetic-generator-truth',
+        'corpus_sha256':hashlib.sha256(canonical.read_bytes()).hexdigest(),
+        'truth_sha256':hashlib.sha256(Path(GROUND_TRUTH).read_bytes()).hexdigest(),
+        'human_validation':False,
+    }, indent=2), encoding='utf-8')
     print(f"[ground-truth] Wrote ground-truth themes for {len(merged):,} posts to {out}/")
 
 

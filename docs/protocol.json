@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "authority": "Thomas (2025) dissertation; original bytes protected by source-integrity.json",
+  "modes": [
+    "reported-study-results",
+    "calibrated-synthetic-reconstruction",
+    "synthetic-exploration",
+    "research",
+    "mock"
+  ],
+  "input": {
+    "corpus": [
+      "post_id (recommended stable unique identifier)",
+      "tweet or text",
+      "date YYYY-MM-DD for inference"
+    ],
+    "benchmark": [
+      "tweet",
+      "human_label"
+    ],
+    "benchmark_note": "The bundled synthetic benchmark is generator-labeled, not human-annotated."
+  },
+  "naming": {
+    "system": "You are an expert at naming topics.",
+    "user_template": "The following words represent a topic derived from {domain}: {words}. Please provide a concise, meaningful topic name that clearly summarizes these words. ",
+    "temperature": 0.5,
+    "max_tokens": 15,
+    "historical_votes_per_topic": 5000
+  },
+  "classification": {
+    "system": "You are an expert at classifying text into themes.",
+    "user_template": "Classify the following text into one of the following {N} themes: {numbered_options}.Text: {document}.Respond with verbatim classification using only the specified {N} options.",
+    "temperature": 0.5,
+    "historical_max_tokens": 30,
+    "maintained_max_tokens": 120,
+    "none_label": "The text does not fit into any of these themes",
+    "invalid_response": "__INVALID_RESPONSE__",
+    "api_failure": "__API_ERROR__"
+  },
+  "human_checkpoint": "Two researchers review and record a topic-to-theme map. Agents must not invent review or consensus.",
+  "gate": {
+    "agreement": "strictly greater than configured threshold",
+    "default_threshold": 0.85,
+    "per_theme": "positive benchmark support and nonzero sensitivity required; inspect precision and recall and justify acceptance for the study"
+  },
+  "statistics": {
+    "test": "pooled two-sided two-proportion z",
+    "z_direction": "period_b minus period_a",
+    "multiplicity": "alpha / (number of themes × number of pairs)",
+    "unresolved_labels": "block inference",
+    "zero_variance": "not estimable"
+  },
+  "reproduction_limit": "No original private corpus, fitted model, original ballots or original human benchmark. Synthetic matches are calibrated."
+}

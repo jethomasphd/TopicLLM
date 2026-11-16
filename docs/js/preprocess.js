@@ -59,6 +59,7 @@ export function buildStopwords(customText) {
 
 /** tweet -> cleaned string (mirrors the Python preprocess()). */
 export function preprocessDoc(text, stopwords) {
+  if (text == null || !String(text).trim()) return '';
   const cleaned = String(text).replace(/[^a-zA-Z]/g, " ").replace(/\s+/g, " ").trim().toLowerCase();
   const tokens = cleaned.split(" ").filter(t => t.length >= 2 && !stopwords.has(t));
   return tokens.map(lemmatize).join(" ");

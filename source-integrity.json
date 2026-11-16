@@ -1,0 +1,57 @@
+{
+  "baseline_commit": "16a2f53",
+  "policy": "Preserve source bytes; revisions use new filenames.",
+  "files": [
+    {
+      "path": "S1_bertopic_optimization.txt",
+      "bytes": 11639,
+      "sha256": "c2092ccefbbebc271586503ef6b77beaec40b86a2007c58b7d895b73cdab23b9"
+    },
+    {
+      "path": "S2_democratic_topic_naming.txt",
+      "bytes": 3654,
+      "sha256": "739238c402dbec1224dffd7d91847903cec5b47b334a2c939fd81291d0e175bb"
+    },
+    {
+      "path": "S3_llm_classification.txt",
+      "bytes": 2482,
+      "sha256": "74e6444cce57a154f4e73a39e1981c0e9f025b014b6c1d7465a908d59b447130"
+    },
+    {
+      "path": "THOMAS-PRIMARY-2025.pdf",
+      "bytes": 18884432,
+      "sha256": "1f2cddd10fc297420b2e5f744fd69daae409038a01149f3a89f499ed4a79a129"
+    },
+    {
+      "path": "docs/preprints/Thomas_et_al_Methods_Coherence-Optimized_Topic_Modeling.docx",
+      "bytes": 170306,
+      "sha256": "ba9f6eb6610b30a758fe828c8a09241e2c402f7892270ad52d4732c195bf0915"
+    },
+    {
+      "path": "docs/preprints/Thomas_et_al_Methods_Coherence-Optimized_Topic_Modeling.pdf",
+      "bytes": 243148,
+      "sha256": "a65f59e33ede7ee81fd13b3799f64b14394313739fd3391eae1e66b8aafb0778"
+    },
+    {
+      "path": "docs/preprints/Thomas_et_al_Paper1_Alcohol_Marketing_on_Twitter_During_COVID-19.docx",
+      "bytes": 320898,
+      "sha256": "64d5030b568c3582027d664938ea55b4068d6952cdf5228919c00bcb17ba1956"
+    },
+    {
+      "path": "docs/preprints/Thomas_et_al_Paper1_Alcohol_Marketing_on_Twitter_During_COVID-19.pdf",
+      "bytes": 375799,
+      "sha256": "40d7f1f70f22eda69d8dc23033351e2ff6b512e19b26aa7aeed4af52fcb37a15"
+    },
+    {
+      "path": "docs/preprints/Thomas_et_al_Paper2_Alcohol_Information_Dynamics_During_Crisis.docx",
+      "bytes": 178061,
+      "sha256": "1c6d6ee72bf4c27ec77fea62bb20559e0e4e402a7ab2f4b2d77b6dee09522ab4"
+    },
+    {
+      "path": "docs/preprints/Thomas_et_al_Paper2_Alcohol_Information_Dynamics_During_Crisis.pdf",
+      "bytes": 318066,
+      "sha256": "9396c87774c3a5e4d4f6c4a59f51c77a8d21897b4c24a8a7939d15ca5f60862b"
+    }
+  ],
+  "byte_basis": "Original Git blob bytes at baseline commit; text supplements use LF line endings on every platform."
+}

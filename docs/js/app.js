@@ -7,7 +7,8 @@
 import { parseCSV, toCSV, downloadText, downloadBlob, buildZip, mulberry32, sample, pct, escapeHTML } from "./util.js";
 import { createProvider, callWithRetries, pool } from "./llm.js";
 import { loadDemoData, NONE_LABEL } from "./demo.js";
-import { proportionsZTest } from "./stats.js";
+import { canonicalLabel, validateBenchmark, scoreLabels, estimatePrevalence, sha256 } from "./research.js";
+import { initStudyTour } from "./study.js";
 import { lineChart, hBarChart, groupedBarChart } from "./charts.js";
 
 /* ------------------------------ state ------------------------------------ */
@@ -16,12 +17,16 @@ const S = {
   corpus: null,          // [{tweet, date?, ...}]
   textCol: "tweet",
   benchmark: null,       // [{tweet, human_label}]
+  benchmarkProvenance: null,
   stage1: null,          // worker payload
   stage2: null,          // { winners, ballots }
   stage3: null,          // { themeMap: [{topic, modal_label, theme}], themes }
   stage4: null,          // { report, benchRows, classified }
   stage5: null,          // { prevRows, testRows, alphaAdj, themeCounts }
   isDemo: false,
+  runId: crypto.randomUUID(),
+  corpusHash: null,
+  sourceMode: "research",
 };
 
 const DEFAULT_STOPWORDS = "budlight,budweiser,truly,malibu,jagermeister,samueladams,brooklynbrewery,jackdaniels,bacardi,absolut,whiteclaw,am,pm,monday,tuesday,wednesday,thursday,friday,saturday,sunday,january,february,march,april,may,june,july,august,september,october,november,december";
@@ -113,7 +118,7 @@ function summarizeData() {
     `<strong>${S.corpus.length.toLocaleString()}</strong> documents loaded` +
     `${S.isDemo ? " (demonstration corpus, synthetic)" : ""} — text column <code>${escapeHTML(S.textCol)}</code>` +
     `${hasDate ? ", with dates" : ", no date column (Stage 5 period tests disabled)"}.` +
-    (S.benchmark ? ` Benchmark: <strong>${S.benchmark.length}</strong> human-labeled documents.`
+    (S.benchmark ? ` Benchmark: <strong>${S.benchmark.length}</strong> ${S.isDemo ? "generator-labeled synthetic" : "researcher-labeled"} documents.`
                  : " No benchmark loaded (needed for Stage 4).");
   $("run1").disabled = !S.corpus;
   $("step-0")?.classList.toggle("done", !!S.corpus);
@@ -125,20 +130,27 @@ async function loadDemo() {
   let data;
   try { data = await loadDemoData(); }
   catch (err) { log("log-0", `could not load the demonstration corpus: ${err.message}`, "warn"); termStatus(0, "error"); return; }
+  resetAfter(0);
+  S.corpusHash = await sha256(JSON.stringify(data.corpus));
+  S.sourceMode = "synthetic-exploration";
   S.corpus = data.corpus; S.benchmark = data.benchmark; S.textCol = "tweet"; S.isDemo = true;
+  S.benchmarkProvenance = 'generator-assigned synthetic truth';
   $("stopwords").value = data.stopwords;
   // A browser-sized search: the reference implementation runs 50 iterations.
-  if (Number($("cfg-iters").value) > 4) $("cfg-iters").value = "4";
+  // Never silently alter the researcher’s requested search budget.
   summarizeData();
   log("log-0", `corpus  → ${S.corpus.length.toLocaleString()} posts from 11 fictional brands, Jan 2019 – Jul 2021`, "ok");
-  log("log-0", `benchmark → ${S.benchmark.length} human-labeled posts (columns: tweet, human_label)`, "ok");
+  log("log-0", `benchmark → ${S.benchmark.length} generator-labeled synthetic posts (compatibility column: human_label)`, "ok");
   log("log-0", "stopwords → brand terms + time words (demonstration_stopwords.txt)", "ok");
-  log("log-0", "search set to 4 iterations for the browser (reference: 50); raise it under Settings", "meta");
+  log("log-0", "Exploratory browser approximation. Topic count can differ from the seven reported in the dissertation.", "meta");
   log("log-0", "ready — run Stage 1 below", "meta");
   termStatus(0, "corpus loaded");
 }
 
-async function readFileText(file) { return await file.text(); }
+async function readFileText(file) {
+  if (file.size > 20 * 1024 * 1024) throw new Error("Files must be smaller than 20 MB. Use the Python pipeline for larger studies.");
+  return await file.text();
+}
 
 async function loadCorpusFile(file) {
   logCmd("log-0", `load_corpus("${file.name}")`);
@@ -148,7 +160,12 @@ async function loadCorpusFile(file) {
   // export's "Verbatim text in tweet ..."), then CML-COVID's "title".
   const textCol = header.includes("tweet") ? "tweet"
     : header.includes("text") ? "text"
-    : header.find(h => /text/i.test(h)) || (header.includes("title") ? "title" : header[0]);
+    : header.find(h => /text/i.test(h)) || (header.includes("title") ? "title" : null);
+  if (!textCol) throw new Error("Add a tweet or text column to your CSV.");
+  if (rows.length > 6000) throw new Error("The browser workbench supports up to 6,000 documents. Use the Python pipeline for larger corpora.");
+  if (rows.some(r => !String(r[textCol] || "").trim())) throw new Error("Your corpus contains blank text. Resolve missing documents before analysis.");
+  resetAfter(0); S.benchmark = null; S.benchmarkProvenance=null;
+  S.corpusHash = await sha256(JSON.stringify(rows)); S.sourceMode = "research";
   S.corpus = rows; S.textCol = textCol; S.isDemo = false;
   summarizeData();
   log("log-0", `parsed ${rows.length.toLocaleString()} rows · columns: ${header.join(", ")}`, "ok");
@@ -162,8 +179,12 @@ async function loadBenchmarkFile(file) {
   if (!(header.includes("tweet") && header.includes("human_label"))) {
     log("log-0", "benchmark CSV needs columns: tweet, human_label", "warn"); return;
   }
+  if (!rows.length) throw new Error("The benchmark is empty.");
+  resetAfter(4);
   S.benchmark = rows;
+  S.benchmarkProvenance = 'researcher-supplied labels; annotation not independently verified';
   summarizeData();
+  $("run4").disabled = !S.stage3;
   log("log-0", `parsed ${rows.length} human-labeled documents — Stage 4's measuring stick`, "ok");
 }
 
@@ -171,6 +192,7 @@ async function loadBenchmarkFile(file) {
 
 function providerSettings() {
   return {
+    signal: activeController?.signal,
     provider: $("llm-provider").value,
     apiKey: $("llm-key").value.trim(),
     baseUrl: $("llm-base").value.trim(),
@@ -181,37 +203,26 @@ function providerSettings() {
 function makeProvider(mockHints) {
   const s = providerSettings();
   if (s.provider !== "mock" && !s.apiKey) {
-    throw new Error("Enter an API key, or switch the provider to the keyless demo mock.");
+    throw new Error("Enter the research access code for Hosted OpenAI, or choose the teaching mock.");
   }
   return createProvider({ ...s, mockHints });
 }
 
 function persistSettings() {
-  const s = providerSettings();
-  const store = { provider: s.provider, baseUrl: s.baseUrl, model: s.model };
-  if ($("llm-remember").checked) store.apiKey = s.apiKey;
-  localStorage.setItem("topicllm-settings", JSON.stringify(store));
+  // Deliberately do not persist credentials or corpus text in browser storage.
+  try { localStorage.removeItem("topicllm-settings"); } catch { /* Storage may be disabled. */ }
 }
-
-function restoreSettings() {
-  try {
-    const s = JSON.parse(localStorage.getItem("topicllm-settings") || "{}");
-    if (s.provider) $("llm-provider").value = s.provider;
-    if (s.baseUrl) $("llm-base").value = s.baseUrl;
-    if (s.model) $("llm-model").value = s.model;
-    if (s.apiKey) { $("llm-key").value = s.apiKey; $("llm-remember").checked = true; }
-  } catch { /* ignore */ }
-  syncProviderUI();
-}
-
-function syncProviderUI() {
-  const p = $("llm-provider").value;
-  $("llm-key").disabled = p === "mock";
-  $("llm-base").disabled = p !== "openai";
-  if (p === "openai" && !$("llm-model").value) $("llm-model").value = "gpt-4o";
-  if (p === "anthropic" && (!$("llm-model").value || $("llm-model").value === "gpt-4o")) {
-    $("llm-model").value = "claude-haiku-4-5-20251001";
-  }
+function restoreSettings() { persistSettings(); syncProviderUI(); }
+async function syncProviderUI() {
+  const hosted = $("llm-provider").value === "hosted";
+  $("llm-key").disabled = !hosted;
+  $("llm-model").disabled = true;
+  $("llm-base").disabled = true;
+  if (!hosted) { $("llm-model").value = "mock-demo"; return; }
+  const r = await fetch("/api/config").catch(() => null);
+  const c = r?.ok ? await r.json().catch(() => ({})) : {};
+  $("llm-model").value = c.model || "OpenAI gateway unavailable";
+  $("gateway-status").textContent = c.ready ? "OpenAI gateway is configured. Enter your research access code." : "The OpenAI gateway is not configured on this host. The study walkthrough and teaching mock are available.";
 }
 
 /* ------------------------------ stage 1 ---------------------------------- */
@@ -237,6 +248,9 @@ function stage1Config() {
 function runStage1() {
   if (!S.corpus) return;
   const cfg = stage1Config();
+  if (S.corpus.length < 10 || S.corpus.length > 6000) throw new Error("Browser discovery supports 10–6,000 documents; use Python for larger research corpora.");
+  resetAfter(1);
+  S.stage1Settings = {...cfg, customStopwords:$("stopwords").value};
   $("run1").disabled = true; $("cancel1").disabled = false;
   $("log-1").innerHTML = ""; $("stage1-results").hidden = true;
   setStageState(1, "running");
@@ -264,6 +278,7 @@ function runStage1() {
       log("log-1", msg.message, "warn"); setStageState(1, "error");
       setTermProgress("log-1", null);
       $("run1").disabled = false; $("cancel1").disabled = true;
+      worker.terminate(); worker = null;
     } else if (msg.type === "done") {
       S.stage1 = msg.payload;
       S.stage2 = S.stage3 = S.stage4 = S.stage5 = null;
@@ -277,6 +292,7 @@ function runStage1() {
       worker.terminate(); worker = null;
     }
   };
+  worker.onerror = e => { showError(e.message || "The discovery worker stopped."); cancelStage1(); setStageState(1,"error"); };
   worker.postMessage({
     rows: S.corpus, textCol: S.textCol,
     customStopwords: $("stopwords").value,
@@ -298,7 +314,7 @@ function renderStage1() {
   $("s1-count").textContent = "";
   const b = p.best;
   $("s1-summary").innerHTML =
-    `Best configuration — iteration ${b.iteration}: <strong>${b.nTopics} topics</strong>, ` +
+    `Browser approximation — iteration ${b.iteration}: <strong>${b.nTopics} topics</strong>, ` +
     `c<sub>v</sub> coherence <strong>${b.coherence.toFixed(4)}</strong> ` +
     `(UMAP: ${b.umapParams.n_neighbors} neighbors, ${b.umapParams.n_components} components, ` +
     `min_dist ${b.umapParams.min_dist}; HDBSCAN: min cluster ${b.hdbParams.min_cluster_size}). ` +
@@ -318,7 +334,7 @@ function stage1Downloads(which) {
   if (!p) return;
   if (which === "audit") {
     downloadText("all_iteration_results.json",
-      JSON.stringify({ seed: stage1Config().randomSeed, embedder: p.embedderUsed, iterations: p.allIterations }, null, 2), "application/json");
+      JSON.stringify({ seed: S.stage1Settings.randomSeed, embedder: p.embedderUsed, iterations: p.allIterations }, null, 2), "application/json");
   } else if (which === "topics") {
     downloadText("topics_for_naming.csv", toCSV(p.topicsForNaming, ["topic", "words"]), "text/csv");
   } else if (which === "pre") {
@@ -328,17 +344,18 @@ function stage1Downloads(which) {
     downloadText("parameters.json", JSON.stringify({
       umap_params: p.best.umapParams, hdbscan_params: p.best.hdbParams,
       n_topics: p.best.nTopics, coherence: p.best.coherence,
-      seed: stage1Config().randomSeed, embedder: p.embedderUsed,
+      seed: S.stage1Settings.randomSeed, embedder: p.embedderUsed,
     }, null, 2), "application/json");
   }
 }
 
 /* ------------------------------ stage 2 ---------------------------------- */
 
-const normalizeLabel = s => s.trim().replace(/\.+$/, "").toLowerCase();
+const normalizeLabel = s => s.trim().replace(/^["'“”]+|["'“”]+$/g,'').trim().replace(/\.+$/, "").toLowerCase();
 
 async function runStage2() {
   if (!S.stage1) return;
+  resetAfter(2);
   const votesPerTopic = parseInt($("cfg-votes").value, 10) || 100;
   const earlyStop = $("cfg-earlystop").checked;
   const earlyWindow = parseInt($("cfg-earlywindow").value, 10) || 50;
@@ -347,7 +364,7 @@ async function runStage2() {
   const domain = $("cfg-domain").value.trim() || "the corpus under analysis";
 
   let provider;
-  try { provider = makeProvider(null); } catch (err) { alert(err.message); return; }
+  provider = makeProvider(null);
   persistSettings();
 
   $("run2").disabled = true; setStageState(2, "running");
@@ -360,6 +377,7 @@ async function runStage2() {
   const totalPlanned = S.stage1.topicsForNaming.length * votesPerTopic;
   let completedAll = 0;
   const ballots = [], winners = [];
+  S.partial = {stage:2, status:'incomplete', ballots, provenance:provider.records || [], model:provider.model};
   for (const t of S.stage1.topicsForNaming) {
     const counts = new Map(), display = new Map();
     let issued = 0, completed = 0, stopped = false;
@@ -373,7 +391,7 @@ async function runStage2() {
       const base = issued;
       const tasks = Array.from({ length: batch }, (_, k) => async () => {
         const label = await callWithRetries(
-          () => provider.chat("You are an expert at naming topics.", prompt, { temperature: 0.5, maxTokens: 15 }),
+          () => provider.chat("You are an expert at naming topics.", prompt, { temperature: 0.5, maxTokens: 15, taskData:{task:"name", words:t.words, domain} }),
           5, (err, n, wait) => log("log-2", `API error (${String(err).slice(0, 80)}); retry ${n}/5 in ${wait / 1000}s`, "warn"));
         return { vote_index: base + k + 1, label };
       });
@@ -381,7 +399,9 @@ async function runStage2() {
       const results = await pool(tasks, concurrency);
       for (const r of results) {
         completed++;
+        if (!r.label?.trim()) throw new Error("Empty naming response. No vote was counted.");
         const key = normalizeLabel(r.label);
+        if (!key) throw new Error("Naming response contained no label. No vote was counted.");
         if (!display.has(key)) display.set(key, r.label);
         counts.set(key, (counts.get(key) || 0) + 1);
         ballots.push({ topic: t.topic, vote_index: r.vote_index, label: r.label });
@@ -409,7 +429,8 @@ async function runStage2() {
     log("log-2", `modal label — topic ${t.topic}: “${display.get(winKey)}” (${winN}/${total} = ${pct(winN / total)}${margin < 0.15 ? " · narrow margin, scrutinize in Stage 3" : ""})`, "best");
   }
 
-  S.stage2 = { ballots, winners, model: provider.model };
+  S.stage2 = { ballots, winners, model: provider.model, provenance:provider.records || [], settings:{votesPerTopic,earlyStop,earlyWindow,earlyShare,domain} };
+  S.partial = null;
   S.stage3 = S.stage4 = S.stage5 = null;
   setTermProgress("log-2", null);
   log("log-2", `${ballots.length.toLocaleString()} ballots cast · tallies written`, "ok");
@@ -510,8 +531,10 @@ function recordConsensus() {
     notes: notes[w.topic] || "",
   }));
   const themes = [...new Set(themeMap.map(m => m.theme).filter(Boolean))];
+  if (!$("reviewer-primary").value.trim() || !$("reviewer-secondary").value.trim()) throw new Error("Record both reviewers before confirming the theme map.");
+  resetAfter(4);
   if (!themes.length) { alert("Enter at least one consensus theme before recording."); return; }
-  S.stage3 = { themeMap, themes };
+  S.stage3 = { themeMap, themes, reviewers:[$("reviewer-primary").value.trim(), $("reviewer-secondary").value.trim()], recordedAt:new Date().toISOString() };
   S.stage4 = S.stage5 = null;
   logCmd("log-3", `record_consensus(themes=[${themes.map(t => `"${t}"`).join(", ")}])`);
   for (const m of themeMap) {
@@ -600,17 +623,15 @@ function classifyPrompt(text) {
 }
 
 function canonicalize(raw) {
-  const cleaned = raw.replace(/^\s*\d+[.)]\s*/, "").trim().replace(/\.+$/, "").toLowerCase();
-  for (const opt of optionList()) {
-    if (cleaned === opt.toLowerCase() || cleaned.includes(opt.toLowerCase())) return opt;
-  }
-  return NONE_LABEL;
+  const result = canonicalLabel(raw, S.stage3.themes);
+  if (result.status !== "matched") throw new Error(`The model returned an invalid classification: ${String(raw).slice(0,100)}. No residual label was substituted.`);
+  return result.label;
 }
 
 async function llmClassify(provider, texts, concurrency, progressLabel) {
   const tasks = texts.map(text => async () =>
     canonicalize(await callWithRetries(
-      () => provider.chat("You are an expert at classifying text into themes.", classifyPrompt(text), { temperature: 0.5, maxTokens: 30 }),
+      () => provider.chat("You are an expert at classifying text into themes.", classifyPrompt(text), { temperature: 0.5, maxTokens: 120, taskData:{task:"classify", text, themes:S.stage3.themes} }),
       5, (err, n, wait) => log("log-4", `API error (${String(err).slice(0, 80)}); retry ${n}/5 in ${wait / 1000}s`, "warn"))));
   return await pool(tasks, concurrency, (done, total) => {
     if (done % 5 === 0 || done === total) {
@@ -621,7 +642,10 @@ async function llmClassify(provider, texts, concurrency, progressLabel) {
 
 async function runStage4() {
   if (!S.stage3 || !S.benchmark) return;
-  const threshold = parseFloat($("cfg-threshold").value) || 0.85;
+  validateBenchmark(S.benchmark, S.stage3.themes);
+  resetAfter(4);
+  const threshold = Number($("cfg-threshold").value);
+  if (!(threshold > 0 && threshold < 1)) throw new Error("Agreement threshold must be between zero and one.");
   const concurrency = parseInt($("cfg-concurrency").value, 10) || 6;
   const dict = themeDictionaries();
   const mockHints = {
@@ -629,13 +653,14 @@ async function runStage4() {
     noneLabel: NONE_LABEL,
   };
   let provider;
-  try { provider = makeProvider(mockHints); } catch (err) { alert(err.message); return; }
+  provider = makeProvider(mockHints);
+  S.partial = {stage:4, status:'incomplete', provenance:provider.records || [], model:provider.model};
   persistSettings();
 
   $("run4").disabled = true; setStageState(4, "running");
   $("log-4").innerHTML = ""; $("stage4-results").hidden = true;
   const options = optionList();
-  logCmd("log-4", `run_stage4(threshold=${threshold}, model="${provider.model}", temperature=0.5, max_tokens=30, concurrency=${concurrency})`);
+  logCmd("log-4", `run_stage4(threshold=${threshold}, model="${provider.model}", temperature=0.5, max_tokens=120, concurrency=${concurrency})`);
   log("log-4", `options = [${options.map((o, i) => `${i + 1}. ${o}`).join(", ")}]`, "meta");
   log("log-4", `prompt  = "Classify the following text into one of the following ${options.length} themes: {options}. Text: {document}. Respond with verbatim classification…"`, "meta");
   if (provider.model === "mock-demo") log("log-4", "provider is the demo mock — predictions are keyword-based, not from a real LLM", "warn");
@@ -652,26 +677,33 @@ async function runStage4() {
     (b[col] || "").toLowerCase().trim() === (b.human_label || "").toLowerCase().trim()).length / benchRows.length;
   const report = {
     n_benchmark: benchRows.length,
-    llm_agreement: +agree("llm_pred").toFixed(4),
-    boolean_agreement: +agree("boolean_pred").toFixed(4),
-    threshold, model: provider.model,
+    llm_agreement: agree("llm_pred"),
+    boolean_agreement: agree("boolean_pred"),
+    llm:scoreLabels(benchRows.map(r=>r.human_label), llmPreds, options),
+    boolean:scoreLabels(benchRows.map(r=>r.human_label), benchRows.map(r=>r.boolean_pred), options),
+    sourceMode:S.sourceMode, benchmarkProvenance:S.benchmarkProvenance || 'unverified supplied labels',
+    threshold, model: provider.model, provenance:provider.records || [],
   };
   setTermProgress("log-4", null);
   log("log-4", `agreement vs human benchmark — LLM: ${pct(report.llm_agreement)} · boolean: ${pct(report.boolean_agreement)} · gate: ${pct(threshold, 0)}`, "ok");
 
   const winner = report.llm_agreement >= report.boolean_agreement
     ? ["llm", report.llm_agreement] : ["boolean", report.boolean_agreement];
-  if (winner[1] < threshold) {
+  const metrics = report[winner[0]];
+  const unsupported = S.stage3.themes.filter(t => metrics.per_label[t].human_n === 0 || metrics.per_label[t].recall === 0);
+  if (!Number.isFinite(winner[1]) || winner[1] <= threshold || unsupported.length) {
     setStageState(4, "blocked");
     S.stage4 = { report, benchRows, classified: null, winner: null };
-    log("log-4", `GATE REFUSED — best classifier ("${winner[0]}", ${pct(winner[1])}) < ${pct(threshold, 0)}. Nothing was scaled.`, "warn");
+    S.partial = null;
+    log("log-4", `GATE REFUSED — best classifier ("${winner[0]}", ${pct(winner[1])}) did not satisfy all validation criteria. Nothing was scaled.`, "warn");
+    log("log-4", `Themes without positive benchmark support or sensitivity: ${unsupported.join(", ") || "none"}`, "warn");
     log("log-4", "refine the prompt or theme dictionaries (or revisit Stage 3 groupings) and re-benchmark", "meta");
     $("s4-summary").innerHTML =
-      `<span class="fail">Gate refused:</span> best classifier (“${winner[0]}”, ${pct(winner[1])}) is below the ` +
-      `${pct(threshold, 0)} agreement threshold. Refine the prompt or theme dictionaries and re-benchmark — ` +
-      `the pipeline does not scale an unvalidated classifier.`;
+      `<span class="fail">Gate refused:</span> best classifier (“${winner[0]}”, ${pct(winner[1])}) must exceed ` +
+      `${pct(threshold, 0)} agreement and satisfy the per-theme checks. ` +
+      `Every theme also needs positive benchmark support and nonzero sensitivity. Unsupported themes: ${unsupported.map(escapeHTML).join(", ") || "none"}. Use a held-out human benchmark for research.`;
     $("stage4-results").hidden = false;
-    $("s4-tables").innerHTML = "";
+    $("s4-tables").innerHTML = benchmarkTables(report);
     $("run4").disabled = false;
     return;
   }
@@ -683,7 +715,9 @@ async function runStage4() {
   else themes = texts.map(t => booleanClassify(t, dict));
   const classified = S.corpus.map((r, i) => ({ ...r, theme: themes[i] }));
 
+  report.provenance = provider.records || [];
   S.stage4 = { report, benchRows, classified, winner: winner[0] };
+  S.partial = null;
   S.stage5 = null;
   setTermProgress("log-4", null);
   log("log-4", `${classified.length.toLocaleString()} documents labeled — every document has exactly one theme`, "ok");
@@ -692,6 +726,16 @@ async function runStage4() {
   setStageState(4, "done");
   $("run4").disabled = false; $("run5").disabled = false;
   $("s4-live").textContent = "";
+}
+
+function benchmarkTables(report) {
+  return ['llm','boolean'].map(name=>{
+    const m=report[name];
+    const rows=Object.entries(m.per_label).map(([label,v])=>`<tr><td>${escapeHTML(label)}</td><td>${v.human_n}</td><td>${v.precision===null?'—':pct(v.precision)}</td><td>${v.recall===null?'—':pct(v.recall)}</td></tr>`).join('');
+    const labels=Object.keys(m.confusion);
+    const matrix=labels.map(a=>`<tr><th>${escapeHTML(a)}</th>${labels.map(b=>`<td>${m.confusion[a][b]}</td>`).join('')}</tr>`).join('');
+    return `<h4>${name==='llm'?'LLM':'Boolean'} validation</h4><p>Agreement ${pct(m.agreement)} · Cohen’s κ ${m.cohens_kappa===null?'undefined':m.cohens_kappa.toFixed(3)}</p><div class="table-wrap"><table><thead><tr><th>Theme</th><th>Reference n</th><th>Precision</th><th>Sensitivity</th></tr></thead><tbody>${rows}</tbody></table></div><details><summary>Confusion matrix · rows are reference labels, columns are predictions</summary><div class="table-wrap"><table><thead><tr><th>Reference / predicted</th>${labels.map(l=>`<th>${escapeHTML(l)}</th>`).join('')}</tr></thead><tbody>${matrix}</tbody></table></div></details>`;
+  }).join('');
 }
 
 function renderStage4() {
@@ -706,7 +750,7 @@ function renderStage4() {
   const rows = [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([t, c]) =>
     `<tr><td>${escapeHTML(t)}</td><td>${c.toLocaleString()}</td><td>${pct(c / classified.length)}</td></tr>`).join("");
   $("s4-tables").innerHTML =
-    `<table><thead><tr><th>Theme</th><th>Documents</th><th>Share</th></tr></thead><tbody>${rows}</tbody></table>`;
+    benchmarkTables(report) + `<h4>Classified corpus</h4><table><thead><tr><th>Theme</th><th>Documents</th><th>Share</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 function stage4Downloads(which) {
@@ -727,82 +771,24 @@ function periodsFromUI() {
     const name = row.querySelector(".p-name").value.trim();
     const start = row.querySelector(".p-start").value;
     const end = row.querySelector(".p-end").value;
-    if (name && start && end) out[name] = [start, end];
+    if (!name || !start || !end) throw new Error("Complete each period name and date range.");
+    if (Object.hasOwn(out,name)) throw new Error("Period names must be unique.");
+    out[name] = [start, end];
   }
   return out;
 }
 
 function runStage5() {
   if (!S.stage4?.classified) return;
-  const alpha = parseFloat($("cfg-alpha").value) || 0.05;
-  const periods = periodsFromUI();
-  const classified = S.stage4.classified;
-  const themes = S.stage3.themes;
-  const hasDate = classified.some(r => r.date);
-
-  setStageState(5, "running");
-  $("log-5").innerHTML = "";
-  logCmd("log-5", `run_stage5(periods={${Object.entries(periods).map(([n, [s, e]]) => `${n}:["${s}","${e}"]`).join(", ")}}, alpha=${alpha})`);
-  let prevRows = [], testRows = [], alphaAdj = null;
-
-  if (hasDate && Object.keys(periods).length >= 2) {
-    const inPeriod = classified.map(r => {
-      const d = Date.parse(r.date);
-      for (const [name, [s, e]] of Object.entries(periods)) {
-        if (d >= Date.parse(s) && d <= Date.parse(e) + 86399999) return { ...r, period: name };
-      }
-      return null;
-    }).filter(Boolean);
-    const totals = {};
-    for (const r of inPeriod) totals[r.period] = (totals[r.period] || 0) + 1;
-
-    const names = Object.keys(periods);
-    const pairs = [];
-    for (let i = 0; i < names.length; i++) for (let j = i + 1; j < names.length; j++) pairs.push([names[i], names[j]]);
-    alphaAdj = alpha / (themes.length * pairs.length);
-    log("log-5", `${inPeriod.length.toLocaleString()} of ${classified.length.toLocaleString()} documents fall inside a period · docs/period: ${names.map(n => `${n}=${totals[n] || 0}`).join(", ")}`, "meta");
-    log("log-5", `bonferroni: alpha_adj = ${alpha} / (${themes.length} themes × ${pairs.length} comparisons) = ${alphaAdj.toFixed(4)}`, "meta");
-
-    for (const theme of themes) {
-      const counts = {};
-      for (const r of inPeriod) if (r.theme === theme) counts[r.period] = (counts[r.period] || 0) + 1;
-      const row = { theme };
-      for (const p of names) {
-        row[`${p}_pct`] = totals[p] ? +(100 * (counts[p] || 0) / totals[p]).toFixed(2) : null;
-        row[`${p}_n`] = totals[p] || 0;
-      }
-      prevRows.push(row);
-      for (const [a, b] of pairs) {
-        const [ka, na, kb, nb] = [counts[a] || 0, totals[a] || 0, counts[b] || 0, totals[b] || 0];
-        if (!na || !nb) continue;
-        const { z, p } = proportionsZTest(ka, na, kb, nb);
-        const [pa, pb] = [ka / na, kb / nb];
-        const sig = p < alphaAdj;
-        testRows.push({
-          theme, comparison: `${a} vs ${b}`,
-          [`prop_${a}`]: +pa.toFixed(4), [`prop_${b}`]: +pb.toFixed(4),
-          pct_change: pa ? +(100 * (pb - pa) / pa).toFixed(1) : null,
-          z: +z.toFixed(3), p: p, significant_bonferroni: sig,
-        });
-        log("log-5", `proportions_ztest("${theme}", ${a}→${b}): ${pct(pa)}→${pct(pb)}  z=${z.toFixed(3).padStart(7)}  p=${p < 0.0001 ? p.toExponential(2) : p.toFixed(4)}${sig ? "  ← significant" : ""}`, sig ? "ok" : "meta");
-      }
-    }
-    log("log-5", `${testRows.filter(t => t.significant_bonferroni).length} of ${testRows.length} comparisons significant at alpha_adj=${alphaAdj.toFixed(4)}`, "ok");
-    S.stage5 = { prevRows, testRows, alphaAdj, periods: names };
-    renderStage5();
-  } else {
-    S.stage5 = { prevRows: [], testRows: [], alphaAdj: null, periods: [] };
-    log("log-5", "no usable date column / periods — period prevalence and z-tests skipped", "warn");
-    $("s5-summary").innerHTML = "No usable date column / periods — period tests skipped. Whole-corpus theme prevalence (theme_counts.csv) is still available below.";
-    $("s5-chart").innerHTML = ""; $("s5-table").innerHTML = "";
-  }
-  S.stage5.themeCounts = themeCountRows(classified);
-  for (const row of S.stage5.themeCounts) {
-    log("log-5", `theme prevalence "${row.theme}": ${row.documents.toLocaleString()} documents (${pct(row.share)})`, "meta");
-  }
-  log("log-5", "artifacts ready: prevalence_by_period.csv · ztest_results.csv · theme_counts.csv", "ok");
-  $("stage5-results").hidden = false;
-  setStageState(5, "done");
+  resetAfter(5);
+  const alpha = Number($("cfg-alpha").value);
+  S.stage5 = estimatePrevalence(S.stage4.classified,S.stage3.themes,periodsFromUI(),alpha);
+  S.stage5.themeCounts = themeCountRows(S.stage4.classified);
+  S.stage5.alpha = alpha;
+  renderStage5();
+  $("stage5-results").hidden=false;
+  log("log-5",`${S.stage5.outsidePeriods} documents fall outside the declared periods. Positive z means an increase from the first period to the second.`,"meta");
+  setStageState(5,"done");
 }
 
 /** Whole-corpus theme prevalence — every label observed in the classified corpus. */
@@ -827,8 +813,8 @@ function renderStage5() {
   const head = `<tr><th>Theme</th><th>Comparison</th><th>Δ%</th><th>z</th><th>p</th><th>Significant</th></tr>`;
   const rows = testRows.map(t =>
     `<tr><td>${escapeHTML(t.theme)}</td><td>${escapeHTML(t.comparison)}</td>` +
-    `<td>${t.pct_change == null ? "—" : t.pct_change + "%"}</td><td>${t.z}</td>` +
-    `<td>${t.p < 0.0001 ? t.p.toExponential(2) : t.p.toFixed(4)}</td>` +
+    `<td>${t.pct_change == null ? "—" : t.pct_change + "%"}</td><td>${t.z == null ? "Not estimable" : t.z.toFixed(3)}</td>` +
+    `<td>${t.p == null ? "—" : t.p < 0.0001 ? t.p.toExponential(2) : t.p.toFixed(4)}</td>` +
     `<td>${t.significant_bonferroni ? "<strong>yes</strong>" : "no"}</td></tr>`).join("");
   $("s5-table").innerHTML = `<table><thead>${head}</thead><tbody>${rows}</tbody></table>`;
 }
@@ -844,10 +830,10 @@ function stage5Downloads(which) {
 /* --------------------------- session archive ----------------------------- */
 
 function downloadSessionArchive() {
-  const files = {};
+  const files = {"run_manifest.json":JSON.stringify({schema_version:1,runId:S.runId,sourceMode:S.sourceMode,corpus_sha256:S.corpusHash,createdAt:new Date().toISOString(),implementation:"browser-approximation-v2",stage1Settings:S.stage1Settings,stage2:S.stage2?.settings,reviewers:S.stage3?.reviewers,model:S.stage2?.model,limitations:"Browser discovery is an approximation, not the Python BERTopic implementation. Synthetic and mock results are not empirical evidence."},null,2)};
   const add = (name, content) => { if (content != null) files[name] = content; };
   if (S.stage1) {
-    add("stage1/all_iteration_results.json", JSON.stringify({ seed: stage1Config().randomSeed, embedder: S.stage1.embedderUsed, iterations: S.stage1.allIterations }, null, 2));
+    add("stage1/all_iteration_results.json", JSON.stringify({ seed: S.stage1Settings.randomSeed, embedder: S.stage1.embedderUsed, iterations: S.stage1.allIterations }, null, 2));
     add("stage1/best_model/parameters.json", JSON.stringify({
       umap_params: S.stage1.best.umapParams, hdbscan_params: S.stage1.best.hdbParams,
       n_topics: S.stage1.best.nTopics, coherence: S.stage1.best.coherence,
@@ -882,7 +868,7 @@ function downloadSessionArchive() {
 function initTabs() {
   const tabs = document.querySelectorAll("nav.tabs button");
   tabs.forEach(btn => btn.addEventListener("click", () => {
-    tabs.forEach(b => b.classList.toggle("active", b === btn));
+    tabs.forEach(b => {b.classList.toggle("active", b === btn);b.setAttribute("aria-pressed",String(b===btn));});
     document.querySelectorAll("main > section.tab").forEach(sec =>
       sec.hidden = sec.id !== "tab-" + btn.dataset.tab);
   }));
@@ -892,6 +878,8 @@ function initTabs() {
 
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
+  initStudyTour();
+  initWorkbench();
   restoreSettings();
   summarizeData();
   $("stopwords").value = DEFAULT_STOPWORDS;
@@ -903,17 +891,17 @@ document.addEventListener("DOMContentLoaded", () => {
       $(li.dataset.target)?.scrollIntoView({ behavior: "smooth", block: "start" });
     }));
 
-  on("btn-demo", "click", loadDemo);
-  on("file-corpus", "change", e => e.target.files[0] && loadCorpusFile(e.target.files[0]));
-  on("file-benchmark", "change", e => e.target.files[0] && loadBenchmarkFile(e.target.files[0]));
+  on("btn-demo", "click", () => loadDemo().catch(e=>showError(e.message)));
+  on("file-corpus", "change", e => e.target.files[0] && loadCorpusFile(e.target.files[0]).catch(e=>showError(e.message)));
+  on("file-benchmark", "change", e => e.target.files[0] && loadBenchmarkFile(e.target.files[0]).catch(e=>showError(e.message)));
   on("llm-provider", "change", syncProviderUI);
 
-  on("run1", "click", runStage1);
+  on("run1", "click", () => {try {runStage1();} catch(e) {showError(e.message);} });
   on("cancel1", "click", cancelStage1);
-  on("run2", "click", runStage2);
-  on("btn-consensus", "click", recordConsensus);
-  on("run4", "click", runStage4);
-  on("run5", "click", runStage5);
+  on("run2", "click", () => execute(2,runStage2));
+  on("btn-consensus", "click", () => {try {recordConsensus();} catch(e) {showError(e.message);} });
+  on("run4", "click", () => execute(4,runStage4));
+  on("run5", "click", () => execute(5,runStage5));
   on("btn-archive", "click", downloadSessionArchive);
 
   document.querySelectorAll("[data-dl]").forEach(btn => btn.addEventListener("click", () => {
@@ -921,3 +909,60 @@ document.addEventListener("DOMContentLoaded", () => {
     ({ 1: stage1Downloads, 2: stage2Downloads, 3: stage3Downloads, 4: stage4Downloads, 5: stage5Downloads })[stage](which);
   }));
 });
+
+let activeController = null;
+function showError(message) {
+  $("app-message").textContent=message;
+  $("app-message").hidden=false;
+  $("app-message").focus();
+}
+function resetAfter(stage) {
+  S.partial = null;
+  if (stage <= 1 && worker) {worker.terminate(); worker=null;}
+  for (let n=Math.max(stage,1); n<=5; n++) {
+    S[`stage${n}`]=null; setStageState(n,"idle");
+    if ($(`stage${n}-results`)) $(`stage${n}-results`).hidden=true;
+    if ($(`run${n}`)) $(`run${n}`).disabled=true;
+  }
+  if (stage<=3) $("stage3-body").hidden=true;
+  if (stage===0) { S.runId=crypto.randomUUID(); S.stage1Settings=null; }
+}
+async function execute(stage,fn) {
+  if (activeController) return;
+  activeController=new AbortController();
+  $("app-message").hidden=true; $("stop-run").hidden=false;
+  const mutable=[...document.querySelectorAll("#tab-analyze input, #tab-analyze select, #tab-analyze textarea, #card-data button, #run1, #run2, #run4, #run5, #btn-consensus, #save-session")];
+  const states=mutable.map(el=>el.disabled);
+  mutable.forEach(el=>el.disabled=true);
+  try {await fn();}
+  catch(e) {setStageState(stage,"error"); showError(e.name==='AbortError' ? "Run stopped. No incomplete results were released. Restart this stage to retry." : e.message);}
+  finally {
+    mutable.forEach((el,i)=>el.disabled=states[i]);
+    activeController=null; $("stop-run").hidden=true;
+    $("run1").disabled=!S.corpus;
+    $("run2").disabled=!S.stage1;
+    $("run4").disabled=!(S.stage3 && S.benchmark);
+    $("run5").disabled=!S.stage4?.classified;
+  }
+}
+function initWorkbench() {
+  on("stop-run","click",()=>activeController?.abort());
+  // Persist only a downloadable research record. No private corpus is saved to localStorage.
+  on("save-session","click",()=>downloadText("topicllm-session.json",JSON.stringify({schema_version:1,state:S,settings:{stage1:S.stage1Settings}},null,2),"application/json"));
+  on("restore-session","change",async e=>{
+    try {
+      if (!e.target.files[0]) return;
+      const data=JSON.parse(await readFileText(e.target.files[0]));
+      const t=data.state;
+      if (data.schema_version!==1 || !Array.isArray(t?.corpus) || !t.corpusHash || await sha256(JSON.stringify(t.corpus))!==t.corpusHash) throw new Error("Invalid session or corpus fingerprint.");
+      if (!t.corpus.length || t.corpus.length>6000 || typeof t.textCol!=='string' || t.corpus.some(r=>typeof r?.[t.textCol]!=='string' || !r[t.textCol].trim())) throw new Error("Saved corpus is invalid or exceeds the browser limit.");
+      if (t.benchmark!==null && (!Array.isArray(t.benchmark) || t.benchmark.some(r=>typeof r?.tweet!=='string' || typeof r?.human_label!=='string'))) throw new Error("Saved benchmark is invalid.");
+      resetAfter(0);
+      S.corpus=t.corpus; S.corpusHash=t.corpusHash; S.textCol=t.textCol; S.benchmark=t.benchmark;
+      S.isDemo=false; S.sourceMode='restored-inputs';
+      S.benchmarkProvenance='restored labels; provenance must be verified by the researcher';
+      summarizeData();
+      showError("Saved inputs loaded. Previous outputs remain in your downloaded research record; rerun stages to validate this new session.");
+    } catch(error){showError(error.message);}
+  });
+}

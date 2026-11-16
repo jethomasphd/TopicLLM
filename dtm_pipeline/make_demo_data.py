@@ -17,7 +17,7 @@ design mirrors the published demonstration (Thomas, 2025, Study 1):
     Stage 5 returns the dissertation's published prevalence table and
     z statistics. A classifier's output approaches that table to the extent
     that it agrees with the ground truth;
-  * a 250-post human-labeled benchmark drawn from the lockdown months.
+  * a 250-post generator-labeled synthetic benchmark drawn from the lockdown months.
 
 Everything is fictional: brands, people, handles, apps, charities and posts.
 No text is taken from the dissertation data or from any real social media
@@ -715,9 +715,9 @@ def main() -> None:
     os.makedirs(args.out_dir, exist_ok=True)
 
     corpus, bench, truth = build()
-    corpus.to_csv(os.path.join(args.out_dir, "demonstration_corpus.csv"), index=False)
-    bench.to_csv(os.path.join(args.out_dir, "demonstration_benchmark.csv"), index=False)
-    truth.to_csv(os.path.join(args.out_dir, "demonstration_ground_truth.csv"), index=False)
+    corpus.to_csv(os.path.join(args.out_dir, "demonstration_corpus.csv"), index=False, lineterminator="\n")
+    bench.to_csv(os.path.join(args.out_dir, "demonstration_benchmark.csv"), index=False, lineterminator="\n")
+    truth.to_csv(os.path.join(args.out_dir, "demonstration_ground_truth.csv"), index=False, lineterminator="\n")
     stop = ([h.lower() for h in (v["handle"] for v in BRANDS.values())]
             + sorted({w.lower() for b in BRANDS for w in b.split()
                       if w.lower() not in {"hard", "rum", "lager", "brewing", "brewery", "whiskey",

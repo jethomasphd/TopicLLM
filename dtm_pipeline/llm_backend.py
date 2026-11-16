@@ -67,7 +67,10 @@ class OpenAIBackend(LLMBackend):
             max_tokens=max_tokens,
             temperature=temperature,
             n=1,
+            store=False,
         )
+        if resp.choices[0].finish_reason != "stop":
+            raise ValueError("Incomplete model response; no label recorded.")
         return resp.choices[0].message.content or ""
 
 
