@@ -29,13 +29,24 @@ def run_stage5(cfg=CONFIG) -> str:
     os.makedirs(out, exist_ok=True)
     corpus = pd.read_csv(os.path.join(cfg.output_dir, "stage4", "classified_corpus.csv"))
 
-    # Documents whose API call failed have no measurement: exclude them from
-    # numerators AND denominators rather than counting them as "does not fit".
-    failed = corpus["theme"] == ERROR_LABEL
-    if failed.any():
-        print(f"[stage5] WARNING: excluding {int(failed.sum()):,} documents labeled "
-              f"{ERROR_LABEL} — re-run Stage 4 to retry them.")
-        corpus = corpus[~failed].copy()
+    allowed = set(cfg.themes + [cfg.none_label])
+    if corpus.empty or not cfg.themes or len(set(cfg.themes)) != len(cfg.themes):
+        raise ValueError("A non-empty corpus and unique themes are required.")
+    if not corpus["theme"].isin(allowed).all():
+        raise ValueError("Resolve failed, missing or invalid classifications before estimating prevalence.")
+    if "status" in corpus and corpus["status"].isin(["error","unmatched","empty"]).any():
+        raise ValueError("Unresolved classifications are not measurements.")
+    if not 0 < cfg.alpha < 1:
+        raise ValueError("Alpha must be between zero and one.")
+    ranges = list(cfg.periods.items())
+    if len(ranges) < 2:
+        raise ValueError("Define at least two non-overlapping periods.")
+    for i,(name,(start,end)) in enumerate(ranges):
+        if not name or pd.Timestamp(start) > pd.Timestamp(end):
+            raise ValueError("Invalid period definition.")
+        for _,(other_start,other_end) in ranges[i+1:]:
+            if start <= other_end and other_start <= end:
+                raise ValueError("Period ranges overlap.")
 
     # ---- 1. Whole-corpus theme prevalence ----------------------------------
     counts = corpus["theme"].value_counts()
@@ -48,7 +59,9 @@ def run_stage5(cfg=CONFIG) -> str:
 
     # ---- 2. Prevalence by period + proportional z-tests --------------------
     if "date" in corpus.columns:
-        corpus["date"] = pd.to_datetime(corpus["date"], errors="coerce")
+        corpus["date"] = pd.to_datetime(corpus["date"], errors="coerce", utc=True).dt.tz_convert(None).dt.normalize()
+        if corpus["date"].isna().any():
+            raise ValueError("Missing or invalid document dates.")
         corpus["period"] = None
         for name, (start, end) in cfg.periods.items():
             mask = corpus["date"].between(pd.Timestamp(start), pd.Timestamp(end))
@@ -58,6 +71,8 @@ def run_stage5(cfg=CONFIG) -> str:
               f"({len(corpus) - len(in_period):,} outside them, e.g. between periods).")
 
         totals = in_period.groupby("period").size()
+        if any(totals.get(p,0) == 0 for p in cfg.periods):
+            raise ValueError("At least one declared period has no documents.")
         prev_rows, test_rows = [], []
         period_pairs = list(combinations(cfg.periods.keys(), 2))
         # Bonferroni: alpha / (n_themes x tests per theme) — reference design
@@ -84,16 +99,19 @@ def run_stage5(cfg=CONFIG) -> str:
                 # Ordered (b, a) so z > 0 means prevalence rose from period a
                 # to period b — the same direction as pct_change and as the
                 # dissertation's reported statistics.
-                z, p_val = proportions_ztest([kb, ka], [nb, na])
+                estimable = 0 < ka + kb < na + nb
+                z, p_val = proportions_ztest([kb, ka], [nb, na]) if estimable else (None, None)
                 pa, pb = ka / na, kb / nb
                 test_rows.append({
                     "theme": theme, "comparison": f"{a} vs {b}",
                     "period_a": a, "k_a": ka, "n_a": na, "prop_a": round(pa, 4),
                     "period_b": b, "k_b": kb, "n_b": nb, "prop_b": round(pb, 4),
                     "pct_change": round(100 * (pb - pa) / pa, 1) if pa else None,
-                    "z": round(float(z), 3), "p": float(p_val),
+                    "z": round(float(z), 3) if estimable else None, "p": float(p_val) if estimable else None,
+                    "sparse_cells": min(ka,na-ka,kb,nb-kb) < 5,
+                    "percentage_point_change":100*(pb-pa),
                     "alpha_bonferroni": round(alpha_adj, 6),
-                    "significant_bonferroni": bool(p_val < alpha_adj),
+                    "significant_bonferroni": bool(estimable and p_val < alpha_adj),
                 })
 
         pd.DataFrame(prev_rows).to_csv(os.path.join(out, "prevalence_by_period.csv"), index=False)

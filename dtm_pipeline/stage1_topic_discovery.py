@@ -7,13 +7,13 @@ components, and scoring are those of the archival implementation
 (Supplementary File S1). This version adds:
 
   * a seeded search (hyperparameter draws AND each UMAP fit), so a run can
-    be reproduced exactly from config.py;
+    be repeated within a fixed, recorded environment;
   * the winning model is the fitted candidate that earned the best score —
     not a fresh, re-randomized refit that may yield different topics;
   * fit-once-then-reduce: each sampled (UMAP, HDBSCAN) configuration is fit
     once and then reduced to every maximum topic solution. With a seeded
-    UMAP this yields the same topic assignments as refitting per solution
-    (verified on the dissertation corpus) at ~1/24th of the cost. Set
+    UMAP this is intended to avoid redundant fits. Equivalence must be checked
+    in the recorded dependency environment; it is not verified on the restricted study. Set
     `refit_per_solution = True` to refit per solution exactly as S1 did;
   * per-candidate audit fields: topics actually found (HDBSCAN often finds
     fewer clusters than the maximum solution) and the outlier share.
@@ -31,6 +31,9 @@ import copy
 import json
 import os
 import re
+import hashlib
+from pathlib import Path
+from dataclasses import asdict
 from typing import Callable
 
 import matplotlib
@@ -54,6 +57,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from umap import UMAP
 
 from config import CONFIG
+from provenance import environment
 
 NLTK_PACKAGES = {  # resource path -> downloadable package
     "tokenizers/punkt": "punkt",
@@ -224,7 +228,7 @@ def evaluate_configuration(docs: list[str], embeddings: np.ndarray,
             base.fit_transform(docs, embeddings=embeddings)
         except Exception as e:
             print(f"[stage1]   configuration failed to fit ({e})")
-            return results, None
+            return [{"max_topics": n, "status": "failed_fit", "error": str(e), "coherence": None} for n in topic_range], None
 
     for n_topics in topic_range:
         try:
@@ -236,19 +240,22 @@ def evaluate_configuration(docs: list[str], embeddings: np.ndarray,
                 # Share (do not copy) the embedding model across candidates.
                 model = copy.deepcopy(base, {id(base.embedding_model): base.embedding_model})
                 model.reduce_topics(docs, nr_topics=n_topics)
-            if len(set(model.topics_)) < 2:
-                continue
             tw = topic_words_of(model)
             if len(tw) < 2:
+                results.append({"max_topics": n_topics, "status": "insufficient_topics", "coherence": None, **summarize(model)})
                 continue
             coherence = float(scorer(tw))
-            info = {"max_topics": n_topics, "coherence": coherence, **summarize(model)}
+            if not np.isfinite(coherence):
+                results.append({"max_topics": n_topics, "status": "nonfinite_coherence", "coherence": None, **summarize(model)})
+                continue
+            info = {"max_topics": n_topics, "status": "scored", "coherence": coherence, **summarize(model)}
             results.append(info)
             print(f"[stage1]   max_topics={n_topics:>2}  found={info['n_topics_found']:>2}  "
                   f"outliers={info['outlier_share']:.1%}  coherence={coherence:.4f}")
             if coherence > best_c:
                 best_c, best_model = coherence, model
         except Exception as e:
+            results.append({"max_topics": n_topics, "status": "failed", "error": str(e), "coherence": None})
             print(f"[stage1]   max_topics={n_topics:>2}  skipped ({e})")
     return results, best_model
 
@@ -278,6 +285,13 @@ def run_stage1(cfg=CONFIG) -> str:
     if "tweet" not in df.columns:
         raise ValueError(f"{cfg.input_csv} must contain a 'tweet' column.")
     preprocess, stop_words = build_preprocessor(cfg.stopwords_file)
+    manifest = {
+        "input_sha256": hashlib.sha256(Path(cfg.input_csv).read_bytes()).hexdigest(),
+        "effective_stopwords": sorted(stop_words),
+        "config": asdict(cfg), "environment": environment(),
+        "mode": "maintained-python-discovery", "status": "started",
+    }
+    Path(out, "run_manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print(f"[stage1] Preprocessing {len(df):,} documents ...")
     df["preprocessed_tweet"] = df["tweet"].apply(preprocess)
     empty = df["preprocessed_tweet"].str.strip() == ""
@@ -288,11 +302,14 @@ def run_stage1(cfg=CONFIG) -> str:
     df = df[~empty].reset_index(drop=True)
     df.to_csv(os.path.join(out, "preprocessed_tweets.csv"), index=False)
     docs = df["preprocessed_tweet"].tolist()
+    if len(docs) < 10:
+        raise ValueError("Discovery requires at least 10 non-empty documents after preprocessing.")
     print(f"[stage1] {len(docs):,} non-empty documents retained.")
 
     # ---- Embed once, reuse across all candidate models ---------------------
     print(f"[stage1] Embedding with {cfg.embedding_model} (one pass) ...")
-    embedder = SentenceTransformer(cfg.embedding_model)
+    embedder = SentenceTransformer(cfg.embedding_model, revision=cfg.embedding_revision)
+    manifest['resolved_embedding_revision'] = getattr(getattr(getattr(embedder[0], 'auto_model', None), 'config', None), '_commit_hash', None)
     embeddings = embedder.encode(docs, show_progress_bar=True)
     scorer = CoherenceScorer(docs)
 
@@ -316,31 +333,25 @@ def run_stage1(cfg=CONFIG) -> str:
         details, model = evaluate_configuration(
             docs, embeddings, embedder, stop_words, umap_cfg, hdb_cfg,
             topic_range, scorer, umap_seed, cfg.refit_per_solution)
-        if not details:
-            print("[stage1]   No valid models in this iteration.")
-            continue
-
-        top = max(details, key=lambda d: d["coherence"])
+        scored = [d for d in details if d["status"] == "scored"]
+        top = max(scored, key=lambda d: d["coherence"]) if scored else None
         record = {
             "iteration": i + 1,
             "umap_params": umap_cfg,
             "hdbscan_params": hdb_cfg,
             # [max_topics, coherence] pairs — same shape as archival S1 and
             # the browser app — plus the per-candidate audit details.
-            "results": [(d["max_topics"], d["coherence"]) for d in details],
+            "results": [(d["max_topics"], d["coherence"]) for d in scored],
             "details": details,
-            "max_coherence": top["coherence"],
-            "best_max_topics": top["max_topics"],
-            "best_n_topics_found": top["n_topics_found"],
+            "max_coherence": top["coherence"] if top else None,
+            "best_max_topics": top["max_topics"] if top else None,
+            "best_n_topics_found": top["n_topics_found"] if top else None,
         }
         all_iterations.append(record)
-        if record["max_coherence"] > best["max_coherence"]:
+        if top and record["max_coherence"] > best["max_coherence"]:
             best, best_model = record, model
             print(f"[stage1]   ** New best coherence: {best['max_coherence']:.4f} "
                   f"({top['n_topics_found']} topics) **")
-
-    if not all_iterations:
-        raise RuntimeError("No valid models across all iterations — check data/parameters.")
 
     # Full audit trail: every iteration's parameters and scores
     with open(os.path.join(out, "all_iteration_results.json"), "w") as f:
@@ -348,6 +359,9 @@ def run_stage1(cfg=CONFIG) -> str:
                    "refit_per_solution": cfg.refit_per_solution,
                    "n_documents": len(docs), "embedding_model": cfg.embedding_model,
                    "iterations": all_iterations}, f, indent=2)
+
+    if best_model is None:
+        raise RuntimeError("No valid models across all iterations — inspect all_iteration_results.json.")
 
     # ---- Persist the winning model (the candidate that earned the score) --
     final = best_model
@@ -358,6 +372,11 @@ def run_stage1(cfg=CONFIG) -> str:
 
     best_dir = os.path.join(out, "best_model")
     os.makedirs(best_dir, exist_ok=True)
+    # Full serialization retains the scored UMAP/HDBSCAN candidate as well as
+    # embeddings. Load only your own trusted pickle in this recorded environment.
+    model_path = os.path.join(best_dir, 'fitted_model.pkl')
+    final.save(model_path, serialization='pickle', save_embedding_model=True)
+    manifest['fitted_model_sha256'] = hashlib.sha256(Path(model_path).read_bytes()).hexdigest()
     df["topic"] = topics
     df.to_csv(os.path.join(best_dir, "classified_tweets.csv"), index=False)
     final.get_topic_info().to_csv(os.path.join(best_dir, "topic_words.csv"), index=False)
@@ -395,6 +414,8 @@ def run_stage1(cfg=CONFIG) -> str:
         rows.append({"topic": t, "words": ", ".join(words),
                      "n_documents": int(sum(1 for x in topics if x == t))})
     pd.DataFrame(rows).to_csv(os.path.join(out, "topics_for_naming.csv"), index=False)
+    manifest.update(status="complete", selected_iteration=best["iteration"], selected_coherence=best["max_coherence"])
+    Path(out, "run_manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print(f"[stage1] Wrote {len(rows)} topics to topics_for_naming.csv")
     print(f"[stage1] DONE — artifacts in {out}/")
     return out

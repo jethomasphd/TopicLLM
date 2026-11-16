@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "source": "Thomas (2025), dissertation, Chapter 4, pp. 163–166, Tables 2–3",
+  "source_file": "THOMAS-PRIMARY-2025.pdf",
+  "mode": "reported-study-results",
+  "sample_size": 5872,
+  "brands": 11,
+  "discovery": {"topics":7,"coherence":0.768,"iteration":25,"maximum_topic_solution":23,"umap":{"n_neighbors":15,"n_components":4,"min_dist":0.01},"hdbscan":{"min_cluster_size":20}},
+  "periods": {"pre":["2019-01-01","2020-01-31"],"peri":["2020-03-01","2020-05-31"],"post":["2020-06-01","2021-07-31"]},
+  "topics": [
+    {"id":0,"name":"Pandemic Alcohol Delivery and Enjoyment","theme":"Alcohol Delivery and Isolation Drinking","words":["sunshine","drizly","bit","day","order","happy","part","original","drink","get"]},
+    {"id":1,"name":"COVID-19 Restaurant Support and Donation Initiatives","theme":"Restaurant Support","words":["restaurant","donate","support","worker","help","fund","restaurantstrong","strong","covid","donation"]},
+    {"id":2,"name":"Virtual Bar Tours & Live Instagram Events","theme":"Social Media Promotions","words":["live","instagram","tune","tonight","ig","go","dive","tour","bar","edition"]},
+    {"id":3,"name":"Pandemic Social Engagement & Promotions","theme":"Social Media Promotions","words":["whassup","say","tag","win","merch","friend","chance","need","collection","week"]},
+    {"id":4,"name":"Virtual NFL Draft Party with Celebrity Hosts","theme":"Sports","words":["draft","boo","commish","nfl","youtube","drafterparty","robgronkowski","guest","host","camillekostek"]},
+    {"id":5,"name":"Home Sports Challenge Campaigns","theme":"Sports","words":["challenge","team","house","sport","league","submit","home","athlete","chance","video"]},
+    {"id":6,"name":"Charity Gaming Events by Alcohol Brands","theme":"Gaming","words":["royale","twitch","tv","charity","money","tonight","dkm","therealgavinlux","snellzilla","final"]}
+  ],
+  "prevalence": [
+    {"theme":"Alcohol Delivery and Isolation Drinking","pre":9.1,"peri":17.4,"post":11.9},
+    {"theme":"Restaurant Support","pre":1.9,"peri":5.5,"post":1.7},
+    {"theme":"Social Media Promotions","pre":6.6,"peri":16.5,"post":10.6},
+    {"theme":"Sports","pre":8.2,"peri":11.4,"post":8.9},
+    {"theme":"Gaming","pre":1.1,"peri":2.0,"post":1.6}
+  ],
+  "caveats": [
+    "Topic IDs 0–6 are display identifiers for Table 2 order, not recovered model IDs.",
+    "The dissertation does not supply the original fitted model, ballots, per-document assignments or exact period denominators in this repository.",
+    "The synthetic demo deliberately calibrates prevalence to the published rounded percentages. Its denominators are design choices, not verified original denominators.",
+    "The synthetic seven-topic mapping uses known generator campaigns; it is not an unsupervised fit and has no measured coherence score.",
+    "Apparent reporting inconsistencies on p.164 are preserved in the original source and discussed separately in the audit."
+  ]
+}

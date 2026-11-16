@@ -20,11 +20,16 @@ Artifacts : pipeline_output/stage2/
 """
 
 import os
+import shutil
+import json
+import uuid
+from datetime import datetime, timezone
 from collections import Counter
 
 import pandas as pd
 
 from config import CONFIG
+from provenance import checkpoint_guard
 from llm_backend import ERROR_LABEL, LLMBackend, make_backend
 
 SYSTEM = "You are an expert at naming topics."
@@ -69,20 +74,34 @@ def run_stage2(cfg=CONFIG) -> str:
     print(f"[stage2] Upper bound: {est_calls:,} API calls "
           f"({len(topics)} topics x {cfg.votes_per_topic:,} votes)")
 
+    checkpoint_guard(os.path.join(out,"naming_manifest.json"), {
+        "topics":topics.to_dict("records"), "model":backend.model_id, "backend":backend.name,
+        "system":SYSTEM, "domain":cfg.domain_context, "prompt_template":build_naming_prompt("{words}",cfg),
+        "temperature":cfg.naming_temperature,"max_tokens":cfg.naming_max_tokens,
+        "votes":cfg.votes_per_topic,"early_stop":cfg.early_stop,
+        "minimum_votes":cfg.early_stop_window,"share":cfg.early_stop_share,"normalization_version":1,
+    }, checkpoint_exists=os.path.exists(ballot_path))
+    if topics.empty or cfg.votes_per_topic < 1:
+        raise ValueError("Non-empty topics and a positive vote budget are required.")
     # ---- Resume: keep ballots of topics that finished in a previous run ----
     done: dict = {}
     if os.path.exists(ballot_path):
         prev = pd.read_csv(ballot_path)
+        if not prev['complete'].all():
+            # Retried topics get fresh ballots; retain the previous attempt for audit.
+            stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
+            shutil.copy2(ballot_path, os.path.join(out, f'vote_log_attempt_{stamp}.csv'))
         if "model" in prev.columns and (prev["model"] != backend.model_id).any():
             raise RuntimeError(f"{ballot_path} holds ballots from another model; "
                                f"move it aside before voting with {backend.model_id}.")
         for t, g in prev.groupby("topic"):
-            if g["complete"].all():
+            if g["complete"].all() and not (g["label"] == ERROR_LABEL).any():
                 done[t] = g
         if done:
             print(f"[stage2] Resuming: ballots for topics {sorted(done)} already complete.")
 
     ballots = [g.drop(columns="complete") for g in done.values()]
+    attempt_id = str(uuid.uuid4())
     for _, row in topics.iterrows():
         topic_id, words = row["topic"], row["words"]
         if topic_id in done:
@@ -93,8 +112,19 @@ def run_stage2(cfg=CONFIG) -> str:
 
         for v in range(cfg.votes_per_topic):
             label = name_once(backend, words, cfg)
+            # Append immediately, including failed responses. A stopped/retried
+            # topic must not erase the observations that preceded the stop.
+            with open(os.path.join(out, 'all_naming_attempts.jsonl'), 'a', encoding='utf-8') as audit:
+                audit.write(json.dumps({'attempt_id':attempt_id, 'topic':int(topic_id),
+                    'vote_index':v+1, 'label':label, 'model':backend.model_id,
+                    'received_at':datetime.now(timezone.utc).isoformat()})+'\n')
             topic_ballots.append({"topic": topic_id, "vote_index": v + 1,
                                   "label": label, "model": backend.model_id})
+            if label == ERROR_LABEL or not normalize(label):
+                failed = pd.DataFrame(topic_ballots).assign(complete=False)
+                previous = [g.assign(complete=True) for g in ballots]
+                pd.concat(previous + [failed],ignore_index=True).to_csv(ballot_path,index=False)
+                raise RuntimeError("Naming call failed or was empty. Partial ballots saved; this topic will be retried, not declared complete.")
             if label != ERROR_LABEL:  # failed calls are logged, never counted
                 counts[normalize(label)] += 1
 

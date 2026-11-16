@@ -1,0 +1,20 @@
+{
+  "name": "topicllm",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "build": "node scripts/build.mjs",
+    "dev": "wrangler dev",
+    "deploy": "node scripts/build.mjs && wrangler deploy",
+    "check": "node --test tests/*.test.mjs && node scripts/build.mjs && node scripts/check-site.mjs"
+  },
+  "devDependencies": {
+    "pdfjs-dist": "^6.5.438",
+    "wrangler": "^4.162.0"
+  }
+}

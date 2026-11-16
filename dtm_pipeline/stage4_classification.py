@@ -42,6 +42,8 @@ from concurrent.futures import ThreadPoolExecutor
 import pandas as pd
 
 from config import CONFIG
+from provenance import checkpoint_guard, fingerprint, input_kind
+INVALID_LABEL = "__INVALID_RESPONSE__"
 from llm_backend import ERROR_LABEL, LLMBackend, make_backend
 
 SYSTEM = "You are an expert at classifying text into themes."
@@ -76,28 +78,19 @@ def classify_once(backend: LLMBackend, text: str, cfg=CONFIG) -> str:
 
 
 def canonicalize(raw: str, cfg=CONFIG) -> tuple[str, str]:
-    """Map a raw model response onto the option list.
-
-    Returns (label, status) with status in {"matched", "unmatched", "error",
-    "empty"}. Handles leading numbers, wrapping quotes, trailing periods and
-    case. Unmatched responses map to the none label (so every document still
-    receives exactly one classification) but are counted in the report;
-    API errors keep ERROR_LABEL so they can be re-tried, never silently
-    becoming "does not fit"."""
+    """Accept a single exact option or option number; refuse ambiguous replies."""
     if raw == ERROR_LABEL:
         return ERROR_LABEL, "error"
-    cleaned = re.sub(r"^\s*\d+[.)]\s*", "", str(raw)).strip().strip('"\'“”')
-    cleaned = cleaned.strip().rstrip(".").lower()
+    cleaned = str(raw).strip().strip('"\'“”').strip().rstrip('.').strip()
     options = build_option_list(cfg)
-    for opt in options:                      # exact match first
-        if cleaned == opt.lower():
-            return opt, "matched"
-    for opt in options:                      # then containment (e.g. "Theme: Sports")
-        if opt.lower() in cleaned:
-            return opt, "matched"
     if re.fullmatch(r"\d+", cleaned) and 1 <= int(cleaned) <= len(options):
-        return options[int(cleaned) - 1], "matched"   # bare option number
-    return cfg.none_label, "unmatched"
+        return options[int(cleaned)-1], "matched"
+    cleaned = re.sub(r"^\d+[.)]\s*", "", cleaned)
+    cleaned = re.sub(r"^theme:\s*", "", cleaned, flags=re.I).casefold()
+    for option in options:
+        if cleaned == option.casefold():
+            return option, "matched"
+    return INVALID_LABEL, "unmatched"
 
 
 def is_blank(text) -> bool:
@@ -107,7 +100,7 @@ def is_blank(text) -> bool:
 def classify_text(backend: LLMBackend, text, cfg=CONFIG) -> tuple[str, str, str]:
     """(label, status, raw_response) for one document."""
     if is_blank(text):
-        return cfg.none_label, "empty", ""
+        return INVALID_LABEL, "empty", ""
     raw = classify_once(backend, str(text), cfg)
     label, status = canonicalize(raw, cfg)
     return label, status, raw
@@ -185,6 +178,8 @@ def score_labels(human: pd.Series, pred: pd.Series, labels: list[str]) -> dict:
     h = human.astype(str).str.strip()
     p = pred.astype(str).str.strip()
     n = len(h)
+    if n == 0 or n != len(p):
+        raise ValueError("Benchmark must be non-empty and aligned.")
     po = float((h == p).mean())
     hc, pc = h.value_counts(), p.value_counts()
     pe = float(sum(hc.get(k, 0) * pc.get(k, 0) for k in set(hc.index) | set(pc.index)) / n / n)
@@ -197,8 +192,9 @@ def score_labels(human: pd.Series, pred: pd.Series, labels: list[str]) -> dict:
             "precision": round(tp / (p == lab).sum(), 4) if (p == lab).any() else None,
             "recall": round(tp / (h == lab).sum(), 4) if (h == lab).any() else None,
         }
-    confusion = pd.crosstab(h, p).reindex(index=labels, columns=labels, fill_value=0)
-    return {"agreement": round(po, 4), "cohens_kappa": round(kappa, 4) if kappa is not None else None,
+    observed = list(dict.fromkeys(labels + list(h.unique()) + list(p.unique())))
+    confusion = pd.crosstab(h, p).reindex(index=observed, columns=observed, fill_value=0)
+    return {"agreement": po, "cohens_kappa": round(kappa, 4) if kappa is not None else None,
             "per_label": per_label, "confusion": confusion.to_dict(orient="index")}
 
 
@@ -227,11 +223,17 @@ def score_only(cfg=CONFIG) -> dict:
 def classify_corpus(backend: LLMBackend, corpus: pd.DataFrame, out: str, cfg=CONFIG) -> pd.DataFrame:
     ckpt = os.path.join(out, "classified_corpus.partial.csv")
     corpus = corpus.reset_index(drop=True).copy()
+    checkpoint_guard(os.path.join(out,"classification_manifest.json"), {
+        "corpus":corpus.fillna("").to_dict("records"), "model":backend.model_id,
+        "backend":backend.name, "themes":build_option_list(cfg), "system":SYSTEM,
+        "prompt_template":build_prompt("{document}",cfg), "temperature":cfg.classify_temperature,
+        "max_tokens":cfg.classify_max_tokens, "parser_version":2,
+    }, checkpoint_exists=os.path.exists(ckpt))
     corpus["doc_index"] = corpus.index
     done = pd.DataFrame(columns=["doc_index", "theme", "status", "raw_response"])
     if os.path.exists(ckpt):
         done = pd.read_csv(ckpt, keep_default_na=False)
-        done = done[done["status"] != "error"]          # re-try failed calls
+        done = done[~done["status"].isin(["error", "unmatched"])]          # re-try failed calls
         print(f"[stage4] Resuming from checkpoint: {len(done):,} documents already classified.")
     finished = set(done["doc_index"].astype(int))
     todo = [i for i in corpus.index if i not in finished]
@@ -272,12 +274,15 @@ def run_stage4(cfg=CONFIG) -> str:
     bench = pd.read_csv(cfg.benchmark_csv)
     if not {"tweet", "human_label"} <= set(bench.columns):
         raise ValueError(f"{cfg.benchmark_csv} needs columns: tweet, human_label")
+    if bench.empty or bench["tweet"].map(is_blank).any() or bench["human_label"].isna().any():
+        raise ValueError("Benchmark must contain non-empty text and labels.")
     unknown = set(bench["human_label"].astype(str).str.strip()) - set(labels)
     if unknown:
         raise ValueError(f"Benchmark human_label values {sorted(unknown)} are not in the "
                          f"option list {labels}. Map benchmark codes to theme names first "
                          f"(see docs/data/demonstration_benchmark.csv for the format).")
-    print(f"[stage4] Benchmarking against {len(bench)} human-labeled documents "
+    provenance = input_kind(cfg.benchmark_csv, 'demonstration_benchmark.csv')
+    print(f"[stage4] Benchmarking against {len(bench)} reference labels ({provenance}) "
           f"(backend={backend.name}, model={backend.model_id}) ...")
 
     dictionaries = build_theme_dictionaries(cfg)
@@ -292,7 +297,8 @@ def run_stage4(cfg=CONFIG) -> str:
     bench["llm_pred"] = [p[0] for p in preds]
     bench["llm_status"] = [p[1] for p in preds]
     bench["llm_raw_response"] = [p[2] for p in preds]
-    n_err = int((bench["llm_status"] == "error").sum())
+    bench.to_csv(os.path.join(out, "benchmark_predictions.csv"), index=False)
+    n_err = int(bench["llm_status"].isin(["error","unmatched","empty"]).sum())
     if n_err:
         raise RuntimeError(f"{n_err} benchmark calls failed after retries — the agreement "
                            f"estimate would be biased. Fix the API issue and re-run.")
@@ -301,6 +307,8 @@ def run_stage4(cfg=CONFIG) -> str:
         "n_benchmark": len(bench),
         "model": backend.model_id,
         "backend": backend.name,
+        "benchmark_provenance": provenance,
+        "corpus_provenance": input_kind(cfg.input_csv, 'demonstration_corpus.csv'),
         "threshold": cfg.agreement_threshold,
         "llm": score_labels(bench["human_label"], bench["llm_pred"], labels),
         "llm_unmatched_responses": int((bench["llm_status"] == "unmatched").sum()),
@@ -323,10 +331,18 @@ def run_stage4(cfg=CONFIG) -> str:
                   {"llm": report["llm_agreement"],
                    "boolean": report["boolean_agreement"]}.items() if v is not None}
     winner, win_agree = max(candidates.items(), key=lambda kv: kv[1])
-    if win_agree < cfg.agreement_threshold:
+    metrics = report[winner]
+    unsupported = [t for t in cfg.themes if metrics["per_label"][t]["human_n"] == 0
+                   or metrics["per_label"][t]["recall"] == 0]
+    report["unsupported_themes"] = unsupported
+    report["winner"] = winner
+    report["gate_passed"] = win_agree > cfg.agreement_threshold and not unsupported
+    with open(os.path.join(out,"benchmark_report.json"),"w") as f:
+        json.dump(report,f,indent=2)
+    if not report["gate_passed"]:
         raise RuntimeError(
             f"Best classifier ('{winner}', {win_agree:.1%}) is below the "
-            f"{cfg.agreement_threshold:.0%} threshold — refine the prompt or "
+            f"{cfg.agreement_threshold:.0%} threshold or lacks theme support/sensitivity {unsupported} — refine the prompt or "
             f"dictionaries and re-benchmark before scaling.")
     print(f"[stage4] Scaling the '{winner}' classifier ({win_agree:.1%} agreement).")
 

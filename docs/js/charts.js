@@ -128,8 +128,31 @@ export function hBarChart(container, { items, valueFmt = v => v, maxValue }) {
 }
 
 /** Grouped vertical bars: themes × periods (≤4 series, legend + gaps). */
-export function groupedBarChart(container, { groups, series, values, valueFmt = v => v + "%" }) {
+export function groupedBarChart(container, { groups, series, values, valueFmt = v => Number(v.toFixed(1)) + "%" }) {
   container.innerHTML = "";
+  if (container.clientWidth && container.clientWidth < 520) {
+    const W=container.clientWidth, max=Math.max(...values.flat(),.001), left=40, plot=Math.max(80,W-left-50);
+    const svg=el('svg',{class:'chart',role:'img','aria-label':'Theme prevalence by period; values also appear in the table'},container);
+    let y=16;
+    groups.forEach((group,gi)=>{
+      const lines=[''], width=Math.max(16,Math.floor(W/6));
+      for(const word of group.split(' ')) {
+        const i=lines.length-1;
+        if(lines[i] && (lines[i]+' '+word).length>width) lines.push(word); else lines[i]+=(lines[i]?' ':'')+word;
+      }
+      for(const line of lines) {el('text',{x:0,y,class:'tick'},svg).textContent=line;y+=14;}
+      series.forEach((period,si)=>{
+        const value=values[gi][si], bw=plot*value/max;
+        el('text',{x:0,y:y+8,class:'tick'},svg).textContent=period;
+        el('rect',{x:left,y,width:bw,height:9,rx:2,class:`bar s${si+1}`},svg);
+        el('text',{x:left+bw+7,y:y+8,class:'tick'},svg).textContent=valueFmt(value);
+        y+=16;
+      });
+      y+=18;
+    });
+    svg.setAttribute('viewBox',`0 0 ${W} ${y}`);
+    return;
+  }
   const W = Math.max(container.clientWidth || 640, 360), H = 300;
   const m = { top: 34, right: 12, bottom: 74, left: 46 };
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "chart", role: "img" }, container);

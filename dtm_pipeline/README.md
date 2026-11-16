@@ -21,7 +21,7 @@ actually runs the analysis end to end.
 
 Out of the box the pipeline runs on the open demonstration corpus in
 [`../docs/data/`](../docs/data/): 5,872 fully synthetic posts from 11 fictional
-brands, a 250-post human-labeled benchmark, and ground-truth themes. It is
+brands, a 250-post generator-labeled synthetic benchmark, and ground-truth themes. It is
 calibrated to the published demonstration (see the [data card](../docs/data/README.md)).
 
 ```bash
@@ -39,7 +39,7 @@ call the model named in `config.py`.
 
 `--ground-truth` feeds Stage 5 the corpus's true themes in place of a Stage 4
 classification. Because the corpus is calibrated to the published demonstration,
-this returns the published prevalence table and z statistics, which checks the
+this matches the published rounded prevalence table; z statistics are synthetic calculations, which checks the
 inference code. A real classifier's results approach that table as its agreement
 with the ground truth rises.
 
@@ -79,26 +79,18 @@ The tests check five things:
 - canonicalization of model responses;
 - the Boolean pilot;
 - that the shipped demonstration files match the generator;
-- that ground-truth inference reproduces the published table.
+- that ground-truth inference matches the published rounded prevalence table by construction.
 
-## Data availability
+## Restricted study data
 
-The dissertation data are restricted. They are brand tweets recorded by the
-Prevention Research Lab Twitter Marketing Study, and user-generated tweets from
-the Computational Media Lab COVID-19 Twitter Dataset. The data contain
-account-level information and content governed by the platform's terms of service
-and by the agreements under which they were collected, so they are not posted
-publicly. They are available from the corresponding author
-(jethomasphd@gmail.com) on reasonable request for non-commercial research, under
-a data use agreement consistent with those terms.
+Original study posts are not distributed because of privacy and IRB obligations. The public tool uses fully synthetic records only. No original records, fitted study model or historical ballots are available for this demonstration.
 
 ## Configuration
 
-Everything lives in `config.py` — one auditable file. Defaults reproduce the
-reference implementation: 50 search iterations × 24 topic solutions = 1,200
+Everything lives in `config.py` — one auditable file. Defaults follow the documented search and voting budgets, with the maintained deviations described in the revised methods: 50 search iterations × 24 topic solutions = 1,200
 candidate models; 5,000 votes per topic at temperature 0.5 / max_tokens 15;
-classification at temperature 0.5 / max_tokens 30; 85% benchmark-agreement gate.
-`domain_context` is the **only** domain-specific text in the prompts — change it
+classification at temperature 0.5 / max_tokens 120 (archival value: 30); 85% benchmark-agreement gate.
+`domain_context` is one domain-specific input in the prompts — change it
 (and the Stage 3 literature lens) to redeploy the pipeline in a new domain.
 
 ## Cost control
@@ -113,8 +105,7 @@ publishable.
 ## Reproducibility artifacts
 
 Every stage emits the evidence the paper says to publish alongside findings.
-Stage 1 seeds both the hyperparameter draws and every UMAP fit, so a run is
-reproducible from `config.py`. Stage 4 checkpoints corpus classification and
+Stage 1 seeds both the hyperparameter draws and every UMAP fit, to control randomness within a fixed environment. A seed alone does not guarantee cross-environment identity. Stage 4 checkpoints corpus classification and
 resumes after an interruption, and it never folds failed API calls into a
 theme. The artifacts are:
 `all_iteration_results.json` (hyperparameter log, seeded), `vote_log.csv` /
@@ -131,3 +122,11 @@ This package preserves their logic and parameters while modernizing the SDK
 surface, seeding the random search, and adding the benchmark gate, vote
 tallying, the Stage 3 worksheet hand-off, and the Stage 5 prevalence
 statistics as runnable code.
+
+## Recorded environment and saved models
+
+The audit smoke test used Windows, Python 3.12 and the exact versions in `requirements-lock-windows-py312.txt`. Install that lock in a clean environment to repeat the tested software setup. Other operating systems may require a separately validated lock. The normal `requirements.txt` remains the broad dependency specification.
+
+The default MiniLM revision is pinned to `1110a243fdf4706b3f48f1d95db1a4f5529b4d41`. When choosing another embedding model, set its own `embedding_revision` (or explicitly use `None` and record the resolved revision). Stage 1 records effective stopwords, input hash, dependency versions and all attempted candidates, including failures. Its `best_model/fitted_model.pkl` contains the fitted candidate that earned the winning score, including UMAP and HDBSCAN, and the manifest records its hash. Pickles can execute code: load only a model you created and trust, in the recorded environment.
+
+Stage 2 keeps an append-only `all_naming_attempts.jsonl`. Completed topics resume without new votes; an incomplete topic is restarted, with its earlier attempt preserved. Browser research-record downloads preserve available partial response metadata for inspection; loading a record restores inputs and requires rerunning stages.
