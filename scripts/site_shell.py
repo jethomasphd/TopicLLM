@@ -12,4 +12,6 @@ def apply_shell(page, prefix='../', current=''):
     if 'platform.css' not in page:
         head=f'''<link rel="stylesheet" href="{prefix}platform.css"><link rel="icon" href="{logo}" type="image/svg+xml"><script>try{{const theme=localStorage.getItem('topicllm-theme');if(theme)document.documentElement.dataset.theme=theme;}}catch{{}}</script><script type="module" src="{prefix}js/platform.js"></script>'''
         page=page.replace('</head>',head+'</head>',1)
+    if 'guide.css' not in page:
+        page=page.replace('</head>',f'<link rel="stylesheet" href="{prefix}guide.css"></head>',1)
     return page

@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">TopicLLM</title><desc id="desc">Language organized into topics: color-coded text groups in a conversation frame.</desc>
   <symbol id="mark" viewBox="0 0 64 64">
-    <rect x="2" y="2" width="60" height="60" rx="15" fill="#0a151b"/>
-    <g fill="none" stroke="#93e5c6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M16 18h32M32 18v29M16 32h9M39 32h9"/>
-      <path d="M16 46h9M39 46h9" opacity=".55"/>
-    </g>
-    <circle cx="32" cy="47" r="4" fill="#93e5c6"/>
+    <rect x="1" y="1" width="62" height="62" rx="14" fill="#0a151b"/>
+    <path d="M15 13h34a3 3 0 0 1 3 3v27a3 3 0 0 1-3 3H29L17 54v-8h-2a3 3 0 0 1-3-3V16a3 3 0 0 1 3-3Z" fill="#132a30" stroke="#a1e9cc" stroke-width="2.5" stroke-linejoin="round"/>
+    <rect x="20" y="21" width="6" height="5" rx="1" fill="#a1e9cc"/><path d="M31 23.5h13" stroke="#a1e9cc" stroke-width="3" stroke-linecap="round"/>
+    <rect x="20" y="30" width="6" height="5" rx="1" fill="#a5c8ef"/><path d="M31 32.5h9" stroke="#a5c8ef" stroke-width="3" stroke-linecap="round"/>
+    <rect x="20" y="39" width="6" height="4" rx="1" fill="#e8c994"/><path d="M31 41h13" stroke="#e8c994" stroke-width="2.5" stroke-linecap="round"/>
   </symbol>
   <use href="#mark"/>
 </svg>

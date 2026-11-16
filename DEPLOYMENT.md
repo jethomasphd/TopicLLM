@@ -1,5 +1,15 @@
 # Operate TopicLLM on Cloudflare
 
+## Conversational guide
+
+`/api/guide` answers bounded questions about the public dissertation and software. It shares the existing Durable Object, daily/monthly OpenAI budget, session/IP caps, concurrency limit and same-origin cookie with `/api/demo`. `GUIDE_ENABLED=false` pauses guide answers; `LIVE_DEMO_ENABLED=false` pauses all public model calls. The operator research route remains disabled. The static welcome and page orientation do not call OpenAI.
+
+The guide uses the configured `gpt-4o-2024-08-06`, `store:false`, at most 900 output tokens, and the same conservative $2.50/million input and $10/million output accounting as the examples. Questions are limited to 1,200 characters and recent history to three exchanges and 9,000 characters. The response must pass JSON and source-ID checks. Source links are selected only from server-provided public references; the browser renders answer text without HTML interpretation.
+
+Maintain `docs/guide/knowledge.md` as the high-level briefing. `worker/guide-sources.json` contains that briefing plus page-level dissertation and repository excerpts. Rebuild after any indexed source changes with `python -m pip install pypdf==6.21.4` and `python scripts/build-guide.py`; tests verify the source hashes. Retrieval is lexical and does not guarantee the most relevant passage for every phrasing. The guide cannot execute analyses, browse, access private records, or approve research. Validate substantive answers against cited sources.
+
+Conversation history lives only in the current page's memory. The server keeps keyed request fingerprints and short response receipts for safe retries, expiring after 30 minutes, plus aggregate quota counters. Responses may reflect visitor questions. Do not log raw request bodies. OpenAI processing and retention are separate from application retention. The data-handling page discloses transmission before a question is sent.
+
 The website at https://topicllm.dev is a visual demonstration with fixed synthetic OpenAI examples. Researchers run their corpus in a fork or installed Python environment with their own approved credentials. One Cloudflare Worker serves the static site and same-origin API. The owner registered topicllm.dev in Cloudflare; both apex and www are attached to this Worker.
 
 ## Build a complete release

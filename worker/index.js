@@ -1,6 +1,7 @@
 import examples from '../docs/data/live-examples.json' with {type:'json'};
 import {validateCall,sendOpenAI} from './provider.js';
 import {hash,sign,equal,session,issueSession} from './session.js';
+import {guideCall,guideResult,GUIDE_VERSION} from './guide.js';
 export {validateCall};
 export {DemoQuota} from './quota.js';
 const json=(data,status=200,headers={})=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers}});
@@ -40,7 +41,8 @@ export default {async fetch(request,env){
   }
   if(!path.startsWith('/api/'))return env.ASSETS.fetch(request);
   const ready=configured(env), publicLive=ready&&env.LIVE_DEMO_ENABLED==='true';
-  if(path==='/api/config'&&request.method==='GET')return json({ready,provider:'openai',model:env.OPENAI_MODEL||null,access:'anonymous-synthetic-examples',publicLive,maxTextLength:8000,sessionCallsPerDay:10,ipCallsPerDay:30});
+  const guideLive=publicLive&&env.GUIDE_ENABLED==='true';
+  if(path==='/api/config'&&request.method==='GET')return json({ready,provider:'openai',model:env.OPENAI_MODEL||null,access:'synthetic-examples-and-research-guide',publicLive,guideLive,guideVersion:GUIDE_VERSION,maxTextLength:8000,sessionCallsPerDay:10,ipCallsPerDay:30});
   if(path==='/api/health'&&request.method==='GET'){
     try{
       if(!ready)return json({status:'unconfigured',live_examples:false},503);
@@ -50,7 +52,7 @@ export default {async fetch(request,env){
       return json({status:'ok',live_examples:publicLive,model:env.OPENAI_MODEL});
     }catch{return json({status:'unavailable',live_examples:false},503);}
   }
-  if(!['/api/session','/api/demo','/api/llm','/api/admin/status'].includes(path))return json({error:'Not found.'},404);
+  if(!['/api/session','/api/demo','/api/guide','/api/llm','/api/admin/status'].includes(path))return json({error:'Not found.'},404);
   if(!ready)return json({error:'Live access is unavailable. The visual walkthrough remains available.'},503);
   const origin=request.headers.get('Origin');
   if(origin&&origin!==url.origin)return json({error:'Cross-origin calls are not allowed.'},403);
@@ -67,9 +69,10 @@ export default {async fetch(request,env){
     return json({ready:true},200,{'Set-Cookie':`__Host-topicllm=${await issueSession(env)}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=86400`});
   }
   if(request.method!=='POST')return json({error:'Use POST.'},405,{Allow:'POST'});
-  const isPublic=path==='/api/demo';
+  const isGuide=path==='/api/guide',isPublic=path==='/api/demo'||isGuide;
   let identity;
   if(isPublic){
+    if(isGuide&&!guideLive)return json({error:'The live guide is temporarily unavailable. Explore the walkthrough or read the research briefing.',retryable:false},503);
     if(!publicLive)return json({error:'Live examples are temporarily paused.'},503);
     if(origin!==url.origin)return json({error:'Open the live demo on this website.'},403);
     identity=await session(request,env);if(!identity)return json({error:'Start a new demo session.',retryable:false},401);
@@ -82,10 +85,10 @@ export default {async fetch(request,env){
   const limiter=isPublic?env.RATE_LIMITER:(env.OPERATOR_RATE_LIMITER||env.RATE_LIMITER);
   if(!(await limiter.limit({key:(isPublic?'demo:':'operator:')+ip})).success)return json({error:'Request rate exceeded. Wait one minute and retry.',retryable:true},429,{'Retry-After':'60'});
   let call,input;
-  try{input=await readBody(request);call=validateCall(isPublic?demoCall(input):input);}catch(error){return json({error:error instanceof SyntaxError?'Malformed JSON.':error.message,retryable:false},error.status||400);}
+  try{input=await readBody(request);call=isGuide?guideCall(input):validateCall(isPublic?demoCall(input):input);}catch(error){return json({error:error instanceof SyntaxError?'Malformed JSON.':error.message,retryable:false},error.status||400);}
   const operation=request.headers.get('X-Request-ID')||crypto.randomUUID();
   if(!/^[a-zA-Z0-9_-]{8,100}$/.test(operation))return json({error:'Invalid operation ID.'},400);
-  const key=`${identity}:${operation}`, fingerprint=await hash(JSON.stringify(call));
+  const key=`${identity}:${isGuide?'guide:':''}${operation}`, fingerprint=isGuide?await sign(JSON.stringify(call),env.RESEARCH_ACCESS_TOKEN):await hash(JSON.stringify(call));
   const ipHash=await sign(`ip:${new Date().toISOString().slice(0,10)}:${ip}`,env.RESEARCH_ACCESS_TOKEN);
   const reserved=(new TextEncoder().encode(call.system+call.user).length+256)*2500+call.max_tokens*10000;
   let reservation;
@@ -96,15 +99,16 @@ export default {async fetch(request,env){
     if(reservation.cached)return json({...reservation.response,cached:true},reservation.http_status);
     if(reservation.allowed!==true)throw new Error('Reservation was not confirmed');
   }catch{return json({error:'Usage controls are unavailable. No model request was sent.',retryable:false},503);}
-  const response=await sendOpenAI(call,env),providerResult=await response.json();
-  const result={...providerResult,...(isPublic?{mode:'live-synthetic-example',remaining_session:reservation.remaining_session}:{})};
+  const response=await sendOpenAI(call,env);let providerResult=await response.json(),httpStatus=response.status,ok=response.ok;
+  if(isGuide&&ok){try{providerResult=guideResult(providerResult,call);}catch(error){providerResult={error:error.message,usage:providerResult.usage,retryable:false};httpStatus=502;ok=false;}}
+  const result={...providerResult,...(isPublic?{mode:isGuide?'research-guide':'live-synthetic-example',remaining_session:reservation.remaining_session}:{})};
   const usage=result.usage;
   const actual=Number.isInteger(usage?.prompt_tokens)&&Number.isInteger(usage?.completion_tokens)?usage.prompt_tokens*2500+usage.completion_tokens*10000:null;
   try{
-    const settled=await quota(env,'/settle',{key,actual,ok:response.ok,response:result,http_status:response.status});
+    const settled=await quota(env,'/settle',{key,actual,ok,response:result,http_status:httpStatus});
     if(!settled.ok||(await settled.json()).settled!==true)throw new Error('Settlement failed');
   }
   catch{return json({error:'The response could not be recorded safely. No label was released; the allowance remains reserved.',retryable:false},503);}
   const headers={};if(response.headers.has('Retry-After'))headers['Retry-After']=response.headers.get('Retry-After');
-  return json(result,response.status,headers);
+  return json(result,httpStatus,headers);
 }};

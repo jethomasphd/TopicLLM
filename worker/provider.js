@@ -19,7 +19,7 @@ export async function sendOpenAI(call, env) {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method:'POST', signal:AbortSignal.timeout(45000),
         headers:{'Content-Type':'application/json', Authorization:`Bearer ${env.OPENAI_API_KEY}`},
-        body:JSON.stringify({model:env.OPENAI_MODEL, messages:[{role:'system',content:call.system},{role:'user',content:call.user}], temperature:.5, max_tokens:call.max_tokens, n:1, store:false})
+        body:JSON.stringify({model:env.OPENAI_MODEL, messages:[{role:'system',content:call.system},{role:'user',content:call.user}], temperature:.5, max_tokens:call.max_tokens, n:1, store:false,...(call.response_format?{response_format:call.response_format}:{})})
       });
       if (!response.ok) {
         // Expose only allowlisted operational codes, never raw provider messages.

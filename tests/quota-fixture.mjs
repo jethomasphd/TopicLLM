@@ -8,7 +8,7 @@ export function quotaBinding(env){
 }
 export function environment(overrides={}){
   const env={OPENAI_API_KEY:'test-provider-secret',RESEARCH_ACCESS_TOKEN:'research-code',OPENAI_MODEL:'gpt-4o-2024-08-06',
-    LIVE_DEMO_ENABLED:'true',OPERATOR_LLM_ENABLED:'true',DEMO_DAILY_USD:'1',DEMO_MONTHLY_USD:'5',OPERATOR_DAILY_USD:'5',OPERATOR_MONTHLY_USD:'5',
+    LIVE_DEMO_ENABLED:'true',GUIDE_ENABLED:'true',OPERATOR_LLM_ENABLED:'true',DEMO_DAILY_USD:'1',DEMO_MONTHLY_USD:'5',OPERATOR_DAILY_USD:'5',OPERATOR_MONTHLY_USD:'5',
     RATE_LIMITER:{limit:async()=>({success:true})},ASSETS:{fetch:async()=>new Response('asset')},...overrides};
   env.QUOTAS=quotaBinding(env);return env;
 }

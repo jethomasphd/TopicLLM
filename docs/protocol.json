@@ -145,5 +145,13 @@
       "synthetic_run.json",
       "verification.json"
     ]
+  },
+  "research_guide": {
+    "endpoint": "/api/guide",
+    "knowledge": "guide/knowledge.md",
+    "sources": "dissertation page excerpts and public repository",
+    "execution": "explanation only; cannot access visitor files or execute research",
+    "limits": "shared public 10/session/day; 30/IP/day; USD1/day and USD5/month",
+    "model": "gpt-4o-2024-08-06"
   }
 }

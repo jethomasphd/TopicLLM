@@ -7,7 +7,7 @@
 <meta name="description" content="A five-stage, human-in-the-loop pipeline that turns social media text into interpretable themes and testable prevalence estimates. Methods preprint, two empirical preprints, an in-browser instrument, an open demonstration corpus, and the Python reference implementation.">
 <meta property="og:title" content="TopicLLM — Coherence-Optimized Topic Modeling with Democratic LLM Interpretation">
 <meta property="og:description" content="Open-source topic modeling for public-health research. Explore the method, then fork a reproducible Python workflow with explicit human review.">
-<meta property="og:type" content="website"><meta property="og:image" content="https://topicllm.dev/assets/text-to-evidence.jpg"><meta property="og:image:alt" content="Conceptual illustration of language fragments becoming themes and measurements."><meta name="twitter:card" content="summary_large_image">
+<meta property="og:type" content="website"><meta property="og:image" content="https://topicllm.dev/assets/text-to-evidence-v2.jpg"><meta property="og:image:alt" content="Conceptual illustration of language fragments becoming themes and measurements."><meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="assets/topicllm-mark.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="site.css">
 <script>try{var t=localStorage.getItem("topicllm-theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 <script type="module" src="js/site.js"></script>
-<script>if(location.hostname==='jethomasphd.github.io'&&/^\/TopicLLM(?:\/|$)/.test(location.pathname)){location.replace('https://topicllm.dev'+(location.pathname.replace(/^\/TopicLLM/,'')||'/')+location.search+location.hash);}</script><link rel="stylesheet" href="./platform.css"><link rel="icon" href="./assets/topicllm-mark.svg" type="image/svg+xml"><script>try{const theme=localStorage.getItem('topicllm-theme');if(theme)document.documentElement.dataset.theme=theme;}catch{}</script><script type="module" src="./js/platform.js"></script><link rel="stylesheet" href="home.css"></head>
+<script>if(location.hostname==='jethomasphd.github.io'&&/^\/TopicLLM(?:\/|$)/.test(location.pathname)){location.replace('https://topicllm.dev'+(location.pathname.replace(/^\/TopicLLM/,'')||'/')+location.search+location.hash);}</script><link rel="stylesheet" href="./platform.css"><link rel="icon" href="./assets/topicllm-mark.svg" type="image/svg+xml"><script>try{const theme=localStorage.getItem('topicllm-theme');if(theme)document.documentElement.dataset.theme=theme;}catch{}</script><script type="module" src="./js/platform.js"></script><link rel="stylesheet" href="home.css"><link rel="stylesheet" href="./guide.css"></head>
 <body class="home-page">
 <a class="skip" href="#main">Skip to content</a>
 
@@ -24,7 +24,7 @@
 <main id="main">
 
 <!-- =============================================================== HERO -->
-<section class="platform-hero"><div class="wrap"><div class="hero-copy"><p class="release-label">OPEN SOURCE / RESEARCH SOFTWARE / v0.3.0</p><h1>From language<br>to <span>evidence.</span><br>Every step open.</h1><p class="hero-lede">Discover topics. Interpret with people. Measure what changes. A reproducible workflow for public-health researchers and the agents working alongside them.</p><div class="cta"><a class="btn primary" href="reproduce/">Fork + reproduce <span aria-hidden="true">↗</span></a><a class="btn" href="app/">Explore the visual demo <span aria-hidden="true">→</span></a></div><p class="hero-footnote">Python in your environment. Human judgment at the center.</p></div><figure class="hero-art"><img src="assets/text-to-evidence.jpg" alt="Conceptual sculpture of language fragments collecting into themes and flowing into measurements." width="1536" height="1024" fetchpriority="high"><figcaption><span>Language → structure → evidence</span><span>Conceptual illustration</span></figcaption></figure></div></section>
+<section class="platform-hero"><div class="wrap"><div class="hero-copy"><p class="release-label">OPEN SOURCE / RESEARCH SOFTWARE / v0.3.0</p><h1>From language<br>to <span>evidence.</span><br>Every step open.</h1><p class="hero-lede">Discover topics. Interpret with people. Measure what changes. A reproducible workflow for public-health researchers and the agents working alongside them.</p><div class="cta"><a class="btn primary" href="reproduce/">Fork + reproduce <span aria-hidden="true">↗</span></a><a class="btn" href="app/">Explore the visual demo <span aria-hidden="true">→</span></a></div><p class="hero-footnote">New here? <button class="hero-guide-link" data-ask-guide="What does TopicLLM do, in plain language?">Ask the research guide →</button></p></div><figure class="hero-art"><img src="assets/text-to-evidence-v2.jpg" alt="Conceptual model of document cards organized into topic groups and an evidence panel." width="1536" height="1024" fetchpriority="high"><figcaption><span>Language → structure → evidence</span><span>Conceptual illustration</span></figcaption></figure></div></section>
 <div class="release-strip"><div class="wrap"><div><a class="release-link" href="validation/">0.3.0 / Inspect the measured release ↗</a><p>Open methods. Downloadable evidence.</p></div><div><strong>5 stages, fully inspectable</strong><p>Discovery through prevalence</p></div><div><strong>Built for your environment</strong><p>Python package + agent contract</p></div><div><strong>Original sources preserved</strong><p>Ten files protected by checksums</p></div></div></div>
 
 <!-- ============================================================= METHOD -->
@@ -109,7 +109,7 @@ topicllm --profile quickcheck \
         <div class="actions">
           <a class="btn small primary" href="paper/">Read online</a>
           <a class="btn small" href="preprints/TopicLLM_Methods_Revised_2026-11-16.pdf" data-size>Revised PDF</a>
-          <a class="btn small" href="audit/">Audit &amp; original editions</a>
+          <a class="btn small" href="audit/">Sources &amp; original editions</a>
         </div>
       </article>
       <article class="volume">

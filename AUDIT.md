@@ -1,4 +1,4 @@
-# TopicLLM publication and implementation audit
+# TopicLLM sources and implementation provenance
 
 Audit date: 16 November 2026. Source baseline: `16a2f53`.
 
@@ -10,7 +10,7 @@ The website now serves the full original PDF at chapter page anchors. Its PDF.js
 
 The revised methods HTML and eight-page PDF are new editions. The earlier methods PDF and Word file remain available as archival documents. `scripts/render-methods.py` produces the new PDF from the HTML with ReportLab; its optional authoring dependencies are `reportlab`, `lxml` and `pypdfium2`. Inspect the rendered pages after editing.
 
-## The topic-count discrepancy
+## Topic discovery on different data
 
 The dissertation reports seven observed topics, coherence 0.768, iteration 25, UMAP 15 neighbors / 4 dimensions / minimum distance 0.01, HDBSCAN minimum cluster size 20, and a maximum-topic setting of 23 (p. 163). Seven was not the configured ceiling.
 
@@ -18,7 +18,7 @@ The archived synthetic reference selected 20 topics with coherence 0.7896204. It
 
 The default walkthrough maps known generator campaigns to seven explicitly assigned categories and the five reported themes. It calculates all 15 rounded prevalence percentages from 5,872 synthetic records, matching Table 3. Its period counts of 1,707 / 806 / 3,106, with 253 February records outside the comparison periods, are calibration choices. It claims no fitted coherence score, recovered historical ballots, human annotation or original denominators. Synthetic z statistics remain labeled synthetic.
 
-## Research-integrity corrections
+## Implementation safeguards
 
 - Failed, empty, truncated, ambiguous and unknown LLM responses cannot become valid substantive or residual classifications.
 - Naming failures do not become votes. Python retains an append-only record of naming attempts and archives incomplete attempts before restarting a topic. Browser partial response records can be saved for audit; loading a saved record restores inputs and requires recomputation.
@@ -29,21 +29,13 @@ The default walkthrough maps known generator campaigns to seven explicitly assig
 - MiniLM loading failures stop discovery; hashed vectors require explicit selection. The browser is bounded to 6,000 documents.
 - Python search records now retain failed and unscorable candidates, input hashes, effective stopwords and the observed dependency environment. It saves the full winning fitted model, its SHA-256 hash, topic assignments and parameters. The validated Windows / Python 3.12 dependency lock and a pinned MiniLM revision are included. Only load your own trusted pickle, in its recorded environment.
 
-## Source discrepancies preserved for author review
+## Historical and synthetic evidence
 
-| Source | Issue |
-|---|---|
-| p. 164 / Table 3 | Restaurant pre-to-post change is reported as −30.8%; displayed percentages are 1.9% and 1.7%. |
-| p. 164 | Sports z = 0.083 and p = 0.41 do not agree under a two-sided normal test. |
-| p. 164 / Table 3 | Gaming relative change has a negative sign despite 1.1% increasing to 1.6%. |
-| p. 191 / Table 4 | Text reports 704 brand tweets; the displayed brand counts sum to 703. |
-| Appendix 1 | Final-fit code refits an unseeded model without retaining the selected topic ceiling. The maintained implementation retains the scored candidate instead. |
-
-None of these discrepancies was corrected inside a source paper. The revised methods and website audit explain them separately.
+The dissertation is the historical source of truth. The visual walkthrough is a teaching reconstruction on generated data, and the complete synthetic run is a separate measured software demonstration. Different corpora can produce different topic counts. Source files are preserved unchanged, and maintained implementations retain their own configuration and evidence. The public source guide explains these distinct purposes without presenting synthetic results as changes to the historical study.
 
 ## Hosting and data handling
 
-The public website is a visual demonstration; a fork or installed Python package is the research execution environment. Cloudflare serves static assets, unchanged source readers and fixed synthetic OpenAI examples. Arbitrary prompts, uploaded research text and visitor-selected models are not accepted by the public live endpoint. Server credentials never reach browsers.
+The public website is a visual demonstration; a fork or installed Python package is the research execution environment. Cloudflare serves static assets, unchanged source readers and fixed synthetic OpenAI examples. The classification endpoint accepts fixed example IDs only. A separate research-guide endpoint accepts bounded questions and recent conversation about the public dissertation and software; it retrieves public source excerpts and provides source links. Visitor-selected models and research uploads are not accepted. Server credentials never reach browsers.
 
 Atomic Durable Object reservations enforce the owner's $1 daily / $5 monthly public allowance, session/network caps, concurrency and idempotency. A separate one-time $5 budget governs synthetic validation. Uncertain calls retain reservations and storage errors fail closed. The operator route is paused after validation. Privacy, retention and operating procedures are documented in `DEPLOYMENT.md` and the website's data-handling page.
 
@@ -55,4 +47,4 @@ The live benchmark used all 250 generator-labeled examples. OpenAI agreement was
 
 The package and public controls have automated acceptance coverage, including source hashes, strict labels, row retention, inference boundaries, checkpoints, reviewer attestation, paid-call caching, atomic budgets, rollover, duplicate requests and storage failure. The final release record reports actual counts and CI outcomes. The wheel is also tested after installation outside the checkout. The revised PDF is rendered and visually inspected; original protected sources remain byte-identical.
 
-The owner registered topicllm.dev, which is configured as the primary Cloudflare address. Author review of the revised manuscript and source discrepancies remains the scientific sign-off. Real research requires independently annotated data and actual scientific review. The five-stage package does not implement LIWC sentiment analysis or Study 2 generalized structural equation modeling. Restricted original records remain unavailable for privacy/IRB reasons.
+The owner registered topicllm.dev, which is configured as the primary Cloudflare address. Real research requires independently annotated data and actual scientific review. The five-stage package does not implement LIWC sentiment analysis or Study 2 generalized structural equation modeling. Restricted original records remain unavailable for privacy/IRB reasons.

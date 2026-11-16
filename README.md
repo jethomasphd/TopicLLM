@@ -16,7 +16,7 @@ Discover structure, interpret it with people, and measure what changes.
 [![Code: MIT](https://img.shields.io/badge/Code-MIT-076b57?style=flat-square)](LICENSE)
 [![Release 0.3.0](https://img.shields.io/badge/Release-0.3.0-142c36?style=flat-square)](https://topicllm.dev/validation/)
 
-<img src="docs/assets/text-to-evidence.jpg" width="1100" alt="Conceptual artwork: language fragments collect into themes and flow into measurements. This illustration is not a data visualization.">
+<img src="docs/assets/text-to-evidence-v2.jpg" width="1100" alt="Conceptual artwork: document cards are organized into topic groups and an evidence panel. This illustration is not a data visualization.">
 
 <sub>Language → structure → evidence. Conceptual artwork; measured results are linked below.</sub>
 
@@ -33,7 +33,7 @@ TopicLLM connects **BERTopic discovery, democratic LLM naming, researcher-led in
 | **Understand the method** | Explore the [visual demonstration](https://topicllm.dev/app/) and [interactive conceptual model](https://topicllm.dev/#method), then try a fixed live OpenAI example. |
 | **Run with an agent** | [Fork the repository](https://github.com/jethomasphd/TopicLLM/fork), open your fork in your coding agent, and give it the task below. [AGENTS.md](AGENTS.md) defines its research boundaries. |
 | **Use Python directly** | Run the offline quickcheck below, or install the [downloadable wheel](https://topicllm.dev/downloads/topicllm_research-0.3.0-py3-none-any.whl). Follow [REPRODUCE.md](REPRODUCE.md) for complete runs. |
-| **Evaluate the evidence** | Read the [revised methods](https://topicllm.dev/paper/), [measured validation](https://topicllm.dev/validation/), [source audit](AUDIT.md) and unchanged dissertation chapters. |
+| **Evaluate the evidence** | Read the [revised methods](https://topicllm.dev/paper/), [measured validation](https://topicllm.dev/validation/), [source provenance](AUDIT.md) and unchanged dissertation chapters. |
 
 ## One chain. Five inspectable stages.
 
@@ -139,7 +139,7 @@ The **304-page dissertation** is authoritative. Chapter readers serve the origin
 | **Study 1 · Alcohol marketing during COVID-19** | [Original Chapter 4, pp. 148–179](https://topicllm.dev/studies/1/) | [PDF](docs/preprints/Thomas_et_al_Paper1_Alcohol_Marketing_on_Twitter_During_COVID-19.pdf) · [Word](docs/preprints/Thomas_et_al_Paper1_Alcohol_Marketing_on_Twitter_During_COVID-19.docx) |
 | **Study 2 · Alcohol information dynamics** | [Original Chapter 5, pp. 180–205](https://topicllm.dev/studies/2/) | [PDF](docs/preprints/Thomas_et_al_Paper2_Alcohol_Information_Dynamics_During_Crisis.pdf) · [Word](docs/preprints/Thomas_et_al_Paper2_Alcohol_Information_Dynamics_During_Crisis.docx) |
 
-[Unchanged dissertation](THOMAS-PRIMARY-2025.pdf) · [Protected-source hashes](source-integrity.json) · [Source discrepancies for author review](AUDIT.md)
+[Unchanged dissertation](THOMAS-PRIMARY-2025.pdf) · [Protected-source hashes](source-integrity.json) · [Sources and implementation provenance](AUDIT.md)
 
 Standalone preprints are reflowed editions with added front matter, not byte-identical chapter files. Original posts, fitted model, naming ballots and human benchmark are unavailable because of privacy/IRB constraints. The [synthetic data card](docs/data/README.md) explains the replacement corpus. LIWC sentiment analysis and Study 2 structural equation modeling are outside this five-stage package.
 
@@ -154,7 +154,7 @@ Standalone preprints are reflowed editions with added front matter, not byte-ide
 | [`worker/`](worker/), [`DEPLOYMENT.md`](DEPLOYMENT.md) | Cloudflare/OpenAI gateway, atomic allowances and operating procedures |
 | [`S1`](S1_bertopic_optimization.txt), [`S2`](S2_democratic_topic_naming.txt), [`S3`](S3_llm_classification.txt) | Protected archival code supplements, separate from the maintained implementation |
 
-Public live OpenAI calls accept **fixed synthetic examples only**: ten calls/session/day, thirty/IP/day, and **$1/day / $5/month** site-wide. The walkthrough remains available when the live allowance is exhausted. Research data and credentials belong in the researcher's approved environment. [Data handling →](https://topicllm.dev/privacy/)
+The **research guide** answers questions about the dissertation and software from a [public Markdown briefing](docs/guide/knowledge.md) and retrieved source excerpts. It introduces each page and links evidence in its answers. Classification and naming examples still accept **fixed synthetic IDs only**. Guide questions and examples share ten calls/session/day, thirty/IP/day, and **$1/day / $5/month** site-wide. The walkthrough remains available when the live allowance is exhausted. Research data and credentials belong in the researcher's approved environment. [Data handling →](https://topicllm.dev/privacy/)
 
 <details>
 <summary><strong>Develop the website locally</strong></summary>

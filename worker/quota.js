@@ -67,9 +67,9 @@ export class DemoQuota {
       let error=null,busy=false;
       if(book.bound_breached || !Number.isFinite(dayLimit)||!Number.isFinite(monthLimit)||dayLimit<=0||monthLimit<=0) error='Live examples are temporarily disabled.';
       else if(!Number.isSafeInteger(input.reserved)||input.reserved<=0) error='Invalid budget reservation.';
-      else if(daily.charged+input.reserved>Math.round(dayLimit*1e9)||monthly.charged+input.reserved>Math.round(monthLimit*1e9)) error='The site’s live-example allowance is used up. The visual walkthrough remains available.';
+      else if(daily.charged+input.reserved>Math.round(dayLimit*1e9)||monthly.charged+input.reserved>Math.round(monthLimit*1e9)) error='The site’s shared live-service allowance is used up. The walkthrough and research briefing remain available.';
       else if(lifetime && (!Number.isFinite(lifetimeLimit)||lifetimeLimit<=0||lifetime.charged+input.reserved>Math.round(lifetimeLimit*1e9)))error='The one-time operator validation allowance is used up.';
-      else if(scope==='public' && (session>=10||ip>=30||daily.calls>=1000)) error='Your daily live-example allowance is used up. The visual walkthrough remains available.';
+      else if(scope==='public' && (session>=10||ip>=30||daily.calls>=1000)) error='Your shared daily live-service allowance is used up. The walkthrough and research briefing remain available.';
       else if(pending>=(scope==='public'?4:12)){error='Live examples are busy. Try again shortly.';busy=true;}
       if(error) {
         daily.denied++;monthly.denied++;await tx.put('ledger',book);

@@ -12,6 +12,7 @@
   "vars": {
     "OPENAI_MODEL": "gpt-4o-2024-08-06",
     "LIVE_DEMO_ENABLED": "true",
+    "GUIDE_ENABLED": "true",
     "OPERATOR_LLM_ENABLED": "false",
     "DEMO_DAILY_USD": "1",
     "DEMO_MONTHLY_USD": "5",

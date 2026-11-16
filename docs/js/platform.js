@@ -1,4 +1,5 @@
 /* Shared navigation and theme controls; no API calls or stored research data. */
+import './guide.js';
 const menu=document.querySelector('[data-menu]'),nav=document.querySelector('#platform-nav');
 if(menu&&nav){
  const close=()=>{menu.setAttribute('aria-expanded','false');nav.classList.remove('open');};

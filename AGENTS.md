@@ -29,7 +29,7 @@ The website is a visual demonstration. The Python package is the maintained rese
 - Use the persisted API ledger and cached completed operations for resume. Independent naming ballots have distinct operation IDs. Uncertain requests retain conservative budget reservations. Never rerun paid steps just to improve a result without declaring the new analysis.
 - Block inference on missing, ambiguous or failed classifications. Preserve all rows and IDs, exclusions, counts, denominators, period definitions, test directions and multiplicity adjustments.
 - Finish with the exact commands, environment, source/input/model hashes, effective settings, stage artifacts, API usage, validation report and scientific limitations. Run the applicable tests and verify source hashes. Do not claim historical numerical replication from synthetic data.
-- The public website accepts only fixed synthetic examples. Do not send private research records to the website's operator gateway; run research with approved credentials in the researcher's own environment.
+- The public classification endpoint accepts only fixed synthetic examples. The separate conversational guide answers bounded questions about public research and documentation. Do not send private research records to the website's operator gateway; run research with approved credentials in the researcher's own environment.
 
 ## Changes to this repository
 
