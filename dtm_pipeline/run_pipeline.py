@@ -22,10 +22,19 @@ Stages 2 and 4 call the OpenAI API and require OPENAI_API_KEY, unless
 import argparse
 import os
 import sys
+import json
+from pathlib import Path
+from dataclasses import fields
 
-from config import CONFIG
+if __package__:
+    from .config import CONFIG
+else:
+    from config import CONFIG
 
-from config import DEMO_DIR
+if __package__:
+    from .config import DEMO_DIR
+else:
+    from config import DEMO_DIR
 
 GROUND_TRUTH = os.path.join(DEMO_DIR, "demonstration_ground_truth.csv")
 
@@ -63,6 +72,15 @@ def write_ground_truth_classification() -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Democratic topic modeling pipeline")
+    parser.add_argument('--profile',choices=['research','quickcheck','synthetic-e2e'],default='research')
+    parser.add_argument('--discovery',choices=['full','reuse'],default='full',help='synthetic-e2e: run full discovery or use verified existing Stage 1 artifacts')
+    parser.add_argument('--config',help='JSON object of PipelineConfig fields; no executable configuration')
+    parser.add_argument('--backend',choices=['openai','mock','gateway'])
+    parser.add_argument('--budget-usd',type=float,help='Explicit total paid-call ceiling, including previous attempts in this output directory')
+    parser.add_argument('--max-api-calls',type=int,help='Total attempted-call ceiling across stages and resume')
+    parser.add_argument('--plan',action='store_true',help='Print planned stages and worst-case call count without executing')
+    parser.add_argument('--record-review',action='store_true',help='Record actual researcher approval of the completed theme map')
+    parser.add_argument('--reviewers',nargs='+',help='Names of the actual researchers who completed the review')
     parser.add_argument("--stages", default="all",
                         help="comma-separated stage numbers (e.g. 1,2,3) or 'all'")
     parser.add_argument("--input", default=None, help="override input CSV path")
@@ -82,19 +100,70 @@ def main() -> None:
     parser.add_argument("--score-archival", action="store_true",
                         help="score the benchmark's existing *_label columns (no API) and exit")
     args = parser.parse_args()
+    if args.config:
+        if __package__:
+            from .config import PipelineConfig
+        else:
+            from config import PipelineConfig
+        values=json.loads(Path(args.config).read_text(encoding='utf-8'))
+        allowed={f.name for f in fields(PipelineConfig)}
+        if not isinstance(values,dict) or set(values)-allowed: parser.error('Configuration must contain only PipelineConfig fields.')
+        for key,value in values.items():setattr(CONFIG,key,value)
 
     for flag, attr in (("input", "input_csv"), ("benchmark", "benchmark_csv"),
                        ("stopwords", "stopwords_file"),
                        ("output_dir", "output_dir"), ("iterations", "search_iterations"),
                        ("seed", "random_seed"), ("votes", "votes_per_topic"),
-                       ("workers", "classify_workers")):
+                       ("workers", "classify_workers"),("budget_usd","api_budget_usd"),
+                       ("max_api_calls","max_api_calls"),("backend","llm_backend")):
         if getattr(args, flag) is not None:
             setattr(CONFIG, attr, getattr(args, flag))
     if args.mock_llm:
         CONFIG.llm_backend = "mock"
+    CONFIG.run_mode='synthetic-e2e' if args.profile=='synthetic-e2e' else 'research'
+    if any(value<1 for value in [CONFIG.search_iterations,CONFIG.votes_per_topic,CONFIG.classify_workers,CONFIG.max_api_calls]):parser.error('Iterations, votes, workers and call limit must be positive.')
+    if args.record_review:
+        if __package__:
+            from .review import record_human_review
+        else:
+            from review import record_human_review
+        record_human_review(CONFIG,args.reviewers or [])
+        print('Recorded researcher approval bound to the current evidence.');return
+    if args.plan:
+        import csv
+        count=lambda path:sum(1 for _ in csv.DictReader(open(path,encoding='utf-8')))
+        topics=Path(CONFIG.output_dir)/'stage1/topics_for_naming.csv'
+        n_topics=count(topics) if topics.exists() else CONFIG.topic_max
+        planned=[5] if args.profile=='quickcheck' else ([1,2,3,4,5] if args.profile=='synthetic-e2e' or args.stages=='all' else [int(s) for s in args.stages.split(',')])
+        print(json.dumps({'profile':args.profile,'stages':planned,'discovery_candidates':CONFIG.search_iterations*(CONFIG.topic_max-CONFIG.topic_min+1) if 1 in planned else 0,
+              'naming_calls':n_topics*CONFIG.votes_per_topic if 2 in planned else 0,'benchmark_calls':count(CONFIG.benchmark_csv) if 4 in planned else 0,
+              'maximum_corpus_calls':count(CONFIG.input_csv) if 4 in planned else 0,'budget_usd':CONFIG.api_budget_usd,'call_ceiling':CONFIG.max_api_calls,
+              'note':'Retries consume additional calls; synthetic oracle review is not human approval.'},indent=2));return
+    if args.profile=='quickcheck':
+        if __package__:
+            from .synthetic_workflow import quickcheck
+        else:
+            from synthetic_workflow import quickcheck
+        quickcheck(CONFIG);print('PASS: 5 themes, 15 comparisons, all calibrated percentages. No API calls.');return
+    requested_stages = [1,2,3,4,5] if args.profile=='synthetic-e2e' or args.stages.strip().lower()=='all' else [int(s) for s in args.stages.split(',')]
+    paid = not args.score_archival and any(s in requested_stages for s in (2,4)) and CONFIG.llm_backend in ('openai','gateway')
+    if paid:
+        if CONFIG.api_budget_usd is None or not 0 < CONFIG.api_budget_usd <= 1000:
+            parser.error('Set a positive --budget-usd before beginning a workflow with paid stages.')
+        key_name='OPENAI_API_KEY' if CONFIG.llm_backend=='openai' else 'TOPICLLM_RESEARCH_TOKEN'
+        if not os.environ.get(key_name):parser.error(f'{key_name} is not configured; set it privately before paid execution.')
+    if args.profile=='synthetic-e2e':
+        if __package__:
+            from .synthetic_workflow import run_synthetic
+        else:
+            from synthetic_workflow import run_synthetic
+        run_synthetic(CONFIG,discovery=args.discovery);return
 
     if args.score_archival:
-        from stage4_classification import score_only
+        if __package__:
+            from .stage4_classification import score_only
+        else:
+            from stage4_classification import score_only
         score_only(CONFIG)
         return
 
@@ -110,13 +179,22 @@ def main() -> None:
           f"(outputs -> {CONFIG.output_dir}/, LLM backend: {CONFIG.llm_backend})\n")
 
     if 1 in stages:
-        from stage1_topic_discovery import run_stage1
+        if __package__:
+            from .stage1_topic_discovery import run_stage1
+        else:
+            from stage1_topic_discovery import run_stage1
         run_stage1(CONFIG)
     if 2 in stages:
-        from stage2_democratic_naming import run_stage2
+        if __package__:
+            from .stage2_democratic_naming import run_stage2
+        else:
+            from stage2_democratic_naming import run_stage2
         run_stage2(CONFIG)
     if 3 in stages:
-        from stage3_synthesis_worksheet import run_stage3
+        if __package__:
+            from .stage3_synthesis_worksheet import run_stage3
+        else:
+            from stage3_synthesis_worksheet import run_stage3
         run_stage3(CONFIG)
     if args.ground_truth:
         if 4 in stages:
@@ -128,10 +206,16 @@ def main() -> None:
             sys.exit(f"Stage 4 needs {theme_map} — complete the Stage 3 "
                      f"consensus (fill theme_map_TEMPLATE.csv, save as "
                      f"theme_map.csv, update config.themes) first.")
-        from stage4_classification import run_stage4
+        if __package__:
+            from .stage4_classification import run_stage4
+        else:
+            from stage4_classification import run_stage4
         run_stage4(CONFIG)
     if 5 in stages:
-        from stage5_inference import run_stage5
+        if __package__:
+            from .stage5_inference import run_stage5
+        else:
+            from stage5_inference import run_stage5
         run_stage5(CONFIG)
 
     print("\nPipeline run complete.")

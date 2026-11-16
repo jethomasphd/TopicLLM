@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="site.css">
 <script>try{var t=localStorage.getItem("topicllm-theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 <script type="module" src="js/site.js"></script>
-</head>
+<script>if(location.hostname==='jethomasphd.github.io'&&/^\/TopicLLM(?:\/|$)/.test(location.pathname)){location.replace('https://topicllm.jethomasphd.workers.dev'+(location.pathname.replace(/^\/TopicLLM/,'')||'/')+location.search+location.hash);}</script></head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
@@ -29,7 +29,7 @@
       <a href="#method">Method</a>
       <a href="#demonstration">Demonstration</a>
       <a href="#preprints">Preprints</a>
-      <a href="app/">Instrument</a>
+      <a href="app/">Visual demo</a>
       <a href="#data">Data</a>
       <a href="#code">Code</a>
       <a href="#cite">Cite</a>
@@ -49,11 +49,11 @@
       <p class="eyebrow">A human-in-the-loop instrument for public health surveillance</p>
       <h1>Turn social text into<br><em>interpretable evidence.</em></h1>
       <p class="lede">A five-stage pipeline that turns large volumes of social media text into a small set
-        of interpretable themes, and those themes into prevalence estimates you can test. Explore the seven-topic study, calculate with synthetic data, and inspect every step from model output to researcher judgment.</p>
+        of interpretable themes, and those themes into prevalence estimates you can test. Use the visual demonstration to understand every step, then fork the repository or download the Python package for a reproducible, agent-assisted research workflow.</p>
       <div class="cta">
-        <a class="btn primary" href="app/">Explore the study
+        <a class="btn primary" href="app/">Explore the visual demo
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        <a class="btn" href="paper/">Read the methods preprint</a>
+        <a class="btn" href="reproduce/">Fork &amp; reproduce with Python</a>
         <a class="btn" href="#preprints">Original studies</a>
       </div>
       <p class="byline">Jacob E. Thomas, Dhiraj Murthy, Miguel Pinedo, Alexandra Loukas &amp; Keryn E. Pasch ·
@@ -98,7 +98,7 @@
         <h3>Discover</h3>
         <p>BERTopic (MiniLM embeddings, UMAP, HDBSCAN, c-TF-IDF) under randomized hyperparameter
           search. The model with the highest c<sub>v</sub> coherence wins.</p>
-        <p class="fact"><span>50 draws × 24 solutions</span>1,200 candidate models</p>
+        <p class="fact"><span>50 draws × 24 solutions</span>1,200 planned candidate models</p>
       </article>
       <article class="stage">
         <span class="numeral">II</span>
@@ -394,35 +394,28 @@
       <span class="numeral">VI</span>
       <div>
         <p class="label">The code</p>
-        <h2>The reference implementation</h2>
+        <h2>Fork it. Give your agent a method.</h2>
         <p>A maintained Python pipeline written against the current OpenAI SDK, with documented prompts and search spaces. Maintained changes, including a larger classification output limit, are distinguished from the historical protocol. It adds a seeded search, an enforced
           benchmark gate, checkpointing for corpus-scale runs, and a test suite. Out of the box it
           runs on the demonstration corpus.</p>
       </div>
     </div>
     <div class="indent reveal">
-      <div class="codeblock"><pre><code><span class="c"># get the code</span>
-git clone https://github.com/jethomasphd/TopicLLM.git
-cd TopicLLM/dtm_pipeline
-pip install -r requirements.txt
+      <p>Start with the <a href="reproduce/">reproduction guide</a>. The repository includes an agent contract, installable Python package, synthetic acceptance checks, protected source hashes and explicit researcher review gates.</p>
+      <div class="codeblock"><pre><code>git clone https://github.com/jethomasphd/TopicLLM.git
+cd TopicLLM
+python -m pip install ".[dev]"
+topicllm --profile quickcheck --output-dir runs/quickcheck
 
-<span class="c"># Stage 1: coherence-optimized discovery on the demonstration corpus (no API cost)</span>
-python run_pipeline.py --stages 1
-
-<span class="c"># Stages 2–3: democratic naming and the review packet; keyless dry run, or set OPENAI_API_KEY</span>
-python run_pipeline.py --stages 2,3 --mock-llm
-
-<span class="c"># reference inference: ground-truth labels through Stage 5 reproduce Plate II</span>
-python run_pipeline.py --ground-truth --stages 5
-
-<span class="c"># the tests</span>
-python -m pytest tests -q</code></pre></div>
+# Then read AGENTS.md and REPRODUCE.md with your agent.
+# Install ".[ml,dev]" for discovery and declare a budget before API calls.</code></pre></div>
+      <p><a class="btn primary" href="reproduce/">Start a reproducible workflow</a> <a class="btn" href="downloads/topicllm-research-source.zip">Download Python source + data</a></p>
       <div class="table-scroll">
         <table class="ledger" style="margin-top:26px">
           <thead><tr><th>Component</th><th>Where</th><th>What it is</th></tr></thead>
           <tbody>
             <tr><td>Reference pipeline</td><td><a href="https://github.com/jethomasphd/TopicLLM/tree/main/dtm_pipeline"><code>dtm_pipeline/</code></a></td><td>Five stage scripts, orchestrator, configuration, demonstration-corpus generator, tests</td></tr>
-            <tr><td>Browser instrument</td><td><a href="app/"><code>docs/app/</code></a></td><td>Local analysis with a hosted OpenAI gateway; transformers.js, umap-js, and JavaScript ports of HDBSCAN, c-TF-IDF and c<sub>v</sub></td></tr>
+            <tr><td>Browser instrument</td><td><a href="app/"><code>docs/app/</code></a></td><td>Visual synthetic walkthrough, capped live examples, and a local teaching sandbox; research runs use Python</td></tr>
             <tr><td>Supplement S1</td><td><a href="https://github.com/jethomasphd/TopicLLM/blob/main/S1_bertopic_optimization.txt"><code>S1_bertopic_optimization.txt</code></a></td><td>Archival Stage 1 code, transcribed from the dissertation appendices</td></tr>
             <tr><td>Supplement S2</td><td><a href="https://github.com/jethomasphd/TopicLLM/blob/main/S2_democratic_topic_naming.txt"><code>S2_democratic_topic_naming.txt</code></a></td><td>Archival democratic naming (openai==0.27.0)</td></tr>
             <tr><td>Supplement S3</td><td><a href="https://github.com/jethomasphd/TopicLLM/blob/main/S3_llm_classification.txt"><code>S3_llm_classification.txt</code></a></td><td>Archival corpus-scale classification (openai==0.27.0)</td></tr>

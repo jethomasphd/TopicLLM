@@ -9,3 +9,6 @@
 
 .table-wrap{max-width:100%;overflow-x:auto;margin:12px 0 24px}.table-wrap th{min-width:90px}.table-wrap td{font-variant-numeric:tabular-nums}
 .study-panel{min-width:0}.study-panel .chart-box{min-width:0;max-width:100%}.verified-result>div{min-width:0}
+/* Keep every demo mode and the reproduction path reachable on narrow screens. */
+.tabs{flex-wrap:wrap;align-items:center}.tabs>.btn{margin-left:auto}
+@media(max-width:600px){.tabs{display:grid;grid-template-columns:1fr 1fr;gap:0}.tabs button{min-height:52px}.tabs>.btn{grid-column:1/-1;margin:12px 0;width:100%;justify-content:center}.tabs button.active{background:var(--accent-wash)}}

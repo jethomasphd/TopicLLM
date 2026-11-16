@@ -60,6 +60,7 @@ def test_failed_benchmark_retains_raw_responses(tmp_path, monkeypatch):
     pd.DataFrame({'tweet':['Example sports post'],'human_label':['Sports']}).to_csv(benchmark,index=False)
     monkeypatch.setattr(stage4,'make_backend',lambda cfg:BrokenBackend())
     monkeypatch.setattr(stage4,'build_theme_dictionaries',lambda cfg:{})
+    monkeypatch.setattr('review.require_review',lambda cfg:{'review_mode':'test-fixture','human_review_performed':False})
     with pytest.raises(RuntimeError,match='benchmark calls failed'):
         stage4.run_stage4(PipelineConfig(output_dir=str(tmp_path),benchmark_csv=str(benchmark)))
     saved=pd.read_csv(tmp_path/'stage4/benchmark_predictions.csv')

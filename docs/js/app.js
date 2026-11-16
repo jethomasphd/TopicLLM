@@ -1,7 +1,6 @@
 /* app.js — UI orchestration for the browser pipeline.
- * Stage 1 runs in a Web Worker; Stages 2–5 run here (LLM calls are async
- * network requests to the endpoint the user configures; statistics are
- * computed locally). Every stage exposes the same artifacts the Python
+ * Stage 1 runs locally in a Web Worker. The public sandbox uses a teaching
+ * mock; live OpenAI is confined to separate fixed synthetic examples. Every stage exposes the same artifacts the Python
  * reference implementation writes to disk, as downloads. */
 
 import { parseCSV, toCSV, downloadText, downloadBlob, buildZip, mulberry32, sample, pct, escapeHTML } from "./util.js";
@@ -9,6 +8,7 @@ import { createProvider, callWithRetries, pool } from "./llm.js";
 import { loadDemoData, NONE_LABEL } from "./demo.js";
 import { canonicalLabel, validateBenchmark, scoreLabels, estimatePrevalence, sha256 } from "./research.js";
 import { initStudyTour } from "./study.js";
+import { initLiveDemo } from "./live-demo.js";
 import { lineChart, hBarChart, groupedBarChart } from "./charts.js";
 
 /* ------------------------------ state ------------------------------------ */
@@ -193,7 +193,7 @@ async function loadBenchmarkFile(file) {
 function providerSettings() {
   return {
     signal: activeController?.signal,
-    provider: $("llm-provider").value,
+    provider: "mock", // Public sandbox never sends uploaded data to the operator gateway.
     apiKey: $("llm-key").value.trim(),
     baseUrl: $("llm-base").value.trim(),
     model: $("llm-model").value.trim(),
@@ -879,6 +879,8 @@ function initTabs() {
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
   initStudyTour();
+  initLiveDemo();
+  if(location.hash === "#live") document.querySelector('[data-tab="live"]').click();
   initWorkbench();
   restoreSettings();
   summarizeData();

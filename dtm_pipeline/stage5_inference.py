@@ -20,8 +20,14 @@ from itertools import combinations
 import pandas as pd
 from statsmodels.stats.proportion import proportions_ztest
 
-from config import CONFIG
-from llm_backend import ERROR_LABEL
+if __package__:
+    from .config import CONFIG
+else:
+    from config import CONFIG
+if __package__:
+    from .llm_backend import ERROR_LABEL
+else:
+    from llm_backend import ERROR_LABEL
 
 
 def run_stage5(cfg=CONFIG) -> str:

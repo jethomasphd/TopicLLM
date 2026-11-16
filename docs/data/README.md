@@ -41,9 +41,7 @@ The corpus reproduces the *structure* of the published demonstration
   | Sports | 8.2 | 11.4 | 8.9 |
   | Gaming | 1.1 | 2.0 | 1.6 |
 
-  Run Stage 5 on the ground truth (`python run_pipeline.py --ground-truth --stages 5`)
-  and it returns this table, the published z statistics (each within 0.07), and the published
-  pattern of Bonferroni-significant differences. A classifier's output comes close to the table only to the extent
+  Run the installed package with `topicllm --profile quickcheck`. It returns this rounded table and synthetic z statistics from the chosen synthetic denominators. These are not recovered historical test statistics. A classifier's output comes close to the table only to the extent
   that the classifier agrees with the ground truth.
 - **Campaigns.** The themes are carried by the kinds of campaigns the dissertation
   reports:
@@ -56,12 +54,12 @@ The corpus reproduces the *structure* of the published demonstration
   Everyday brand posts make up the rest: recipes, holidays, launches, heritage,
   events, and miscellaneous chatter.
 - **Benchmark.** The benchmark is 250 posts drawn at random from the lockdown months, when all five
-  themes are most prevalent. Its labels are the ground truth.
+  themes are most prevalent. Its labels are generator truth. All 250 texts occur in the corpus and share its templates. The synthetic-oracle mapping also uses generator labels across the corpus; these checks are not independent human validation. Gaming has only three benchmark examples.
 
-## Reference run
+## Archived synthetic reference run
 
 [`reference_run/`](reference_run/) holds the outputs of a full reference run on
-this corpus, so you can check your own:
+this corpus from the earlier implementation. They are preserved for comparison, not the current acceptance baseline. The current full run and all five stages are in [the validation record](../validation/index.html):
 
 - **Stage 1** comes from `python run_pipeline.py --stages 1`, with seed 42 and 50 iterations × 24 solutions (1,200 candidate models).
   - The winning configuration was UMAP with 35 neighbors, 8 components, and min_dist 0.05; HDBSCAN with a minimum cluster size of 35; and a maximum of 21 topics.
@@ -83,9 +81,7 @@ this corpus, so you can check your own:
   - Files: `stage5_ground_truth_prevalence_by_period.csv`, `stage5_ground_truth_ztest_results.csv`,
     and `stage5_ground_truth_theme_counts.csv`.
 
-Stages 2 and 4 call a language model, so their outputs depend on the model and
-the moment. No reference outputs are shipped for them. Run them with your own
-key and report the model identifier, as the methods preprint recommends.
+The archived reference has no Stage 2 or 4 measurements. The new [full synthetic acceptance archive](../validation/synthetic-validation-2026-11-16.zip) includes 420 live naming votes, benchmark predictions, all corpus classifications, API responses and usage. New calls can differ; report the actual model and execution evidence.
 
 ## What it is not
 

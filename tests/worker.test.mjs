@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import worker,{validateCall} from '../worker/index.js';
-const env={OPENAI_API_KEY:'test-provider-secret',RESEARCH_ACCESS_TOKEN:'research-code',OPENAI_MODEL:'test-model',RATE_LIMITER:{limit:async()=>({success:true})},ASSETS:{fetch:async()=>new Response('asset')}};
+import {environment} from './quota-fixture.mjs';
+const env=environment();
 const req=(data={},headers={})=>new Request('https://example.org/api/llm',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer research-code',Origin:'https://example.org',...headers},body:JSON.stringify(data)});
 test('gateway fails closed without configuration',async()=>assert.equal((await worker.fetch(req(),{})).status,503));
 test('gateway rejects missing credentials and cross-origin callers',async()=>{
@@ -23,7 +24,7 @@ test('gateway returns model provenance but never provider secrets',async()=>{
   try{
     globalThis.fetch=async(url,options)=>{
       assert.equal(url,'https://api.openai.com/v1/chat/completions');
-      const data=JSON.parse(options.body);assert.equal(data.model,'test-model');assert.equal(data.store,false);
+      const data=JSON.parse(options.body);assert.equal(data.model,'gpt-4o-2024-08-06');assert.equal(data.store,false);
       return Response.json({model:'test-model-snapshot',choices:[{finish_reason:'stop',message:{content:'Sports'}}],usage:{total_tokens:40}}, {headers:{'x-request-id':'req-test'}});
     };
     const r=await worker.fetch(req({task:'classify',text:'a sports post',themes:['Sports']}),env);
