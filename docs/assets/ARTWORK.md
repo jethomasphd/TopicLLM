@@ -1,0 +1,11 @@
+# TopicLLM visual identity
+
+The platform uses IBM Plex Sans and IBM Plex Mono with graphite, sea-glass green and neutral surfaces. The editable mark is `topicllm-mark.svg`. It combines a T with rows and a retained result node. The earlier `sigil.svg` remains in the repository as an unused historical design asset.
+
+`text-to-evidence.jpg` is an AI-generated conceptual illustration created on 16 November 2026 with the built-in OpenAI image-generation tool. Its glass forms and bars are illustrative, not measured research data. The original generated PNG was encoded as a 164,725-byte JPEG for web delivery without changing the composition. The artwork is separate from the interactive conceptual model, which uses accessible HTML, SVG and actual methodological descriptions.
+
+Generation prompt:
+
+> Use case: stylized-concept. Asset type: editorial hero artwork for TopicLLM, a serious open-source research software platform. Create a refined wide 3D scientific sculpture on a near-black graphite background (#090f14). Hundreds of tiny luminous cool white and sea-glass green points and delicate short typographic-like rectangular fragments enter from the left, collect into five organically separated translucent glass clusters, then resolve toward the right into a precise set of five slender vertical rectangular glass bars of different heights. Convey language becoming interpretable measurable evidence. Elegant spatial depth, subtle frosted glass, brushed silver supports, restrained mint/cyan highlights with a small warm ivory accent, architectural studio lighting. Asymmetrical composition, object centered in the right two-thirds, deep empty margins, premium developer-tool art direction. No letters, no words, no labels, no numbers, no logos, no brain imagery, no people, no blue-purple neon gradients, no busy starfield. This is a conceptual illustration, not a data chart. Landscape 3:2 composition, crisp details, restrained glow and shadow, visually striking but quiet.
+
+Shared styling lives in `platform.css`, with homepage composition in `home.css`. `scripts/site_shell.py` supplies the consistent navigation for generated validation reports. The methods manuscript and authoritative source files remain separate from this visual identity.

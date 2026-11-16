@@ -3,189 +3,37 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TopicLLM — Coherence-Optimized Topic Modeling with Democratic LLM Interpretation</title>
+<title>TopicLLM — From language to evidence</title>
 <meta name="description" content="A five-stage, human-in-the-loop pipeline that turns social media text into interpretable themes and testable prevalence estimates. Methods preprint, two empirical preprints, an in-browser instrument, an open demonstration corpus, and the Python reference implementation.">
 <meta property="og:title" content="TopicLLM — Coherence-Optimized Topic Modeling with Democratic LLM Interpretation">
-<meta property="og:description" content="Topics found by search, named by a vote of thousands of model queries, judged by people, and measured with a validated classifier.">
-<meta property="og:type" content="website">
-<link rel="icon" href="assets/sigil.svg" type="image/svg+xml">
+<meta property="og:description" content="Open-source topic modeling for public-health research. Explore the method, then fork a reproducible Python workflow with explicit human review.">
+<meta property="og:type" content="website"><meta property="og:image" content="https://topicllm.dev/assets/text-to-evidence.jpg"><meta property="og:image:alt" content="Conceptual illustration of language fragments becoming themes and measurements."><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/topicllm-mark.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="site.css">
 <script>try{var t=localStorage.getItem("topicllm-theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 <script type="module" src="js/site.js"></script>
-<script>if(location.hostname==='jethomasphd.github.io'&&/^\/TopicLLM(?:\/|$)/.test(location.pathname)){location.replace('https://topicllm.dev'+(location.pathname.replace(/^\/TopicLLM/,'')||'/')+location.search+location.hash);}</script></head>
-<body>
+<script>if(location.hostname==='jethomasphd.github.io'&&/^\/TopicLLM(?:\/|$)/.test(location.pathname)){location.replace('https://topicllm.dev'+(location.pathname.replace(/^\/TopicLLM/,'')||'/')+location.search+location.hash);}</script><link rel="stylesheet" href="./platform.css"><link rel="icon" href="./assets/topicllm-mark.svg" type="image/svg+xml"><script>try{const theme=localStorage.getItem('topicllm-theme');if(theme)document.documentElement.dataset.theme=theme;}catch{}</script><script type="module" src="./js/platform.js"></script><link rel="stylesheet" href="home.css"></head>
+<body class="home-page">
 <a class="skip" href="#main">Skip to content</a>
 
-<header class="topbar">
-  <div class="wrap">
-    <a class="brand" href="./" aria-label="TopicLLM home">
-      <svg viewBox="0 0 64 64" aria-hidden="true"><use href="assets/sigil.svg#mark"/></svg>
-      <b>TopicLLM</b>
-    </a>
-    <nav class="topnav" aria-label="Sections">
-      <a href="#method">Method</a>
-      <a href="#demonstration">Demonstration</a>
-      <a href="#preprints">Preprints</a>
-      <a href="app/">Visual demo</a>
-      <a href="#data">Data</a>
-      <a href="#code">Code</a>
-      <a href="#cite">Cite</a>
-    </nav>
-    <button class="theme-toggle" type="button" aria-label="Toggle light and dark theme" data-theme-toggle>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-    </button>
-  </div>
-</header>
+<header class="topbar"><div class="wrap"><a class="brand" href="./" aria-label="TopicLLM home"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="./assets/topicllm-mark.svg#mark"/></svg><b>TopicLLM</b></a><button class="menu-toggle" data-menu aria-controls="platform-nav" aria-expanded="false" type="button">Menu</button><nav class="topnav" id="platform-nav" aria-label="Main navigation"><a href="./app/">Explore demo</a><a href="./paper/">Method</a><a href="./reproduce/">Fork + reproduce</a><a class="repo-link" href="https://github.com/jethomasphd/TopicLLM">GitHub ↗</a></nav><button class="theme-toggle" type="button" aria-label="Toggle light and dark theme" data-platform-theme><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></div></header>
 
 <main id="main">
 
 <!-- =============================================================== HERO -->
-<section class="hero">
-  <div class="wrap hero-grid">
-    <div>
-      <p class="eyebrow">A human-in-the-loop instrument for public health surveillance</p>
-      <h1>Turn social text into<br><em>interpretable evidence.</em></h1>
-      <p class="lede">A five-stage pipeline that turns large volumes of social media text into a small set
-        of interpretable themes, and those themes into prevalence estimates you can test. Use the visual demonstration to understand every step, then fork the repository or download the Python package for a reproducible, agent-assisted research workflow.</p>
-      <div class="cta">
-        <a class="btn primary" href="app/">Explore the visual demo
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        <a class="btn" href="reproduce/">Fork &amp; reproduce with Python</a>
-        <a class="btn" href="#preprints">Original studies</a>
-      </div>
-      <p class="byline">Jacob E. Thomas, Dhiraj Murthy, Miguel Pinedo, Alexandra Loukas &amp; Keryn E. Pasch ·
-        The University of Texas at Austin</p>
-    </div>
-    <svg class="seal" viewBox="0 0 200 200" role="img" aria-label="Seal: five stages around a single measure">
-      <defs><path id="ring" d="M100,100 m-82,0 a82,82 0 1,1 164,0 a82,82 0 1,1 -164,0"/></defs>
-      <circle cx="100" cy="100" r="96" fill="none" stroke="currentColor" stroke-width=".8"/>
-      <circle cx="100" cy="100" r="70" fill="none" stroke="currentColor" stroke-width=".6" stroke-dasharray="1.5 3"/>
-      <text><textPath href="#ring" startOffset="0">DISCOVER · NAME · SYNTHESIZE · CLASSIFY · ESTIMATE ·</textPath></text>
-      <g fill="none" stroke="currentColor" stroke-width=".9">
-        <path d="M100,46 L151.4,83.3 L131.8,143.7 L68.2,143.7 L48.6,83.3 Z"/>
-        <path d="M100,46 L100,100 M151.4,83.3 L100,100 M131.8,143.7 L100,100 M68.2,143.7 L100,100 M48.6,83.3 L100,100" stroke-width=".5"/>
-      </g>
-      <g fill="currentColor">
-        <circle cx="100" cy="46" r="4.2"/><circle cx="151.4" cy="83.3" r="4.2"/><circle cx="131.8" cy="143.7" r="4.2"/>
-        <circle cx="68.2" cy="143.7" r="4.2"/><circle cx="48.6" cy="83.3" r="4.2"/>
-        <circle cx="100" cy="100" r="7"/>
-      </g>
-      <g font-family="Cormorant Garamond, serif" font-size="10" font-weight="600" fill="currentColor" text-anchor="middle"><text x="100.0" y="36.5">I</text><text x="163.7" y="82.8">II</text><text x="139.4" y="157.7">III</text><text x="60.6" y="157.7">IV</text><text x="36.3" y="82.8">V</text></g>
-    </svg>
-  </div>
-</section>
+<section class="platform-hero"><div class="wrap"><div class="hero-copy"><p class="release-label">OPEN SOURCE / RESEARCH SOFTWARE / v0.3.0</p><h1>From language<br>to <span>evidence.</span><br>Every step open.</h1><p class="hero-lede">Discover topics. Interpret with people. Measure what changes. A reproducible workflow for public-health researchers and the agents working alongside them.</p><div class="cta"><a class="btn primary" href="reproduce/">Fork + reproduce <span aria-hidden="true">↗</span></a><a class="btn" href="app/">Explore the visual demo <span aria-hidden="true">→</span></a></div><p class="hero-footnote">Python in your environment. Human judgment at the center.</p></div><figure class="hero-art"><img src="assets/text-to-evidence.jpg" alt="Conceptual sculpture of language fragments collecting into themes and flowing into measurements." width="1536" height="1024" fetchpriority="high"><figcaption><span>Language → structure → evidence</span><span>Conceptual illustration</span></figcaption></figure></div></section>
+<div class="release-strip"><div class="wrap"><div><a class="release-link" href="validation/">0.3.0 / Inspect the measured release ↗</a><p>Open methods. Downloadable evidence.</p></div><div><strong>5 stages, fully inspectable</strong><p>Discovery through prevalence</p></div><div><strong>Built for your environment</strong><p>Python package + agent contract</p></div><div><strong>Original sources preserved</strong><p>Ten files protected by checksums</p></div></div></div>
 
 <!-- ============================================================= METHOD -->
-<section class="room" id="method">
-  <div class="wrap">
-    <div class="room-head reveal">
-      <span class="numeral">I</span>
-      <div>
-        <p class="label">The method</p>
-        <h2>Five stages, from raw text to a test statistic</h2>
-        <p>Machines do what machines do well: search a large model space, read every document, and
-          count. People do what only people can: decide what a pattern means. The pipeline keeps the
-          two in their lanes and writes down everything that passes between them.</p>
-      </div>
-    </div>
+<section class="platform-section" id="method"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">01 / The conceptual model</p><h2>Automate the work.<br>Keep the judgment.</h2></div><p>One chain from documents to testable prevalence. Software and agents carry out the computations; researchers define the question, approve the themes and assess the evidence.</p></div><div class="method-console"><div class="console-heading"><span>TOPICLLM / RESEARCH WORKFLOW</span><span>Select a stage to inspect ↓</span></div><div class="method-route" aria-label="Explore the five-stage conceptual model"><button type="button" class="method-node" data-method-stage="0" aria-pressed="true" aria-controls="method-detail"><span class="node-meta"><span>01</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7" cy="7" r="2"/><circle cx="17" cy="6" r="2"/><circle cx="12" cy="16" r="2"/><path d="m8 9 3 5m4-6-2 6M5 19h2m11-4h2"/></svg></span><strong>Discover</strong><small>Search for structure</small></button><button type="button" class="method-node" data-method-stage="1" aria-pressed="false" aria-controls="method-detail"><span class="node-meta"><span>02</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4zM8 9h8M8 12h5"/></svg></span><strong>Name</strong><small>Collect naming votes</small></button><button type="button" class="method-node human" data-method-stage="2" aria-pressed="false" aria-controls="method-detail"><span class="node-meta"><span>03</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="7" r="3"/><circle cx="17" cy="8" r="2"/><path d="M2 20v-3a6 6 0 0 1 12 0v3m2-7c3 0 6 2 6 6M5 20h7"/></svg></span><strong>Synthesize</strong><small>Researchers decide</small></button><button type="button" class="method-node" data-method-stage="3" aria-pressed="false" aria-controls="method-detail"><span class="node-meta"><span>04</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="m8 8 2 2 5-4m-7 10h8m-8-3h5"/></svg></span><strong>Classify</strong><small>Validate, then scale</small></button><button type="button" class="method-node" data-method-stage="4" aria-pressed="false" aria-controls="method-detail"><span class="node-meta"><span>05</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18M7 17v-5m5 5V6m5 11V9"/></svg></span><strong>Estimate</strong><small>Compare prevalence</small></button></div><div class="method-detail" id="method-detail" aria-live="polite"><div><span class="role-label" id="method-role">01 / COMPUTATION · RESEARCHER-DESIGNED INPUTS</span><h3 id="method-title">Find structure in the corpus.</h3><p id="method-description">MiniLM embeddings, UMAP and HDBSCAN produce candidate topics. The reference search scores 1,200 candidate ceilings by coherence and retains the winning fitted model. The observed topic count is a result, not a target.</p></div><div class="artifact-output"><p>Evidence retained</p><div id="method-artifacts" style="display:flex;flex-direction:column"><code>↳ all_iteration_results.json</code><code>↳ topics_for_naming.csv</code><code>↳ fitted_model.pkl + provenance hashes</code></div></div></div></div><p class="method-caption"><b>HUMAN REVIEW IS A GATE</b><span>An agent prepares the evidence. Actual researchers approve interpretation and independently annotate the research benchmark. <a href="paper/">Read the method ↗</a></span></p></div></section><section class="reproduction-feature" id="agent-workflow"><div class="wrap reproduction-grid"><div><p class="eyebrow">02 / Your agent. A shared protocol.</p><h2>Fork the code.<br>Give your agent<br>a method to follow.</h2><p>Begin with the synthetic acceptance check. Then bring your own research question, approved data and model credentials. The repository tells your agent what to run, what to retain, and where to stop for you.</p><div class="cta"><a class="btn primary" href="reproduce/">Start reproducing →</a><a class="btn" href="https://github.com/jethomasphd/TopicLLM/blob/main/AGENTS.md">Read AGENTS.md ↗</a></div></div><div><div class="agent-terminal"><div class="terminal-head"><span>topicllm / your research environment</span><b>Python 3.11+</b></div><div class="codeblock"><pre><span class="c"># In your fork, with an environment activated</span>
+python -m pip install ".[dev]"
+topicllm --profile quickcheck \
+  --output-dir runs/quickcheck
 
-    <div class="stages reveal">
-      <article class="stage">
-        <span class="numeral">I</span>
-        <h3>Discover</h3>
-        <p>BERTopic (MiniLM embeddings, UMAP, HDBSCAN, c-TF-IDF) under randomized hyperparameter
-          search. The model with the highest c<sub>v</sub> coherence wins.</p>
-        <p class="fact"><span>50 draws × 24 solutions</span>1,200 planned candidate models</p>
-      </article>
-      <article class="stage">
-        <span class="numeral">II</span>
-        <h3>Name</h3>
-        <p>A language model names each topic thousands of times, independently. The modal label is
-          adopted, and a fragmented vote flags an ambiguous topic.</p>
-        <p class="fact"><span>Votes per topic</span>5,000 · temperature 0.5</p>
-      </article>
-      <article class="stage">
-        <span class="numeral">III</span>
-        <h3>Synthesize</h3>
-        <p>Two researchers group topics into themes under the Theme and Topic system, reading against
-          the literature. Deliberately not automated.</p>
-        <p class="fact"><span>Protocol</span>Primary + senior, consensus</p>
-      </article>
-      <article class="stage">
-        <span class="numeral">IV</span>
-        <h3>Classify</h3>
-        <p>Boolean and LLM classifiers are piloted against human-labeled documents. The pipeline
-          refuses to scale a classifier below the agreement threshold.</p>
-        <p class="fact"><span>Benchmark · gate</span>250 documents · &gt;85%</p>
-      </article>
-      <article class="stage">
-        <span class="numeral">V</span>
-        <h3>Estimate</h3>
-        <p>Every document carries a label, so prevalence is computable in any slice. Proportional
-          z-tests compare periods under Bonferroni correction.</p>
-        <p class="fact"><span>Output</span>Prevalence + z-tests</p>
-      </article>
-    </div>
-
-    <figure class="plate reveal">
-      <svg class="flow" viewBox="0 0 1000 176" role="img" aria-labelledby="flow-title" style="width:100%;height:auto">
-      <title id="flow-title">Pipeline: documents flow through five stages, each emitting an audit artifact.</title>
-      <g font-family="IBM Plex Sans, sans-serif" font-size="13">
-      <path d="M180 62 H196" stroke="var(--rule-strong)" stroke-width="1.2" fill="none"/>
-      <path d="M196 57 l8 5 -8 5z" fill="var(--ornament)"/>
-      <path d="M386 62 H402" stroke="var(--rule-strong)" stroke-width="1.2" fill="none"/>
-      <path d="M402 57 l8 5 -8 5z" fill="var(--ornament)"/>
-      <path d="M592 62 H608" stroke="var(--rule-strong)" stroke-width="1.2" fill="none"/>
-      <path d="M608 57 l8 5 -8 5z" fill="var(--ornament)"/>
-      <path d="M798 62 H814" stroke="var(--rule-strong)" stroke-width="1.2" fill="none"/>
-      <path d="M814 57 l8 5 -8 5z" fill="var(--ornament)"/>
-      <rect x="1" y="28" width="174" height="68" rx="4" fill="var(--surface)" stroke="var(--rule-strong)"/>
-      <text x="88.0" y="58" text-anchor="middle" fill="var(--ink)" font-family="Cormorant Garamond, serif" font-size="21" font-weight="600">Topics</text>
-      <text x="88.0" y="80" text-anchor="middle" fill="var(--muted)" font-size="12">c_v argmax of 1,200</text>
-      <path d="M88.0 100 V116" stroke="var(--rule)" stroke-dasharray="2 3"/>
-      <text x="88.0" y="132" text-anchor="middle" fill="var(--accent)" font-family="IBM Plex Mono, monospace" font-size="11">all_iteration_results.json</text>
-      <text x="88.0" y="16" text-anchor="middle" fill="var(--ornament)" font-family="Cormorant Garamond, serif" font-size="15" font-weight="600">I</text>
-      <rect x="207" y="28" width="174" height="68" rx="4" fill="var(--surface)" stroke="var(--rule-strong)"/>
-      <text x="294.0" y="58" text-anchor="middle" fill="var(--ink)" font-family="Cormorant Garamond, serif" font-size="21" font-weight="600">Labels</text>
-      <text x="294.0" y="80" text-anchor="middle" fill="var(--muted)" font-size="12">modal vote of 5,000</text>
-      <path d="M294.0 100 V116" stroke="var(--rule)" stroke-dasharray="2 3"/>
-      <text x="294.0" y="132" text-anchor="middle" fill="var(--accent)" font-family="IBM Plex Mono, monospace" font-size="11">vote_tallies.csv</text>
-      <text x="294.0" y="16" text-anchor="middle" fill="var(--ornament)" font-family="Cormorant Garamond, serif" font-size="15" font-weight="600">II</text>
-      <rect x="413" y="28" width="174" height="68" rx="4" fill="var(--surface)" stroke="var(--rule-strong)"/>
-      <text x="500.0" y="58" text-anchor="middle" fill="var(--ink)" font-family="Cormorant Garamond, serif" font-size="21" font-weight="600">Themes</text>
-      <text x="500.0" y="80" text-anchor="middle" fill="var(--muted)" font-size="12">two-person consensus</text>
-      <path d="M500.0 100 V116" stroke="var(--rule)" stroke-dasharray="2 3"/>
-      <text x="500.0" y="132" text-anchor="middle" fill="var(--accent)" font-family="IBM Plex Mono, monospace" font-size="11">theme_map.csv</text>
-      <text x="500.0" y="16" text-anchor="middle" fill="var(--ornament)" font-family="Cormorant Garamond, serif" font-size="15" font-weight="600">III</text>
-      <rect x="619" y="28" width="174" height="68" rx="4" fill="var(--surface)" stroke="var(--rule-strong)"/>
-      <text x="706.0" y="58" text-anchor="middle" fill="var(--ink)" font-family="Cormorant Garamond, serif" font-size="21" font-weight="600">Labeled corpus</text>
-      <text x="706.0" y="80" text-anchor="middle" fill="var(--muted)" font-size="12">gated classifier</text>
-      <path d="M706.0 100 V116" stroke="var(--rule)" stroke-dasharray="2 3"/>
-      <text x="706.0" y="132" text-anchor="middle" fill="var(--accent)" font-family="IBM Plex Mono, monospace" font-size="11">benchmark_report.json</text>
-      <text x="706.0" y="16" text-anchor="middle" fill="var(--ornament)" font-family="Cormorant Garamond, serif" font-size="15" font-weight="600">IV</text>
-      <rect x="825" y="28" width="174" height="68" rx="4" fill="var(--surface)" stroke="var(--rule-strong)"/>
-      <text x="912.0" y="58" text-anchor="middle" fill="var(--ink)" font-family="Cormorant Garamond, serif" font-size="21" font-weight="600">Prevalence</text>
-      <text x="912.0" y="80" text-anchor="middle" fill="var(--muted)" font-size="12">z-tests, Bonferroni</text>
-      <path d="M912.0 100 V116" stroke="var(--rule)" stroke-dasharray="2 3"/>
-      <text x="912.0" y="132" text-anchor="middle" fill="var(--accent)" font-family="IBM Plex Mono, monospace" font-size="11">ztest_results.csv</text>
-      <text x="912.0" y="16" text-anchor="middle" fill="var(--ornament)" font-family="Cormorant Garamond, serif" font-size="15" font-weight="600">V</text>
-      <text x="500" y="166" fill="var(--muted)" font-size="12" text-anchor="middle">Each stage writes an artifact that can be published with the findings.</text>
-      </g></svg>
-      <ol class="flow-list" aria-hidden="true">
-        <li><span class="numeral">I</span><b>Topics</b><em>c_v argmax of 1,200</em><code>all_iteration_results.json</code></li>
-        <li><span class="numeral">II</span><b>Labels</b><em>modal vote of 5,000</em><code>vote_tallies.csv</code></li>
-        <li><span class="numeral">III</span><b>Themes</b><em>two-person consensus</em><code>theme_map.csv</code></li>
-        <li><span class="numeral">IV</span><b>Labeled corpus</b><em>gated classifier</em><code>benchmark_report.json</code></li>
-        <li><span class="numeral">V</span><b>Prevalence</b><em>z-tests, Bonferroni</em><code>ztest_results.csv</code></li>
-      </ol>
-      <figcaption><span class="label">Plate I</span><span>The five stages and their audit artifacts. The
-        prompts are released verbatim, and a new domain requires revisiting corpus design, stopwords, context, theme definitions, human benchmarks, time periods and statistical assumptions.</span></figcaption>
-    </figure>
-  </div>
-</section>
+<span class="c"># Then give your agent AGENTS.md + REPRODUCE.md</span></pre></div><div class="agent-status"><span><strong>Verify</strong> inputs, source hashes and environment</span><span><strong>Retain</strong> results, responses and API usage</span><span><strong>Pause</strong> for researcher interpretation and review</span></div></div><p class="agent-caption">The quickcheck is offline and uses generated labels. No API calls.</p></div></div></section><section class="validation-band"><div class="wrap validation-grid"><div><p class="eyebrow">Measured, not assumed</p><h2>A full synthetic run.<br>An open evidence trail.</h2><a href="validation/">Inspect the results and limitations ↗</a></div><div><strong>5,872</strong><span>synthetic records processed through all five stages</span></div><div><strong>1,200</strong><span>discovery candidates retained, including failures</span></div><div><strong>$2.48</strong><span>conservative API accounting, within a $5 ceiling</span></div></div></section>
 
 <!-- ======================================================= DEMONSTRATION -->
 <section class="room" id="demonstration">
@@ -193,7 +41,7 @@
     <div class="room-head reveal">
       <span class="numeral">II</span>
       <div>
-        <p class="label">The demonstration</p>
+        <p class="label">03 / The study behind the method</p>
         <h2>Alcohol marketing on Twitter during COVID-19</h2>
         <p>The pipeline was built for, and first applied in, the author's dissertation: a study of
           what eleven alcohol companies said on Twitter before, during, and after the first
@@ -232,7 +80,7 @@
           <p class="label" style="text-transform:none;letter-spacing:0">* differs from peri-pandemic; † differs from pre-pandemic (p &lt; 0.0033, Bonferroni-corrected).</p>
         </div>
       </details>
-      <figcaption id="prev-caption"><span class="label">Plate II</span><span>Theme prevalence across the three
+      <figcaption id="prev-caption"><span class="label">Reported results</span><span>Theme prevalence across the three
         response periods, as published (Thomas, 2025, Study 1). Alcohol delivery and isolation drinking,
         restaurant support, and social media promotions all rose in the lockdown months. Two of
         them stayed above pre-pandemic levels afterwards. Sports and gaming held steady.</span></figcaption>
@@ -246,7 +94,7 @@
     <div class="room-head reveal">
       <span class="numeral">III</span>
       <div>
-        <p class="label">The preprints</p>
+        <p class="label">04 / Read the primary evidence</p>
         <h2>One method, two studies</h2>
         <p>The methods paper describes the instrument. The original studies are available directly from the unchanged dissertation. Existing reflowed PDF and Word editions are also preserved. The methods paper has a separately identified audited revision.</p>
       </div>
@@ -299,36 +147,7 @@
 </section>
 
 <!-- ========================================================== INSTRUMENT -->
-<section class="room" id="instrument">
-  <div class="wrap">
-    <div class="room-head reveal">
-      <span class="numeral">IV</span>
-      <div>
-        <p class="label">The instrument</p>
-        <h2>A guided study. An inspectable workbench.</h2>
-        <p>Start with a guided, seven-topic synthetic reconstruction of the dissertation. Recalculate the published prevalence pattern, inspect the source, and download the evidence. Try fixed live OpenAI examples, or explore local discovery with the teaching mock. For your own research corpus, fork the repository or install the Python package.</p>
-      </div>
-    </div>
-    <div class="two-col indent reveal">
-      <div class="panel">
-        <p class="label">What it does</p>
-        <h3>Every computation, in the open</h3>
-        <p>The guided study explains each stage and exports its synthetic calculation. Live examples return
-          model identifiers and token usage. The local sandbox exposes the mechanics and a validation gate.
-          The Python workflow retains the complete research audit trail and requires actual researcher review.</p>
-        <p><a class="btn primary" href="app/">Explore the study</a></p>
-      </div>
-      <div class="panel">
-        <p class="label">When to use the Python pipeline instead</p>
-        <h3>Publication-grade runs</h3>
-        <p>Browser discovery is a distinct approximation with different JavaScript algorithms and preprocessing;
-          it does not establish numerical parity with Python BERTopic. For a
-          study you intend to publish, use the reference implementation in
-          <a href="#code">the code section</a>. It provides seeded search, checkpoint guards and validation artifacts. Retain and validate the exact environment used for your analysis.</p>
-      </div>
-    </div>
-  </div>
-</section>
+
 
 <!-- ================================================================ DATA -->
 <section class="room" id="data">
@@ -336,7 +155,7 @@
     <div class="room-head reveal">
       <span class="numeral">V</span>
       <div>
-        <p class="label">The data</p>
+        <p class="label">05 / Open demonstration data</p>
         <h2>An open corpus built to be run</h2>
         <p>The dissertation's data cannot be posted openly. In their place is a synthetic
           demonstration corpus that has the same shape as the original and contains no real posts,
@@ -356,7 +175,7 @@
           <li><a href="data/demonstration_stopwords.txt" download data-size>demonstration_stopwords.txt</a><span></span>
             <p>Domain stopwords: brand terms and time words (§2.1).</p></li>
           <li><a href="data/reference_run/stage1_topics_with_ground_truth.csv" download data-size>reference_run/</a><span></span>
-            <p>An archived synthetic reference run. Stage 1 picked 20 topics at c<sub>v</sub> = 0.790, covering all five themes, and Stage 5 run on the ground truth returns Plate II.</p></li>
+            <p>An archived synthetic reference run. Stage 1 picked 20 topics at c<sub>v</sub> = 0.790, covering all five themes, and Stage 5 run on the ground truth reconstructs the reported rounded prevalence.</p></li>
           <li><a href="data/README.md">README.md — data card</a><span></span>
             <p>How the corpus was built, what it is calibrated to, and what it is not.</p></li>
         </ul>
@@ -393,7 +212,7 @@
     <div class="room-head reveal">
       <span class="numeral">VI</span>
       <div>
-        <p class="label">The code</p>
+        <p class="label">06 / Build on the implementation</p>
         <h2>Fork it. Give your agent a method.</h2>
         <p>A maintained Python pipeline written against the current OpenAI SDK, with documented prompts and search spaces. Maintained changes, including a larger classification output limit, are distinguished from the historical protocol. It adds a seeded search, an enforced
           benchmark gate, checkpointing for corpus-scale runs, and a test suite. Out of the box it

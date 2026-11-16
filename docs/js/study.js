@@ -34,7 +34,10 @@ function renderPhase() {
   const b=$('study-content');
   if(phase===0){
     b.innerHTML=`<div class="study-contrast"><div><span class="eyebrow">Reported in the dissertation</span><strong>7 <small>topics</small></strong><p>c<sub>v</sub> = 0.768 · maximum-topic setting 23<br>UMAP 15 / 4 / 0.01 · HDBSCAN minimum 20</p><a href="../THOMAS-PRIMARY-2025.pdf#page=163" target="_blank">Read the original result, p. 163 ↗</a></div><div><span class="eyebrow">This synthetic exercise</span><strong>7 <small>assigned categories</small></strong><p>Known campaigns reproduce the seven-to-five structure. No fitted coherence score is claimed.</p><a href="../audit/">Why exploratory discovery finds 20–22 topics ↗</a></div></div><p class="note">The maximum-topic setting is a ceiling. It is not the number of topics the model must return.</p>`;
-  }else if(phase===1 || phase===2){
+  }else if(phase===2){
+    const themes=[...new Set(study.topics.map(t=>t.theme))];
+    b.innerHTML=`<div class="mapping-heading"><span>7 reported topics</span><span>5 interpreted themes</span></div><div class="theme-mapping">${themes.map((theme,index)=>`<div class="mapping-row"><div class="mapping-sources">${study.topics.filter(t=>t.theme===theme).map(t=>`<div><span>${String(study.topics.indexOf(t)+1).padStart(2,'0')}</span><p>${esc(t.name)}</p></div>`).join('')}</div><span class="mapping-arrow" aria-hidden="true">→</span><div class="mapping-target"><span class="mapping-index">${String(index+1).padStart(2,'0')}</span><h3>${esc(theme)}</h3></div></div>`).join('')}</div><p class="note">Reported topic-to-theme relationships from dissertation Table 2, p. 165. The demonstration uses assigned categories; it does not recover the original model or historical reviewer decisions.</p>`;
+  }else if(phase===1){
     b.innerHTML=`<div class="topic-map">${study.topics.map((t,i)=>`<article><span class="topic-number">${String(i+1).padStart(2,'0')}</span><div><h3>${esc(t.name)}</h3>${phase===1?`<p class="topic-words">${t.words.map(esc).join(' · ')}</p>`:`<p class="theme-link">→ ${esc(t.theme)}</p>`}<details><summary>Inspect a synthetic example</summary><p>${esc(example(t.id))}</p><p class="note">Generated example; not a dissertation tweet or historical model assignment.</p></details></div></article>`).join('')}</div><p class="note">Names and representative words: dissertation Table 2, p. 165. Numbers 01–07 indicate display order.</p>`;
   }else if(phase===3){
     const n=demo.rows.filter(r=>r.topic===-1).length;
@@ -78,3 +81,6 @@ export async function initStudyTour(){
     $('study-next').onclick=()=>{phase=(phase+1)%5;renderPhase();};
   }catch(e){$('study-explanation').textContent=e.message;}
 }
+
+let chartResize;
+addEventListener('resize',()=>{clearTimeout(chartResize);chartResize=setTimeout(()=>{if(phase===4&&result&&$('study-chart'))renderResults();},120);});

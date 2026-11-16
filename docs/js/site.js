@@ -137,10 +137,13 @@ function drawPrevalence() {
     lbl.textContent = `${row.v[1].toFixed(1)}%`;
 
     // generous hit target for the whole row
-    const hit = el("rect", { class: "hit", x: 0, y: cy - rowH / 2, width, height: rowH }, g);
+    const hit = el("rect", { class: "hit", x: 0, y: cy - rowH / 2, width, height: rowH,tabindex:'0',role:'img',
+      'aria-label':`${row.theme}: ${row.v.map((v,i)=>PERIODS[i]+' '+v+'%').join(', ')}` }, g);
     hit.addEventListener("pointerenter", () => show(row, cy));
     hit.addEventListener("pointermove", () => show(row, cy));
     hit.addEventListener("pointerleave", () => tip.classList.remove("on"));
+    hit.addEventListener('focus',()=>show(row,cy));
+    hit.addEventListener('blur',()=>tip.classList.remove('on'));
   });
 
   function show(row, cy) {
@@ -161,3 +164,4 @@ let resizeTimer;
 addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawPrevalence, 120); });
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", drawPrevalence);
 drawPrevalence();
+document.addEventListener('topicllm-theme-change',drawPrevalence);

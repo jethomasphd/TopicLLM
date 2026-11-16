@@ -32,7 +32,7 @@ export function demoCall(input){
 export default {async fetch(request,env){
   const url=new URL(request.url),path=url.pathname;
   // Keep existing API clients on their origin; browser navigation uses the primary domain.
-  if(!path.startsWith('/api/')&&['GET','HEAD'].includes(request.method)&&
+  if(env.CANONICAL_REDIRECTS!=='false'&&!path.startsWith('/api/')&&['GET','HEAD'].includes(request.method)&&
      ['topicllm.dev','www.topicllm.dev','topicllm.jethomasphd.workers.dev'].includes(url.hostname)&&
      (url.hostname!=='topicllm.dev'||url.protocol!=='https:')){
     url.hostname='topicllm.dev';url.protocol='https:';url.port='';

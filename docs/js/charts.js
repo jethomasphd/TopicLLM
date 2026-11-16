@@ -127,73 +127,33 @@ export function hBarChart(container, { items, valueFmt = v => v, maxValue }) {
   }
 }
 
-/** Grouped vertical bars: themes × periods (≤4 series, legend + gaps). */
+/** Prevalence by theme: direct labels and full names at every viewport width. */
 export function groupedBarChart(container, { groups, series, values, valueFmt = v => Number(v.toFixed(1)) + "%" }) {
-  container.innerHTML = "";
-  if (container.clientWidth && container.clientWidth < 520) {
-    const W=container.clientWidth, max=Math.max(...values.flat(),.001), left=40, plot=Math.max(80,W-left-50);
-    const svg=el('svg',{class:'chart',role:'img','aria-label':'Theme prevalence by period; values also appear in the table'},container);
-    let y=16;
-    groups.forEach((group,gi)=>{
-      const lines=[''], width=Math.max(16,Math.floor(W/6));
-      for(const word of group.split(' ')) {
-        const i=lines.length-1;
-        if(lines[i] && (lines[i]+' '+word).length>width) lines.push(word); else lines[i]+=(lines[i]?' ':'')+word;
-      }
-      for(const line of lines) {el('text',{x:0,y,class:'tick'},svg).textContent=line;y+=14;}
-      series.forEach((period,si)=>{
-        const value=values[gi][si], bw=plot*value/max;
-        el('text',{x:0,y:y+8,class:'tick'},svg).textContent=period;
-        el('rect',{x:left,y,width:bw,height:9,rx:2,class:`bar s${si+1}`},svg);
-        el('text',{x:left+bw+7,y:y+8,class:'tick'},svg).textContent=valueFmt(value);
-        y+=16;
-      });
-      y+=18;
+  container.innerHTML='';
+  const W=Math.max(container.clientWidth||640,260),narrow=W<620;
+  const left=narrow?36:Math.min(265,W*.35),right=48;
+  const max=Math.max(...values.flat(),.001),limit=Math.ceil(max/5)*5;
+  const plot=W-left-right,X=value=>left+value/limit*plot;
+  const names={pre:'Pre',peri:'Peri',post:'Post'};
+  const svg=el('svg',{class:'chart',role:'img','aria-label':'Synthetic theme prevalence by period. Exact percentages and denominators are provided in the table below.'},container);
+  let y=28;
+  if(!narrow){let lx=left;series.forEach((period,i)=>{el('rect',{x:lx,y:2,width:8,height:8,rx:2,class:`bar s${i+1}`},svg);el('text',{x:lx+14,y:10,class:'tick'},svg).textContent=names[period]||period;lx+=80;});}
+  for(let t=0;t<=limit;t+=5){el('text',{x:X(t),y:y+7,class:'tick','text-anchor':'middle'},svg).textContent=t+'%';}
+  y+=24;
+  groups.forEach((group,gi)=>{
+    const lineWidth=narrow?Math.max(20,Math.floor(W/6.5)):Math.floor((left-28)/6.5),lines=[''];
+    for(const word of group.split(' ')){const i=lines.length-1;if(lines[i]&&(lines[i]+' '+word).length>lineWidth)lines.push(word);else lines[i]+=(lines[i]?' ':'')+word;}
+    if(narrow){for(const line of lines){el('text',{x:0,y:y+9,class:'theme-label'},svg).textContent=line;y+=15;}y+=7;}
+    else lines.forEach((line,i)=>{el('text',{x:0,y:y+16+i*15,class:'theme-label'},svg).textContent=line;});
+    for(let t=0;t<=limit;t+=5)el('line',{x1:X(t),x2:X(t),y1:y-2,y2:y+series.length*17-1,class:'grid'},svg);
+    series.forEach((period,si)=>{
+      const value=values[gi][si],yy=y+si*17;
+      if(narrow)el('text',{x:0,y:yy+9,class:'tick'},svg).textContent=names[period]||period;
+      const bar=el('rect',{x:left,y:yy,width:Math.max(0,X(value)-left),height:10,rx:2,class:`bar s${si+1}`,tabindex:'0',role:'img','aria-label':`${group}, ${names[period]||period}: ${valueFmt(value)}`},svg);
+      el('text',{x:X(value)+7,y:yy+9,class:'tick'},svg).textContent=valueFmt(value);
+      bar.addEventListener('pointermove',evt=>showTip(evt,`<strong>${escapeHTML(group)}</strong><br>${escapeHTML(names[period]||period)}: ${valueFmt(value)}`));bar.addEventListener('pointerleave',hideTip);
     });
-    svg.setAttribute('viewBox',`0 0 ${W} ${y}`);
-    return;
-  }
-  const W = Math.max(container.clientWidth || 640, 360), H = 300;
-  const m = { top: 34, right: 12, bottom: 74, left: 46 };
-  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "chart", role: "img" }, container);
-
-  const vMax = Math.max(...values.flat(), 0.001) * 1.15;
-  const Y = v => H - m.bottom - (v / vMax) * (H - m.top - m.bottom);
-  for (const t of niceTicks(0, vMax, 4)) {
-    el("line", { x1: m.left, x2: W - m.right, y1: Y(t), y2: Y(t), class: "grid" }, svg);
-    el("text", { x: m.left - 8, y: Y(t) + 4, class: "tick", "text-anchor": "end" }, svg).textContent = valueFmt(t);
-  }
-  el("line", { x1: m.left, x2: W - m.right, y1: H - m.bottom, y2: H - m.bottom, class: "axis" }, svg);
-
-  const groupW = (W - m.left - m.right) / groups.length;
-  const barGap = 2, barW = Math.min(26, (groupW - 16) / series.length - barGap);
-  groups.forEach((g, gi) => {
-    const x0 = m.left + gi * groupW + (groupW - series.length * (barW + barGap)) / 2;
-    series.forEach((s, si) => {
-      const v = values[gi][si];
-      if (v == null) return;
-      const x = x0 + si * (barW + barGap), y = Y(v);
-      const bar = el("path", { d: barPath(x, y, barW, H - m.bottom - y, 4), class: `bar s${si + 1}` }, svg);
-      bar.addEventListener("pointermove", evt =>
-        showTip(evt, `<strong>${escapeHTML(g)}</strong><br>${escapeHTML(s)}: ${valueFmt(v)}`));
-      bar.addEventListener("pointerleave", hideTip);
-    });
-    const words = g.split(" ");
-    const lines = words.length > 2 ? [words.slice(0, Math.ceil(words.length / 2)).join(" "),
-      words.slice(Math.ceil(words.length / 2)).join(" ")] : [g];
-    lines.forEach((ln, li) => {
-      el("text", { x: m.left + gi * groupW + groupW / 2, y: H - m.bottom + 16 + li * 13,
-        class: "tick", "text-anchor": "middle" }, svg)
-        .textContent = ln.length > 20 ? ln.slice(0, 19) + "…" : ln;
-    });
+    y+=series.length*17+27;
   });
-
-  // legend (>= 2 series): colored chip + ink text
-  let lx = m.left;
-  series.forEach((s, si) => {
-    el("rect", { x: lx, y: 8, width: 12, height: 12, rx: 3, class: `bar s${si + 1}` }, svg);
-    const t = el("text", { x: lx + 17, y: 18, class: "tick" }, svg);
-    t.textContent = s;
-    lx += 17 + s.length * 6.6 + 22;
-  });
+  svg.setAttribute('viewBox',`0 0 ${W} ${y-8}`);
 }

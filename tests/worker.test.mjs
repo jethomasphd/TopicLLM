@@ -24,6 +24,10 @@ test('domain migration keeps API requests on their original origin',async()=>{
   const blocked=await worker.fetch(new Request('https://www.topicllm.dev/api/demo',{method:'POST',headers:{Origin:'https://topicllm.dev'}}),env);
   assert.equal(blocked.status,403);
 });
+test('local preview can disable canonical redirects without affecting production defaults',async()=>{
+  const response=await worker.fetch(new Request('http://topicllm.dev/'),{CANONICAL_REDIRECTS:'false',ASSETS:{fetch:async()=>new Response('local preview')}});
+  assert.equal(response.status,200);assert.equal(await response.text(),'local preview');
+});
 test('gateway fails closed without configuration',async()=>assert.equal((await worker.fetch(req(),{})).status,503));
 test('gateway rejects missing credentials and cross-origin callers',async()=>{
   assert.equal((await worker.fetch(req({}, {Authorization:'Bearer wrong'}),env)).status,401);
