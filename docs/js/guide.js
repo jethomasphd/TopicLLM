@@ -50,12 +50,13 @@ form.addEventListener('submit',async e=>{
  const serialized=JSON.stringify({question,history:recent,page:context[0]});if(!op||op.payload!==serialized)op={id:crypto.randomUUID(),payload:serialized};
  busy=true;send.disabled=clear.disabled=input.disabled=true;prompts.querySelectorAll('button').forEach(b=>b.disabled=true);status.textContent='Reading the research notes and preparing a clear answer…';
  const asked=make('div','guide-message guide-question');asked.append(make('span','guide-speaker','You'),make('p','',question));messages.insertBefore(asked,prompts);messages.scrollTop=messages.scrollHeight;
+ let receivedAnswer=null;
  try{
   const config=await request('/api/config');if(!config.guideLive)throw new Error('The live guide is unavailable right now.');await request('/api/session');
   const result=await request('/api/guide',{method:'POST',headers:{'Content-Type':'application/json','X-Request-ID':op.id},body:serialized,signal:AbortSignal.timeout(60000)});
-  const answer=make('div','guide-message guide-answer');answer.append(make('span','guide-speaker','TopicLLM guide'));for(const p of result.text.split(/\n\s*\n/))answer.append(make('p','',p));
+  const answer=make('div','guide-message guide-answer');receivedAnswer=answer;answer.append(make('span','guide-speaker','TopicLLM guide'));for(const p of result.text.split(/\n\s*\n/))answer.append(make('p','',p));
   const links=make('div','guide-sources');links.setAttribute('aria-label','Sources for this answer');for(const source of result.sources||[]){const a=make('a','',source.title);a.href=source.url;a.target='_blank';a.rel='noopener';links.append(a);}answer.append(links);messages.insertBefore(answer,prompts);history.push({role:'user',content:question},{role:'assistant',content:result.text});input.value='';op=null;
   status.textContent=`${result.remaining_session} shared live calls remain today. AI can make mistakes; check the sources.`;busy=false;suggestions(result.suggestions?.length?result.suggestions:starters);
  }catch(error){asked.remove();status.textContent=(error.name==='TimeoutError'?'The request took too long. Retry the same question to recover a completed response safely.':error.message)+' The visual demo and research briefing remain available.';}
- finally{busy=false;send.disabled=clear.disabled=input.disabled=false;prompts.querySelectorAll('button').forEach(b=>b.disabled=false);messages.scrollTop=messages.scrollHeight;input.focus();}
+ finally{busy=false;send.disabled=clear.disabled=input.disabled=false;prompts.querySelectorAll('button').forEach(b=>b.disabled=false);input.focus({preventScroll:true});if(receivedAnswer)messages.scrollTop+=receivedAnswer.getBoundingClientRect().top-messages.getBoundingClientRect().top-18;}
 });
