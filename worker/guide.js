@@ -16,10 +16,11 @@ const stableSources=[
  {id:'demo',title:'Visual demonstration',url:'/app/'}
 ];
 const pages=new Set(['home','demo','methods','reproduce','validation','provenance','privacy','study1','study2','guide']);
+const titles={'README.md':'Repository overview','REPRODUCE.md':'Full reproduction guide','AGENTS.md':'Agent research contract','AUDIT.md':'Source provenance','docs/protocol.json':'Machine-readable protocol','docs/paper/index.html':'Five-stage methods','docs/data/README.md':'Synthetic data card','verification/synthetic-validation-2026-11-16.json':'Measured synthetic run'};
 export function retrieve(query,limit=4){
  const words=tokens(query);
  return indexed.map(c=>({c,score:words.reduce((n,t)=>n+(c.terms.has(t)?Math.log(1+indexed.length/(frequency.get(t)||1)):0),0)}))
- .filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,limit).map(({c})=>({id:c.id,title:c.title,url:c.url,text:c.text}));
+ .filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,limit).map(({c})=>({id:c.id,title:titles[c.title]||c.title,url:c.url,text:c.text}));
 }
 export function guideCall(input){
  if(!input||Object.keys(input).some(k=>!['question','history','page'].includes(k)))throw new Error('Use a question, recent conversation and a page context.');
@@ -41,5 +42,7 @@ export function guideResult(result,call){
  let parsed;try{parsed=JSON.parse(result.text);}catch{throw new Error('The guide response could not be read. Please try a shorter question.');}
  if(!parsed||typeof parsed.answer!=='string'||!parsed.answer.trim()||parsed.answer.length>6000||!Array.isArray(parsed.source_ids)||parsed.source_ids.length>4||parsed.source_ids.some(id=>!call.sources.some(s=>s.id===id))||!Array.isArray(parsed.suggestions)||parsed.suggestions.length>3||parsed.suggestions.some(s=>typeof s!=='string'||s.length>150))throw new Error('The guide response did not pass its source check. Please try again.');
  const ids=[...new Set(parsed.source_ids)];
- return {...result,text:parsed.answer.trim(),sources:ids.map(id=>call.sources.find(s=>s.id===id)),suggestions:parsed.suggestions,guide_version:GUIDE_VERSION};
+ // Only server-validated source chips carry links. Never display a model-invented URL.
+ const answer=parsed.answer.replace(/\[([^\]]+)\]\([^)]*\)/g,'$1').replace(/https?:\/\/[^\s<>]+/g,'the linked source').replace(/\*\*([^*]+)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1').trim();
+ return {...result,text:answer,sources:ids.map(id=>call.sources.find(s=>s.id===id)),suggestions:parsed.suggestions,guide_version:GUIDE_VERSION};
 }

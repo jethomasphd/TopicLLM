@@ -24,6 +24,7 @@ test('guide rejects injected roles, arbitrary models and oversized histories',()
 });
 test('guide only releases parsed answers with allowlisted source IDs',()=>{
  const call=guideCall(question);assert.equal(guideResult({text:JSON.stringify(good)},call).sources[0].url,'/audit/');
+ const cleaned=guideResult({text:JSON.stringify({...good,answer:'Read [the chapter](https://invented.test/path) or https://invented.test/other.'})},call);assert.ok(!cleaned.text.includes('https://'));assert.match(cleaned.text,/the chapter/);
  for(const content of ['not json',JSON.stringify({...good,source_ids:['https://evil.test']}),JSON.stringify({...good,answer:3})])assert.throws(()=>guideResult({text:content},call));
 });
 test('guide requires an enabled same-origin session',async()=>{
