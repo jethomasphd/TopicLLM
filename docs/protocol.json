@@ -1,0 +1,149 @@
+{
+  "schema_version": 2,
+  "authority": "Thomas (2025) dissertation; original bytes protected by source-integrity.json",
+  "modes": [
+    "reported-study-results",
+    "calibrated-synthetic-reconstruction",
+    "synthetic-exploration",
+    "research",
+    "mock"
+  ],
+  "input": {
+    "benchmark": [
+      "tweet",
+      "human_label"
+    ],
+    "benchmark_note": "The bundled synthetic benchmark is generator-labeled, not human-annotated.",
+    "python_corpus": [
+      "tweet (nonempty string)",
+      "post_id (stable unique identifier recommended)",
+      "date YYYY-MM-DD for period inference"
+    ],
+    "browser_corpus": [
+      "post_id (recommended stable unique identifier)",
+      "tweet or text",
+      "date YYYY-MM-DD for inference"
+    ]
+  },
+  "naming": {
+    "system": "You are an expert at naming topics.",
+    "user_template": "The following words represent a topic derived from {domain}: {words}. Please provide a concise, meaningful topic name that clearly summarizes these words. ",
+    "temperature": 0.5,
+    "max_tokens": 15,
+    "historical_votes_per_topic": 5000
+  },
+  "classification": {
+    "system": "You are an expert at classifying text into themes.",
+    "user_template": "Classify the following text into one of the following {N} themes: {numbered_options}.Text: {document}.Respond with verbatim classification using only the specified {N} options.",
+    "temperature": 0.5,
+    "historical_max_tokens": 30,
+    "maintained_max_tokens": 120,
+    "none_label": "The text does not fit into any of these themes",
+    "invalid_response": "__INVALID_RESPONSE__",
+    "api_failure": "__API_ERROR__"
+  },
+  "human_checkpoint": "Two researchers review and record a topic-to-theme map. Agents must not invent review or consensus.",
+  "gate": {
+    "agreement": "strictly greater than configured threshold",
+    "default_threshold": 0.85,
+    "per_theme": "positive benchmark support and nonzero sensitivity required; inspect precision and recall and justify acceptance for the study"
+  },
+  "statistics": {
+    "test": "pooled two-sided two-proportion z",
+    "z_direction": "period_b minus period_a",
+    "multiplicity": "alpha / (number of themes \u00d7 number of pairs)",
+    "unresolved_labels": "block inference",
+    "zero_variance": "not estimable"
+  },
+  "reproduction_limit": "No original private corpus, fitted model, original ballots or original human benchmark. Synthetic matches are calibrated.",
+  "intended_workflow": [
+    "visual-demo",
+    "fork-or-install",
+    "offline-acceptance",
+    "input-and-cost-plan",
+    "discover",
+    "name",
+    "researcher-review",
+    "benchmark",
+    "classify",
+    "infer",
+    "export"
+  ],
+  "profiles": {
+    "quickcheck": {
+      "calls": 0,
+      "labels": "generator-truth",
+      "human_validation": false,
+      "expected": {
+        "rows": 5872,
+        "themes": 5,
+        "comparisons": 15,
+        "matching_rounded_percentages": 15
+      }
+    },
+    "synthetic-e2e": {
+      "inputs": "exact bundled corpus, benchmark, stopwords",
+      "review_mode": "synthetic-oracle",
+      "human_review_performed": false,
+      "discovery": "measured, never force seven",
+      "validation_votes_per_topic": 20
+    },
+    "research": {
+      "review_mode": "human",
+      "minimum_reviewers": 2,
+      "synthetic_benchmark_for_other_data": "reject"
+    }
+  },
+  "review_record": {
+    "path": "stage3/review_record.json",
+    "bound_fields": [
+      "corpus_sha256",
+      "topic_words_sha256",
+      "assignments_sha256",
+      "naming_sha256",
+      "theme_map_sha256",
+      "themes"
+    ],
+    "decision": "approved for human research; synthetic-test-only for oracle fixture",
+    "invalid_or_stale": "block Stage 4"
+  },
+  "budget": {
+    "required": "explicit budget-usd before paid calls",
+    "persistent": "api_ledger.sqlite",
+    "cached_operations": "logical ID plus prompt/model/settings fingerprint",
+    "uncertain_usage": "retain conservative reservation",
+    "public_demo": "fixed synthetic examples only; 10/session/day; 30/IP/day; USD1/day and USD5/month global"
+  },
+  "artifacts": {
+    "1": [
+      "stage1/run_manifest.json",
+      "stage1/all_iteration_results.json",
+      "stage1/best_model/fitted_model.pkl"
+    ],
+    "2": [
+      "stage2/vote_log.csv",
+      "stage2/vote_tallies.csv",
+      "stage2/topic_names.csv"
+    ],
+    "3": [
+      "stage3/synthesis_worksheet.md",
+      "stage3/theme_map.csv",
+      "stage3/review_record.json"
+    ],
+    "4": [
+      "stage4/benchmark_predictions.csv",
+      "stage4/benchmark_report.json",
+      "stage4/classified_corpus.csv"
+    ],
+    "5": [
+      "stage5/prevalence_by_period.csv",
+      "stage5/ztest_results.csv"
+    ],
+    "run": [
+      "api_usage.json",
+      "api_responses.json",
+      "synthetic_run.json",
+      "verification.json"
+    ]
+  }
+}

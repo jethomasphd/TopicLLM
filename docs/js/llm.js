@@ -1,110 +1,59 @@
-/* llm.js — LLM access for Stages 2 & 4, entirely from the browser.
- *
- * Providers:
- *  - "openai":    any OpenAI-compatible /chat/completions endpoint
- *                 (api.openai.com, OpenRouter, Groq, local Ollama, …)
- *  - "anthropic": the Anthropic Messages API (browser access enabled via
- *                 the anthropic-dangerous-direct-browser-access header)
- *  - "mock":      a keyless demonstration stand-in (clearly labeled; it is
- *                 NOT a language model — it synthesizes labels from topic
- *                 words so the workflow can be exercised without cost)
- *
- * The API key is held in memory / localStorage on the user's machine and is
- * sent only to the endpoint the user configures. No server of ours exists.
- */
-
+/* Hosted OpenAI gateway plus an explicitly labeled teaching mock. */
 import { mulberry32, fnv1a, choice } from "./util.js";
-
 export function createProvider(settings) {
-  const { provider } = settings;
-  if (provider === "mock") return mockProvider(settings);
-  if (provider === "anthropic") return anthropicProvider(settings);
-  return openaiProvider(settings);
+  if (settings.provider === "mock") return mockProvider(settings);
+  if (settings.provider !== "hosted") throw new Error("Choose Hosted OpenAI or the teaching mock.");
+  const records = [];
+  return {
+    model: settings.model || "hosted-openai", label: "OpenAI via the research gateway", records,
+    async chat(system, user, options) {
+      const response = await fetch("/api/llm", {method:"POST", signal:settings.signal,
+        headers:{"Content-Type":"application/json", Authorization:`Bearer ${settings.apiKey}`},
+        body:JSON.stringify(options.taskData)});
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = new Error(data.error || `LLM request failed (${response.status}).`);
+        error.retryable = data.retryable !== false && (response.status >= 500 || response.status === 429);
+        error.retryAfterMs = Math.min(60000, Math.max(0, Number(response.headers.get('Retry-After')) || 0) * 1000);
+        error.signal = settings.signal;
+        throw error;
+      }
+      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(options.taskData)));
+      const input_sha256 = [...new Uint8Array(digest)].map(n=>n.toString(16).padStart(2,'0')).join('');
+      records.push({task:options.taskData.task, input_sha256, raw_response:data.text, received_at:new Date().toISOString(), model:data.model, request_id:data.request_id, usage:data.usage,
+        system_fingerprint:data.system_fingerprint, temperature:data.temperature, max_tokens:data.max_tokens});
+      return data.text;
+    }
+  };
 }
-
-/** Retry with exponential backoff (2, 4, 8, 16, 32 s) — max 5 retries,
- * matching the reference implementation. */
-export async function callWithRetries(fn, maxRetries = 5, onRetry = null) {
-  for (let attempt = 0; ; attempt++) {
-    try {
-      return await fn();
-    } catch (err) {
-      if (attempt >= maxRetries - 1) return "Error: Unable to generate response";
-      const wait = 2 ** (attempt + 1) * 1000;
-      if (onRetry) onRetry(err, attempt + 1, wait);
-      await new Promise(r => setTimeout(r, wait));
+export async function callWithRetries(fn, maxRetries=5, onRetry=null) {
+  for (let attempt=0; ; attempt++) {
+    try { return await fn(); }
+    catch (error) {
+      if (error.name === "AbortError" || error.retryable === false || attempt >= maxRetries-1) throw error;
+      const wait=Math.max(error.retryAfterMs || 0, 2**(attempt+1)*1000);
+      onRetry?.(error,attempt+1,wait);
+      await new Promise((resolve,reject) => {
+        const stop=()=>{clearTimeout(timer);reject(new DOMException('Run stopped','AbortError'));};
+        const timer=setTimeout(()=>{error.signal?.removeEventListener('abort',stop);resolve();},wait);
+        if(error.signal?.aborted) stop(); else error.signal?.addEventListener('abort',stop,{once:true});
+      });
     }
   }
 }
-
-/** Run async task factories with bounded concurrency; preserves order. */
-export async function pool(taskFns, concurrency, onProgress) {
-  const results = new Array(taskFns.length);
-  let next = 0, done = 0;
-  async function workerLoop() {
-    while (next < taskFns.length) {
-      const i = next++;
-      results[i] = await taskFns[i]();
-      done++;
-      if (onProgress) onProgress(done, taskFns.length, results[i], i);
+export async function pool(tasks, concurrency, progress) {
+  const results=new Array(tasks.length); let next=0, done=0, failure=null;
+  async function loop() {
+    while (next<tasks.length && !failure) {
+      const i=next++;
+      try { results[i]=await tasks[i](); done++; progress?.(done,tasks.length,results[i],i); }
+      catch (error) { failure=error; }
     }
   }
-  const workers = Array.from({ length: Math.max(1, concurrency) }, workerLoop);
-  await Promise.all(workers);
+  await Promise.all(Array.from({length:Math.max(1,Math.min(concurrency,8))},loop));
+  if (failure) throw failure;
   return results;
 }
-
-/* ------------------------- real providers -------------------------------- */
-
-function openaiProvider({ apiKey, baseUrl, model }) {
-  const url = (baseUrl || "https://api.openai.com/v1").replace(/\/+$/, "") + "/chat/completions";
-  return {
-    label: `${model} (OpenAI-compatible)`,
-    model,
-    async chat(system, user, { temperature, maxTokens }) {
-      const resp = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model,
-          messages: [{ role: "system", content: system }, { role: "user", content: user }],
-          temperature, max_tokens: maxTokens, n: 1,
-        }),
-      });
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${(await resp.text()).slice(0, 200)}`);
-      const data = await resp.json();
-      return (data.choices?.[0]?.message?.content || "").trim();
-    },
-  };
-}
-
-function anthropicProvider({ apiKey, model }) {
-  return {
-    label: `${model} (Anthropic)`,
-    model,
-    async chat(system, user, { temperature, maxTokens }) {
-      const resp = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
-        },
-        body: JSON.stringify({
-          model, system, max_tokens: maxTokens, temperature,
-          messages: [{ role: "user", content: user }],
-        }),
-      });
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${(await resp.text()).slice(0, 200)}`);
-      const data = await resp.json();
-      return (data.content?.[0]?.text || "").trim();
-    },
-  };
-}
-
-/* --------------------------- demo mock ----------------------------------- */
-
 const TITLE = w => w.charAt(0).toUpperCase() + w.slice(1);
 
 function mockProvider({ mockHints }) {

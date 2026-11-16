@@ -3,17 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Instrument — TopicLLM</title>
-<meta name="description" content="Run the five-stage TopicLLM pipeline entirely in your browser: coherence-optimized topic discovery, democratic LLM naming, two-researcher synthesis, validated classification, and theme prevalence.">
+<title>Visual Demonstration — TopicLLM</title>
+<meta name="description" content="Explore a synthetic study, try capped live OpenAI examples, and fork or install the Python workflow for reproducible research with explicit human review.">
 <link rel="icon" href="../assets/sigil.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../app.css">
+<link rel="stylesheet" href="../workbench.css"><link rel="stylesheet" href="../reproduce.css">
 <script>try{var t=localStorage.getItem("topicllm-theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 <script type="module" src="../js/app.js"></script>
-</head>
+<script>if(location.hostname==='jethomasphd.github.io'&&/^\/TopicLLM(?:\/|$)/.test(location.pathname)){location.replace('https://topicllm.jethomasphd.workers.dev'+(location.pathname.replace(/^\/TopicLLM/,'')||'/')+location.search+location.hash);}</script></head>
 <body>
+<a class="skip" href="#main">Skip to visual demonstration</a>
 <header class="topbar">
   <div class="wrap">
     <a class="brand" href="../" aria-label="TopicLLM home">
@@ -36,25 +38,56 @@
 </header>
 <section class="page-head">
   <div class="wrap">
-    <p class="eyebrow">Room IV · The instrument</p>
-    <h1>Run the five stages in your browser</h1>
-    <p class="tagline">Load the demonstration corpus or your own CSV and walk the pipeline end to end.
-      The embedding model runs on your machine, and there is no server. Stages 2 and 4 call the
-      language model you configure, with your own key, or a clearly labeled keyless mock.
-      Every stage streams its work to a live log and exports its audit artifacts.</p>
-    <nav class="tabs">
-      <button data-tab="analyze" class="active">Analyze</button>
-      <button data-tab="help">Help &amp; Methods</button>
+    <p class="eyebrow">TopicLLM / Visual demonstration</p>
+    <h1>From text to evidence.</h1>
+    <p class="tagline">See the method in action with synthetic data. Then fork the repository or install the Python package to reproduce and adapt the analysis in your own environment.</p>
+    <nav class="tabs" aria-label="Workbench modes">
+      <button data-tab="study" class="active" aria-pressed="true">Explore the study</button>
+      <button data-tab="live" aria-pressed="false">Try live OpenAI</button><button data-tab="analyze" aria-pressed="false">Browser sandbox</button>
+      <button data-tab="help" aria-pressed="false">How to use this demo</button><a class="btn" href="../reproduce/">Fork &amp; reproduce ↗</a>
     </nav>
   </div>
 </section>
 
-<main class="wrap">
+<main class="wrap" id="main">
+<div id="app-message" class="message" role="alert" tabindex="-1" hidden></div>
+<button id="stop-run" class="btn stop-run" hidden>Stop LLM requests</button>
+<section id="tab-study" class="tab">
+  <div class="study-intro"><span class="mode-label">CALIBRATED SYNTHETIC DEMONSTRATION</span><p>No original research posts are used. Follow the five stages, inspect the evidence, and recalculate the published prevalence pattern.</p></div>
+  <div class="study-layout">
+    <nav class="study-nav" aria-label="Study walkthrough">
+      <button data-study-phase="0"><span>01</span> Discover</button>
+      <button data-study-phase="1"><span>02</span> Name</button>
+      <button data-study-phase="2"><span>03</span> Synthesize</button>
+      <button data-study-phase="3"><span>04</span> Classify</button>
+      <button data-study-phase="4"><span>05</span> Estimate</button>
+      <a href="../THOMAS-PRIMARY-2025.pdf#page=148" target="_blank">Original study ↗</a>
+      <a href="../audit/">Source and methods audit ↗</a>
+    </nav>
+    <article class="study-panel">
+      <p class="eyebrow" id="study-position">1 of 5</p>
+      <h2 id="study-heading">Loading the study</h2>
+      <p id="study-explanation">Verifying the synthetic corpus…</p>
+      <div id="study-content"></div>
+      <div class="study-controls"><button class="btn" id="study-back" disabled>← Back</button><button class="btn primary" id="study-next">Continue →</button></div>
+    </article>
+  </div>
+</section>
 
 
+
+<section id="tab-live" class="tab" hidden>
+  <div class="reproduction-callout"><p class="eyebrow">One response you can inspect</p><h2>Try the live model on a synthetic example.</h2><p>These small examples show what the LLM contributes. A single naming response is not democratic voting, and a single correct label does not validate a classifier. For the complete procedure, <a href="../reproduce/">fork and run the Python workflow</a>.</p></div>
+  <p id="live-status" role="status">Checking live-example availability…</p>
+  <div id="live-examples" class="live-grid">
+    <article class="live-card"><h3>From words to a candidate name</h3><label for="live-topic">Topic words</label><select id="live-topic"></select><blockquote id="live-words"></blockquote><button class="btn primary" data-live-task="name" disabled>Get one topic name</button><div id="live-name-result" class="live-result" role="status">Your response and its provenance will appear here.</div></article>
+    <article class="live-card"><h3>From a post to a theme</h3><label for="live-example">Synthetic post</label><select id="live-example"></select><blockquote id="live-text"></blockquote><details><summary>Inspect the generator's label</summary><p id="live-truth"></p></details><button class="btn primary" data-live-task="classify" disabled>Classify this example</button><div id="live-classify-result" class="live-result" role="status">The model chooses from the five themes and a residual option.</div></article>
+  </div><div class="live-actions"><button class="btn" id="live-download" disabled>Download these responses</button><a href="../validation/">Inspect the full synthetic validation</a><a href="../privacy/">Data handling and limits</a></div>
+</section>
 
 <!-- ============================ ANALYZE ============================= -->
-<section id="tab-analyze" class="tab">
+<section id="tab-analyze" class="tab" hidden>
+  <div class="workbench-intro"><div><span class="mode-label">LOCAL TEACHING SANDBOX</span><p>Try local discovery and mock naming to understand the mechanics. The mock can fail validation; that is a useful demonstration of the gate. For complete research workflows, use the Python package and your own API environment.</p></div><div class="session-actions"><button class="btn" id="save-session">Save research record</button><label class="btn file">Load saved inputs<input id="restore-session" type="file" accept=".json" hidden></label></div></div>
 
   <ol class="stepper">
     <li id="step-0" data-target="card-data"><b>00</b> data</li>
@@ -69,21 +102,21 @@
   <div class="card" id="card-data">
     <h2>00 · Data &amp; settings</h2>
     <p class="stage-sub">Load a corpus, tune the search, and point Stages 2 &amp; 4 at an LLM.
-      Everything is parsed and analyzed locally.</p>
+      Parsing and topic discovery run locally. Hosted naming and classification send selected text to OpenAI through the Cloudflare gateway.</p>
     <div class="row">
       <button class="btn primary" id="btn-demo"
-        data-tip="Loads the open demonstration corpus: 5,872 fully synthetic posts from 11 fictional brands (2019–2021), a 250-post human benchmark, and its stopword list. Built to mirror the published demonstration; contains no real data.">Load demonstration corpus</button>
+        data-tip="Loads the open demonstration corpus: 5,872 fully synthetic posts from 11 fictional brands (2019–2021), 250 generator-labeled synthetic examples, and its stopword list. Built to mirror the published demonstration; contains no real data.">Load demonstration corpus</button>
       <label class="btn file" data-tip="A CSV with a 'tweet' (or 'text') column. An optional 'date' column (YYYY-MM-DD) enables Stage 5's period comparisons.">Upload corpus CSV<input type="file" id="file-corpus" accept=".csv" hidden></label>
-      <label class="btn file" data-tip="Columns: tweet, human_label. These hand-coded documents are Stage 4's measuring stick — the reference implementation uses n=250.">Upload benchmark CSV<input type="file" id="file-benchmark" accept=".csv" hidden></label>
+      <label class="btn file" data-tip="Columns: tweet, human_label. These hand-coded documents are Stage 4's measuring stick — the dissertation used n=250. Keep validation documents separate from prompt tuning.">Upload benchmark CSV<input type="file" id="file-benchmark" accept=".csv" hidden></label>
     </div>
     <p id="data-summary"></p>
 
-    <div class="term">
+    <details class="diagnostics"><summary>Run details and progress log</summary><div class="term">
       <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span>
         <span class="term-title">session — data loader</span>
         <span class="term-status" id="tstat-0">idle</span></div>
       <div class="log" id="log-0"></div>
-    </div>
+    </div></details>
 
     <details class="settings">
       <summary>Stage 1 configuration</summary>
@@ -98,10 +131,10 @@
           data-tip="The upper end of the topic-count range evaluated per configuration (the paper evaluates 2–25).">?</span></span>
           <input id="cfg-topicmax" type="number" value="25" min="2" max="25"></label>
         <label><span class="lbl">Embeddings <span class="info-chip" tabindex="0"
-          data-tip="all-MiniLM-L6-v2 is the paper's sentence-embedding model — downloaded once (~25 MB), then run locally on WebAssembly/WebGPU. The hashed fallback needs no download but is demo-grade only.">?</span></span>
+          data-tip="all-MiniLM-L6-v2 is the paper's sentence-embedding model — downloaded once (~25 MB), then run locally on WebAssembly/WebGPU. Hashed vectors are an explicit teaching option, not semantic embeddings.">?</span></span>
           <select id="cfg-embedder">
             <option value="minilm">all-MiniLM-L6-v2 (downloads ~25 MB once)</option>
-            <option value="hashed">Hashed fallback (instant, demo quality)</option>
+            <option value="hashed">Hashed vectors (teaching only)</option>
           </select></label>
       </div>
       <label class="wide"><span class="lbl">Custom domain stopwords (comma-separated) <span class="info-chip" tabindex="0"
@@ -115,30 +148,29 @@
       <summary>LLM provider (Stages 2 &amp; 4)</summary>
       <div class="grid-4">
         <label><span class="lbl">Provider <span class="info-chip" tabindex="0"
-          data-tip="Where Stage 2/4 prompts are sent, straight from this tab. The demo mock is NOT a language model — it fabricates plausible outputs so you can rehearse the workflow for free.">?</span></span>
+          data-tip="The sandbox uses a deterministic teaching mock. Try live OpenAI in the separate fixed-example panel; run research calls in your own Python environment.">?</span></span>
           <select id="llm-provider">
             <option value="mock">Demo mock — no key, not a real LLM</option>
-            <option value="openai">OpenAI-compatible</option>
-            <option value="anthropic">Anthropic</option>
+
           </select></label>
         <label><span class="lbl">Model <span class="info-chip" tabindex="0"
           data-tip="Pin and report this identifier alongside your findings — label distributions can shift across model versions (§2.7).">?</span></span>
           <input id="llm-model" type="text" placeholder="gpt-4o"></label>
-        <label><span class="lbl">API key <span class="info-chip" tabindex="0"
-          data-tip="Held in this browser only (optionally in localStorage) and sent only to the endpoint you configure. There is no server behind this app.">?</span></span>
-          <input id="llm-key" type="password" placeholder="sk-…"></label>
-        <label><span class="lbl">Base URL (OpenAI-compatible) <span class="info-chip" tabindex="0"
-          data-tip="Any OpenAI-compatible endpoint works: api.openai.com, OpenRouter, Groq, a local Ollama…">?</span></span>
-          <input id="llm-base" type="text" placeholder="https://api.openai.com/v1"></label>
+        <label hidden><span class="lbl">Research access code <span class="info-chip" tabindex="0"
+          data-tip="Your research access code is held in memory and sent only to this site’s gateway. The OpenAI API key stays on the server.">?</span></span>
+          <input id="llm-key" type="password" placeholder="Provided by the site operator" autocomplete="off"></label>
+        <label hidden><span class="lbl">Gateway <span class="info-chip" tabindex="0"
+          data-tip="Same-origin Cloudflare Worker. The provider credential is never exposed to this page.">?</span></span>
+          <input id="llm-base" type="text" value="/api/llm"></label>
       </div>
       <div class="grid-4">
         <label><span class="lbl">Concurrent requests <span class="info-chip" tabindex="0"
           data-tip="How many API calls fly in parallel. Raise for speed; lower if you hit rate limits. Failed calls retry up to 5× with exponential backoff, as in the paper.">?</span></span>
-          <input id="cfg-concurrency" type="number" value="6" min="1" max="32"></label>
+          <input id="cfg-concurrency" type="number" value="2" min="1" max="8"></label>
         <label><span class="lbl">Domain context <span class="info-chip" tabindex="0"
-          data-tip="The ONLY domain-specific text in the prompts. Change this one clause (plus your Stage 3 literature lens) to redeploy the pipeline in a completely different domain (§2.7).">?</span></span>
+          data-tip="One domain-specific input in the naming prompt. A new domain also requires new sampling, stopwords, theme definitions and human validation (§2.7).">?</span></span>
           <input id="cfg-domain" type="text" value="tweets generated by alcohol companies during the COVID-19 pandemic"></label>
-        <label class="check"><input id="llm-remember" type="checkbox"> Remember key in this browser</label>
+        <p id="gateway-status" class="note">The teaching mock is available without credentials.</p>
       </div>
     </details>
   </div>
@@ -146,7 +178,7 @@
   <!-- Stage 1 -->
   <div class="card stage" id="card-1">
     <h2>01 · Coherence-optimized topic discovery
-      <span class="info-chip" tabindex="0" data-tip="Embeds every document once, then samples random UMAP+HDBSCAN configurations, evaluates each across all topic counts, and keeps the model with the highest c_v coherence — a score that tracks how humanly interpretable a topic's words are (§2.2).">?</span>
+      <span class="info-chip" tabindex="0" data-tip="Embeds every document once, then samples random UMAP+HDBSCAN configurations, evaluates each across all topic counts, and keeps the model with the highest c_v coherence — a measure of co-occurrence among representative topic words (§2.2).">?</span>
       <span class="badge idle" id="badge-1">not run</span></h2>
     <p class="stage-sub">Finds the topics. A seeded random search over the model space; every candidate
       is scored, every draw is logged, and the argmax wins.</p>
@@ -155,12 +187,12 @@
       <button class="btn" id="cancel1" disabled>Cancel</button>
       <span class="live" id="s1-count"></span>
     </div>
-    <div class="term">
+    <details class="diagnostics"><summary>Run details and progress log</summary><div class="term">
       <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span>
         <span class="term-title">stage1 — discovery.worker</span>
         <span class="term-status" id="tstat-1">idle</span></div>
       <div class="log" id="log-1"></div>
-    </div>
+    </div></details>
     <div id="stage1-results" hidden>
       <p id="s1-summary"></p>
       <div class="chart-box" id="s1-chart"></div>
@@ -186,8 +218,8 @@
       <label><span class="lbl">Votes per topic <span class="info-chip" tabindex="0"
         data-tip="Independent naming queries per topic. The paper's reference budget is 5,000; fewer votes cost less and the tally tells you when the leader is stable.">?</span></span>
         <input id="cfg-votes" type="number" value="100" min="5" max="5000"></label>
-      <label class="check"><input id="cfg-earlystop" type="checkbox"> <span class="lbl">Early stop <span class="info-chip" tabindex="0"
-        data-tip="The paper's cost control: halt a topic's vote once the leading label has held a stable share — monitor stability instead of always paying for the full budget.">?</span></span></label>
+      <label class="check"><input id="cfg-earlystop" type="checkbox"> <span class="lbl">Leader-share stopping rule <span class="info-chip" tabindex="0"
+        data-tip="Optional maintained cost heuristic: stop once the cumulative leader share exceeds the threshold after the minimum votes. This heuristic does not establish convergence.">?</span></span></label>
       <label><span class="lbl">· after votes</span><input id="cfg-earlywindow" type="number" value="50" min="10"></label>
       <label><span class="lbl">· at leader share</span><input id="cfg-earlyshare" type="number" value="0.6" step="0.05" min="0.5" max="1"></label>
     </div>
@@ -195,12 +227,12 @@
       <button class="btn primary" id="run2" disabled>Run democratic naming</button>
       <span class="live" id="s2-live"></span>
     </div>
-    <div class="term">
+    <details class="diagnostics"><summary>Run details and progress log</summary><div class="term">
       <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span>
         <span class="term-title">stage2 — naming.votes</span>
         <span class="term-status" id="tstat-2">idle</span></div>
       <div class="log" id="log-2"></div>
-    </div>
+    </div></details>
     <div id="stage2-results" hidden>
       <div class="chart-box" id="s2-chart"></div>
       <div class="table-box" id="s2-table"></div>
@@ -220,17 +252,18 @@
       <span class="badge idle" id="badge-3">not run</span></h2>
     <p class="stage-sub">You make the themes. Read each topic's evidence, group topics by conceptual
       similarity, and record the two-researcher consensus.</p>
-    <div class="term">
+    <details class="diagnostics"><summary>Run details and progress log</summary><div class="term">
       <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span>
         <span class="term-title">stage3 — consensus.protocol</span>
         <span class="term-status" id="tstat-3">idle</span></div>
       <div class="log" id="log-3"></div>
-    </div>
+    </div></details>
     <div id="stage3-body" hidden>
+      <div class="grid-4"><label>Primary reviewer<input id="reviewer-primary" autocomplete="off" placeholder="Name or study ID"></label><label>Second reviewer<input id="reviewer-secondary" autocomplete="off" placeholder="Name or study ID"></label></div>
       <div id="s3-worksheet"></div>
       <div class="row">
         <button class="btn primary" id="btn-consensus"
-          data-tip="Locks in the topic→theme mapping and unlocks Stage 4. Unmapped topics are treated as noise.">Record consensus themes</button>
+          data-tip="Records the reviewers and theme map. Unmapped topics are outside the selected taxonomy; they are not necessarily clustering noise.">Record consensus themes</button>
       </div>
       <p id="s3-summary"></p>
       <div class="row dl">
@@ -247,10 +280,10 @@
       <span class="info-chip" tabindex="0" data-tip="Two classifiers audition on your human benchmark: a Boolean dictionary built from each theme's topic words, and an LLM prompted with the fixed theme list. Whichever agrees with the humans more gets to label the whole corpus — but only above the threshold (§2.5).">?</span>
       <span class="badge idle" id="badge-4">not run</span></h2>
     <p class="stage-sub">Labels every document — but only after a classifier earns it against your
-      human benchmark. Below the gate, nothing scales.</p>
+      human benchmark. Every theme also needs positive examples and nonzero sensitivity. Inspect per-theme performance before drawing conclusions.</p>
     <div class="grid-4">
       <label><span class="lbl">Agreement threshold <span class="info-chip" tabindex="0"
-        data-tip="The gate. The best classifier must agree with your human-coded benchmark at least this often before it may label the full corpus. The paper uses 85%; justify any change against the error tolerance of your downstream analysis.">?</span></span>
+        data-tip="The gate. The best classifier must exceed this agreement on your human-coded benchmark before it may label the full corpus. The paper uses 85%; justify any change against the error tolerance of your downstream analysis.">?</span></span>
         <input id="cfg-threshold" type="number" value="0.85" step="0.01" min="0.5" max="1"></label>
     </div>
     <p class="note" id="s4-need">Requires the Stage 3 consensus and a human-labeled benchmark (or the demo benchmark).</p>
@@ -258,12 +291,12 @@
       <button class="btn primary" id="run4" disabled>Benchmark, gate, and scale</button>
       <span class="live" id="s4-live"></span>
     </div>
-    <div class="term">
+    <details class="diagnostics"><summary>Run details and progress log</summary><div class="term">
       <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span>
         <span class="term-title">stage4 — classify.gate</span>
         <span class="term-status" id="tstat-4">idle</span></div>
       <div class="log" id="log-4"></div>
-    </div>
+    </div></details>
     <div id="stage4-results" hidden>
       <p id="s4-summary"></p>
       <div class="table-box" id="s4-tables"></div>
@@ -310,12 +343,12 @@
     <div class="row">
       <button class="btn primary" id="run5" disabled>Run prevalence analysis</button>
     </div>
-    <div class="term">
+    <details class="diagnostics"><summary>Run details and progress log</summary><div class="term">
       <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span>
         <span class="term-title">stage5 — prevalence.stats</span>
         <span class="term-status" id="tstat-5">idle</span></div>
       <div class="log" id="log-5"></div>
-    </div>
+    </div></details>
     <div id="stage5-results" hidden>
       <p id="s5-summary"></p>
       <div class="chart-box" id="s5-chart"></div>
@@ -343,12 +376,8 @@
 <section id="tab-help" class="tab" hidden>
   <div class="card">
     <h2>How this app relates to the paper</h2>
-    <p>Everything computational in the five-stage pipeline runs client-side: preprocessing, sentence
-    embedding (all-MiniLM-L6-v2 via transformers.js, executed locally with WebAssembly/WebGPU), UMAP
-    (umap-js), HDBSCAN (a JavaScript port with excess-of-mass selection), c-TF-IDF term weighting,
-    c<sub>v</sub> coherence, plurality-vote tallying, benchmark gating, and the Stage 5 statistics.
-    Stages 2 and 4 send prompts — verbatim from the paper's section 2.7 — directly from your browser
-    to the LLM endpoint you configure.</p>
+    <p>This website is a visual demonstration. The guided study shows the seven-topic construction and real calculations from synthetic labels. Live examples send only fixed, fictional inputs through this site's Cloudflare Worker to OpenAI. The browser sandbox performs approximate discovery locally and uses a teaching mock. It is not the Python BERTopic implementation.</p>
+    <p><a href="../reproduce/">Fork the repository or download the Python package</a> for your own corpus. An agent can prepare inputs, run checks, assemble review evidence and execute approved analysis; researcher interpretation and independent validation remain explicit checkpoints.</p>
     <h3>Reading the terminals</h3>
     <p>Each stage streams its work to a terminal panel: <code>$</code> lines echo the command being
     executed with its exact parameters; <code>›</code> lines report steps; <code>·</code> lines are
@@ -356,28 +385,17 @@
     are warnings; the <code>▸</code> line at the bottom is live progress. The status on the right
     reads <code>exit 0</code> when a stage completes cleanly — and <code>gate refused</code> when
     Stage 4 declines to scale an unvalidated classifier.</p>
-    <h3>Fidelity notes (browser vs. Python reference)</h3>
-    <ul>
-      <li>The Python reference (<code>dtm_pipeline/</code> in the repository) remains the implementation
-        of record for publication-grade runs; the archival dissertation code is Supplementary Files S1–S3.</li>
-      <li>The WordNet POS-aware lemmatizer is approximated with rule-based inflection stripping.</li>
-      <li>umap-js uses approximate nearest neighbors; results match the reference qualitatively, and the
-        seeded search remains fully auditable via <code>all_iteration_results.json</code>.</li>
-      <li>Equivalent topic solutions are deduplicated: clustering runs once per sampled configuration and
-        is reduced across the topic-count range, rather than refit per count (identical results, far faster).</li>
-      <li>The "hashed" embedder is a no-download fallback for demos — do not use it for real analyses.</li>
-      <li>The "demo mock" provider is <em>not</em> a language model; it exists so the workflow can be
-        exercised end-to-end without credentials. Artifacts it produces are labeled <code>mock-demo</code>.</li>
-    </ul>
-    <h3>Practical limits</h3>
-    <p>The browser build is comfortable up to roughly 5,000 documents (embedding is the bottleneck;
-    WebGPU helps). Beyond that, use the Python pipeline. Stage 2's reference budget of 5,000 votes per
-    topic is an API-cost decision — the early-stop control implements the stability-monitoring guidance
-    from the paper.</p>
-    <h3>Privacy</h3>
-    <p>No server exists: your corpus is parsed and analyzed in this tab. The only network traffic is
-    (a) the one-time model download from the Hugging Face Hub, and (b) Stage 2/4 prompts sent to the
-    LLM endpoint you configure with your own key.</p>
+    <h3>What each mode means</h3>
+    <p><strong>Study walkthrough:</strong> the published seven-topic map and a calibrated synthetic calculation. Its category assignments are known from the generator, not discovered by a fitted model. Rounded prevalence matches by design.</p>
+    <p><strong>Exploratory workspace:</strong> a local teaching exercise using synthetic or uploaded data and a mock provider. Browser preprocessing, UMAP, clustering and topic reduction differ from the Python BERTopic implementation. Its results must not be described as a rerun of the dissertation.</p>
+    <p><strong>Python pipeline:</strong> the maintained research implementation. Its fixes, seeds and modern dependencies differ from the original S1–S3 supplements. Record versions, model identifiers, inputs, stopwords and outputs; a seed alone is not a reproducibility guarantee.</p>
+    <h3>Prepare a research corpus</h3>
+    <p>Upload a UTF-8 CSV with a <code>tweet</code> or <code>text</code> column and optional ISO <code>date</code> values (YYYY-MM-DD). Remove blank text and resolve duplicates according to a documented protocol. Browser discovery is limited to 6,000 documents because clustering uses quadratic memory; larger corpora belong in Python.</p>
+    <h3>Validate before scaling</h3>
+    <p>Use independently labeled, held-out documents that include positive examples of every theme. Check precision, sensitivity and confusion counts, as well as overall agreement. A classifier that misses every rare positive can still have very high accuracy. Generated labels and mock predictions do not establish human agreement.</p>
+    <h3>Data handling</h3>
+    <p>Sandbox files stay in this browser tab. The public live examples accept fixed example IDs only; they do not accept your corpus, prompts or API keys. A signed, one-day session cookie supports usage limits. <a href="../privacy/">Read data handling and retention</a>. Research data belong in your approved local or institutional environment.</p>
+    <h3>Cost and interruption</h3><p>The guided walkthrough and local sandbox make no paid calls. Public live examples are limited to ten calls per browser session per UTC day, thirty per shared IP, and the operator's site-wide allowance. The Python workflow requires an explicit paid-call budget, records usage, and resumes completed calls from its audit ledger.</p>
     <h3>Citing</h3>
     <p>Thomas, J. E. (2026). <em>Coherence-Optimized Topic Modeling with Democratic Large Language Model
     Interpretation: A Human-in-the-Loop Pipeline for Public Health Surveillance of Social Media.</em>

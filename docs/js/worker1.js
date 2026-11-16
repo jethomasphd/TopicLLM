@@ -46,6 +46,7 @@ async function runStage1({ rows, textCol, customStopwords, config }) {
   post("status", { text: `${kept.length.toLocaleString()} non-empty documents retained (${stopwords.size} stopwords active)`, level: "ok" });
   const docs = kept.map(r => r.preprocessed);
   const tokenized = docs.map(tokenizeDoc);
+  if (docs.length < 10 || docs.length > 6000) throw new Error('Browser discovery supports 10–6,000 non-empty documents. Use the Python pipeline for larger corpora.');
 
   // ---- embed once, reuse across all candidate models ----------------------
   let embeddings, embedderUsed = cfg.embedder;
@@ -57,8 +58,7 @@ async function runStage1({ rows, textCol, customStopwords, config }) {
       embeddings = await embedMiniLM(docs, embedProgress);
       post("status", { text: `encoded ${docs.length.toLocaleString()} documents → 384-dim unit vectors (MiniLM)`, level: "ok" });
     } catch (err) {
-      post("status", { text: `MiniLM unavailable (${String(err).slice(0, 120)}…) — falling back to hashed embeddings.`, level: "warn" });
-      embedderUsed = "hashed";
+      throw new Error(`MiniLM could not load. Check your connection, or explicitly select the hashed teaching approximation and start a new run. ${String(err).slice(0,120)}`);
     }
   }
   if (!embeddings) {
@@ -148,6 +148,8 @@ async function runStage1({ rows, textCol, customStopwords, config }) {
   post("done", {
     payload: {
       embedderUsed,
+      config: structuredClone(cfg),
+      implementation: 'browser-approximation-v2',
       elapsedMs: Date.now() - t0,
       keptRows: kept,
       allIterations,

@@ -17,43 +17,30 @@ actually runs the analysis end to end.
 | 4 | `stage4_classification.py` | Pilots Boolean-dictionary and LLM classifiers against a human benchmark; refuses to scale below the agreement threshold; classifies the full corpus | yes |
 | 5 | `stage5_inference.py` | Theme prevalence — whole-corpus counts and shares, prevalence by period, and proportional z-tests with Bonferroni correction | none |
 
-## Quickstart
+## Start from the repository root
 
-Out of the box the pipeline runs on the open demonstration corpus in
-[`../docs/data/`](../docs/data/): 5,872 fully synthetic posts from 11 fictional
-brands, a 250-post human-labeled benchmark, and ground-truth themes. It is
-calibrated to the published demonstration (see the [data card](../docs/data/README.md)).
+The primary installation, agent workflow, synthetic acceptance profiles and research-review commands are in [REPRODUCE.md](../REPRODUCE.md). Read [AGENTS.md](../AGENTS.md) with your agent before substantive work.
 
-```bash
-pip install -r requirements.txt
-
-python run_pipeline.py --stages 1                  # coherence-optimized discovery (no API cost)
-python run_pipeline.py --stages 2,3 --mock-llm     # democratic naming + review packet, keyless dry run
-python run_pipeline.py --ground-truth --stages 5   # reference inference from the ground truth
+```sh
+python -m pip install ".[dev]"
+topicllm --profile quickcheck --output-dir runs/quickcheck
+python -m pytest dtm_pipeline/tests -q
 ```
 
-`--mock-llm` swaps in a deterministic, keyless stand-in for Stages 2 and 4, so
-every stage can be exercised at no cost. Its outputs are labeled `MOCK` and are
-not measurements. With `OPENAI_API_KEY` set and no `--mock-llm`, Stages 2 and 4
-call the model named in `config.py`.
+The quickcheck uses generator truth and exercises inference only; it does not call an LLM. Install `".[ml,dev]"` for BERTopic discovery. The downloadable wheel includes the same synthetic data as the repository.
 
-`--ground-truth` feeds Stage 5 the corpus's true themes in place of a Stage 4
-classification. Because the corpus is calibrated to the published demonstration,
-this returns the published prevalence table and z statistics, which checks the
-inference code. A real classifier's results approach that table as its agreement
-with the ground truth rises.
-
-`make_demo_data.py` rebuilds the demonstration corpus byte for byte (seeded).
+`--profile synthetic-e2e --votes 20 --budget-usd 5` runs all stages with real model calls and an explicitly synthetic review fixture. Its mapping is not human review. The `mock` backend is a separate teaching test and can correctly fail the validation gate; do not weaken thresholds to force completion.
 
 ## Your own corpus
 
-```bash
-python run_pipeline.py --input your_corpus.csv --stopwords your_stopwords.txt \
-    --benchmark your_labels.csv --output-dir my_run --stages 1,2,3
-#   -> after the two-researcher consensus, complete my_run/stage3/theme_map_TEMPLATE.csv,
-#      save it as theme_map.csv, and set `themes` in config.py to the agreed names
-python run_pipeline.py --input your_corpus.csv --benchmark your_labels.csv \
-    --output-dir my_run --stages 4,5
+Stage 4 requires `stage3/review_record.json` bound to the current evidence, not only a theme map. Record the actual two researchers after review using the command in [REPRODUCE.md](../REPRODUCE.md). Never use the bundled synthetic benchmark to validate other research data.
+
+
+```sh
+topicllm --config research.json --stages 1
+topicllm --config research.json --stages 2,3 --votes 20 --budget-usd 5
+# Complete the review packet and record actual decisions using REPRODUCE.md.
+topicllm --config research.json --stages 4,5 --budget-usd 5
 ```
 
 Input format: a CSV with a `tweet` column (verbatim document text) and, for the
@@ -70,51 +57,45 @@ benchmark file against `human_label` without API calls.
 ## Tests
 
 ```bash
-python -m pytest tests -q     # a few seconds; no API calls
+python -m pytest dtm_pipeline/tests -q     # from the repository root; no API calls
 ```
 
-The tests check five things:
+The tests cover:
 
-- the Stage 4 safeguards: failed calls are never counted as a theme, interrupted runs resume, and blank documents are labeled without a call;
+- the Stage 4 safeguards: failed calls are never counted as a theme, interrupted runs resume, and blank corpus documents are rejected;
 - canonicalization of model responses;
 - the Boolean pilot;
 - that the shipped demonstration files match the generator;
-- that ground-truth inference reproduces the published table.
+- that ground-truth inference matches the published rounded prevalence table by construction;
+- evidence-bound researcher review and synthetic-only fixture restrictions;
+- persistent budgets, cached responses and the installed OpenAI SDK contract with offline HTTP fixtures.
 
-## Data availability
+## Restricted study data
 
-The dissertation data are restricted. They are brand tweets recorded by the
-Prevention Research Lab Twitter Marketing Study, and user-generated tweets from
-the Computational Media Lab COVID-19 Twitter Dataset. The data contain
-account-level information and content governed by the platform's terms of service
-and by the agreements under which they were collected, so they are not posted
-publicly. They are available from the corresponding author
-(jethomasphd@gmail.com) on reasonable request for non-commercial research, under
-a data use agreement consistent with those terms.
+Original study posts are not distributed because of privacy and IRB obligations. The public tool uses fully synthetic records only. No original records, fitted study model or historical ballots are available for this demonstration.
 
 ## Configuration
 
-Everything lives in `config.py` — one auditable file. Defaults reproduce the
-reference implementation: 50 search iterations × 24 topic solutions = 1,200
+Defaults live in `config.py`; supply an analysis-specific JSON configuration with `--config` and record the effective settings. Defaults follow the documented search and voting budgets, with the maintained deviations described in the revised methods: 50 search iterations × 24 topic solutions = 1,200
 candidate models; 5,000 votes per topic at temperature 0.5 / max_tokens 15;
-classification at temperature 0.5 / max_tokens 30; 85% benchmark-agreement gate.
-`domain_context` is the **only** domain-specific text in the prompts — change it
+classification at temperature 0.5 / max_tokens 120 (archival value: 30); 85% benchmark-agreement gate.
+`domain_context` is one domain-specific input in the prompts — change it
 (and the Stage 3 literature lens) to redeploy the pipeline in a new domain.
 
 ## Cost control
 
-Stage 2's upper bound is `topics × votes_per_topic` API calls. Set
+Paid calls require an explicit `--budget-usd` and persistent reservations; the ledger includes previous attempts in the same output directory. Review the dated price schedule before changing the model.
+
+Stage 2's planned count before retries is `topics × votes_per_topic` API calls. Set
 `early_stop = True` in `config.py` to halt a topic's vote once the modal label
-holds ≥ `early_stop_share` of ballots after `early_stop_window` votes — the
-stability-monitoring approach discussed in the paper. Report whatever settings
+holds ≥ `early_stop_share` of ballots after `early_stop_window` votes . This is a cumulative-share heuristic, not a statistical convergence test. Report whatever settings
 you use; the ballots and tallies are written to disk either way so the vote is
 publishable.
 
 ## Reproducibility artifacts
 
 Every stage emits the evidence the paper says to publish alongside findings.
-Stage 1 seeds both the hyperparameter draws and every UMAP fit, so a run is
-reproducible from `config.py`. Stage 4 checkpoints corpus classification and
+Stage 1 seeds both the hyperparameter draws and every UMAP fit, to control randomness within a fixed environment. A seed alone does not guarantee cross-environment identity. Stage 4 checkpoints corpus classification and
 resumes after an interruption, and it never folds failed API calls into a
 theme. The artifacts are:
 `all_iteration_results.json` (hyperparameter log, seeded), `vote_log.csv` /
@@ -127,7 +108,15 @@ label distributions may shift across model versions.
 
 S1–S3 (plain-text supplements to the paper) are the archival implementations
 from the source dissertation, with S2/S3 written against `openai==0.27.0`.
-This package preserves their logic and parameters while modernizing the SDK
+This package documents its changes to archival logic and parameters while modernizing the SDK
 surface, seeding the random search, and adding the benchmark gate, vote
 tallying, the Stage 3 worksheet hand-off, and the Stage 5 prevalence
 statistics as runnable code.
+
+## Recorded environment and saved models
+
+The full synthetic validation used Windows, Python 3.12 and the exact versions in `requirements-lock-windows-py312.txt`. Install that lock in a clean environment to repeat the tested software setup. Other operating systems may require a separately validated lock. The normal `requirements.txt` remains the broad dependency specification.
+
+The default MiniLM revision is pinned to `1110a243fdf4706b3f48f1d95db1a4f5529b4d41`. When choosing another embedding model, set its own `embedding_revision` (or explicitly use `None` and record the resolved revision). Stage 1 records effective stopwords, input hash, dependency versions and all attempted candidates, including failures. Its `best_model/fitted_model.pkl` contains the fitted candidate that earned the winning score, including UMAP and HDBSCAN, and the manifest records its hash. Pickles can execute code: load only a model you created and trust, in the recorded environment.
+
+Stage 2 keeps an append-only `all_naming_attempts.jsonl`. Completed topics resume without new votes; an incomplete topic is restarted, with its earlier attempt preserved. Browser research-record downloads preserve available partial response metadata for inspection; loading a record restores inputs and requires rerunning stages.

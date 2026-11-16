@@ -19,6 +19,15 @@ from __future__ import annotations
 import hashlib
 import re
 import time
+import os
+import json
+import uuid
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError
+if __package__:
+    from .api_budget import ApiBudget, BudgetExceeded, request_fingerprint
+else:
+    from api_budget import ApiBudget, BudgetExceeded, request_fingerprint
 
 ERROR_LABEL = "__API_ERROR__"  # never silently folded into a theme
 
@@ -28,22 +37,43 @@ class LLMBackend:
 
     def __init__(self, cfg):
         self.cfg = cfg
+        self.budget = ApiBudget(cfg) if self.name in ('openai','gateway') else None
 
     @property
     def model_id(self) -> str:
         return self.cfg.llm_model
 
     def complete(self, system: str, user: str, max_tokens: int,
-                 temperature: float, tag: str = "llm") -> str:
+                 temperature: float, tag: str = "llm", request_key=None, task_data=None) -> str:
         """One independent completion with retry/backoff; returns
         ERROR_LABEL if every attempt fails."""
+        key = request_key or str(uuid.uuid4())
+        digest = request_fingerprint(self.model_id,system,user,max_tokens,temperature)
+        cached = self.budget.cached(key,digest) if self.budget else None
+        if cached:
+            return cached['text']
         for attempt in range(self.cfg.max_retries):
+            call_id = self.budget.reserve(key,digest,system,user,max_tokens) if self.budget else None
             try:
-                return self._complete(system, user, max_tokens, temperature).strip()
-            except Exception as e:  # noqa: BLE001 — any API failure is retried
-                wait = 2 ** (attempt + 1)
-                print(f"[{tag}]   API error ({e}); retry {attempt + 1}/"
-                      f"{self.cfg.max_retries} in {wait}s")
+                operation=hashlib.sha256(f'{key}:{digest}:{attempt}'.encode()).hexdigest()
+                result = self._gateway(task_data,operation) if self.name == 'gateway' else self._complete(system, user, max_tokens, temperature)
+                if isinstance(result,str): result = {'text':result,'model':self.model_id}
+                if not result.get('text','').strip(): raise ValueError('Empty model response')
+                if self.budget: self.budget.settle(call_id,key,digest,result=result)
+                return result['text'].strip()
+            except BudgetExceeded:
+                raise
+            except Exception as e:
+                if self.budget: self.budget.settle(call_id,key,digest,error=type(e).__name__)
+                status = getattr(e,'status_code',None)
+                body = getattr(e,'body',{}) or {}
+                code = body.get('code') or body.get('error',{}).get('code') if isinstance(body,dict) else None
+                if getattr(e,'retryable',True) is False or status in (400,401,403,404) or code in ('insufficient_quota','credit_balance_exhausted','organization_spend_limit_exceeded','project_spend_limit_exceeded','organization_usage_limit_exceeded'):
+                    print(f'[{tag}] Non-retryable provider failure ({type(e).__name__}); no label recorded.')
+                    return ERROR_LABEL
+                if attempt + 1 >= self.cfg.max_retries: break
+                wait = max(2 ** (attempt + 1),getattr(e,'retry_after',0))
+                print(f"[{tag}] API error ({type(e).__name__}); retry {attempt + 1}/{self.cfg.max_retries} in {wait}s")
                 time.sleep(wait)
         return ERROR_LABEL
 
@@ -57,7 +87,7 @@ class OpenAIBackend(LLMBackend):
     def __init__(self, cfg):
         super().__init__(cfg)
         from openai import OpenAI  # pip install openai>=1.0
-        self.client = OpenAI()     # reads OPENAI_API_KEY from the environment
+        self.client = OpenAI(max_retries=0, timeout=45) # one auditable retry layer
 
     def _complete(self, system, user, max_tokens, temperature) -> str:
         resp = self.client.chat.completions.create(
@@ -67,8 +97,37 @@ class OpenAIBackend(LLMBackend):
             max_tokens=max_tokens,
             temperature=temperature,
             n=1,
+            store=False,
         )
-        return resp.choices[0].message.content or ""
+        if resp.choices[0].finish_reason != "stop":
+            raise ValueError("Incomplete model response; no label recorded.")
+        return {'text':resp.choices[0].message.content or '', 'model':resp.model,
+                'request_id':getattr(resp,'_request_id',None),'system_fingerprint':resp.system_fingerprint,
+                'usage':resp.usage.model_dump() if resp.usage else {},'temperature':temperature,'max_tokens':max_tokens}
+
+
+class GatewayBackend(LLMBackend):
+    """Operator-only integration checks; public examples use a separate allowlisted route."""
+    name = 'gateway'
+
+    def _gateway(self, task_data, operation):
+        if not task_data: raise ValueError('Gateway calls require a structured research task.')
+        token = os.environ.get('TOPICLLM_RESEARCH_TOKEN')
+        if not token: raise ValueError('TOPICLLM_RESEARCH_TOKEN is not configured.')
+        request = Request(self.cfg.gateway_url.rstrip('/')+'/api/llm', data=json.dumps(task_data).encode(),
+                          headers={'Content-Type':'application/json','Authorization':'Bearer '+token,'X-Request-ID':operation,
+                                   'User-Agent':'TopicLLM/0.3 (+https://github.com/jethomasphd/TopicLLM)'})
+        try:
+            with urlopen(request,timeout=55) as response:
+                result=json.load(response)
+                if result.get('model') != self.cfg.llm_model: raise ValueError('Gateway returned a different model than configured.')
+                return result
+        except HTTPError as error:
+            try: body=json.loads(error.read().decode())
+            except (ValueError,UnicodeDecodeError): body={}
+            error.retryable=body.get('retryable',error.code==429 or error.code>=500)
+            error.retry_after=float(error.headers.get('Retry-After','0'))
+            raise error
 
 
 class MockBackend(LLMBackend):
@@ -119,6 +178,8 @@ def make_backend(cfg) -> LLMBackend:
     backend = getattr(cfg, "llm_backend", "openai").lower()
     if backend == "openai":
         return OpenAIBackend(cfg)
+    if backend == 'gateway':
+        return GatewayBackend(cfg)
     if backend == "mock":
         print("[llm] *** MOCK backend: outputs exercise the pipeline but are NOT "
               "LLM measurements. Do not report them. ***")

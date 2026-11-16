@@ -12,12 +12,12 @@ export function normalCDF(x) {
 
 /** Two-proportion z-test. Returns { z, p } (two-sided, pooled variance). */
 export function proportionsZTest(k1, n1, k2, n2) {
-  if (!n1 || !n2) return { z: NaN, p: NaN };
+  if (![k1,n1,k2,n2].every(Number.isFinite) || n1 <= 0 || n2 <= 0 || k1 < 0 || k2 < 0 || k1 > n1 || k2 > n2) throw new Error('Invalid binomial counts.');
   const p1 = k1 / n1, p2 = k2 / n2;
   const pooled = (k1 + k2) / (n1 + n2);
   const se = Math.sqrt(pooled * (1 - pooled) * (1 / n1 + 1 / n2));
-  if (se === 0) return { z: 0, p: 1 };
+  if (se === 0) return { z: null, p: null };
   const z = (p1 - p2) / se;
-  const p = 2 * (1 - normalCDF(Math.abs(z)));
+  const p = Math.min(1, 2 * normalCDF(-Math.abs(z)));
   return { z, p };
 }

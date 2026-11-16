@@ -7,3 +7,17 @@ dtm_pipeline/human_labels.csv
 __pycache__/
 .pytest_cache/
 *.pyc
+node_modules/
+dist/
+.wrangler/
+.dev.vars*
+.env*
+!.env.example
+build-qa/
+build/
+*.egg-info/
+.venv/
+runs/
+private/
+docs/downloads/
+dist_wheels/

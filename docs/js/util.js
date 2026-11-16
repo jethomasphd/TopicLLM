@@ -57,8 +57,11 @@ export function parseCSV(text) {
     else field += c;
   }
   if (field !== "" || row.length) { pushField(); pushRow(); }
+  if (inQuotes) throw new Error('CSV contains an unclosed quoted field.');
   while (rows.length && rows[rows.length - 1].every(f => f === "")) rows.pop();
   const header = (rows.shift() || []).map(h => h.trim());
+  if (header.some(h => !h) || new Set(header).size !== header.length) throw new Error('CSV headers must be non-empty and unique.');
+  if (rows.some(r => r.length !== header.length)) throw new Error('CSV rows do not match the header column count.');
   return {
     header,
     rows: rows.map(r => Object.fromEntries(header.map((h, i) => [h, r[i] ?? ""]))),
@@ -67,7 +70,7 @@ export function parseCSV(text) {
 
 /** Serialize an array of objects to CSV using the given column order. */
 export function toCSV(objs, columns) {
-  const cols = columns || (objs.length ? Object.keys(objs[0]) : []);
+  const cols = columns || [...new Set(objs.flatMap(o => Object.keys(o)))];
   const esc = v => {
     const s = v == null ? "" : String(v);
     return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;

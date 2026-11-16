@@ -48,7 +48,7 @@ def test_canonicalize_matches(cfg, raw, expected):
 
 
 def test_canonicalize_unmatched_and_error_are_distinguished(cfg):
-    assert s4.canonicalize("I cannot classify this", cfg) == (cfg.none_label, "unmatched")
+    assert s4.canonicalize("I cannot classify this", cfg) == (s4.INVALID_LABEL, "unmatched")
     # An API failure must never become "does not fit any theme".
     assert s4.canonicalize(ERROR_LABEL, cfg) == (ERROR_LABEL, "error")
 
@@ -96,7 +96,7 @@ def test_classify_corpus_retries_errors_and_resumes(cfg, tmp_path, monkeypatch):
     first = s4.classify_corpus(backend, corpus, str(tmp_path), cfg)
     assert list(first["status"]) == ["matched", "error", "empty", "matched"]
     assert first.loc[1, "theme"] == ERROR_LABEL
-    assert first.loc[2, "theme"] == cfg.none_label        # blank: no API call
+    assert first.loc[2, "theme"] == s4.INVALID_LABEL        # blank: no API call
 
     backend.broken, backend.calls = False, 0
     second = s4.classify_corpus(backend, corpus, str(tmp_path), cfg)
@@ -123,7 +123,7 @@ PUBLISHED = {
     "Alcohol Delivery and Isolation Drinking": ((9.1, 17.4, 11.9), (6.03, -4.13, 2.98)),
     "Restaurant Support": ((1.9, 5.5, 1.7), (4.89, -6.18, -0.50)),
     "Social Media Promotions": ((6.6, 16.5, 10.6), (7.80, -4.62, 4.59)),
-    "Sports": ((8.2, 11.4, 8.9), (2.59, -2.17, 0.83)),
+    "Sports": ((8.2, 11.4, 8.9), (2.59, -2.17, None)), # source prints .083 with p=.41; not silently corrected
     "Gaming": ((1.1, 2.0, 1.6), (1.80, -0.79, 1.40)),
 }
 
@@ -157,5 +157,7 @@ def test_ground_truth_reproduces_published_inference(tmp_path):
         got = tuple(round(prev.loc[theme, f"{p}_pct"], 1) for p in ("pre", "peri", "post"))
         assert got == pcts, (theme, got)
         for comp, rep in zip(order, zs):
+            if rep is None:
+                continue
             z = zt[(zt["theme"] == theme) & (zt["comparison"] == comp)]["z"].iloc[0]
             assert math.isclose(z, rep, abs_tol=0.07), (theme, comp, z, rep)

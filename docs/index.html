@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="site.css">
 <script>try{var t=localStorage.getItem("topicllm-theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 <script type="module" src="js/site.js"></script>
-</head>
+<script>if(location.hostname==='jethomasphd.github.io'&&/^\/TopicLLM(?:\/|$)/.test(location.pathname)){location.replace('https://topicllm.jethomasphd.workers.dev'+(location.pathname.replace(/^\/TopicLLM/,'')||'/')+location.search+location.hash);}</script></head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
@@ -29,7 +29,7 @@
       <a href="#method">Method</a>
       <a href="#demonstration">Demonstration</a>
       <a href="#preprints">Preprints</a>
-      <a href="app/">Instrument</a>
+      <a href="app/">Visual demo</a>
       <a href="#data">Data</a>
       <a href="#code">Code</a>
       <a href="#cite">Cite</a>
@@ -47,16 +47,14 @@
   <div class="wrap hero-grid">
     <div>
       <p class="eyebrow">A human-in-the-loop instrument for public health surveillance</p>
-      <h1>Coherence-optimized topic modeling with <em>democratic</em> LLM interpretation</h1>
+      <h1>Turn social text into<br><em>interpretable evidence.</em></h1>
       <p class="lede">A five-stage pipeline that turns large volumes of social media text into a small set
-        of interpretable themes, and those themes into prevalence estimates you can test. Every model
-        is scored, every prompt is published, every vote is kept, and a named person is accountable
-        for every theme.</p>
+        of interpretable themes, and those themes into prevalence estimates you can test. Use the visual demonstration to understand every step, then fork the repository or download the Python package for a reproducible, agent-assisted research workflow.</p>
       <div class="cta">
-        <a class="btn primary" href="app/">Open the instrument
+        <a class="btn primary" href="app/">Explore the visual demo
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        <a class="btn" href="paper/">Read the methods preprint</a>
-        <a class="btn" href="#preprints">All three preprints</a>
+        <a class="btn" href="reproduce/">Fork &amp; reproduce with Python</a>
+        <a class="btn" href="#preprints">Original studies</a>
       </div>
       <p class="byline">Jacob E. Thomas, Dhiraj Murthy, Miguel Pinedo, Alexandra Loukas &amp; Keryn E. Pasch ·
         The University of Texas at Austin</p>
@@ -86,7 +84,7 @@
     <div class="room-head reveal">
       <span class="numeral">I</span>
       <div>
-        <p class="label">Room I · The method</p>
+        <p class="label">The method</p>
         <h2>Five stages, from raw text to a test statistic</h2>
         <p>Machines do what machines do well: search a large model space, read every document, and
           count. People do what only people can: decide what a pattern means. The pipeline keeps the
@@ -100,7 +98,7 @@
         <h3>Discover</h3>
         <p>BERTopic (MiniLM embeddings, UMAP, HDBSCAN, c-TF-IDF) under randomized hyperparameter
           search. The model with the highest c<sub>v</sub> coherence wins.</p>
-        <p class="fact"><span>50 draws × 24 solutions</span>1,200 candidate models</p>
+        <p class="fact"><span>50 draws × 24 solutions</span>1,200 planned candidate models</p>
       </article>
       <article class="stage">
         <span class="numeral">II</span>
@@ -184,9 +182,7 @@
         <li><span class="numeral">V</span><b>Prevalence</b><em>z-tests, Bonferroni</em><code>ztest_results.csv</code></li>
       </ol>
       <figcaption><span class="label">Plate I</span><span>The five stages and their audit artifacts. The
-        prompts are released verbatim, and the only domain-specific text in the pipeline is one
-        clause of context. Redeploying it in a new domain means changing that clause, the Stage 3
-        literature lens, and the theme list.</span></figcaption>
+        prompts are released verbatim, and a new domain requires revisiting corpus design, stopwords, context, theme definitions, human benchmarks, time periods and statistical assumptions.</span></figcaption>
     </figure>
   </div>
 </section>
@@ -197,7 +193,7 @@
     <div class="room-head reveal">
       <span class="numeral">II</span>
       <div>
-        <p class="label">Room II · The demonstration</p>
+        <p class="label">The demonstration</p>
         <h2>Alcohol marketing on Twitter during COVID-19</h2>
         <p>The pipeline was built for, and first applied in, the author's dissertation: a study of
           what eleven alcohol companies said on Twitter before, during, and after the first
@@ -250,11 +246,9 @@
     <div class="room-head reveal">
       <span class="numeral">III</span>
       <div>
-        <p class="label">Room III · The preprints</p>
+        <p class="label">The preprints</p>
         <h2>One method, two studies</h2>
-        <p>The methods paper describes the instrument. The two empirical papers are the dissertation's
-          studies, reproduced without modification. Each is available as a PDF for reading and a
-          Word file for editing and deposit.</p>
+        <p>The methods paper describes the instrument. The original studies are available directly from the unchanged dissertation. Existing reflowed PDF and Word editions are also preserved. The methods paper has a separately identified audited revision.</p>
       </div>
     </div>
 
@@ -263,12 +257,11 @@
         <p class="label">Methods · 2026</p>
         <h3>Coherence-Optimized Topic Modeling with Democratic Large Language Model Interpretation</h3>
         <p class="authors">Thomas, Murthy, Pinedo, Loukas &amp; Pasch</p>
-        <blockquote>“We present a five-stage, human-in-the-loop pipeline that addresses both bottlenecks
-          … All prompts are released verbatim, and complete materials are provided for reproduction.”</blockquote>
+        <blockquote>A transparent chain from documents to topics, human-reviewed themes, validated labels and prevalence estimates.</blockquote>
         <div class="actions">
           <a class="btn small primary" href="paper/">Read online</a>
-          <a class="btn small" href="preprints/Thomas_et_al_Methods_Coherence-Optimized_Topic_Modeling.pdf" data-size>PDF</a>
-          <a class="btn small" href="preprints/Thomas_et_al_Methods_Coherence-Optimized_Topic_Modeling.docx" data-size>Word</a>
+          <a class="btn small" href="preprints/TopicLLM_Methods_Revised_2026-11-16.pdf" data-size>Revised PDF</a>
+          <a class="btn small" href="audit/">Audit &amp; original editions</a>
         </div>
       </article>
       <article class="volume">
@@ -279,8 +272,9 @@
           pandemic, determine if the prevalence of these themes differed across time, and characterize
           the sentiment used in the themes.”</blockquote>
         <div class="actions">
-          <a class="btn small primary" href="preprints/Thomas_et_al_Paper1_Alcohol_Marketing_on_Twitter_During_COVID-19.pdf" data-size>PDF</a>
-          <a class="btn small" href="preprints/Thomas_et_al_Paper1_Alcohol_Marketing_on_Twitter_During_COVID-19.docx" data-size>Word</a>
+          <a class="btn small primary" href="studies/1/">Original chapter</a>
+          <a class="btn small" href="preprints/Thomas_et_al_Paper1_Alcohol_Marketing_on_Twitter_During_COVID-19.pdf" data-size>Reflowed PDF</a>
+          <a class="btn small" href="preprints/Thomas_et_al_Paper1_Alcohol_Marketing_on_Twitter_During_COVID-19.docx" data-size>Reflowed Word</a>
         </div>
       </article>
       <article class="volume">
@@ -291,15 +285,16 @@
           user-generated content about alcohol delivery and isolation drinking … Conversely, early
           user-generated content did not significantly predict subsequent potential exposure.”</blockquote>
         <div class="actions">
-          <a class="btn small primary" href="preprints/Thomas_et_al_Paper2_Alcohol_Information_Dynamics_During_Crisis.pdf" data-size>PDF</a>
-          <a class="btn small" href="preprints/Thomas_et_al_Paper2_Alcohol_Information_Dynamics_During_Crisis.docx" data-size>Word</a>
+          <a class="btn small primary" href="studies/2/">Original chapter</a>
+          <a class="btn small" href="preprints/Thomas_et_al_Paper2_Alcohol_Information_Dynamics_During_Crisis.pdf" data-size>Reflowed PDF</a>
+          <a class="btn small" href="preprints/Thomas_et_al_Paper2_Alcohol_Information_Dynamics_During_Crisis.docx" data-size>Reflowed Word</a>
         </div>
       </article>
     </div>
     <p class="prose indent reveal" style="margin-top:28px;font-size:16px;color:var(--ink-2)">The full dissertation,
       <em>Alcohol Marketing on Social Media During the COVID-19 Pandemic: Historical Perspectives, Modern
       Evidence, and Future Regulation</em> (The University of Texas at Austin, 2025), is
-      <a href="https://github.com/jethomasphd/TopicLLM/blob/main/THOMAS-PRIMARY-2025.pdf">available in the repository</a>.</p>
+      <a href="THOMAS-PRIMARY-2025.pdf">available here unchanged</a>.</p>
   </div>
 </section>
 
@@ -309,12 +304,9 @@
     <div class="room-head reveal">
       <span class="numeral">IV</span>
       <div>
-        <p class="label">Room IV · The instrument</p>
-        <h2>Run the whole pipeline in your browser</h2>
-        <p>Load the demonstration corpus, or your own CSV, and walk all five stages. The embedding
-          model runs locally, there is no server, and your data never leaves the tab. Stages 2 and 4
-          call the language model you choose, with your own key. A clearly labeled keyless mock lets
-          you rehearse the full workflow first.</p>
+        <p class="label">The instrument</p>
+        <h2>A guided study. An inspectable workbench.</h2>
+        <p>Start with a guided, seven-topic synthetic reconstruction of the dissertation. Recalculate the published prevalence pattern, inspect the source, and download the evidence. Use the exploratory workspace for a new corpus, with live OpenAI access through a Cloudflare Worker when configured.</p>
       </div>
     </div>
     <div class="two-col indent reveal">
@@ -324,15 +316,15 @@
         <p>Each stage streams its work to a live log, renders its results, and exports the same audit
           artifacts as the Python pipeline, individually or as one archive. The Stage 3 worksheet is a
           real two-researcher review packet, and the Stage 4 gate really refuses to scale.</p>
-        <p><a class="btn primary" href="app/">Open the instrument</a></p>
+        <p><a class="btn primary" href="app/">Explore the study</a></p>
       </div>
       <div class="panel">
         <p class="label">When to use the Python pipeline instead</p>
         <h3>Publication-grade runs</h3>
-        <p>The browser build is faithful but approximate. Its HDBSCAN, c-TF-IDF and c<sub>v</sub>
+        <p>Browser discovery is a distinct approximation. Its HDBSCAN, c-TF-IDF and c<sub>v</sub>
           coherence are JavaScript ports, and long searches over large corpora are slow. For a
           study you intend to publish, use the reference implementation in
-          <a href="#code">Room VI</a>. It is seeded, checkpointed, and tested.</p>
+          <a href="#code">the code section</a>. It provides seeded search, checkpoint guards and validation artifacts. Retain and validate the exact environment used for your analysis.</p>
       </div>
     </div>
   </div>
@@ -344,7 +336,7 @@
     <div class="room-head reveal">
       <span class="numeral">V</span>
       <div>
-        <p class="label">Room V · The data</p>
+        <p class="label">The data</p>
         <h2>An open corpus built to be run</h2>
         <p>The dissertation's data cannot be posted openly. In their place is a synthetic
           demonstration corpus that has the same shape as the original and contains no real posts,
@@ -358,13 +350,13 @@
           <li><a href="data/demonstration_corpus.csv" download data-size>demonstration_corpus.csv</a><span></span>
             <p>5,872 posts from 11 fictional brands, Jan 2019 – Jul 2021 (<code>post_id, brand, date, tweet</code>).</p></li>
           <li><a href="data/demonstration_benchmark.csv" download data-size>demonstration_benchmark.csv</a><span></span>
-            <p>250 human-labeled posts from the lockdown months, the Stage 4 measuring stick.</p></li>
+            <p>250 synthetic examples with generator-assigned labels. These are not human annotations.</p></li>
           <li><a href="data/demonstration_ground_truth.csv" download data-size>demonstration_ground_truth.csv</a><span></span>
             <p>The theme and campaign behind every post, for checking your own runs.</p></li>
           <li><a href="data/demonstration_stopwords.txt" download data-size>demonstration_stopwords.txt</a><span></span>
             <p>Domain stopwords: brand terms and time words (§2.1).</p></li>
           <li><a href="data/reference_run/stage1_topics_with_ground_truth.csv" download data-size>reference_run/</a><span></span>
-            <p>A full reference run. Stage 1 picked 20 topics at c<sub>v</sub> = 0.790, covering all five themes, and Stage 5 run on the ground truth returns Plate II.</p></li>
+            <p>An archived synthetic reference run. Stage 1 picked 20 topics at c<sub>v</sub> = 0.790, covering all five themes, and Stage 5 run on the ground truth returns Plate II.</p></li>
           <li><a href="data/README.md">README.md — data card</a><span></span>
             <p>How the corpus was built, what it is calibrated to, and what it is not.</p></li>
         </ul>
@@ -372,8 +364,7 @@
       <div>
         <div class="panel">
           <p class="label">Built to mirror the original</p>
-          <p>The posting volumes per brand, the sizes of the three study periods, and the share of
-            each theme in each period match the published demonstration. Feed the ground-truth labels
+          <p>The corpus follows the reported total and brand structure; rounded theme prevalence matches the published table. Period sizes are synthetic calibration choices, not recovered historical denominators. Feed the ground-truth labels
             to Stage 5 and you get back Plate II's prevalence table and its significance pattern. Run
             the full pipeline and you see how close a classifier comes. The campaigns are the same
             kinds the dissertation found: a delivery-app promotion, stay-home sipping, a restaurant
@@ -388,9 +379,8 @@
             Twitter Marketing Study, and user tweets from the Computational Media Lab COVID-19 Twitter
             Dataset. They include account-level information and content governed by the platform's
             terms and by the agreements under which they were collected, so they are not posted
-            publicly. They are available from the corresponding author on reasonable request for
-            non-commercial research, under a data use agreement consistent with those terms:
-            <a href="mailto:jethomasphd@gmail.com?subject=TopicLLM%20data%20request">jethomasphd@gmail.com</a>.</p>
+            publicly. The original records are not distributed with this tool because of privacy and research-governance constraints. Methodological questions may be directed to:
+            <a href="mailto:jethomasphd@gmail.com?subject=TopicLLM%20methods%20question">jethomasphd@gmail.com</a>.</p>
         </div>
       </div>
     </div>
@@ -403,38 +393,30 @@
     <div class="room-head reveal">
       <span class="numeral">VI</span>
       <div>
-        <p class="label">Room VI · The code</p>
-        <h2>The reference implementation</h2>
-        <p>A maintained Python pipeline written against the current OpenAI SDK, with the original
-          prompts, decoding parameters and search spaces. It adds a seeded search, an enforced
+        <p class="label">The code</p>
+        <h2>Fork it. Give your agent a method.</h2>
+        <p>A maintained Python pipeline written against the current OpenAI SDK, with documented prompts and search spaces. Maintained changes, including a larger classification output limit, are distinguished from the historical protocol. It adds a seeded search, an enforced
           benchmark gate, checkpointing for corpus-scale runs, and a test suite. Out of the box it
           runs on the demonstration corpus.</p>
       </div>
     </div>
     <div class="indent reveal">
-      <div class="codeblock"><pre><code><span class="c"># get the code</span>
-git clone https://github.com/jethomasphd/TopicLLM.git
-cd TopicLLM/dtm_pipeline
-pip install -r requirements.txt
+      <p>Start with the <a href="reproduce/">reproduction guide</a>. The repository includes an agent contract, installable Python package, synthetic acceptance checks, protected source hashes and explicit researcher review gates.</p>
+      <div class="codeblock"><pre><code>git clone https://github.com/jethomasphd/TopicLLM.git
+cd TopicLLM
+python -m pip install ".[dev]"
+topicllm --profile quickcheck --output-dir runs/quickcheck
 
-<span class="c"># Stage 1: coherence-optimized discovery on the demonstration corpus (no API cost)</span>
-python run_pipeline.py --stages 1
-
-<span class="c"># Stages 2–3: democratic naming and the review packet; keyless dry run, or set OPENAI_API_KEY</span>
-python run_pipeline.py --stages 2,3 --mock-llm
-
-<span class="c"># reference inference: ground-truth labels through Stage 5 reproduce Plate II</span>
-python run_pipeline.py --ground-truth --stages 5
-
-<span class="c"># the tests</span>
-python -m pytest tests -q</code></pre></div>
+# Then read AGENTS.md and REPRODUCE.md with your agent.
+# Install ".[ml,dev]" for discovery and declare a budget before API calls.</code></pre></div>
+      <p><a class="btn primary" href="reproduce/">Start a reproducible workflow</a> <a class="btn" href="downloads/topicllm-research-source.zip">Download Python source + data</a></p>
       <div class="table-scroll">
         <table class="ledger" style="margin-top:26px">
           <thead><tr><th>Component</th><th>Where</th><th>What it is</th></tr></thead>
           <tbody>
             <tr><td>Reference pipeline</td><td><a href="https://github.com/jethomasphd/TopicLLM/tree/main/dtm_pipeline"><code>dtm_pipeline/</code></a></td><td>Five stage scripts, orchestrator, configuration, demonstration-corpus generator, tests</td></tr>
-            <tr><td>Browser instrument</td><td><a href="app/"><code>docs/app/</code></a></td><td>All five stages client-side; transformers.js, umap-js, and JavaScript ports of HDBSCAN, c-TF-IDF and c<sub>v</sub></td></tr>
-            <tr><td>Supplement S1</td><td><a href="https://github.com/jethomasphd/TopicLLM/blob/main/S1_bertopic_optimization.txt"><code>S1_bertopic_optimization.txt</code></a></td><td>Archival Stage 1 code, exactly as executed in the dissertation</td></tr>
+            <tr><td>Browser instrument</td><td><a href="app/"><code>docs/app/</code></a></td><td>Visual synthetic walkthrough, capped live examples, and a local teaching sandbox; research runs use Python</td></tr>
+            <tr><td>Supplement S1</td><td><a href="https://github.com/jethomasphd/TopicLLM/blob/main/S1_bertopic_optimization.txt"><code>S1_bertopic_optimization.txt</code></a></td><td>Archival Stage 1 code, transcribed from the dissertation appendices</td></tr>
             <tr><td>Supplement S2</td><td><a href="https://github.com/jethomasphd/TopicLLM/blob/main/S2_democratic_topic_naming.txt"><code>S2_democratic_topic_naming.txt</code></a></td><td>Archival democratic naming (openai==0.27.0)</td></tr>
             <tr><td>Supplement S3</td><td><a href="https://github.com/jethomasphd/TopicLLM/blob/main/S3_llm_classification.txt"><code>S3_llm_classification.txt</code></a></td><td>Archival corpus-scale classification (openai==0.27.0)</td></tr>
           </tbody>
@@ -480,7 +462,7 @@ Thomas, J. E. (2025). Alcohol marketing on social media during the COVID-19 pand
   title  = {Coherence-Optimized Topic Modeling with Democratic Large Language Model Interpretation: A Human-in-the-Loop Pipeline for Public Health Surveillance of Social Media},
   year   = {2026},
   note   = {Preprint},
-  url    = {https://jethomasphd.github.io/TopicLLM/}
+  url    = {https://topicllm.jethomasphd.workers.dev/}
 }
 
 @misc{thomas2026alcohol_marketing,
