@@ -36,3 +36,24 @@ test('truncated model responses cannot enter the analysis',async()=>{
     assert.equal((await worker.fetch(req({task:'name',words:'a,b',domain:'posts'}),env)).status,502);
   }finally{globalThis.fetch=previous;}
 });
+
+test('provider quota failures are actionable, sanitized and never retried',async()=>{
+  const previous=globalThis.fetch;
+  try {
+    for (const code of ['insufficient_quota','credit_balance_exhausted','organization_usage_limit_exceeded','organization_spend_limit_exceeded','project_spend_limit_exceeded']) {
+      globalThis.fetch=async()=>Response.json({error:{code,type:'insufficient_quota',message:'private-provider-detail'}},{status:429,headers:{'x-request-id':'req-quota'}});
+      const response=await worker.fetch(req({task:'name',words:'a,b',domain:'posts'}),env), data=await response.json();
+      assert.equal(response.status,429); assert.equal(data.code,code); assert.equal(data.retryable,false); assert.equal(data.request_id,'req-quota');
+      assert.ok(!JSON.stringify(data).includes('private-provider-detail'));
+    }
+  } finally { globalThis.fetch=previous; }
+});
+
+test('temporary provider rate limits retain bounded retry guidance',async()=>{
+  const previous=globalThis.fetch;
+  try {
+    globalThis.fetch=async()=>Response.json({error:{code:'rate_limit_exceeded'}},{status:429,headers:{'Retry-After':'12'}});
+    const response=await worker.fetch(req({task:'name',words:'a,b',domain:'posts'}),env);
+    assert.equal(response.headers.get('Retry-After'),'12'); assert.equal((await response.json()).retryable,true);
+  } finally { globalThis.fetch=previous; }
+});

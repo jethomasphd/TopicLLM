@@ -54,7 +54,22 @@ export default {
         headers:{'Content-Type':'application/json', Authorization:`Bearer ${env.OPENAI_API_KEY}`},
         body:JSON.stringify({model:env.OPENAI_MODEL, messages:[{role:'system',content:call.system},{role:'user',content:call.user}], temperature:.5, max_tokens:call.max_tokens, n:1, store:false})
       });
-      if (!response.ok) return json({error:response.status === 429 ? 'OpenAI rate or budget limit reached. Contact the site operator.' : 'OpenAI did not complete the request. No classification was recorded.'},response.status === 429 ? 429 : 502);
+      if (!response.ok) {
+        // Expose only allowlisted operational codes, never raw provider messages.
+        const failure = await response.json().catch(() => ({}));
+        const quotaMessages = {
+          insufficient_quota:'OpenAI API quota is unavailable. The site operator must check API credits and project limits before retrying.',
+          credit_balance_exhausted:'OpenAI API credits are exhausted. The site operator must add credits before retrying.',
+          organization_usage_limit_exceeded:'The OpenAI organization usage limit was reached. The site operator must review its approved limit.',
+          organization_spend_limit_exceeded:'The OpenAI organization spending limit was reached. The site operator must review that limit.',
+          project_spend_limit_exceeded:'The OpenAI project spending limit was reached. The site operator must review that limit.'
+        };
+        const code = Object.hasOwn(quotaMessages, failure.error?.code) ? failure.error.code : failure.error?.type === 'insufficient_quota' ? 'insufficient_quota' : null;
+        if (response.status === 429 && code) return json({error:quotaMessages[code], code, retryable:false, request_id:response.headers.get('x-request-id')},429);
+        const retryAfter = Number(response.headers.get('Retry-After'));
+        const headers = retryAfter > 0 && Number.isFinite(retryAfter) ? {'Retry-After':String(Math.min(60, Math.ceil(retryAfter)))} : {};
+        return json({error:response.status === 429 ? 'OpenAI rate limit reached. Wait and retry.' : 'OpenAI did not complete the request. No classification was recorded.', retryable:response.status === 429 || response.status >= 500, request_id:response.headers.get('x-request-id')},response.status === 429 ? 429 : 502,headers);
+      }
       const data = await response.json(), choice = data.choices?.[0], content = choice?.message?.content;
       if (!content?.trim() || choice.finish_reason !== 'stop') return json({error:'OpenAI returned an empty or incomplete response. No label was recorded.'},502);
       return json({text:content.trim(), model:data.model, system_fingerprint:data.system_fingerprint || null, request_id:response.headers.get('x-request-id'), usage:data.usage || null, temperature:.5, max_tokens:call.max_tokens});

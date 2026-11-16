@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import {canonicalLabel,validateBenchmark,estimatePrevalence,scoreLabels,NONE,INVALID} from '../docs/js/research.js';
 import {parseCSV,toCSV} from '../docs/js/util.js';
 import {preprocessDoc,buildStopwords} from '../docs/js/preprocess.js';
-import {callWithRetries} from '../docs/js/llm.js';
+import {callWithRetries,createProvider} from '../docs/js/llm.js';
 
 test('invalid model text cannot become a substantive theme',()=>{
   for(const raw of ['Not Sports','Sports or Gaming','I cannot classify this','']) assert.equal(canonicalLabel(raw,['Sports','Gaming']).label,INVALID);
@@ -13,6 +13,16 @@ test('invalid model text cannot become a substantive theme',()=>{
 });
 test('outages reject rather than fabricate a residual label or naming vote',async()=>{
   await assert.rejects(()=>callWithRetries(async()=>{throw new Error('outage');},1),/outage/);
+});
+
+test('hosted quota failures stop after one call and create no vote',async()=>{
+  const previous=globalThis.fetch; let calls=0;
+  try {
+    globalThis.fetch=async()=>{calls++; return Response.json({error:'API credits unavailable',retryable:false},{status:429});};
+    const provider=createProvider({provider:'hosted',apiKey:'test-access-code'});
+    await assert.rejects(()=>callWithRetries(()=>provider.chat('','',{taskData:{task:'name'}})),/API credits unavailable/);
+    assert.equal(calls,1); assert.deepEqual(provider.records,[]);
+  } finally { globalThis.fetch=previous; }
 });
 
 test('cancelling a rate-limit wait stops without further requests',async()=>{

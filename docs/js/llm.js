@@ -13,7 +13,7 @@ export function createProvider(settings) {
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
         const error = new Error(data.error || `LLM request failed (${response.status}).`);
-        error.retryable = response.status >= 500 || response.status === 429;
+        error.retryable = data.retryable !== false && (response.status >= 500 || response.status === 429);
         error.retryAfterMs = Math.min(60000, Math.max(0, Number(response.headers.get('Retry-After')) || 0) * 1000);
         error.signal = settings.signal;
         throw error;
