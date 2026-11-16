@@ -1,6 +1,6 @@
 # Deploy TopicLLM on Cloudflare
 
-The current deployment is https://topicllm.jethomasphd.workers.dev.
+The current deployment is https://topicllm.jethomasphd.workers.dev. Cloudflare authentication and both server secrets are configured. The deployed gateway reports ready and rejects unauthenticated calls. A successful live OpenAI completion is still a release check; configuration readiness alone does not establish provider billing or model availability.
 
 This release uses one Cloudflare Worker with static assets. The website and `/api/llm` share an origin. No domain purchase is needed to test on `workers.dev`; attach a custom domain after choosing and purchasing it.
 
@@ -29,6 +29,8 @@ Enter secrets only in Wrangler's private prompt. `OPENAI_API_KEY` stays on the s
 `OPENAI_MODEL` in `wrangler.jsonc` pins `gpt-4o-2024-08-06`. This is an available GPT-4o snapshot choice, **not a claim that the dissertation used this exact snapshot**. Verify project access with a small synthetic request, record the provider-returned model identifier, and change the configuration if this snapshot is unavailable to the deployment account.
 
 The Worker enforces supported tasks, input lengths, output limits, same-origin browser calls, a research access code and 120 requests per minute per IP per Cloudflare location. Rate limits are approximate and are not a global spending cap. Configure the OpenAI project budget and operational monitoring. Stage 2's historical budget alone is 35,000 requests for seven topics; use a small vote count for the initial smoke test.
+
+Billing and quota failures return an allowlisted operational code and stop automatic retries. Temporary rate limits retain bounded retry guidance. The gateway never forwards raw provider error messages.
 
 `store:false` is sent on API calls. This is not a claim of zero provider retention; review the project's applicable OpenAI data controls before sending research data. The application does not log corpus text or credentials, and Worker observability is disabled by default.
 
