@@ -6,10 +6,10 @@ a human-in-the-loop pipeline for public health surveillance of social media.**
 Jacob E. Thomas, Dhiraj Murthy, Miguel Pinedo, Alexandra Loukas & Keryn E. Pasch ·
 The University of Texas at Austin
 
-**Website: <https://topicllm.jethomasphd.workers.dev/>** · [Visual demo](https://topicllm.jethomasphd.workers.dev/app/) ·
-[Methods preprint (web)](https://topicllm.jethomasphd.workers.dev/paper/)
+**Website: <https://topicllm.dev/>** · [Visual demo](https://topicllm.dev/app/) ·
+[Methods preprint (web)](https://topicllm.dev/paper/)
 
-**The website is a visual demonstration. The Python package and your own fork are the research workflow.** Explore the method with synthetic data, then give an agent the repository's [reproduction contract](AGENTS.md), run the acceptance checks, and retain researcher control of interpretation and validation. Start with [REPRODUCE.md](REPRODUCE.md) or the [web guide](https://topicllm.jethomasphd.workers.dev/reproduce/).
+**The website is a visual demonstration. The Python package and your own fork are the research workflow.** Explore the method with synthetic data, then give an agent the repository's [reproduction contract](AGENTS.md), run the acceptance checks, and retain researcher control of interpretation and validation. Start with [REPRODUCE.md](REPRODUCE.md) or the [web guide](https://topicllm.dev/reproduce/).
 
 TopicLLM turns large volumes of social media text into a small set of interpretable themes, and
 those themes into prevalence estimates you can test. It runs in five stages:
@@ -35,7 +35,7 @@ The default workbench is a **seven-topic synthetic reconstruction**. Its known c
 The unchanged dissertation is the source of truth. `source-integrity.json` protects it, all existing PDF/Word preprints and S1–S3. The website’s chapter readers point to the original pages. Revised methods are separate from preserved earlier editions.
 
 - [Revised methods](docs/paper/index.html), [source audit](docs/audit/index.html), [agent protocol](docs/protocol.json)
-- [Measured synthetic validation](https://topicllm.jethomasphd.workers.dev/validation/) with downloadable run evidence and API usage
+- [Measured synthetic validation](https://topicllm.dev/validation/) with downloadable run evidence and API usage
 - [Cloudflare deployment](DEPLOYMENT.md): static assets and a same-origin OpenAI Worker, with server secrets, access control and bounded requests
 - Follow [the release build commands](DEPLOYMENT.md) before `pnpm check`, so Python downloads are present; `pnpm dev` previews locally.
 
@@ -112,7 +112,7 @@ real posts, accounts, or people. The pipeline and the instrument both use it by 
 > model interpretation* [Computer software]. https://github.com/jethomasphd/TopicLLM
 
 BibTeX for all five works (the three preprints, the software, and the dissertation) is on the
-[website](https://topicllm.jethomasphd.workers.dev/#cite). DOIs will be added when the preprints are
+[website](https://topicllm.dev/#cite). DOIs will be added when the preprints are
 deposited.
 
 ## License

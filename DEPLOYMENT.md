@@ -1,6 +1,6 @@
 # Operate TopicLLM on Cloudflare
 
-The website at https://topicllm.jethomasphd.workers.dev is a visual demonstration with fixed synthetic OpenAI examples. Researchers run their corpus in a fork or installed Python environment with their own approved credentials. One Cloudflare Worker serves the static site and same-origin API. A custom domain awaits the owner's choice and purchase.
+The website at https://topicllm.dev is a visual demonstration with fixed synthetic OpenAI examples. Researchers run their corpus in a fork or installed Python environment with their own approved credentials. One Cloudflare Worker serves the static site and same-origin API. The owner registered topicllm.dev in Cloudflare; both apex and www are attached to this Worker.
 
 ## Build a complete release
 
@@ -68,10 +68,14 @@ node scripts/service-status.mjs
 
 Billing failures stop without invented labels. Inspect billing privately. To pause public calls, set `LIVE_DEMO_ENABLED=false` in `wrangler.jsonc` and deploy; the walkthrough and downloads remain available. Keep the operator switch false. Do not bypass quotas for troubleshooting. After repairs, run a small synthetic smoke check before reopening. Use Wrangler's deployment version rollback when appropriate, preserving the Durable Object binding, migration and ledger.
 
-Synthetic response receipts expire after thirty minutes with scheduled cleanup. Session and keyed-IP counts use UTC daily windows; budget counters retain active windows. Infrastructure processing is separate. See the website's [data-handling page](https://topicllm.jethomasphd.workers.dev/privacy/).
+Synthetic response receipts expire after thirty minutes with scheduled cleanup. Session and keyed-IP counts use UTC daily windows; budget counters retain active windows. Infrastructure processing is separate. See the website's [data-handling page](https://topicllm.dev/privacy/).
 
-## Attach the chosen domain
+## Primary domain
 
-Register the owner's chosen domain and add it to Cloudflare. Attach a Worker Custom Domain in the dashboard or add a `routes` entry with `custom_domain:true`. Keep website and API on one origin. Verify HTTPS, sessions, readers, downloads and live examples on the custom domain. The legacy GitHub Pages HTML redirects visitors to the working Cloudflare site, preserving path, query and fragment; update that fixed target when the custom domain is ready. No domain has been purchased by this project.
+The primary address is https://topicllm.dev. `wrangler.jsonc` attaches both `topicllm.dev` and `www.topicllm.dev` as Worker Custom Domains. Cloudflare manages DNS and HTTPS certificates. Keep these routes in subsequent deployments.
+
+Browser navigation on www and the earlier workers.dev address redirects permanently to the HTTPS apex, preserving path and query. Browsers retain fragments across that redirect. Legacy GitHub Pages HTML also redirects to the apex, preserving path, query and fragment. API requests remain on their original origin for existing clients; the website uses the apex's same-origin API and secure host-only session cookie. All hosts share the same Durable Object allowance, so the domain change does not reset spending limits.
+
+The Worker runs before static assets to enforce host redirects. Local development and unrelated fork hosts are not redirected. A fork owner should replace the custom-domain routes and the explicit redirect host list with their own deployment settings.
 
 Official references: [Durable Object storage and transactions](https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/), [static assets](https://developers.cloudflare.com/workers/static-assets/), [secrets](https://developers.cloudflare.com/workers/configuration/secrets/), [rate-limit semantics](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/), [custom domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/), [GPT-4o pricing and snapshots](https://developers.openai.com/api/docs/models/gpt-4o), [OpenAI data controls](https://developers.openai.com/api/docs/guides/your-data).

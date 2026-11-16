@@ -4,6 +4,26 @@ import worker,{validateCall} from '../worker/index.js';
 import {environment} from './quota-fixture.mjs';
 const env=environment();
 const req=(data={},headers={})=>new Request('https://example.org/api/llm',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer research-code',Origin:'https://example.org',...headers},body:JSON.stringify(data)});
+test('public navigation uses the HTTPS primary domain and preserves paths and queries',async()=>{
+  for(const host of ['www.topicllm.dev','topicllm.jethomasphd.workers.dev']){
+    const result=await worker.fetch(new Request(`https://${host}/app/?view=inference`),{});
+    assert.equal(result.status,308);
+    assert.equal(result.headers.get('Location'),'https://topicllm.dev/app/?view=inference');
+  }
+  const assets={ASSETS:{fetch:async()=>new Response('asset')}};
+  for(const host of ['topicllm.dev','localhost:8787','unrelated.example']){
+    const result=await worker.fetch(new Request(`https://${host}/app/`),assets);
+    assert.equal(await result.text(),'asset');
+  }
+  const secure=await worker.fetch(new Request('http://topicllm.dev/reproduce/'),{});
+  assert.equal(secure.headers.get('Location'),'https://topicllm.dev/reproduce/');
+});
+test('domain migration keeps API requests on their original origin',async()=>{
+  const config=await worker.fetch(new Request('https://www.topicllm.dev/api/config'),env);
+  assert.equal(config.status,200);assert.equal(config.headers.get('Location'),null);
+  const blocked=await worker.fetch(new Request('https://www.topicllm.dev/api/demo',{method:'POST',headers:{Origin:'https://topicllm.dev'}}),env);
+  assert.equal(blocked.status,403);
+});
 test('gateway fails closed without configuration',async()=>assert.equal((await worker.fetch(req(),{})).status,503));
 test('gateway rejects missing credentials and cross-origin callers',async()=>{
   assert.equal((await worker.fetch(req({}, {Authorization:'Bearer wrong'}),env)).status,401);

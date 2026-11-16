@@ -8,7 +8,7 @@ authors:
     affiliation: "Department of Kinesiology and Health Education, The University of Texas at Austin"
     email: jethomasphd@gmail.com
 repository-code: "https://github.com/jethomasphd/TopicLLM"
-url: "https://topicllm.jethomasphd.workers.dev/"
+url: "https://topicllm.dev/"
 license: MIT
 version: "0.3.0"
 date-released: "2026-11-16"
@@ -25,7 +25,7 @@ preferred-citation:
   title: "Coherence-Optimized Topic Modeling with Democratic Large Language Model Interpretation: A Human-in-the-Loop Pipeline for Public Health Surveillance of Social Media"
   status: preprint
   year: 2026
-  url: "https://topicllm.jethomasphd.workers.dev/paper/"
+  url: "https://topicllm.dev/paper/"
   authors:
     - family-names: Thomas
       given-names: Jacob E.

@@ -6,9 +6,7 @@
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
-    "run_worker_first": [
-      "/api/*"
-    ],
+    "run_worker_first": true,
     "not_found_handling": "404-page"
   },
   "vars": {
@@ -57,5 +55,16 @@
   ],
   "observability": {
     "enabled": false
-  }
+  },
+  "routes": [
+    {
+      "pattern": "topicllm.dev",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.topicllm.dev",
+      "custom_domain": true
+    }
+  ],
+  "workers_dev": true
 }

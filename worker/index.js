@@ -31,6 +31,13 @@ export function demoCall(input){
 
 export default {async fetch(request,env){
   const url=new URL(request.url),path=url.pathname;
+  // Keep existing API clients on their origin; browser navigation uses the primary domain.
+  if(!path.startsWith('/api/')&&['GET','HEAD'].includes(request.method)&&
+     ['topicllm.dev','www.topicllm.dev','topicllm.jethomasphd.workers.dev'].includes(url.hostname)&&
+     (url.hostname!=='topicllm.dev'||url.protocol!=='https:')){
+    url.hostname='topicllm.dev';url.protocol='https:';url.port='';
+    return Response.redirect(url.href,308);
+  }
   if(!path.startsWith('/api/'))return env.ASSETS.fetch(request);
   const ready=configured(env), publicLive=ready&&env.LIVE_DEMO_ENABLED==='true';
   if(path==='/api/config'&&request.method==='GET')return json({ready,provider:'openai',model:env.OPENAI_MODEL||null,access:'anonymous-synthetic-examples',publicLive,maxTextLength:8000,sessionCallsPerDay:10,ipCallsPerDay:30});

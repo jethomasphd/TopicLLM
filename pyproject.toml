@@ -22,7 +22,7 @@ topicllm = "dtm_pipeline.run_pipeline:main"
 
 [project.urls]
 Repository = "https://github.com/jethomasphd/TopicLLM"
-Documentation = "https://topicllm.jethomasphd.workers.dev/reproduce/"
+Documentation = "https://topicllm.dev/reproduce/"
 
 [tool.setuptools]
 packages = ["dtm_pipeline"]
