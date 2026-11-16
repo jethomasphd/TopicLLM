@@ -1,6 +1,6 @@
 # Deploy TopicLLM on Cloudflare
 
-The current deployment is https://topicllm.jethomasphd.workers.dev. Cloudflare authentication and both server secrets are configured. The deployed gateway reports ready and rejects unauthenticated calls. A successful live OpenAI completion is still a release check; configuration readiness alone does not establish provider billing or model availability.
+The current deployment is https://topicllm.jethomasphd.workers.dev. Cloudflare authentication and both server secrets are configured. The deployed gateway reports ready and rejects unauthenticated calls. Live synthetic naming and classification were verified on 16 November 2026 using `gpt-4o-2024-08-06`, with provider request IDs and usage returned. The two requests used 185 tokens; see `verification/hosted-openai-2026-11-16.json`. Repeat this small check after changing credentials or the model.
 
 This release uses one Cloudflare Worker with static assets. The website and `/api/llm` share an origin. No domain purchase is needed to test on `workers.dev`; attach a custom domain after choosing and purchasing it.
 
