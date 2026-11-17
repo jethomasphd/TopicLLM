@@ -1,0 +1,17 @@
+{
+  "status": "complete",
+  "scope": "Trump archive discovery walkthrough",
+  "historical_replication": false,
+  "api_calls": 0,
+  "selected_model_reload_verified": true,
+  "input_records": 34416,
+  "discovery_records": 32725,
+  "excluded_empty": 1691,
+  "search_draws": 50,
+  "candidate_ceilings": 1200,
+  "input_sha256": "8256646462a1267c5c6e177d3c951a852a17bcbd8553cb0f98e2a89ce5f3206a",
+  "fitted_model_sha256": "901830bdf01d5f6403af45f13ba80f2fed65ec0f04bdf4850d1e72a99fc83231",
+  "verified_at": "2026-11-17T21:40:24.703764+00:00",
+  "human_review_performed": false,
+  "classifier_validated": false
+}

@@ -35,21 +35,7 @@ def test_inference_refuses_unresolved_labels(tmp_path):
     (tmp_path/'stage4').mkdir()
     pd.DataFrame({'tweet':['unknown'],'date':['2020-01-01'],'theme':[INVALID_LABEL]}).to_csv(tmp_path/'stage4/classified_corpus.csv',index=False)
     with pytest.raises(ValueError,match='Resolve'):
-        run_stage5(PipelineConfig(output_dir=str(tmp_path)))
-
-def test_generator_truth_cannot_be_applied_to_other_text(tmp_path, monkeypatch):
-    import run_pipeline
-    corpus = tmp_path / 'corpus.csv'
-    corpus.write_text('post_id,tweet\n1,Unrelated research document\n', encoding='utf-8')
-    monkeypatch.setattr(run_pipeline, 'CONFIG', PipelineConfig(input_csv=str(corpus), output_dir=str(tmp_path)))
-    with pytest.raises(ValueError, match='exact bundled synthetic corpus'):
-        run_pipeline.write_ground_truth_classification()
-
-def test_synthetic_generator_matches_canonical_repository_bytes():
-    from make_demo_data import build
-    from config import DEMO_DIR
-    for frame,name in zip(build(), ['demonstration_corpus.csv','demonstration_benchmark.csv','demonstration_ground_truth.csv']):
-        assert frame.to_csv(index=False,lineterminator='\n').encode('utf-8') == (Path(DEMO_DIR)/name).read_bytes()
+        run_stage5(PipelineConfig(output_dir=str(tmp_path),themes=["Sports"]))
 
 def test_failed_benchmark_retains_raw_responses(tmp_path, monkeypatch):
     import stage4_classification as stage4
@@ -62,6 +48,6 @@ def test_failed_benchmark_retains_raw_responses(tmp_path, monkeypatch):
     monkeypatch.setattr(stage4,'build_theme_dictionaries',lambda cfg:{})
     monkeypatch.setattr('review.require_review',lambda cfg:{'review_mode':'test-fixture','human_review_performed':False})
     with pytest.raises(RuntimeError,match='benchmark calls failed'):
-        stage4.run_stage4(PipelineConfig(output_dir=str(tmp_path),benchmark_csv=str(benchmark)))
+        stage4.run_stage4(PipelineConfig(output_dir=str(tmp_path),benchmark_csv=str(benchmark),themes=["Sports"]))
     saved=pd.read_csv(tmp_path/'stage4/benchmark_predictions.csv')
     assert saved.llm_raw_response.tolist()==['__API_ERROR__']

@@ -1,31 +1,25 @@
 {
-  "schema_version": 3,
-  "authority": "Thomas (2025) dissertation; original bytes protected by source-integrity.json",
+  "schema_version": 4,
+  "authority": "Dissertation for historical research; maintained protocol for the Trump methodology-transfer tutorial.",
   "modes": [
-    "reported-study-results",
-    "original-study1-illustration",
+    "historical-research-example",
+    "public-trump-tutorial",
     "research",
-    "mock",
-    "synthetic-test-fixture"
+    "mock"
   ],
   "input": {
     "benchmark": [
       "tweet",
       "human_label"
     ],
-    "benchmark_note": "No final historical human benchmark is asserted. Research requires independently annotated labels; generated fixtures are not human annotations.",
+    "benchmark_note": "No human benchmark is bundled. Independently annotate research examples.",
     "python_corpus": [
       "tweet (nonempty string)",
       "post_id (stable unique identifier recommended)",
       "date YYYY-MM-DD for period inference"
     ],
-    "browser_corpus": [
-      "post_id (recommended stable unique identifier)",
-      "tweet or text",
-      "date YYYY-MM-DD for inference"
-    ],
-    "discovery": "discovery_input_csv if set, otherwise input_csv; Study 1 default is 704 archived lockdown texts",
-    "analysis": "input_csv; Study 1 default is 5,871 nonempty records; full.csv retains 5,872"
+    "discovery": "One corpus: docs/data/trump/corpus.csv; input_csv by default",
+    "analysis": "Same corpus; 34,416 source records, 2015-06-16 through 2021-01-08"
   },
   "naming": {
     "system": "You are an expert at naming topics.",
@@ -53,11 +47,11 @@
   "statistics": {
     "test": "pooled two-sided two-proportion z",
     "z_direction": "period_b minus period_a",
-    "multiplicity": "alpha / (number of themes \u00d7 number of pairs)",
+    "multiplicity": "alpha / (number of themes × number of pairs)",
     "unresolved_labels": "block inference",
     "zero_variance": "not estimable"
   },
-  "reproduction_limit": "Topic models and LLMs include probabilistic steps. A fresh run can group or label some posts differently, especially when the random seed, model, or software version changes. The goal is an illustrative original-data rerun, not identical historical output replication.",
+  "reproduction_limit": "Method transfer to a new corpus, not reproduction of dissertation findings. Probabilistic algorithms, seeds, model revisions and dependencies can change outputs.",
   "intended_workflow": [
     "visual-demo",
     "fork-or-install",
@@ -74,28 +68,18 @@
   "profiles": {
     "quickcheck": {
       "calls": 0,
-      "purpose": "Verify original Study 1 hashes, cohort preparation and counts"
+      "purpose": "Verify public Trump corpus hashes, IDs and date coverage"
     },
-    "synthetic-e2e": {
-      "inputs": "exact bundled corpus, benchmark, stopwords",
-      "review_mode": "synthetic-oracle",
-      "human_review_performed": false,
-      "discovery": "measured, never force seven",
-      "validation_votes_per_topic": 20
-    },
-    "research": {
-      "review_mode": "human",
-      "minimum_reviewers": 2,
-      "synthetic_benchmark_for_other_data": "reject"
-    },
-    "study1-demo": {
+    "trump-demo": {
       "default_stages": [
         1
       ],
-      "calls": 0,
-      "discovery_records": 704,
-      "analysis_records": 5871,
-      "full_records": 5872
+      "api_calls": 0,
+      "records": 34416
+    },
+    "research": {
+      "review_mode": "human",
+      "minimum_reviewers": 2
     }
   },
   "review_record": {
@@ -109,7 +93,7 @@
       "theme_map_sha256",
       "themes"
     ],
-    "decision": "approved for human research; synthetic-test-only for oracle fixture",
+    "decision": "approved by actual researchers",
     "invalid_or_stale": "block Stage 4"
   },
   "budget": {
@@ -117,7 +101,7 @@
     "persistent": "api_ledger.sqlite",
     "cached_operations": "logical ID plus prompt/model/settings fingerprint",
     "uncertain_usage": "retain conservative reservation",
-    "public_demo": "Released Study 1 example IDs only; 200/session/day; 600/IP/day; USD20/day and USD620/calendar month site-wide, shared with the research guide"
+    "public_demo": "Public Trump example IDs only; 200/session/day; 600/IP/day; USD20/day and USD620/calendar month site-wide, shared with the research guide"
   },
   "artifacts": {
     "1": [
@@ -148,9 +132,6 @@
       "api_usage.json",
       "api_responses.json",
       "verification.json"
-    ],
-    "synthetic_test_only": [
-      "synthetic_run.json"
     ]
   },
   "research_guide": {
@@ -162,7 +143,7 @@
     "model": "gpt-4o-2024-08-06"
   },
   "public_service": {
-    "data": "released Study 1 brand records only; Study 2 user data excluded",
+    "data": "Server-approved examples from the public Trump corpus only. No dissertation research datasets.",
     "session_calls_per_utc_day": 200,
     "ip_calls_per_utc_day": 600,
     "daily_usd": 20,
@@ -173,5 +154,16 @@
       10,
       20
     ]
+  },
+  "release": "0.5.0",
+  "tutorial": {
+    "source": "https://www.kaggle.com/datasets/codebreaker619/donald-trump-tweets-dataset",
+    "window": [
+      "2015-06-16",
+      "2021-01-08"
+    ],
+    "human_review_performed": false,
+    "classifier_validated": false,
+    "prevalence_inference": "requires researcher approval and independent validation; topic-assignment summaries are descriptive only"
   }
 }

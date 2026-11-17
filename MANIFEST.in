@@ -1,5 +1,3 @@
-include README.md LICENSE setup.py
+include README.md REPRODUCE.md AGENTS.md LICENSE LICENSE-CONTENT.md setup.py
 include dtm_pipeline/requirements*.txt
-include docs/data/demonstration*.csv docs/data/demonstration_stopwords.txt
-include docs/data/study.json docs/data/study-demo.json docs/data/synthetic-integrity.json
-recursive-include docs/data/study1 *
+recursive-include docs/data/trump corpus.csv stopwords.txt manifest.json README.md

@@ -13,7 +13,7 @@ components, and scoring are those of the archival implementation
   * fit-once-then-reduce: each sampled (UMAP, HDBSCAN) configuration is fit
     once and then reduced to every maximum topic solution. With a seeded
     UMAP this is intended to avoid redundant fits. Equivalence must be checked
-    in the recorded dependency environment; it is not verified on the restricted study. Set
+    in the recorded dependency environment; this does not assert historical numerical equivalence. Set
     `refit_per_solution = True` to refit per solution exactly as S1 did;
   * per-candidate audit fields: topics actually found (HDBSCAN often finds
     fewer clusters than the maximum solution) and the outlier share.
@@ -32,6 +32,7 @@ import json
 import os
 import re
 import hashlib
+import html
 from pathlib import Path
 from dataclasses import asdict
 from typing import Callable
@@ -105,7 +106,7 @@ def ensure_nltk_data() -> None:
             f"is set; otherwise run nltk.download() for these packages manually.")
 
 
-def build_preprocessor(stopwords_file: str) -> tuple[Callable[[str], str], set]:
+def build_preprocessor(stopwords_file: str, strip_platform_artifacts: bool = False) -> tuple[Callable[[str], str], set]:
     """Return a tweet -> cleaned-string function and the full stopword set.
 
     The stopword set combines NLTK English stopwords with the analyst's
@@ -116,7 +117,7 @@ def build_preprocessor(stopwords_file: str) -> tuple[Callable[[str], str], set]:
     custom = set()
     if os.path.exists(stopwords_file):
         with open(stopwords_file, "r", encoding="utf-8") as f:
-            custom = {w.strip().lower() for w in f.read().split(",") if w.strip()}
+            custom = {w.strip().lower() for w in re.split(r"[,\n]", f.read()) if w.strip()}
         print(f"[stage1] Loaded {len(custom)} domain stopwords from {stopwords_file}")
     else:
         print(f"[stage1] WARNING: {stopwords_file} not found — using NLTK stopwords only.")
@@ -140,7 +141,12 @@ def build_preprocessor(stopwords_file: str) -> tuple[Callable[[str], str], set]:
         # str(NaN) would otherwise enter the corpus as the token "nan".
         if text is None or (isinstance(text, float) and np.isnan(text)):
             return ""
-        text = re.sub(r"[^a-zA-Z]", " ", str(text))
+        text = str(text)
+        if strip_platform_artifacts:
+            text = html.unescape(text)
+            text = re.sub(r"https?://\S+|www\.\S+", " ", text, flags=re.I)
+            text = re.sub(r"(?<!\w)@\w+", " ", text)
+        text = re.sub(r"[^a-zA-Z]", " ", text)
         text = re.sub(r"\s+", " ", text).strip().lower()
         tokens = word_tokenize(text)
         return " ".join(
@@ -164,15 +170,21 @@ class CoherenceScorer:
     def __init__(self, texts: list[str]):
         self.tokenized = [t.split() for t in texts]
         self.dictionary = Dictionary(self.tokenized)
+        self.cache = {}
 
     def __call__(self, topic_words: list[list[str]]) -> float:
+        key = tuple(tuple(words) for words in topic_words)
+        if key in self.cache:
+            return self.cache[key]
         # processes=1: Gensim's default forks cpu_count-1 workers per call,
         # each a copy of this process — over 1,200 candidates that exhausts
         # memory on real corpora, and it is no faster at tweet-corpus scale.
         cm = CoherenceModel(topics=topic_words, texts=self.tokenized,
                             dictionary=self.dictionary, coherence="c_v",
                             processes=1)
-        return cm.get_coherence()
+        score = float(cm.get_coherence())
+        self.cache[key] = score
+        return score
 
 
 def compute_coherence(topic_words: list[list[str]], texts: list[str]) -> float:
@@ -291,7 +303,7 @@ def run_stage1(cfg=CONFIG) -> str:
     df = pd.read_csv(discovery_path)
     if "tweet" not in df.columns:
         raise ValueError(f"{discovery_path} must contain a 'tweet' column.")
-    preprocess, stop_words = build_preprocessor(cfg.stopwords_file)
+    preprocess, stop_words = build_preprocessor(cfg.stopwords_file, cfg.strip_platform_artifacts)
     manifest = {
         "input_sha256": hashlib.sha256(Path(discovery_path).read_bytes()).hexdigest(),
         "analysis_corpus_sha256": hashlib.sha256(Path(cfg.input_csv).read_bytes()).hexdigest(),
@@ -303,6 +315,8 @@ def run_stage1(cfg=CONFIG) -> str:
     print(f"[stage1] Preprocessing {len(df):,} documents ...")
     df["preprocessed_tweet"] = df["tweet"].apply(preprocess)
     empty = df["preprocessed_tweet"].str.strip() == ""
+    manifest.update(input_records=len(df), excluded_empty_after_preprocessing=int(empty.sum()), discovery_records=int((~empty).sum()))
+    df[empty].to_csv(os.path.join(out, "excluded_empty.csv"), index=False)
     if empty.any():
         print(f"[stage1] {int(empty.sum()):,} documents are empty after preprocessing "
               f"(no text, or only stopwords/non-alphabetic characters) and are "
@@ -356,6 +370,7 @@ def run_stage1(cfg=CONFIG) -> str:
             "best_n_topics_found": top["n_topics_found"] if top else None,
         }
         all_iterations.append(record)
+        Path(out, "search_progress.json").write_text(json.dumps({"completed_iterations": i + 1, "planned_iterations": cfg.search_iterations, "iterations": all_iterations}, indent=2), encoding="utf-8")
         if top and record["max_coherence"] > best["max_coherence"]:
             best, best_model = record, model
             print(f"[stage1]   ** New best coherence: {best['max_coherence']:.4f} "

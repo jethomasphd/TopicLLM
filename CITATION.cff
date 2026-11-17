@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use TopicLLM, please cite the methods preprint and the software."
-title: "TopicLLM: Coherence-Optimized Topic Modeling with Democratic Large Language Model Interpretation"
+title: "TopicLLM: Human-Guided Topic Interpretation and Prevalence Analysis"
 type: software
 authors:
   - family-names: Thomas
@@ -10,8 +10,8 @@ authors:
 repository-code: "https://github.com/jethomasphd/TopicLLM"
 url: "https://topicllm.dev/"
 license: MIT
-version: "0.4.0"
-date-released: "2026-11-16"
+version: "0.5.0"
+date-released: "2026-11-17"
 keywords:
   - topic modeling
   - BERTopic
@@ -22,7 +22,7 @@ keywords:
   - public health surveillance
 preferred-citation:
   type: article
-  title: "Coherence-Optimized Topic Modeling with Democratic Large Language Model Interpretation: A Human-in-the-Loop Pipeline for Public Health Surveillance of Social Media"
+  title: "TopicLLM: A Human-Guided, Agent-Executable Workflow for Topic Interpretation and Prevalence Analysis"
   status: preprint
   year: 2026
   url: "https://topicllm.dev/paper/"

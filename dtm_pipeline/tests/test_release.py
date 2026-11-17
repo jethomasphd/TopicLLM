@@ -2,11 +2,11 @@ import json
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 import pytest
-from config import PipelineConfig, synthetic_fixture_config
+from config import PipelineConfig
 from api_budget import ApiBudget, BudgetExceeded, request_fingerprint
 from llm_backend import LLMBackend
-from review import require_review, record_human_review, exact_synthetic_inputs
-from synthetic_workflow import quickcheck
+from review import require_review, record_human_review
+from trump import quickcheck
 
 
 def test_concurrent_calls_cannot_overrun_budget(tmp_path):
@@ -61,19 +61,18 @@ def test_research_requires_current_evidence_bound_human_attestation(tmp_path):
     with pytest.raises(ValueError,match='stale'):require_review(cfg)
 
 
-def test_synthetic_review_and_benchmark_cannot_authorize_research(tmp_path):
+def test_mock_or_oracle_review_cannot_authorize_research(tmp_path):
     cfg=review_fixture(tmp_path)
-    record_human_review(cfg,['Fixture Researcher A','Fixture Researcher B'])
-    cfg.benchmark_csv=synthetic_fixture_config().benchmark_csv
-    with pytest.raises(ValueError,match='bundled synthetic benchmark'):require_review(cfg)
-    with pytest.raises(ValueError,match='exact bundled'):exact_synthetic_inputs(cfg)
+    record=record_human_review(cfg,['Fixture Researcher A','Fixture Researcher B'])
+    record.update(review_mode='synthetic-oracle',human_review_performed=False)
+    (tmp_path/'stage3/review_record.json').write_text(json.dumps(record),encoding='utf-8')
+    with pytest.raises(ValueError,match='two-researcher'):require_review(cfg)
 
 
-def test_offline_quickcheck_exercises_real_inference(tmp_path):
-    report=quickcheck(synthetic_fixture_config(output_dir=str(tmp_path)))
-    assert report['records']==5872 and report['comparisons']==15
-    assert all(row['computed']==row['reported'] for row in report['prevalence_comparison'])
-    assert not report['human_validation'] and not report['historical_recomputation']
+def test_offline_quickcheck_verifies_the_single_corpus(tmp_path):
+    report=quickcheck(PipelineConfig(output_dir=str(tmp_path)))
+    assert report['records']==34416 and report['api_calls']==0
+    assert report['window']==['2015-06-16','2021-01-08']
 
 
 @pytest.mark.parametrize('names', [['Same Person',' same person '], ['', 'Researcher B'], ['agent','Researcher B']])
@@ -85,27 +84,23 @@ def test_external_review_records_require_distinct_nonblank_names(tmp_path, names
     with pytest.raises(ValueError,match='two-researcher'):require_review(cfg)
 
 
-def test_synthetic_fixture_rejects_changed_inference_design():
-    cfg=synthetic_fixture_config();cfg.themes=['Unrelated theme']
-    with pytest.raises(ValueError,match='taxonomy'):exact_synthetic_inputs(cfg)
-
-
 def test_bundled_provenance_uses_declared_hashes_not_a_self_comparison(tmp_path,monkeypatch):
     import config,shutil
     from provenance import input_kind
-    source=Path(config.DEMO_DIR)
-    for name in ('synthetic-integrity.json','demonstration_corpus.csv'):shutil.copyfile(source/name,tmp_path/name)
+    source=Path(config.DEMO_DIR)/'trump'
+    (tmp_path/'trump').mkdir()
+    for name in ('manifest.json','corpus.csv'):shutil.copyfile(source/name,tmp_path/'trump'/name)
     monkeypatch.setattr(config,'DEMO_DIR',str(tmp_path))
-    path=tmp_path/'demonstration_corpus.csv'
-    assert input_kind(path,path.name)=='bundled-synthetic'
+    path=tmp_path/'trump/corpus.csv'
+    assert input_kind(path,path.name)=='public-trump-tutorial'
     path.write_bytes(path.read_bytes()+b'\n')
     assert input_kind(path,path.name)=='researcher-supplied-unverified'
 
 
-def test_cli_refuses_unbudgeted_synthetic_run_before_discovery(monkeypatch):
+def test_cli_refuses_unbudgeted_paid_stages_before_execution(monkeypatch):
     import run_pipeline,sys
     monkeypatch.setattr(run_pipeline,'CONFIG',PipelineConfig())
-    monkeypatch.setattr(sys,'argv',['topicllm','--profile','synthetic-e2e'])
+    monkeypatch.setattr(sys,'argv',['topicllm','--profile','research','--stages','2,3'])
     with pytest.raises(SystemExit) as error:run_pipeline.main()
     assert error.value.code==2
 

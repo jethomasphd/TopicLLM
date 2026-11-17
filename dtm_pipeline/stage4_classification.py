@@ -5,7 +5,7 @@ Every document receives exactly one label from the theme taxonomy (or "not
 belonging to any theme"). Two candidate classifiers are piloted against a
 human-labeled benchmark (n=250 in the reference implementation) and the
 better one is scaled — the pipeline REFUSES to scale below the agreement
-threshold. The LLM prompt is verbatim from the paper (section 2.7), built
+threshold. The historical LLM prompt appears in maintained methods section 3, built
 dynamically from the consensus themes in config. Written against the current
 OpenAI SDK; the archival version is Supplementary File S3.
 
@@ -273,8 +273,9 @@ def classify_corpus(backend: LLMBackend, corpus: pd.DataFrame, out: str, cfg=CON
 # --------------------------------------------------------------------------- #
 
 def run_stage4(cfg=CONFIG) -> str:
-    """Pilot both classifiers on the human benchmark; scale the winner if and
-    only if it clears the agreement threshold."""
+    """Pilot both classifiers on the human benchmark; scale only after the gate."""
+    if not cfg.themes or len(set(cfg.themes)) != len(cfg.themes) or any(not isinstance(t,str) or not t.strip() for t in cfg.themes):
+        raise ValueError('Supply unique, nonempty researcher-approved themes before Stage 4.')
     if __package__:
         from .review import require_review
     else:
@@ -295,8 +296,8 @@ def run_stage4(cfg=CONFIG) -> str:
     if unknown:
         raise ValueError(f"Benchmark human_label values {sorted(unknown)} are not in the "
                          f"option list {labels}. Map benchmark codes to theme names first "
-                         f"(see docs/data/demonstration_benchmark.csv for the format).")
-    provenance = input_kind(cfg.benchmark_csv, 'demonstration_benchmark.csv')
+                         f"(see REPRODUCE.md for the format).")
+    provenance = input_kind(cfg.benchmark_csv, 'human_labels.csv')
     print(f"[stage4] Benchmarking against {len(bench)} reference labels ({provenance}) "
           f"(backend={backend.name}, model={backend.model_id}) ...")
 
@@ -323,7 +324,7 @@ def run_stage4(cfg=CONFIG) -> str:
         "model": backend.model_id,
         "backend": backend.name,
         "benchmark_provenance": provenance,
-        "corpus_provenance": input_kind(cfg.input_csv, 'demonstration_corpus.csv'),
+        "corpus_provenance": input_kind(cfg.input_csv, 'corpus.csv'),
         "threshold": cfg.agreement_threshold,
         "review_mode": review['review_mode'],
         "human_review_performed": review['human_review_performed'],

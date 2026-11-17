@@ -8,12 +8,12 @@ import {environment} from './quota-fixture.mjs';
 import {issueSession} from '../worker/session.js';
 import library from '../worker/guide-sources.json' with {type:'json'};
 const req=(body,cookie,path='/api/guide',origin='https://example.org',id='guide-operation-1')=>new Request('https://example.org'+path,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json',Cookie:'__Host-topicllm='+cookie,'X-Request-ID':id},body:JSON.stringify(body)});
-const question={question:'Why can the original-data demonstration find a different number of topics?',page:'provenance'};
+const question={question:'How does the Trump tutorial transfer the dissertation methodology?',page:'provenance'};
 const provider=content=>Response.json({model:'gpt-4o-2024-08-06',choices:[{finish_reason:'stop',message:{content:JSON.stringify(content)}}],usage:{prompt_tokens:7000,completion_tokens:150}});
 const good={answer:'Probabilistic methods and changing seeds or environments can produce different topics. The dissertation remains the historical source.',source_ids:['provenance','validation'],suggestions:['How do topics become themes?','How do I try the demo?']};
 test('guide index matches its public sources and unchanged dissertation',async()=>{
  for(const [name,expected] of Object.entries({...library.source_hashes,'THOMAS-PRIMARY-2025.pdf':library.dissertation_sha256})){const bytes=await readFile(new URL('../'+name,import.meta.url));assert.equal(createHash('sha256').update(name.endsWith('.pdf')?bytes:bytes.toString('utf8').replace(/\r\n/g,'\n')).digest('hex'),expected,name);}
- assert.ok(library.chunks.some(c=>c.url.endsWith('#page=197')));assert.match(library.briefing,/Chapter 6/);
+ assert.ok(library.chunks.some(c=>c.url.endsWith('#page=197')));assert.match(library.briefing,/34,416/);
 });
 test('retrieval finds original evidence and builds bounded server instructions',()=>{
  assert.ok(retrieve('cross-lagged potential exposure beta 0.05').some(c=>c.id.startsWith('dissertation-')));

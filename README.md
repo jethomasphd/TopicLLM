@@ -1,93 +1,84 @@
-<p align="center"><a href="https://topicllm.dev"><img src="docs/assets/topicllm-mark.svg" width="84" alt="TopicLLM: text grouped into interpretable topics"></a></p>
+<p align="center"><img src="docs/assets/topicllm-mark.svg" width="76" alt="TopicLLM language lens"></p>
+<h1 align="center">TopicLLM</h1>
+<p align="center"><strong>From language to evidence. Every step open.</strong><br>A human-guided research method. An executable protocol for your agent.</p>
+<p align="center"><a href="https://topicllm.dev/app/">Explore the Trump walkthrough</a> · <a href="https://topicllm.dev/paper/">Read the methods</a> · <a href="https://topicllm.dev/audit/">Research in action</a></p>
 
-# TopicLLM
+![Documents become topics, researcher-reviewed themes, and evidence. Conceptual illustration.](docs/assets/text-to-evidence-v2.jpg)
 
-### From language to evidence. Every step open.
+**What is a large collection of text about—and how does that change?** TopicLLM connects topic discovery, repeated LLM naming, human interpretation, classifier validation and prevalence estimation. It gives researchers a method to inspect and coding agents a concrete implementation to execute.
 
-**A research workflow for agents to execute and humans to understand, review and use.**
+Born in dissertation research at **The University of Texas at Austin**, this release has two clear entry points:
 
-[Explore the live demonstration](https://topicllm.dev/app/) · [Read the methods](https://topicllm.dev/paper/) · [Run with your agent](REPRODUCE.md) · [Original Study 1 data](docs/data/README.md)
+- **Research in action:** the unchanged dissertation and two study papers document applications to alcohol marketing and information dynamics during COVID-19. They are historical research examples, available for review. Dissertation datasets are not distributed.
+- **Learn by doing:** one new public corpus—**34,416 Trump account posts, June 16, 2015–January 8, 2021**—walks you through the method. This transfers the methodology to another domain; it does not reproduce the dissertation findings.
 
-![Text becomes evidence through an inspectable research workflow](docs/assets/research-workflow.svg)
+The selected Kaggle archive ends January 8, before the first term ended. It includes retweets and posts recorded as deleted. Account posts are not all personally authored statements, and the archive is not a guarantee of complete coverage. [Data card and attribution](docs/data/README.md).
 
-What is a large collection of posts talking about? How does that conversation change? TopicLLM finds groups of similar language, asks an LLM to propose names, and helps researchers turn those groups into meaningful themes. After independent validation, a classifier can label the corpus and estimate theme prevalence across time.
+## Explore → fork → run → review
 
-The agent handles computation, files and the evidence trail. Researchers decide what the themes mean, review validation and interpret the findings.
+```mermaid
+flowchart LR
+  A[Documents] --> B[Discover topics]
+  B --> C[Collect naming votes]
+  C --> D[Researchers synthesize themes]
+  D --> E[Validate the classifier]
+  E --> F[Estimate prevalence]
+```
 
-## A question that became an open method
+A **topic** groups similar language. A **theme** is a researcher-defined interpretation. A **label** assigns a document to a theme. Keeping these distinct prevents an attractive model output from becoming an unsupported scientific claim.
 
-TopicLLM grew out of dissertation research at **The University of Texas at Austin** on alcohol companies’ social media communication during COVID-19. It connects computational topic discovery with researcher-led interpretation, informed by the [Theme and Topic framework](https://arxiv.org/abs/2210.00707). The website is an invitation to understand the method; the repository is a starting point for you and your agent to test and extend it.
+The [visual walkthrough](https://topicllm.dev/app/) lets you inspect recorded discovery, try live OpenAI calls and draft a theme map. Its draft labels are teaching aids. Research requires actual researcher review and an independent benchmark before corpus classification. The website guide explains the program; your fork runs the analysis.
 
-The dissertation studies received committee review. The study editions and methods are preprints, and the methodology has not yet been independently replicated by other researchers. The software checks and demonstration make specific evidence inspectable; scientific validation remains work for the research community.
+## Start locally
 
-**[Read Jacob’s welcome letter →](https://topicllm.dev/welcome/)**
+Python 3.11+; use an isolated environment. In your fork:
 
-## The actual study, ready to explore
-
-The demonstration uses **original Study 1 alcohol-brand data**: **5,872 records from 11 brands**. The data and configuration are included in the package.
-
-This is an **illustrative modern rerun**, not a promise of identical historical outputs. Topic models and LLMs include probabilistic steps. A fresh run can group or label some posts differently, especially when the random seed, model, or software version changes.
-
-Walk through the five stages, search the study posts, collect OpenAI naming votes and inspect live classifications. Dissertation findings and new demonstration outputs are labeled where they appear.
-
-## Start in minutes
-
-Fork and clone this repository, then create and activate a Python 3.11+ environment:
-
-```sh
+```bash
 python -m venv .venv
-# PowerShell: .venv\Scripts\Activate.ps1
-# bash/zsh: source .venv/bin/activate
+# Activate: Windows PowerShell .venv/Scripts/Activate.ps1
+# macOS/Linux: source .venv/bin/activate
 python -m pip install ".[dev]"
-topicllm --profile quickcheck --output-dir runs/check
+topicllm --profile quickcheck --output-dir runs/quickcheck
 ```
 
-The free quickcheck verifies the bundled data and setup. It makes no model or API calls.
+The free quickcheck verifies the exact corpus bytes, IDs, date window and counts. It is an installation and data-integrity check, not model validation.
 
-To rerun discovery:
-
-```sh
-python -m pip install ".[ml,dev]"
-topicllm --profile study1-demo --output-dir runs/study1 --plan
-topicllm --profile study1-demo --output-dir runs/study1
+```bash
+python -m pip install ".[ml]"
+topicllm --profile trump-demo --plan
+topicllm --profile trump-demo --output-dir runs/trump
 ```
 
-The first run may download the embedding model and NLP resources. Discovery is local and makes no paid OpenAI calls. An [installable wheel and source archive](https://topicllm.dev/reproduce/) are also available.
+Discovery runs on the full eligible corpus with 50 parameter draws and 24 topic ceilings per draw. It uses local compute, downloads the embedding model and NLTK resources when needed, and makes no paid API calls. Runtime depends on hardware. Do not expect seven topics: topic count is an observed result.
 
-## Give your agent a method
+**Giving this to an agent?** Start with this instruction:
 
-> Read AGENTS.md, REPRODUCE.md and docs/protocol.json. Verify the original Study 1 inputs. Run discovery in a new output directory. Explain the resulting topics and outliers, retain the evidence, and prepare the next steps and their costs for my review. Do not invent human labels, approvals or historical outputs.
+> Read AGENTS.md, REPRODUCE.md, docs/protocol.json and the maintained methods. Verify the tutorial corpus, explain the analysis plan and costs, then run the maintained scripts. Preserve the evidence. Stop for my scientific decisions; do not invent human review, benchmark annotations or findings.
 
-| Stage | Agent executes | Researcher reviews |
-| --- | --- | --- |
-| Discover | Embeddings, UMAP, HDBSCAN and coherence search | Sampling, topic structure and coverage |
-| Name | Independent LLM calls and vote tallies | Whether labels describe the underlying posts |
-| Synthesize | Evidence packet and proposed theme map | Two researchers approve interpretation |
-| Classify | Benchmark comparison, then corpus labeling | Independent annotations and per-theme performance |
-| Estimate | Counts, prevalence and proportional tests | Denominators, assumptions and scientific meaning |
+[Complete execution recipe](REPRODUCE.md) · [Agent contract](AGENTS.md) · [Download package](https://topicllm.dev/reproduce/)
 
-[REPRODUCE.md](REPRODUCE.md) provides exact commands and handoffs. [AGENTS.md](AGENTS.md) defines the execution contract. [protocol.json](docs/protocol.json) connects the method to machine-readable settings.
+## What the software retains
 
-## Evidence you can inspect
+| Stage | Mechanism | Reviewable evidence |
+|---|---|---|
+| Discover | MiniLM → UMAP → HDBSCAN → c-TF-IDF; select by cᵥ coherence | Every candidate, exclusions, outliers, assignments, fitted model |
+| Name | Independent LLM calls; modal candidate name | Raw ballots, tally, prompts, model and usage |
+| Synthesize | Two researchers interpret and agree | Worksheet, theme map, evidence-bound attestation |
+| Classify | Independent benchmark before scaling | Per-theme metrics, confusion counts, labels and errors |
+| Estimate | Declared periods and denominators | Counts, prevalence, two-proportion tests and multiplicity |
 
-The [demo record](https://topicllm.dev/validation/) shows the selected topics and model coverage, with complete run artifacts available to download. The dissertation supplies the reported study findings. Topic models and LLMs can vary across runs; retain the inputs, settings and outputs when adapting the method.
+No research taxonomy or human benchmark is pre-approved for the Trump corpus. The package stops at the corresponding gates. Paid steps require an explicit `--budget-usd` and private credentials. The public Worker accepts only tutorial examples; use your own approved environment for research data.
 
-[Methods](https://topicllm.dev/paper/) explain the research decisions. [Technical data documentation](docs/data/README.md) specifies the inputs. [Source checksums](source-integrity.json) protect the original papers and supplements.
+## Research in action
 
-The maintained package covers the topic-to-prevalence workflow. Research classification requires an independent human benchmark. Study 2 user data, LIWC sentiment analysis and Study 2’s exposure-index/GSEM analysis are outside this package.
+[Dissertation](THOMAS-PRIMARY-2025.pdf) · [Study 1: alcohol marketing](https://topicllm.dev/studies/1/) · [Study 2: information dynamics](https://topicllm.dev/studies/2/)
 
-## Repository map
+The papers preserve the research record byte for byte. The maintained [methods preprint](https://topicllm.dev/paper/) explains the complete method and its transfer to the Trump archive. The studies received dissertation committee review, distinct from journal peer review. Independent replication of TopicLLM remains open work. Software tests and a successful tutorial run do not establish scientific validity in a new domain.
 
-| Path | Purpose |
-| --- | --- |
-| `dtm_pipeline/` | Installable Python workflow |
-| `docs/data/study1/` | Original Study 1 release and recorded discovery |
-| `docs/` | Website, methods and research guide |
-| `worker/` | Server-side OpenAI gateway and atomic usage accounting |
-| `examples/` | Research configuration examples |
-| `tests/`, `dtm_pipeline/tests/` | Software and data-integrity checks |
-| `scripts/` | Build, source verification and release tooling |
+Topic models and LLMs include probabilistic steps. Seeds, model revisions, dependencies and hardware can change groupings or names. Reproducibility means retaining enough information to rerun and assess the process—not promising identical output across changing environments.
 
-The live demo has [shared service limits](https://topicllm.dev/privacy/). Full research runs use your own credentials and declared budget. Keep keys out of prompts and version control.
+## Contribute and cite
 
-Code: MIT. Documentation and original author-created materials: see [LICENSE-CONTENT.md](LICENSE-CONTENT.md). Third-party brand text is not relicensed by those licenses. Cite the dissertation, methods and software using [CITATION.cff](CITATION.cff).
+Questions, replication reports and improvements are welcome through [GitHub issues](https://github.com/jethomasphd/TopicLLM/issues). See [CITATION.cff](CITATION.cff), [source integrity](source-integrity.json), [deployment](DEPLOYMENT.md) and [data handling](https://topicllm.dev/privacy/).
+
+Code: MIT. Documentation: CC BY 4.0 unless otherwise stated. Trump text: **Data files © Original Authors**, as designated by the selected Kaggle source; it is not relicensed by this project. [Material-specific terms](LICENSE-CONTENT.md).

@@ -1,0 +1,12 @@
+{
+  "files": {
+    "all_iteration_results.json": "98630dc180a6e5cf508220529f80d35f25193cdb10883ac03c65650bfd36dd77",
+    "assignments.csv": "038a9c02fa2290c1d07678a018add091d881915c59a250fb4507ad7ccba6284d",
+    "coherence_curve.png": "a17415adb851d35b10c3301b548c760092185426464b05aea28298072dd13dce",
+    "excluded.csv": "11e6a8c48f7bff7b1a06e65c66d1da264f3c81e0b83db9ff3551d1c9b9c85e10",
+    "parameters.json": "579712cdafbca9cfbb34df8b63eb800fc9de6509c82d12add404915a819ed99f",
+    "run_manifest.json": "ef0ed4ebab73f6bccddbf9ed187ebf60038b28ab88103b2387c1ece1a412791a",
+    "topics_for_naming.csv": "a06352ad358c92a927b96f23e85204d5fe94f1024e62b0bf6cfd1add07318cf3",
+    "verification.json": "3118ee8dfd47d8df4d67de6a646439ba30ddf0a041573d6b4b1d2ea8ff60d550"
+  }
+}

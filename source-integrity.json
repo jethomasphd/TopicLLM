@@ -53,5 +53,6 @@
       "sha256": "9396c87774c3a5e4d4f6c4a59f51c77a8d21897b4c24a8a7939d15ca5f60862b"
     }
   ],
-  "byte_basis": "Original Git blob bytes at baseline commit; text supplements use LF line endings on every platform."
+  "byte_basis": "Original Git blob bytes at baseline commit; text supplements use LF line endings on every platform.",
+  "baseline_history": "The baseline identifier refers to the original history before dataset withdrawal. Content hashes remain the verification basis."
 }

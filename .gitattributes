@@ -5,3 +5,5 @@
 *.jpg binary
 *.woff binary
 *.woff2 binary
+# Public source text and hashed run artifacts must retain their exact bytes.
+docs/data/trump/** -text -whitespace

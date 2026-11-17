@@ -1,5 +1,5 @@
-import examples from '../docs/data/live-examples.json' with {type:'json'};
-import {validateCall,sendOpenAI} from './provider.js';
+import examples from '../docs/data/trump/live-examples.json' with {type:'json'};
+import {validateCall,sendOpenAI,classificationResult} from './provider.js';
 import {hash,sign,equal,session,issueSession} from './session.js';
 import {guideCall,guideResult,GUIDE_VERSION} from './guide.js';
 import {publicLimits} from './limits.js';
@@ -20,19 +20,23 @@ async function readBody(request){
 }
 
 export function demoCall(input){
-  if(!input||!['name','classify'].includes(input.task))throw new Error('Select a Study 1 example.');
+  if(!input||!['name','classify'].includes(input.task))throw new Error('Select a public Trump example.');
   const field=input.task==='name'?'topicId':'exampleId';
-  if(Object.keys(input).some(k=>!['task',field].includes(k)))throw new Error('The public demo accepts released Study 1 example IDs only.');
+  if(Object.keys(input).some(k=>!['task',field].includes(k)))throw new Error('The public demo accepts public Trump example IDs only.');
   if(input.task==='name'){
     const topic=examples.topics.find(t=>t.id===input.topicId);if(!topic)throw new Error('Unknown recorded topic.');
     return {task:'name',words:topic.words,domain:examples.domain};
   }
-  const example=examples.examples.find(e=>e.id===input.exampleId);if(!example)throw new Error('Unknown Study 1 example.');
+  const example=examples.examples.find(e=>e.id===input.exampleId);if(!example)throw new Error('Unknown Trump example.');
   return {task:'classify',text:example.text,themes:examples.themes};
 }
 
 export default {async fetch(request,env){
   const url=new URL(request.url),path=url.pathname;
+  // Withdrawn dissertation data must not be served by stale asset paths.
+  if(path==='/S4_liwc_output.csv'||path.startsWith('/data/reference_run/')||path.startsWith('/data/study1/')||path==='/data/live-examples.json'||path.startsWith('/downloads/topicllm_research-0.4.0')||path==='/validation/results.json'||path.startsWith('/data/demonstration_')||path==='/data/study-demo.json'||path==='/data/study.json'||path.startsWith('/validation/synthetic-')||path==='/validation/legacy-synthetic-results.json')
+    return new Response('This dataset or download has been withdrawn. Visit https://topicllm.dev for the current public demonstration.',{status:410,headers:{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'}});
+  if(path==='/preprints/TopicLLM_Methods_Revised_2026-11-16.pdf')return Response.redirect('https://topicllm.dev/preprints/TopicLLM_Methods_2026-11-17.pdf',301);
   // Keep existing API clients on their origin; browser navigation uses the primary domain.
   if(env.CANONICAL_REDIRECTS!=='false'&&!path.startsWith('/api/')&&['GET','HEAD'].includes(request.method)&&
      ['topicllm.dev','www.topicllm.dev','topicllm.jethomasphd.workers.dev'].includes(url.hostname)&&
@@ -43,7 +47,7 @@ export default {async fetch(request,env){
   if(!path.startsWith('/api/'))return env.ASSETS.fetch(request);
   const ready=configured(env), publicLive=ready&&env.LIVE_DEMO_ENABLED==='true';
   const guideLive=publicLive&&env.GUIDE_ENABLED==='true';
-  if(path==='/api/config'&&request.method==='GET')return json({ready,provider:'openai',model:env.OPENAI_MODEL||null,access:'released-study1-examples-and-research-guide',publicLive,guideLive,guideVersion:GUIDE_VERSION,maxTextLength:8000,...publicLimits(env)});
+  if(path==='/api/config'&&request.method==='GET')return json({ready,provider:'openai',model:env.OPENAI_MODEL||null,access:'public-trump-examples-and-research-guide',publicLive,guideLive,guideVersion:GUIDE_VERSION,maxTextLength:8000,...publicLimits(env)});
   if(path==='/api/health'&&request.method==='GET'){
     try{
       if(!ready)return json({status:'unconfigured',live_examples:false},503);
@@ -101,8 +105,9 @@ export default {async fetch(request,env){
     if(reservation.allowed!==true)throw new Error('Reservation was not confirmed');
   }catch{return json({error:'Usage controls are unavailable. No model request was sent.',retryable:false},503);}
   const response=await sendOpenAI(call,env);let providerResult=await response.json(),httpStatus=response.status,ok=response.ok;
+  if(ok&&call.allowed_options){try{providerResult=classificationResult(providerResult,call);}catch(error){providerResult={error:error.message,raw_text:providerResult.text,usage:providerResult.usage,request_id:providerResult.request_id,model:providerResult.model,retryable:false};httpStatus=502;ok=false;}}
   if(isGuide&&ok){try{providerResult=guideResult(providerResult,call);}catch(error){providerResult={error:error.message,usage:providerResult.usage,retryable:false};httpStatus=502;ok=false;}}
-  const result={...providerResult,...(isPublic?{mode:isGuide?'research-guide':'live-study1-example',remaining_session:reservation.remaining_session}:{})};
+  const result={...providerResult,...(isPublic?{mode:isGuide?'research-guide':'live-trump-example',remaining_session:reservation.remaining_session}:{})};
   const usage=result.usage;
   const actual=Number.isInteger(usage?.prompt_tokens)&&Number.isInteger(usage?.completion_tokens)?usage.prompt_tokens*2500+usage.completion_tokens*10000:null;
   try{

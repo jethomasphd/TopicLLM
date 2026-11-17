@@ -1,0 +1,204 @@
+{
+  "dataset": "trump-tweets-2015-2021",
+  "mode": "measured-discovery-tutorial",
+  "input_sha256": "8256646462a1267c5c6e177d3c951a852a17bcbd8553cb0f98e2a89ce5f3206a",
+  "source_records": 34416,
+  "discovery_records": 32725,
+  "excluded_empty": 1691,
+  "outliers": 11636,
+  "outlier_period_counts": {
+    "campaign": 2952,
+    "transition": 159,
+    "presidency": 8525
+  },
+  "excluded_period_counts": {
+    "campaign": 26,
+    "transition": 0,
+    "presidency": 1665
+  },
+  "periods": {
+    "campaign": [
+      "2015-06-16",
+      "2016-11-08"
+    ],
+    "transition": [
+      "2016-11-09",
+      "2017-01-19"
+    ],
+    "presidency": [
+      "2017-01-20",
+      "2021-01-08"
+    ]
+  },
+  "period_counts": {
+    "campaign": 7805,
+    "transition": 372,
+    "presidency": 26239
+  },
+  "topics": [
+    {
+      "id": 0,
+      "words": [
+        "great",
+        "trump",
+        "president",
+        "thank",
+        "people",
+        "get",
+        "make",
+        "democrat",
+        "state",
+        "go"
+      ],
+      "count": 21073,
+      "period_counts": {
+        "campaign": 4827,
+        "transition": 213,
+        "presidency": 16033
+      },
+      "examples": [
+        {
+          "post_id": "1343807029572460545",
+          "tweet": "RT @RepMattGaetz: The NDAA was hijacked by the forever war lobby and their bought and paid for allies in the United States Congress.\n\nPresi…",
+          "date": "2020-12-29",
+          "is_retweet": "t"
+        },
+        {
+          "post_id": "742066996767031296",
+          "tweet": "\"Reporting that Orlando killer shouted \"\"Allah hu Akbar!\"\" as he slaughtered clubgoers. 2nd man arrested in LA with rifles near Gay parade.\"",
+          "date": "2016-06-12",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "640278865584197633",
+          "tweet": "Hillary said such nasty things about me, read directly off her teleprompter...but there was no emotion, no truth. Just can't read speeches!",
+          "date": "2015-09-05",
+          "is_retweet": "f"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "words": [
+        "clinesmith",
+        "guilty",
+        "plead",
+        "kevin",
+        "resistance",
+        "fbi",
+        "falsify",
+        "plea",
+        "deliberately",
+        "lawyer"
+      ],
+      "count": 10,
+      "period_counts": {
+        "campaign": 0,
+        "transition": 0,
+        "presidency": 10
+      },
+      "examples": [
+        {
+          "post_id": "1294378976769695746",
+          "tweet": "RT @seanmdav: Clinesmith's guilty plea is the beginning of the end of the NeverTrump and Resistance delusion that there was no spying, no c…",
+          "date": "2020-08-14",
+          "is_retweet": "t"
+        },
+        {
+          "post_id": "1294378779318591488",
+          "tweet": "RT @seanmdav: Kevin Clinesmith, the corrupt FBI lawyer who deliberately fabricated evidence to justify spying on Page, will plead guilty to…",
+          "date": "2020-08-14",
+          "is_retweet": "t"
+        },
+        {
+          "post_id": "1295568160792485888",
+          "tweet": "RT @rkylesmith: The Russia-Obsessed Media Does Its Best to Ignore Clinesmith’s Guilty Plea https://t.co/VWdoIyXZy1",
+          "date": "2020-08-18",
+          "is_retweet": "t"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "words": [
+        "izing",
+        "dominion",
+        "vote",
+        "part",
+        "via",
+        "one",
+        "three",
+        "two"
+      ],
+      "count": 6,
+      "period_counts": {
+        "campaign": 0,
+        "transition": 0,
+        "presidency": 6
+      },
+      "examples": [
+        {
+          "post_id": "1329526819876458497",
+          "tweet": "RT @realDonaldTrump: \"Dominion-izing the Vote\" https://t.co/ZOFsgDXsuH",
+          "date": "2020-11-19",
+          "is_retweet": "t"
+        },
+        {
+          "post_id": "1329298668403499009",
+          "tweet": "\"Dominion-izing the Vote\" https://t.co/ZOFsgDXsuH",
+          "date": "2020-11-19",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "1330368448552169474",
+          "tweet": "“Dominion-izing the Vote”\nPart Three via @OANN @ChanelRion https://t.co/5En1SjPIol",
+          "date": "2020-11-22",
+          "is_retweet": "f"
+        }
+      ]
+    }
+  ],
+  "parameters": {
+    "iteration": 43,
+    "umap_params": {
+      "n_neighbors": 15,
+      "n_components": 3,
+      "min_dist": 0.01,
+      "metric": "cosine"
+    },
+    "hdbscan_params": {
+      "min_cluster_size": 5,
+      "metric": "euclidean",
+      "cluster_selection_method": "eom"
+    },
+    "max_topics": 4,
+    "n_topics": 3,
+    "coherence": 0.5897934006389718,
+    "seed": 42,
+    "seed_umap": true
+  },
+  "candidate_status_counts": {
+    "insufficient_topics": 49,
+    "scored": 1151
+  },
+  "verification": {
+    "status": "complete",
+    "scope": "Trump archive discovery walkthrough",
+    "historical_replication": false,
+    "api_calls": 0,
+    "selected_model_reload_verified": true,
+    "input_records": 34416,
+    "discovery_records": 32725,
+    "excluded_empty": 1691,
+    "search_draws": 50,
+    "candidate_ceilings": 1200,
+    "input_sha256": "8256646462a1267c5c6e177d3c951a852a17bcbd8553cb0f98e2a89ce5f3206a",
+    "fitted_model_sha256": "901830bdf01d5f6403af45f13ba80f2fed65ec0f04bdf4850d1e72a99fc83231",
+    "verified_at": "2026-11-17T21:40:24.703764+00:00",
+    "human_review_performed": false,
+    "classifier_validated": false
+  },
+  "human_review_performed": false,
+  "classifier_validated": false,
+  "scope": "Recorded discovery on a public archive. Topic-assignment shares are descriptive; no human-validated theme prevalence is asserted."
+}

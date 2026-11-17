@@ -6,3 +6,6 @@
 
 /api/*
   Cache-Control: no-store
+
+/data/*
+  Cache-Control: no-cache

@@ -10,7 +10,7 @@ Maintain `docs/guide/knowledge.md` as the high-level briefing. `worker/guide-sou
 
 Conversation history lives only in the current page's memory. The server keeps keyed request fingerprints and short response receipts for safe retries, expiring after 30 minutes, plus aggregate quota counters. Responses may reflect visitor questions. Do not log raw request bodies. OpenAI processing and retention are separate from application retention. The data-handling page discloses transmission before a question is sent.
 
-The website at https://topicllm.dev is a visual demonstration with fixed synthetic OpenAI examples. Researchers run their corpus in a fork or installed Python environment with their own approved credentials. One Cloudflare Worker serves the static site and same-origin API. The owner registered topicllm.dev in Cloudflare; both apex and www are attached to this Worker.
+The website at https://topicllm.dev is a visual demonstration with bounded public Trump examples. Researchers run their corpus in a fork or installed Python environment with their own approved credentials. One Cloudflare Worker serves the static site and same-origin API. The owner registered topicllm.dev in Cloudflare; both apex and www are attached to this Worker.
 
 ## Build a complete release
 
@@ -27,7 +27,7 @@ pnpm exec wrangler deploy --dry-run
 pnpm exec wrangler deploy
 ```
 
-Keep exactly one wheel in `dist_wheels`. The packager includes source, canonical synthetic data and licenses, excludes private runs and credentials, and writes download hashes. The build copies `docs`, PDF.js and unchanged archival sources into `dist`; it verifies all ten protected source hashes. Publish the built assets, not raw `docs`. CI installs the wheel outside the checkout and runs the offline quickcheck on Windows/Ubuntu and Python 3.11/3.12. This lightweight matrix is not a full ML numerical-equivalence test.
+Keep exactly one wheel in `dist_wheels`. The packager includes source, selected public Trump data and licenses, excludes private runs and credentials, and writes download hashes. The build copies `docs`, PDF.js and unchanged archival sources into `dist`; it verifies all ten protected source hashes. Publish the built assets, not raw `docs`. CI installs the wheel outside the checkout and runs the offline quickcheck on Windows/Ubuntu and Python 3.11/3.12. This lightweight matrix is not a full ML numerical-equivalence test.
 
 ## Secrets and endpoints
 
@@ -46,7 +46,7 @@ Never put secrets in source, chat, command arguments, browser storage or screens
 | `GET /api/config` | Configuration and live-example availability |
 | `GET /api/health` | Rate-limited configuration/storage health |
 | `GET /api/session` | Signed one-day secure HttpOnly session cookie |
-| `POST /api/demo` | Same-origin, session-bound fixed synthetic example IDs |
+| `POST /api/demo` | Same-origin, session-bound approved public Trump example IDs |
 | `GET /api/admin/status` | Bearer-token-protected aggregate counters |
 | `POST /api/llm` | Private validation; disabled in the public release |
 
@@ -54,9 +54,9 @@ The model is pinned to `gpt-4o-2024-08-06`; this is not asserted to be the disse
 
 ## Enforced allowances
 
-The owner approved **$1 per UTC day and $5 per UTC calendar month** for public examples, separate from the **one-time $5 validation allowance**.
+The owner approved **$20 per UTC day and $620 per UTC calendar month** shared by public examples and the guide.
 
-One globally named SQLite-backed Durable Object serializes reservations before provider calls. It enforces spending, ten calls per session per day, thirty per daily hashed network address, 1,000 public calls per day and four concurrent public calls. Per-location rate limiting adds an abuse control; the durable global ledger is the spending authority. Anonymous sessions are not verified people; shared networks may share limits.
+One globally named SQLite-backed Durable Object serializes reservations before provider calls. It enforces spending, 200 calls per session per day, 600 per daily hashed network address, 20,000 public calls per day and eight concurrent public calls. Per-location rate limiting adds an abuse control; the durable global ledger is the spending authority. Anonymous sessions are not verified people; shared networks may share limits.
 
 Reservations use integer nano-dollars, a conservative UTF-8 input bound and the full output-token cap. Returned usage settles calls at $2.50 per million input tokens and $10 per million output tokens without caching discounts (verified 16 November 2026). Unknown usage and failures retain the full reservation. Storage failure stops requests; failed settlement releases no label. A bound violation disables further calls for review. These estimates cover OpenAI token charges, not taxes or Cloudflare infrastructure charges, and are not an invoice.
 
@@ -76,9 +76,9 @@ node scripts/service-status.mjs
 
 `charged` is nano-USD (divide by 1,000,000,000). `calls` includes reserved attempts; `success`, `errors` and `denied` describe completed calls, failures and refused reservations. Uncertain calls retain charges. Compare known usage with the OpenAI project when checking billing. Application observability is disabled and corpus text/credentials are not logged.
 
-Billing failures stop without invented labels. Inspect billing privately. To pause public calls, set `LIVE_DEMO_ENABLED=false` in `wrangler.jsonc` and deploy; the walkthrough and downloads remain available. Keep the operator switch false. Do not bypass quotas for troubleshooting. After repairs, run a small synthetic smoke check before reopening. Use Wrangler's deployment version rollback when appropriate, preserving the Durable Object binding, migration and ledger.
+Billing failures stop without invented labels. Inspect billing privately. To pause public calls, set `LIVE_DEMO_ENABLED=false` in `wrangler.jsonc` and deploy; the walkthrough and downloads remain available. Keep the operator switch false. Do not bypass quotas for troubleshooting. After repairs, run a small public-example smoke check before reopening. Use Wrangler's deployment version rollback when appropriate, preserving the Durable Object binding, migration and ledger.
 
-Synthetic response receipts expire after thirty minutes with scheduled cleanup. Session and keyed-IP counts use UTC daily windows; budget counters retain active windows. Infrastructure processing is separate. See the website's [data-handling page](https://topicllm.dev/privacy/).
+Public-example and guide response receipts expire after thirty minutes with scheduled cleanup. Session and keyed-IP counts use UTC daily windows; budget counters retain active windows. Infrastructure processing is separate. See the website's [data-handling page](https://topicllm.dev/privacy/).
 
 ## Primary domain
 
@@ -89,3 +89,9 @@ Browser navigation on www and the earlier workers.dev address redirects permanen
 The Worker runs before static assets to enforce host redirects. `pnpm dev` sets the local-only `CANONICAL_REDIRECTS=false` override because Wrangler maps a custom-domain request back onto localhost during preview. Production leaves redirects enabled. Local development and unrelated fork hosts are not redirected. A fork owner should replace the custom-domain routes and the explicit redirect host list with their own deployment settings.
 
 Official references: [Durable Object storage and transactions](https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/), [static assets](https://developers.cloudflare.com/workers/static-assets/), [secrets](https://developers.cloudflare.com/workers/configuration/secrets/), [rate-limit semantics](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/), [custom domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/), [GPT-4o pricing and snapshots](https://developers.openai.com/api/docs/models/gpt-4o), [OpenAI data controls](https://developers.openai.com/api/docs/guides/your-data).
+
+## Legacy address
+
+The legacy jethomasphd.github.io/TopicLLM address uses the redirect-only workflow `.github/workflows/retire-legacy-pages.yml`. It publishes only index/404 redirect pages, not a second data or model service. The primary site, API and downloadable release are on topicllm.dev. Retired dissertation-data paths return HTTP 410 at the Worker; historical source papers remain available.
+
+Versioned Worker preview URLs are disabled (`preview_urls: false`) so retired deployments are not alternate public data endpoints.

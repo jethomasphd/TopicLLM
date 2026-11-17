@@ -14,8 +14,8 @@ with zipfile.ZipFile(out/'topicllm-research-source.zip','w',compression=zipfile.
         if not path.is_file() or name.startswith(('docs/downloads/','dist/','dist_wheels/','build/')):continue
         if any(part in ['node_modules','.git','.wrangler','.venv','__pycache__','private','runs'] or part.startswith('.env') or part.startswith('.dev.vars') for part in Path(name).parts):continue
         if path.suffix in ('.key','.pem','.sqlite','.pyc','.pkl'):continue
-        info=zipfile.ZipInfo('TopicLLM/'+name,(2026,11,16,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED
+        info=zipfile.ZipInfo('TopicLLM/'+name,(2026,11,17,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED
         archive.writestr(info,path.read_bytes())
-manifest={'package_version':'0.4.0','files':[{ 'file':p.name,'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'bytes':p.stat().st_size} for p in [out/wheels[0].name,out/'topicllm-research-source.zip']]}
+manifest={'package_version':'0.5.0','files':[{ 'file':p.name,'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'bytes':p.stat().st_size} for p in [out/wheels[0].name,out/'topicllm-research-source.zip']]}
 (out/'download-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
 print(json.dumps(manifest,indent=2))

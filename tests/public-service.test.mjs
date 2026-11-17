@@ -4,6 +4,8 @@ import worker,{demoCall} from '../worker/index.js';
 import {environment} from './quota-fixture.mjs';
 import {issueSession,session} from '../worker/session.js';
 import {readFileSync} from 'node:fs';
+const liveExamples=JSON.parse(readFileSync(new URL('../docs/data/trump/live-examples.json',import.meta.url),'utf8'));
+const firstExample=liveExamples.examples[0];
 const reserve=(env,input)=>env.QUOTAS.get('x').fetch(new Request('https://quota/reserve',{method:'POST',body:JSON.stringify({scope:'public',session:'session1',ip:'ip1',fingerprint:'f',reserved:1000000,...input})}));
 const settle=(env,key,extra={})=>env.QUOTAS.get('x').fetch(new Request('https://quota/settle',{method:'POST',body:JSON.stringify({key,ok:true,http_status:200,response:{text:'Gaming'},...extra})}));
 
@@ -20,7 +22,7 @@ test('production allowance permits experiments and stops at the configured sessi
 test('public tasks reject arbitrary text, themes and unknown IDs',()=>{
   assert.throws(()=>demoCall({task:'classify',exampleId:'0',text:'private corpus'}));
   assert.throws(()=>demoCall({task:'name',topicId:'999'}));
-  assert.equal(demoCall({task:'classify',exampleId:'4'}).task,'classify');
+  assert.equal(demoCall({task:'classify',exampleId:firstExample.id}).task,'classify');
 });
 test('signed anonymous sessions cannot be forged or extended',async()=>{
   const env=environment(),cookie=await issueSession(env);
@@ -71,20 +73,31 @@ test('a malformed successful reservation fails closed',async()=>{
   const result=await worker.fetch(new Request('https://example.org/api/llm',{method:'POST',headers:{Authorization:'Bearer research-code','Content-Type':'application/json'},body:'{"task":"name","domain":"posts","words":"charity,gaming"}'}),env);
   assert.equal(result.status,503);assert.match((await result.json()).error,/No model request/);
 });
-test('anonymous request sends only server-selected released Study 1 text to OpenAI',async()=>{
+test('anonymous request sends only server-selected public Trump text to OpenAI',async()=>{
   const previous=globalThis.fetch,env=environment(),cookie=await issueSession(env);let calls=0;
   try{
-    globalThis.fetch=async(url,options)=>{calls++;const data=JSON.parse(options.body);assert.match(data.messages[1].content,/Classify/);return Response.json({model:'gpt-4o-2024-08-06',choices:[{finish_reason:'stop',message:{content:'Gaming'}}],usage:{prompt_tokens:100,completion_tokens:1}});};
-    const request=()=>new Request('https://example.org/api/demo',{method:'POST',headers:{Origin:'https://example.org',Cookie:'__Host-topicllm='+cookie,'Content-Type':'application/json','X-Request-ID':'repeat-operation'},body:'{"task":"classify","exampleId":"4"}'});
-    const first=await worker.fetch(request(),env);assert.equal(first.status,200);assert.equal((await first.json()).mode,'live-study1-example');
-    const second=await worker.fetch(request(),env),again=await second.json();assert.equal(again.cached,true);assert.equal(again.mode,'live-study1-example');assert.equal(calls,1);
+    globalThis.fetch=async(url,options)=>{calls++;const data=JSON.parse(options.body);assert.match(data.messages[1].content,/Classify/);assert.ok(data.messages[1].content.includes(firstExample.text));return Response.json({model:'gpt-4o-2024-08-06',choices:[{finish_reason:'stop',message:{content:liveExamples.themes[0]}}],usage:{prompt_tokens:100,completion_tokens:1}});};
+    const request=()=>new Request('https://example.org/api/demo',{method:'POST',headers:{Origin:'https://example.org',Cookie:'__Host-topicllm='+cookie,'Content-Type':'application/json','X-Request-ID':'repeat-operation'},body:JSON.stringify({task:'classify',exampleId:firstExample.id})});
+    const first=await worker.fetch(request(),env);assert.equal(first.status,200);assert.equal((await first.json()).mode,'live-trump-example');
+    const second=await worker.fetch(request(),env),again=await second.json();assert.equal(again.cached,true);assert.equal(again.mode,'live-trump-example');assert.equal(calls,1);
+  }finally{globalThis.fetch=previous;}
+});
+
+test('an ambiguous live classification is recorded as a failure and cached without a second charge',async()=>{
+  const previous=globalThis.fetch,env=environment(),cookie=await issueSession(env);let calls=0;
+  try{
+    globalThis.fetch=async()=>{calls++;return Response.json({model:'gpt-4o-2024-08-06',choices:[{finish_reason:'stop',message:{content:'Two categories, or maybe a third'}}],usage:{prompt_tokens:100,completion_tokens:8}});};
+    const request=()=>new Request('https://example.org/api/demo',{method:'POST',headers:{Origin:'https://example.org',Cookie:'__Host-topicllm='+cookie,'Content-Type':'application/json','X-Request-ID':'invalid-classification'},body:JSON.stringify({task:'classify',exampleId:firstExample.id})});
+    const first=await worker.fetch(request(),env),data=await first.json();
+    assert.equal(first.status,502);assert.match(data.error,/single allowed category/);assert.equal(data.text,undefined);assert.equal(data.usage.completion_tokens,8);
+    const second=await worker.fetch(request(),env);assert.equal(second.status,502);assert.equal((await second.json()).cached,true);assert.equal(calls,1);
   }finally{globalThis.fetch=previous;}
 });
 
 test('nonthrowing storage failures cannot report health or release responses',async()=>{
   const previous=globalThis.fetch;
   try{
-    globalThis.fetch=async()=>Response.json({model:'gpt-4o-2024-08-06',choices:[{finish_reason:'stop',message:{content:'Gaming'}}],usage:{prompt_tokens:100,completion_tokens:1}});
+    globalThis.fetch=async()=>Response.json({model:'gpt-4o-2024-08-06',choices:[{finish_reason:'stop',message:{content:liveExamples.themes[0]}}],usage:{prompt_tokens:100,completion_tokens:1}});
     for(const failure of [()=>Response.json({error:'storage'}, {status:500}),()=>Response.json({settled:false}),()=>new Response('invalid')]){
       const env=environment(),original=env.QUOTAS.get();
       env.QUOTAS.get=()=>({fetch:request=>new URL(request.url).pathname==='/settle'?failure():original.fetch(request)});

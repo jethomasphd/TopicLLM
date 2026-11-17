@@ -1,26 +1,11 @@
-# License for text, figures, and data
+# Material-specific licenses
 
-Unless noted otherwise, the non-software contents of this repository are
-licensed under the **Creative Commons Attribution 4.0 International License
-(CC BY 4.0)**: <https://creativecommons.org/licenses/by/4.0/>. The full legal
-code is at <https://creativecommons.org/licenses/by/4.0/legalcode>.
+The software is MIT-licensed under LICENSE. Project-authored website copy, documentation, figures and maintained methods are CC BY 4.0 unless otherwise marked: https://creativecommons.org/licenses/by/4.0/ . Existing preprint editions retain their stated terms.
 
-This covers:
+The dissertation `THOMAS-PRIMARY-2025.pdf` is © 2025 Jacob Edward Thomas and is included under the terms of its deposit. Original sources are preserved unchanged; attribution is in CITATION.cff and the papers.
 
-- the preprints in `docs/preprints/` and the web edition in `docs/paper/`;
-- the synthetic demonstration corpus in `docs/data/`;
-- the website text, figures, and documentation.
+## Third-party tutorial data
 
-The software is covered separately by the MIT License in [`LICENSE`](LICENSE).
-This includes the pipeline in `dtm_pipeline/`, the browser instrument in
-`docs/app/` and `docs/js/`, and the archival supplements S1–S3.
+The selected *Donald Trump Tweets Dataset* is published on Kaggle by CodeBreaker619: https://www.kaggle.com/datasets/codebreaker619/donald-trump-tweets-dataset . Its designation is **Data files © Original Authors**. Tweet text, quoted posts and other third-party content are not relicensed by this repository's MIT or CC BY licenses. The release preserves the source notice and provenance; those project licenses do not grant additional rights in the underlying content. See docs/data/README.md.
 
-The dissertation (`THOMAS-PRIMARY-2025.pdf`) is © 2025 Jacob Edward Thomas and
-is included for reference. Its terms are those under which it was deposited.
-
-Attribution: cite the work as shown in [`CITATION.cff`](CITATION.cff) or on
-the project website.
-
-## Original Study 1 third-party content
-
-The author has released the Study 1 brand-data collection for the demonstration. Public brand posts are third-party content; the code and documentation licenses above do not relicense that text. Collection personnel and administrative fields are excluded. Study 2 user data are not included. See docs/data/README.md for scope and provenance.
+Dissertation research datasets are not distributed. The archived papers may contain quotations or aggregate results as part of the preserved research record.

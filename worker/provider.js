@@ -11,7 +11,20 @@ export function validateCall(data) {
   }
   if (!textField(data.text, 8000) || !Array.isArray(data.themes) || data.themes.length < 1 || data.themes.length > 25 || data.themes.some(t => !textField(t, 150)) || new Set(data.themes).size !== data.themes.length) throw new Error('Provide text and 1–25 unique theme names.');
   const options = [...data.themes, 'The text does not fit into any of these themes'];
-  return {max_tokens:120, system:'You are an expert at classifying text into themes.', user:`Classify the following text into one of the following ${options.length} themes: ${options.map((v,i) => `${i+1}. ${v}`).join(', ')}.Text: ${data.text}.Respond with verbatim classification using only the specified ${options.length} options.`};
+  return {max_tokens:120, allowed_options:options, system:'You are an expert at classifying text into themes.', user:`Classify the following text into one of the following ${options.length} themes: ${options.map((v,i) => `${i+1}. ${v}`).join(', ')}.Text: ${data.text}.Respond with verbatim classification using only the specified ${options.length} options.`};
+}
+
+export function classificationResult(result, call) {
+  let text=result.text.trim().replace(/^["'“”]+|["'“”]+$/g,'').trim().replace(/\.+$/,'').trim();
+  const options=call.allowed_options;
+  let label;
+  if(/^\d+$/.test(text))label=options[Number(text)-1];
+  else{
+    text=text.replace(/^\d+[.)]\s*/,'').replace(/^theme:\s*/i,'').toLowerCase();
+    label=options.find(option=>option.toLowerCase()===text);
+  }
+  if(!label)throw new Error('The model did not return a single allowed category. No classification was accepted.');
+  return {...result,text:label,raw_text:result.text,status:'matched'};
 }
 
 export async function sendOpenAI(call, env) {

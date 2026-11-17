@@ -3,11 +3,12 @@ stage2_democratic_naming.py — Democratic LLM topic interpretation (Stage 2).
 
 Queries the LLM independently `votes_per_topic` times per topic and adopts the
 modal label: topic naming treated as estimation of a distribution's mode, not
-one-shot generation. The prompt is verbatim from the paper (section 2.7) with
+one-shot generation. The historical prompt is reproduced in the maintained methods (section 3) with
 the domain context injected from config. Written against the current OpenAI
 SDK (openai>=1.0); the archival openai==0.27.0 version is Supplementary File S2.
 
-The reference run is 7 topics x 5,000 votes = 35,000 API calls, so ballots
+The dissertation used 7 topics x 5,000 votes = 35,000 API calls. A new run
+uses its own discovered topic count and declared vote budget. Ballots
 are checkpointed per topic: an interrupted run resumes at the first topic
 whose ballots are incomplete.
 
@@ -45,7 +46,7 @@ SYSTEM = "You are an expert at naming topics."
 
 
 def build_naming_prompt(words: str, cfg=CONFIG) -> str:
-    """Verbatim Stage 2 prompt (paper section 2.7)."""
+    """Historical Stage 2 template, reproduced in maintained methods section 3."""
     return (
         f"The following words represent a topic derived from {cfg.domain_context}: "
         f"{words}. "

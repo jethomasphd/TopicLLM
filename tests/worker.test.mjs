@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import worker,{validateCall} from '../worker/index.js';
+import {classificationResult} from '../worker/provider.js';
 import {environment} from './quota-fixture.mjs';
 const env=environment();
 const req=(data={},headers={})=>new Request('https://example.org/api/llm',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer research-code',Origin:'https://example.org',...headers},body:JSON.stringify(data)});
@@ -42,6 +43,15 @@ test('classification theme limits and token budget are server controlled',()=>{
   assert.throws(()=>validateCall({task:'classify',text:'abc',themes:['Sports','Sports']}));
   const call=validateCall({task:'classify',text:'abc',themes:['Sports'],model:'attacker-model',max_tokens:100000});
   assert.equal(call.max_tokens,120);
+});
+
+test('classification accepts one allowed choice and retains the raw response',()=>{
+  const call=validateCall({task:'classify',text:'A public post',themes:['Policy','Elections']});
+  for(const raw of ['Policy','1','1. Policy','Theme: Policy','"policy."']){
+    const result=classificationResult({text:raw},call);
+    assert.equal(result.text,'Policy');assert.equal(result.raw_text,raw);
+  }
+  for(const text of ['Policy and Elections','1, 2','A new category','4',''])assert.throws(()=>classificationResult({text},call));
 });
 test('gateway returns model provenance but never provider secrets',async()=>{
   const previous=globalThis.fetch;

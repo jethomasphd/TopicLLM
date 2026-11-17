@@ -1,12 +1,9 @@
-# TopicLLM Python workflow
+# TopicLLM Python implementation
 
-The package uses original Study 1 brand data by default. Agents execute the workflow and retain evidence; researchers review interpretation and validation. See [the full execution guide](../REPRODUCE.md) for commands and [the data card](../docs/data/README.md) for file provenance.
+This is the maintained five-stage research workflow. Read ../REPRODUCE.md for the complete recipe and ../AGENTS.md for the agent contract.
 
-```sh
-topicllm --profile quickcheck --output-dir runs/check
-topicllm --profile study1-demo --output-dir runs/study1
-```
+Default input: the public Trump account corpus, 34,416 posts from June 16, 2015 to January 8, 2021. Dissertation datasets and synthetic reconstructions are not distributed. `topicllm --profile quickcheck` verifies the tutorial without calls; `topicllm --profile trump-demo` runs discovery only. `--profile research --stages 2,3` collects names and prepares researcher review; stages 4–5 require actual approval and an independent benchmark.
 
-The quickcheck verifies hashes and cohort preparation without model calls. The study1-demo profile runs local discovery on 704 archived texts. The full release has 5,872 records, including one blank; the separate analysis input has 5,871 nonempty texts. Install the ML extra for discovery. No Study 2 user data are bundled.
+Configure `PipelineConfig` fields with `--config file.json`; see ../examples/trump-config.json. The initial `themes` list is empty deliberately. Researchers define it after inspecting the evidence. Historical defaults of 50 search draws and 5,000 naming votes are computational parameters, not evidence of validation. Use `--plan` and an explicit `--budget-usd` for paid stages. Twenty naming votes are a declared teaching adaptation.
 
-Topic models and LLMs include probabilistic steps. Different seeds, models or software versions can change outputs. This is an illustrative rerun, not a promise of identical historical results. Research naming, synthesis, classification and inference retain explicit human-review and benchmark requirements. Synthetic profiles are legacy software fixtures only.
+Each stage writes reviewable artifacts under its own run directory. Never fabricate review or annotations. Preserve unsuccessful outcomes as well as selected results. The browser walkthrough explains and illustrates; this package executes research in your approved environment.

@@ -2,8 +2,8 @@
   "review_date": "2026-11-17",
   "authority": "THOMAS-PRIMARY-2025.pdf",
   "authority_sha256": "1f2cddd10fc297420b2e5f744fd69daae409038a01149f3a89f499ed4a79a129",
-  "scope": "Study 1 topic-to-prevalence method, Chapter 3 methods rationale, Chapter 4 methods and results, and Appendices 1–3. LIWC/DSMM retained as historical scope, not implemented functionality. General background and Study 2 exposure/GSEM citations are outside this methods paper.",
-  "dataset_presentation": "One Study 1 worked example; exact stage-specific inputs and preparation preserved in docs/data/README.md and docs/protocol.json. No source data, recorded runs or original papers changed.",
+  "scope": "Historical methodological continuity in Sections 1–3; new corpus, adaptations, execution and limitations in Sections 4–6. Original research sources unchanged.",
+  "dataset_presentation": "The original dissertation and papers are historical examples. The standalone methods transfer the five-stage workflow to the public Trump corpus, 2015-06-16 through 2021-01-08. Dissertation datasets are not distributed.",
   "coverage": [
     {
       "section": "1",
@@ -34,12 +34,12 @@
         231
       ],
       "items": [
-        "5,872 records and 11 brands",
-        "sampling frame and minimum followers",
-        "collection dates, quality control, institutional determination",
+        "Sampling frame, stable IDs, inclusion rules and source evidence",
+        "Historical collection and institutional determination referenced to source pages",
         "Python 3.9.12",
         "NLTK and custom stopwords",
-        "POS WordNet lemmatization from Appendix 1"
+        "POS WordNet lemmatization from Appendix 1",
+        "Declared Trump URL/handle preprocessing adaptation"
       ],
       "citations": [
         "Python Software Foundation 2022",
@@ -162,7 +162,7 @@
       ]
     },
     {
-      "section": "4",
+      "section": "6",
       "pages": [
         162
       ],
@@ -183,8 +183,7 @@
     "Ramos cited by title/year without unverified proceedings pagination.",
     "Lee retained as 2024 advance online publication, as cited in dissertation."
   ],
-  "restored_reference_count": 18,
-  "total_reference_count": 27,
+  "total_reference_count": 28,
   "not_claimed": [
     "independent scientific replication",
     "recovered final historical benchmark",
@@ -201,5 +200,10 @@
     "Input schemas and installation/execution recipe",
     "Researcher-review and independent benchmark requirements",
     "Self-contained references and availability statement"
+  ],
+  "tutorial_sources": [
+    "docs/data/trump/manifest.json",
+    "docs/data/README.md",
+    "docs/protocol.json"
   ]
 }

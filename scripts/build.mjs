@@ -1,4 +1,4 @@
-import {mkdir, cp, readFile, writeFile, stat, rm} from 'node:fs/promises';
+import {mkdir, cp, readFile, writeFile, stat, rm, readdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
@@ -13,6 +13,25 @@ if(path.dirname(dist)!==root||path.basename(dist)!=='dist')throw new Error('Unsa
 await rm(dist,{recursive:true,force:true});
 await mkdir(dist, {recursive:true});
 await cp(path.join(root,'docs'), path.join(root,'dist'), {recursive:true});
+// Version the complete browser code/style set, including module imports, so a
+// returning visitor cannot combine a new page with a cached earlier interface.
+async function siteFiles(dir){
+  const files=[];
+  for(const entry of await readdir(dir,{withFileTypes:true})){
+    const file=path.join(dir,entry.name);
+    if(entry.isDirectory())files.push(...await siteFiles(file));else files.push(file);
+  }
+  return files.sort();
+}
+const files=await siteFiles(dist), browserHash=createHash('sha256');
+for(const file of files.filter(file=>/\.(?:css|js)$/.test(file))){browserHash.update(path.relative(dist,file).replaceAll('\\','/'));browserHash.update(await readFile(file));}
+const revision=browserHash.digest('hex').slice(0,12);
+for(const file of files.filter(file=>/\.(?:html|js)$/.test(file))){
+  let text=await readFile(file,'utf8');
+  if(file.endsWith('.html'))text=text.replace(/((?:href|src)=["'])([^"']+\.(?:css|js))(["'])/g,(match,start,url,end)=>/^(?:https?:|\/\/)/.test(url)?match:`${start}${url}?v=${revision}${end}`);
+  else text=text.replace(/((?:\bfrom\s*|\bimport\s*)["'])(\.{1,2}\/[^"']+\.js)(["'])/g,`$1$2?v=${revision}$3`);
+  await writeFile(file,text);
+}
 const pdfjs=path.join(root,'node_modules','pdfjs-dist'), pdfdest=path.join(root,'dist','vendor','pdfjs');
 await mkdir(pdfdest,{recursive:true});
 for (const name of ['pdf.mjs','pdf.worker.mjs']) await cp(path.join(pdfjs,'build',name),path.join(pdfdest,name));
