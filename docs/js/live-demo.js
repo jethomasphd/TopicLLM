@@ -9,14 +9,14 @@ export async function initLiveDemo(){
   for(const topic of data.topics)$('live-topic').add(new Option(`Recorded topic ${Number(topic.id)+1} · ${topic.count} posts`,topic.id));
   status.textContent=available?`Explore original Study 1 data with OpenAI. ${config.sessionCallsPerDay} calls per browser session and ${config.ipCallsPerDay} per shared network each UTC day; $${config.dailyUsd} site-wide daily allowance.`:'Live examples are paused. The original-data walkthrough and downloads remain available.';
  }catch{status.textContent='Live access is unavailable. Explore the original-data walkthrough or run locally.';return;}
- const controls=()=>root.querySelectorAll('button,select,input').forEach(el=>{el.disabled=busy||(!available&&el.matches('[data-live-task]'));});
+ const controls=()=>root.querySelectorAll('button,select,input').forEach(el=>{el.disabled=busy||(!available&&el.matches('[data-live-task]'))||(el.matches('[data-live-task="classify"]')&&!$('live-example').value)||(el.id==='live-download'&&!records.length)||(['live-random','live-example'].includes(el.id)&&!filtered.length);});
  const update=()=>{
   $('live-words').textContent=data.topics.find(t=>t.id===$('live-topic').value)?.words||'';
   const e=data.examples.find(e=>e.id===$('live-example').value);
   $('live-text').textContent=e?.text||'No posts match. Try another word or brand.';
   $('live-truth').textContent=e?`${e.brand} · ${e.date} · ${e.post_id}. Original brand post; no human theme label is asserted.`:'';
  };
- function filter(){const q=$('live-search').value.toLowerCase().trim();filtered=data.examples.filter(e=>!q||`${e.brand} ${e.date} ${e.post_id} ${e.text}`.toLowerCase().includes(q));$('live-example').replaceChildren(...filtered.slice(0,100).map(e=>new Option(`${e.brand} · ${e.date} · ${e.post_id}`,e.id)));$('live-match-count').textContent=`${filtered.length.toLocaleString()} matching posts${filtered.length>100?' · showing the first 100; narrow your search or pick a random match':''}`;update();}
+ function filter(){const terms=$('live-search').value.toLowerCase().trim().split(/\s+/).filter(Boolean);filtered=data.examples.filter(e=>{const text=`${e.brand} ${e.date} ${e.post_id} ${e.text}`.toLowerCase();return terms.every(term=>text.includes(term));});$('live-example').replaceChildren(...filtered.slice(0,100).map(e=>new Option(`${e.brand} · ${e.date} · ${e.post_id}`,e.id)));$('live-match-count').textContent=`${filtered.length.toLocaleString()} matching posts${filtered.length>100?' · showing the first 100; narrow your search or pick a random match':''}`;update();controls();}
  $('live-search').addEventListener('input',filter);$('live-topic').addEventListener('change',update);$('live-example').addEventListener('change',update);
  $('live-random').onclick=()=>{if(!filtered.length)return;const e=filtered[Math.floor(Math.random()*filtered.length)];if(![...$('live-example').options].some(o=>o.value===e.id))$('live-example').add(new Option(`${e.brand} · ${e.date} · ${e.post_id}`,e.id));$('live-example').value=e.id;update();};filter();controls();
  for(const button of root.querySelectorAll('[data-live-task]'))button.addEventListener('click',async()=>{
