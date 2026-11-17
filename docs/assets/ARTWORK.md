@@ -1,6 +1,6 @@
 # TopicLLM visual identity
 
-The platform uses IBM Plex Sans and IBM Plex Mono with graphite, sea-glass green and neutral surfaces. The editable mark is `topicllm-mark.svg`. It combines a T with rows and a retained result node. The earlier `sigil.svg` remains in the repository as an unused historical design asset.
+This document records the first visual iteration. The platform uses IBM Plex Sans and IBM Plex Mono with graphite, sea-glass green and neutral surfaces. The first mark combined a T with rows and a retained result node. `ARTWORK-V3.md` documents the current Language lens mark. The earlier `sigil.svg` remains as an unused historical design asset.
 
 `text-to-evidence.jpg` is an AI-generated conceptual illustration created on 16 November 2026 with the built-in OpenAI image-generation tool. Its glass forms and bars are illustrative, not measured research data. The original generated PNG was encoded as a 164,725-byte JPEG for web delivery without changing the composition. The artwork is separate from the interactive conceptual model, which uses accessible HTML, SVG and actual methodological descriptions.
 

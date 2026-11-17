@@ -1,11 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
-  <title id="title">TopicLLM</title><desc id="desc">Language organized into topics: color-coded text groups in a conversation frame.</desc>
+  <title id="title">TopicLLM</title><desc id="desc">Language lens: six geometric segments focus on three lines of text, representing language organized into interpretable topics.</desc>
   <symbol id="mark" viewBox="0 0 64 64">
-    <rect x="1" y="1" width="62" height="62" rx="14" fill="#0a151b"/>
-    <path d="M15 13h34a3 3 0 0 1 3 3v27a3 3 0 0 1-3 3H29L17 54v-8h-2a3 3 0 0 1-3-3V16a3 3 0 0 1 3-3Z" fill="#132a30" stroke="#a1e9cc" stroke-width="2.5" stroke-linejoin="round"/>
-    <rect x="20" y="21" width="6" height="5" rx="1" fill="#a1e9cc"/><path d="M31 23.5h13" stroke="#a1e9cc" stroke-width="3" stroke-linecap="round"/>
-    <rect x="20" y="30" width="6" height="5" rx="1" fill="#a5c8ef"/><path d="M31 32.5h9" stroke="#a5c8ef" stroke-width="3" stroke-linecap="round"/>
-    <rect x="20" y="39" width="6" height="4" rx="1" fill="#e8c994"/><path d="M31 41h13" stroke="#e8c994" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="32" cy="32" r="31" fill="#f7f6f1"/>
+    <g stroke="#f7f6f1" stroke-width="1.8" stroke-linejoin="round">
+      <path d="M17 6.019A30 30 0 0 1 47 6.019L17 23.34Z" fill="#153b63"/>
+      <path d="M17 6.019A30 30 0 0 1 47 6.019L17 23.34Z" transform="rotate(60 32 32)" fill="#2a67ba"/>
+      <path d="M17 6.019A30 30 0 0 1 47 6.019L17 23.34Z" transform="rotate(120 32 32)" fill="#2a67ba"/>
+      <path d="M17 6.019A30 30 0 0 1 47 6.019L17 23.34Z" transform="rotate(180 32 32)" fill="#398d90"/>
+      <path d="M17 6.019A30 30 0 0 1 47 6.019L17 23.34Z" transform="rotate(240 32 32)" fill="#398d90"/>
+      <path d="M17 6.019A30 30 0 0 1 47 6.019L17 23.34Z" transform="rotate(300 32 32)" fill="#153b63"/>
+    </g>
+    <g fill="#153b63">
+      <rect x="22" y="24" width="23" height="4" rx="2"/>
+      <rect x="22" y="31" width="18" height="4" rx="2"/>
+      <rect x="22" y="38" width="12" height="4" rx="2"/>
+    </g>
   </symbol>
   <use href="#mark"/>
 </svg>

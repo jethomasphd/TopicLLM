@@ -1,6 +1,6 @@
 # TopicLLM visual identity, second iteration
 
-The editable `topicllm-mark.svg` uses a conversation frame containing three colored text groups: language being organized into topics. It replaces the earlier T-shaped mark.
+This historical iteration used a conversation frame containing three colored text groups. The author subsequently selected the Language lens direction; `ARTWORK-V3.md` documents the current editable `topicllm-mark.svg`.
 
 `text-to-evidence-v2.jpg` replaces the organic hero sculpture with a precise architectural assembly of document cards, five groups, and an evidence panel. It is conceptual artwork, not measured data. Generated on 16 November 2026 using the built-in OpenAI image-generation tool in new-image mode, then encoded as a web JPEG without changing its composition. The original PNG remains in the authoring environment. Earlier imagery remains in Git history and is not used in the current interface.
 
