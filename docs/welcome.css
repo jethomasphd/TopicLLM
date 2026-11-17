@@ -55,4 +55,5 @@
  .orientation-actions .orientation-ask{margin-top:0}
 }
 @media(max-height:560px) and (min-width:721px){.welcome-header{padding:15px 30px}.welcome-header h2{font-size:28px;margin-top:5px}.welcome-byline svg{width:24px;height:24px}.welcome-footer{padding:12px 30px}.welcome-actions{margin-top:10px}.welcome-scroll{padding:20px 30px}}
+@media(max-height:650px) and (max-width:720px){.welcome-header{padding:13px 18px}.welcome-header h2{font-size:25px;margin:8px 0 6px}.welcome-header>p{font-size:11px}.welcome-byline svg{width:20px;height:20px}.welcome-footer{padding:12px 18px}.welcome-actions{margin-top:10px;gap:8px}.welcome-scroll{padding:18px}}
 @media print{.welcome-dialog{display:none!important}.welcome-open{overflow:visible}.orientation-actions{display:none}.welcome-page .welcome-letter{max-width:none}}

@@ -51,6 +51,16 @@ dialog.querySelector('form').addEventListener('submit', event => {
 dialog.addEventListener('cancel', event => { if (!acknowledged) event.preventDefault(); });
 dialog.addEventListener('keydown', event => {
  if (event.key === 'Escape' && !acknowledged) { event.preventDefault(); event.stopPropagation(); }
+ if (event.key === 'Tab') {
+  const stops = [...dialog.querySelectorAll('a[href],button,input,[tabindex="0"]')]
+   .filter(element => !element.disabled && !element.hidden && element.getClientRects().length);
+  const first = stops[0], last = stops.at(-1), current = document.activeElement;
+  if (event.shiftKey && (current === first || !stops.includes(current))) {
+   event.preventDefault(); last?.focus();
+  } else if (!event.shiftKey && (current === last || !stops.includes(current))) {
+   event.preventDefault(); first?.focus();
+  }
+ }
 });
 dialog.addEventListener('close', () => {
  // Some embedded browsers dismiss a native dialog without a cancelable event.
