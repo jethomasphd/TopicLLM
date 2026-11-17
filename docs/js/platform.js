@@ -1,4 +1,5 @@
 /* Shared navigation and theme controls; no API calls or stored research data. */
+import './welcome.js';
 import './guide.js';
 const menu=document.querySelector('[data-menu]'),nav=document.querySelector('#platform-nav');
 if(menu&&nav){

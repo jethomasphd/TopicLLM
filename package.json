@@ -9,6 +9,7 @@
   "scripts": {
     "test": "node --test tests/*.test.mjs",
     "build": "node scripts/build.mjs",
+    "build:welcome": "node scripts/build-welcome.mjs",
     "dev": "wrangler dev --var CANONICAL_REDIRECTS:false",
     "deploy": "node scripts/build.mjs && wrangler deploy",
     "check": "node --test tests/*.test.mjs && node scripts/build.mjs && node scripts/check-site.mjs"

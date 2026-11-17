@@ -1,4 +1,5 @@
 from pathlib import Path
+from urllib.parse import urljoin
 import re,html
 from lxml import html as LH
 from reportlab.platypus import SimpleDocTemplate,Paragraph,Spacer,KeepTogether,Flowable,LongTable,TableStyle
@@ -27,7 +28,7 @@ styles.add(ParagraphStyle('Section',fontName='TextBold',fontSize=16,leading=20,s
 styles.add(ParagraphStyle('Sub',fontName='TextBold',fontSize=12,leading=16,spaceBefore=12,spaceAfter=6,keepWithNext=True))
 styles.add(ParagraphStyle('Small2',fontName='Text',fontSize=9,leading=12,spaceAfter=8))
 styles.add(ParagraphStyle('Prompt2',fontName='UI',fontSize=9,leading=13,spaceAfter=12,leftIndent=12,rightIndent=12))
-styles.add(ParagraphStyle('Reference',fontName='Text',fontSize=9,leading=12,spaceAfter=7,leftIndent=18,firstLineIndent=-18))
+styles.add(ParagraphStyle('Reference',fontName='Text',fontSize=9,leading=12,spaceAfter=5,leftIndent=18,firstLineIndent=-18))
 def clean(text):
     return re.sub(r'\s+',' ',text).strip().replace('\u00a0',' ')
 def markup(el):
@@ -39,6 +40,9 @@ def markup(el):
         tag={'strong':'b','em':'i','code':'font','sub':'sub','sup':'super','b':'b','i':'i'}.get(child.tag)
         if child.tag=='br':value+='<br/>'
         elif tag=='font':value+=f'<font name="UI">{inside}</font>'
+        elif child.tag=='a' and child.get('href'):
+            target=html.escape(urljoin('https://topicllm.dev/paper/',child.get('href')),quote=True)
+            value+=f'<link href="{target}">{inside}</link>'
         elif tag:value+=f'<{tag}>{inside}</{tag}>'
         else:value+=inside
         value+=html.escape(child.tail or '')
@@ -64,7 +68,7 @@ for el in page:
     if cls in ['authors','affil']:
         story.append(Paragraph(markup(el),styles['Small2']));continue
     if cls=='abstract':
-        story.extend([Spacer(1,10),Paragraph('Revised methods • 16 November 2026 • Preprint, not peer-reviewed',styles['Small2'])])
+        story.extend([Spacer(1,10),Paragraph('Revised methods • 17 November 2026 • Preprint, not peer-reviewed',styles['Small2'])])
         for c in el:story.append(Paragraph(markup(c),styles['Sub' if c.tag=='h2' else 'Body']))
     elif cls=='prompt':story.append(KeepTogether([Paragraph(markup(el),styles['Prompt2'])]))
     elif cls=='tablewrap':
@@ -82,7 +86,7 @@ for el in page:
         story.append(Paragraph(markup(el),styles[{'h2':'Section','h3':'Sub','p':'Body'}[el.tag]]))
 def footer(canvas,doc):
     canvas.saveState();canvas.setFont('UI',8);canvas.setFillColor(colors.HexColor('#666666'))
-    canvas.drawString(72,36,'TopicLLM | Revised methods | 16 November 2026');canvas.drawRightString(540,36,str(doc.page));canvas.restoreState()
+    canvas.drawString(72,36,'TopicLLM | Revised methods | 17 November 2026');canvas.drawRightString(540,36,str(doc.page));canvas.restoreState()
 SimpleDocTemplate(str(out),pagesize=(612,792),leftMargin=72,rightMargin=72,topMargin=54,bottomMargin=58,title='TopicLLM revised methods',author='Thomas, Murthy, Pinedo, Loukas and Pasch').build(story,onFirstPage=footer,onLaterPages=footer)
 qa=base/'methods_pdf_qa';qa.mkdir(exist_ok=True)
 pdf=pdfium.PdfDocument(str(out))

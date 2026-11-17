@@ -1,5 +1,6 @@
 /* Questions send only on submit; conversation stays in page memory. */
 const contexts={
+ welcome:['welcome','The question, the method, and the invitation.','Read why TopicLLM exists, what the demonstration can show, and how you and your agent can build on the research.','Why was TopicLLM created, and what should I use it for?'],
  notfound:['guide','Let’s find your next step.','Return to the homepage, explore the demonstration, or ask the guide to help you find the method or research you need.','Help me find my way around TopicLLM.'],
  home:['home','A collection of text. A question worth answering.','TopicLLM turns many short texts into themes you can interpret and patterns you can measure. Start with the demonstration; take the reproducible workflow into your own environment when you are ready.','What does TopicLLM do, in plain language?'],
  app:['demo','You are exploring a worked example.','Follow five stages with original Study 1 brand posts. Inspect discovered topics, collect live naming votes, and see how researcher-defined themes support period comparisons.','Walk me through the demo with a simple example.'],
@@ -17,7 +18,8 @@ const key=route.startsWith('/studies/1')?'study1':route.startsWith('/studies/2')
 const make=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;};
 const orientation=make('aside','page-orientation');orientation.setAttribute('aria-label','Page orientation');
 const inner=make('div','orientation-inner'),copy=make('div','orientation-copy');copy.append(make('span','orientation-eyebrow','A place to start'),make('strong','',context[1]),make('p','',context[2]));
-const orientButton=make('button','orientation-ask','Ask the guide ↗');orientButton.type='button';inner.append(copy,orientButton);orientation.append(inner);
+const orientButton=make('button','orientation-ask','Ask the guide ↗');orientButton.type='button';
+const orientActions=make('div','orientation-actions'),welcomeButton=make('button','orientation-welcome','Author’s welcome');welcomeButton.type='button';welcomeButton.dataset.openWelcome='';welcomeButton.setAttribute('aria-haspopup','dialog');welcomeButton.setAttribute('aria-controls','author-welcome');orientActions.append(orientButton,welcomeButton);inner.append(copy,orientActions);orientation.append(inner);
 const main=document.querySelector('main')||document.querySelector('.page');if(key==='home'){const strip=document.querySelector('.release-strip');if(strip)strip.after(orientation);else main?.prepend(orientation);}else main?.prepend(orientation);
 const launcher=make('button','guide-launcher');launcher.type='button';launcher.setAttribute('aria-controls','research-guide');launcher.setAttribute('aria-expanded','false');launcher.append(make('span','guide-launch-icon','?'),make('span','','Ask the research guide'));
 const invitation=make('aside','guide-invitation');invitation.setAttribute('aria-label','Meet the research guide');

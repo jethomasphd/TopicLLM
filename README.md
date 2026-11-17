@@ -14,6 +14,14 @@ What is a large collection of posts talking about? How does that conversation ch
 
 The agent handles computation, files and the evidence trail. Researchers decide what the themes mean, review validation and interpret the findings.
 
+## A question that became an open method
+
+TopicLLM grew out of dissertation research at **The University of Texas at Austin** on alcohol companies’ social media communication during COVID-19. It connects computational topic discovery with researcher-led interpretation, informed by the [Theme and Topic framework](https://arxiv.org/abs/2210.00707). The website is an invitation to understand the method; the repository is a starting point for you and your agent to test and extend it.
+
+The dissertation studies received committee review. The study editions and methods are preprints, and the methodology has not yet been independently replicated by other researchers. The software checks and demonstration make specific evidence inspectable; scientific validation remains work for the research community.
+
+**[Read Jacob’s welcome letter →](https://topicllm.dev/welcome/)**
+
 ## The actual study, ready to explore
 
 The default demonstration uses **original Study 1 alcohol-brand data**, released by the author: **5,872 records from 11 brands**, with a separate **704-text lockdown discovery input**. Study 2 user data are not included. Collector and administrative fields have been removed.

@@ -5,6 +5,7 @@ const tokens=text=>[...new Set((text.toLowerCase().match(/[a-z0-9]+/g)||[]).filt
 const indexed=library.chunks.map(c=>({...c,terms:new Set(tokens(c.text+' '+c.title))}));
 const frequency=new Map();for(const c of indexed)for(const t of c.terms)frequency.set(t,(frequency.get(t)||0)+1);
 const stableSources=[
+ {id:'welcome',title:'A letter from the creator',url:'/welcome/'},
  {id:'guide',title:'Research guide briefing',url:'/guide/knowledge.md'},
  {id:'methods',title:'Five-stage methods',url:'/paper/'},
  {id:'reproduce',title:'Fork + reproduce',url:'/reproduce/'},
@@ -15,8 +16,8 @@ const stableSources=[
  {id:'privacy',title:'Data handling',url:'/privacy/'},
  {id:'demo',title:'Visual demonstration',url:'/app/'}
 ];
-const pages=new Set(['home','demo','methods','reproduce','validation','provenance','privacy','study1','study2','guide']);
-const titles={'README.md':'Repository overview','REPRODUCE.md':'Run the method','AGENTS.md':'Agent research contract','AUDIT.md':'Source provenance','docs/protocol.json':'Machine-readable protocol','docs/paper/index.html':'Five-stage methods','docs/data/README.md':'Original Study 1 data card','docs/data/study1/manifest.json':'Recorded Study 1 discovery'};
+const pages=new Set(['home','demo','methods','reproduce','validation','provenance','privacy','study1','study2','guide','welcome']);
+const titles={'docs/welcome/index.html':'A letter from the creator','README.md':'Repository overview','REPRODUCE.md':'Run the method','AGENTS.md':'Agent research contract','AUDIT.md':'Source provenance','docs/protocol.json':'Machine-readable protocol','docs/paper/index.html':'Five-stage methods','docs/data/README.md':'Original Study 1 data card','docs/data/study1/manifest.json':'Recorded Study 1 discovery'};
 export function retrieve(query,limit=4){
  const words=tokens(query);
  return indexed.map(c=>({c,score:words.reduce((n,t)=>n+(c.terms.has(t)?Math.log(1+indexed.length/(frequency.get(t)||1)):0),0)}))

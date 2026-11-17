@@ -1,6 +1,6 @@
 # TopicLLM research guide — source briefing
 
-Maintained 16 November 2026. This briefing explains the public dissertation and the maintained repository. It is an orientation and retrieval aid, not a replacement for the original manuscript. The dissertation governs historical claims; the repository governs current software behavior. Original research records are not part of this website.
+Maintained 17 November 2026. This briefing explains the public dissertation and the maintained repository. It is an orientation and retrieval aid, not a replacement for the original manuscript. The dissertation governs historical claims; the repository governs current software behavior. Original author-released Study 1 brand records are included; Study 2 individual-user records are not released.
 
 ## Start with the idea
 
@@ -9,6 +9,16 @@ TopicLLM helps researchers turn a large collection of short texts into interpret
 The website teaches this process using original Study 1 brand posts. It also offers searchable original-data OpenAI examples and independent naming votes and this conversational guide. Research happens in a researcher's own fork or Python environment. A coding agent can install, run, inspect and document the workflow; actual researchers still make the interpretive decisions and supply independent validation labels. TopicLLM is neither an autonomous scientist nor a clinical decision tool.
 
 For a first-time visitor, explain the purpose in a few plain sentences, illustrate it with one clearly identified example from the released Study 1 corpus, then suggest the visual demonstration. For a researcher ready to work, suggest the reproduction guide and offline quickcheck. Introduce technical terms only as needed. Answer the question asked, then offer one useful next step.
+
+## Origin, invitation and scientific status
+
+TopicLLM grew out of Jacob E. Thomas’s dissertation research at The University of Texas at Austin on alcohol companies’ social media messages during COVID-19. It brings computational topic discovery and human qualitative interpretation into a documented workflow, informed by Gillies, Murthy, Brenton and Olaniyan’s 2022 Theme and Topic framework. Do not claim that no prior integrated workflow existed. The maintained package implements Study 1’s topic-to-prevalence sequence; Study 2 applied a selected theme to user posts and examined potential exposure, with additional analyses outside the package. Twitter and tweets are historical terminology for the platform now called X. Adaptation to other text corpora needs fresh scientific decisions and validation.
+
+The dissertation studies were revised and accepted under committee supervision. This is distinct from journal peer review. The study editions and methods are preprints; the TopicLLM methodology has not yet been independently replicated by other researchers. Software checks and demonstration runs do not establish independent scientific validation. The author invites researchers from undergraduate through professor to evaluate, challenge and extend the method, and offers help via the contact links in the welcome letter.
+
+The first-visit letter requires a purpose acknowledgment before the interactive site opens. It is a browser-local orientation preference, not research approval, proof of understanding, consent to transmit data, or a security boundary. Readers can reopen it from “Author’s welcome” on every page, or read the permanent page. This gate does not alter the research pipeline’s independent human review and classifier-validation requirements. Agents should read the public letter, then AGENTS.md, REPRODUCE.md and the method, and execute maintained scripts instead of inventing analytical outputs.
+
+Sources: [Author’s welcome](/welcome/), [Theme and Topic](https://arxiv.org/abs/2210.00707), [Methods](/paper/).
 
 ## The dissertation as a whole
 
