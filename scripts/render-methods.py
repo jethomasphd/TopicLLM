@@ -71,7 +71,7 @@ for el in page:
         table=el.find('table')
         story.append(Paragraph(markup(table.find('caption')),styles['Small2']))
         rows=[[Paragraph(markup(c),styles['Small2']) for c in r] for r in table.xpath('.//tr')]
-        widths=[280,188] if len(rows[0])==2 else [270,66,66,66]
+        widths={2:[280,188],3:[126,190,152],4:[270,66,66,66]}.get(len(rows[0]),[468/len(rows[0])]*len(rows[0]))
         tab=LongTable(rows,colWidths=widths,repeatRows=1,hAlign='LEFT')
         tab.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),colors.HexColor('#eeeeee')),('GRID',(0,0),(-1,-1),.5,colors.HexColor('#cccccc')),('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),8),('RIGHTPADDING',(0,0),(-1,-1),8),('TOPPADDING',(0,0),(-1,-1),7),('BOTTOMPADDING',(0,0),(-1,-1),3)]))
         story.extend([tab,Spacer(1,12)])

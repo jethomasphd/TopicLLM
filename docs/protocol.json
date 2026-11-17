@@ -1,19 +1,19 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "authority": "Thomas (2025) dissertation; original bytes protected by source-integrity.json",
   "modes": [
     "reported-study-results",
-    "calibrated-synthetic-reconstruction",
-    "synthetic-exploration",
+    "original-study1-illustration",
     "research",
-    "mock"
+    "mock",
+    "synthetic-test-fixture"
   ],
   "input": {
     "benchmark": [
       "tweet",
       "human_label"
     ],
-    "benchmark_note": "The bundled synthetic benchmark is generator-labeled, not human-annotated.",
+    "benchmark_note": "No final historical human benchmark is asserted. Research requires independently annotated labels; generated fixtures are not human annotations.",
     "python_corpus": [
       "tweet (nonempty string)",
       "post_id (stable unique identifier recommended)",
@@ -23,7 +23,9 @@
       "post_id (recommended stable unique identifier)",
       "tweet or text",
       "date YYYY-MM-DD for inference"
-    ]
+    ],
+    "discovery": "discovery_input_csv if set, otherwise input_csv; Study 1 default is 704 archived lockdown texts",
+    "analysis": "input_csv; Study 1 default is 5,871 nonempty records; full.csv retains 5,872"
   },
   "naming": {
     "system": "You are an expert at naming topics.",
@@ -55,7 +57,7 @@
     "unresolved_labels": "block inference",
     "zero_variance": "not estimable"
   },
-  "reproduction_limit": "No original private corpus, fitted model, original ballots or original human benchmark. Synthetic matches are calibrated.",
+  "reproduction_limit": "Topic models and LLMs include probabilistic steps. A fresh run can group or label some posts differently, especially when the random seed, model, or software version changes. The goal is an illustrative original-data rerun, not identical historical output replication.",
   "intended_workflow": [
     "visual-demo",
     "fork-or-install",
@@ -72,14 +74,7 @@
   "profiles": {
     "quickcheck": {
       "calls": 0,
-      "labels": "generator-truth",
-      "human_validation": false,
-      "expected": {
-        "rows": 5872,
-        "themes": 5,
-        "comparisons": 15,
-        "matching_rounded_percentages": 15
-      }
+      "purpose": "Verify original Study 1 hashes, cohort preparation and counts"
     },
     "synthetic-e2e": {
       "inputs": "exact bundled corpus, benchmark, stopwords",
@@ -92,12 +87,22 @@
       "review_mode": "human",
       "minimum_reviewers": 2,
       "synthetic_benchmark_for_other_data": "reject"
+    },
+    "study1-demo": {
+      "default_stages": [
+        1
+      ],
+      "calls": 0,
+      "discovery_records": 704,
+      "analysis_records": 5871,
+      "full_records": 5872
     }
   },
   "review_record": {
     "path": "stage3/review_record.json",
     "bound_fields": [
       "corpus_sha256",
+      "discovery_corpus_sha256",
       "topic_words_sha256",
       "assignments_sha256",
       "naming_sha256",
@@ -112,7 +117,7 @@
     "persistent": "api_ledger.sqlite",
     "cached_operations": "logical ID plus prompt/model/settings fingerprint",
     "uncertain_usage": "retain conservative reservation",
-    "public_demo": "fixed synthetic examples only; 10/session/day; 30/IP/day; USD1/day and USD5/month global"
+    "public_demo": "Released Study 1 example IDs only; 200/session/day; 600/IP/day; USD20/day and USD620/calendar month site-wide, shared with the research guide"
   },
   "artifacts": {
     "1": [
@@ -142,8 +147,10 @@
     "run": [
       "api_usage.json",
       "api_responses.json",
-      "synthetic_run.json",
       "verification.json"
+    ],
+    "synthetic_test_only": [
+      "synthetic_run.json"
     ]
   },
   "research_guide": {
@@ -151,7 +158,20 @@
     "knowledge": "guide/knowledge.md",
     "sources": "dissertation page excerpts and public repository",
     "execution": "explanation only; cannot access visitor files or execute research",
-    "limits": "shared public 10/session/day; 30/IP/day; USD1/day and USD5/month",
+    "limits": "Shared public 200/session/day; 600/IP/day; USD20/day and USD620/calendar month (UTC)",
     "model": "gpt-4o-2024-08-06"
+  },
+  "public_service": {
+    "data": "released Study 1 brand records only; Study 2 user data excluded",
+    "session_calls_per_utc_day": 200,
+    "ip_calls_per_utc_day": 600,
+    "daily_usd": 20,
+    "calendar_month_usd": 620,
+    "naming_votes_per_interactive_experiment": [
+      1,
+      5,
+      10,
+      20
+    ]
   }
 }

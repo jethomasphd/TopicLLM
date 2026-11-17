@@ -20,3 +20,7 @@ is included for reference. Its terms are those under which it was deposited.
 
 Attribution: cite the work as shown in [`CITATION.cff`](CITATION.cff) or on
 the project website.
+
+## Original Study 1 third-party content
+
+The author has released the Study 1 brand-data collection for the demonstration. Public brand posts are third-party content; the code and documentation licenses above do not relicense that text. Collection personnel and administrative fields are excluded. Study 2 user data are not included. See docs/data/README.md for scope and provenance.

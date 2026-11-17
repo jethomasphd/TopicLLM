@@ -16,7 +16,7 @@ for page_number,page in enumerate(PdfReader(pdf).pages,1):
     for offset in range(0,len(text),2600):
         part=text[max(0,offset-180):offset+2600]
         chunks.append({'id':f'dissertation-{page_number}-{offset//2600}', 'title':f'Dissertation · p. {page_number}', 'url':f'/THOMAS-PRIMARY-2025.pdf#page={page_number}', 'text':part})
-inputs=['docs/guide/knowledge.md','README.md','REPRODUCE.md','AGENTS.md','AUDIT.md','docs/protocol.json','docs/paper/index.html','docs/data/README.md','verification/synthetic-validation-2026-11-16.json']
+inputs=['docs/guide/knowledge.md','README.md','REPRODUCE.md','AGENTS.md','AUDIT.md','docs/protocol.json','docs/paper/index.html','docs/data/README.md','docs/data/study1/manifest.json']
 for name in inputs[1:]:
     raw=(root/name).read_text(encoding='utf-8')
     if name.endswith('.html'):raw=re.sub('<[^>]+>',' ',re.sub(r'<(style|script)\b.*?</\1>','',raw,flags=re.S))
@@ -24,6 +24,6 @@ for name in inputs[1:]:
     url='/paper/' if name=='docs/paper/index.html' else '/'+name[5:] if name.startswith('docs/') else 'https://github.com/jethomasphd/TopicLLM/blob/main/'+name
     for offset in range(0,len(raw),2600):
         chunks.append({'id':re.sub(r'\W+','-',name)+f'-{offset//2600}', 'title':name, 'url':url, 'text':raw[max(0,offset-180):offset+2600]})
-result={'version':'2026-11-16-guide-v1','text_hash_format':'UTF-8 with LF line endings','dissertation_sha256':sha(pdf),'source_hashes':{name:hashlib.sha256((root/name).read_bytes().replace(b'\r\n',b'\n')).hexdigest() for name in inputs},'briefing':(root/inputs[0]).read_text(encoding='utf-8'),'chunks':chunks}
+result={'version':'2026-11-16-study1-v2','text_hash_format':'UTF-8 with LF line endings','dissertation_sha256':sha(pdf),'source_hashes':{name:hashlib.sha256((root/name).read_bytes().replace(b'\r\n',b'\n')).hexdigest() for name in inputs},'briefing':(root/inputs[0]).read_text(encoding='utf-8'),'chunks':chunks}
 (root/'worker/guide-sources.json').write_text(json.dumps(result,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8')
 print(f'Indexed {len(chunks)} excerpts from the dissertation and repository; original hashes verified.')

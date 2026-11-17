@@ -21,6 +21,7 @@ def sha(path):
 def review_inputs(cfg):
     root=Path(cfg.output_dir)
     return {'corpus_sha256':sha(cfg.input_csv),
+            'discovery_corpus_sha256':sha(cfg.discovery_input_csv or cfg.input_csv),
             'topic_words_sha256':sha(root/'stage1/best_model/topic_words.csv'),
             'assignments_sha256':sha(root/'stage1/best_model/classified_tweets.csv'),
             'naming_sha256':sha(root/'stage2/topic_names.csv'),
@@ -29,6 +30,8 @@ def review_inputs(cfg):
 
 
 def exact_synthetic_inputs(cfg):
+    if cfg.discovery_input_csv and Path(cfg.discovery_input_csv).read_bytes()!=Path(cfg.input_csv).read_bytes():
+        raise ValueError('Synthetic automation requires the exact bundled discovery corpus.')
     for path,name in [(cfg.input_csv,'demonstration_corpus.csv'),(cfg.benchmark_csv,'demonstration_benchmark.csv'),(cfg.stopwords_file,'demonstration_stopwords.txt')]:
         if input_kind(path,name)!='bundled-synthetic':
             raise ValueError('Synthetic automation requires the exact bundled corpus, benchmark and stopwords.')

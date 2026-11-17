@@ -1,107 +1,30 @@
-# Synthetic data and evidence provenance
+# Original Study 1 data
 
-The default study walkthrough uses `study.json` (reported source facts) and `study-demo.json` (known synthetic assignments). Regenerate the latter with `python scripts/build-study-demo.py` from the repository root. It assigns seven teaching categories from generator campaigns; it does not fit a topic model or claim c_v = 0.768. Every calculated result is labeled synthetic.
+The author has authorized release of the Study 1 alcohol-brand data. This is the website and Python package's default demonstration dataset. Study 2 individual-user data are not included.
 
-The counts 1,707 / 806 / 3,106 / 253 are synthetic calibration choices, not verified historical denominators. The `human_label` column in the bundled benchmark contains generator-assigned truth, not human coding. The archived 20-topic search is a separate exploratory run and remains unchanged.
+The demonstration is an illustrative modern rerun. Topic models and LLMs include probabilistic steps. A fresh run can group or label some posts differently, especially when the random seed, model, or software version changes.
 
-A fully synthetic corpus for running the TopicLLM pipeline end to end, released
-under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It stands in for
-the dissertation data, which are restricted (see *Access to the dissertation
-data* below).
+| File | Records | Purpose |
+| --- | ---: | --- |
+| [study1/collection.csv](study1/collection.csv) | 6,174 | Minimized collection records for tracing preparation |
+| [study1/full.csv](study1/full.csv) | 5,872 | Recovered full cohort, including one blank text |
+| [study1/analysis.csv](study1/analysis.csv) | 5,871 | Explicit nonempty text-analysis input |
+| [study1/discovery.csv](study1/discovery.csv) | 704 | Archived March 25-May 31, 2020 discovery input |
+| [study1/stopwords.txt](study1/stopwords.txt) | 32 custom words | Supplied domain stopwords |
+| [study1/manifest.json](study1/manifest.json) | — | Hashes, counts, preparation, settings and recorded results |
 
-## Files
+Fields are stable `post_id`, `brand`, ISO `date` and `tweet`. The discovery file also has `display_text`: readable collection transcription. Its `tweet` field preserves the archived model-input text, including encoding artifacts. The recorded run uses `tweet`, without silent text repair.
 
-| File | Rows | Columns | Purpose |
-|---|---|---|---|
-| `demonstration_corpus.csv` | 5,872 | `post_id, brand, date, tweet` | The corpus (pipeline input) |
-| `demonstration_benchmark.csv` | 250 | `post_id, tweet, human_label` | Generator-labeled synthetic benchmark for exercising Stage 4 |
-| `demonstration_ground_truth.csv` | 5,872 | `post_id, period, theme, campaign` | The theme and campaign behind every post |
-| `demonstration_stopwords.txt` | — | comma-separated | Domain stopwords: brand terms and time words |
+Full-cohort preparation: keep the first occurrence of each exact tweet text (267 duplicate rows removed), exclude 20 Topo Chico records and 15 August 2021 records, then retain the archived row order. `retained-order.json` makes that ordering explicit. The package quickcheck verifies the reconstruction. The collected file retains excluded brand posts solely to make preparation inspectable.
 
-## What it mirrors
+The lockdown branch filters March 25-May 31 before deduplication: 742 records become 705 distinct texts, including one blank, then 704 nonempty inputs. It is not interchangeable with filtering the globally deduplicated full corpus. Full-period counts are 1,707 pre, 806 peri, 3,106 post and 253 February records outside those periods; nonempty-text denominators are reported separately when needed.
 
-The corpus reproduces the *structure* of the published demonstration
-(Thomas, 2025, Study 1), not its content:
+The recovered CSV, original notebook output and summary workbook agree on all 11 brand counts. Five name/count pairings differ in the printed dissertation table; the PDF is preserved unchanged and the release reports counts directly from the data. The 5,872 total and 11-brand sample align exactly.
 
-- **Brands and volume.** There are 11 brands. The posts per brand match the dissertation's per-company counts
-  (1,142 down to 117), and monthly volume follows the shape of its Figure 1.
-- **Study periods.** Pre-pandemic (Jan 2019 – Jan 2020) has 1,707 posts. February 2020 has 253 posts
-  and sits between periods. Peri-pandemic (Mar – May 2020) has 806 posts and post-pandemic
-  (Jun 2020 – Jul 2021) has 3,106.
-- **Themes.** The five published themes are Alcohol Delivery and Isolation
-  Drinking, Restaurant Support, Social Media Promotions, Sports, and Gaming, plus
-  "no theme". Their per-period counts are calibrated so that the ground-truth
-  labels give the published prevalence table (pre / peri / post %):
+The recorded modern discovery evaluated 1,200 candidate results and selected five statistical topics, c_v 0.7803344, with 433/704 outliers. These are not asserted to be the dissertation's five interpreted themes. See [all candidates](study1/all_iteration_results.json), [assignments](study1/discovery-assignments.csv), and [environment](study1/run_manifest.json). Published seven-topic/five-theme findings remain labeled as reported.
 
-  | Theme | Pre | Peri | Post |
-  |---|---|---|---|
-  | Alcohol Delivery and Isolation Drinking | 9.1 | 17.4 | 11.9 |
-  | Restaurant Support | 1.9 | 5.5 | 1.7 |
-  | Social Media Promotions | 6.6 | 16.5 | 10.6 |
-  | Sports | 8.2 | 11.4 | 8.9 |
-  | Gaming | 1.1 | 2.0 | 1.6 |
+No final human benchmark, historical fitted model or historical LLM ballots are asserted by this release. Researchers supply independent annotations for research validation. Live website calls illustrate naming and classification on released records.
 
-  Run the installed package with `topicllm --profile quickcheck`. It returns this rounded table and synthetic z statistics from the chosen synthetic denominators. These are not recovered historical test statistics. A classifier's output comes close to the table only to the extent
-  that the classifier agrees with the ground truth.
-- **Campaigns.** The themes are carried by the kinds of campaigns the dissertation
-  reports:
-  - a delivery-app promotion, stay-home sipping, and a "little sunshine" campaign;
-  - a restaurant-worker relief fund and takeout support;
-  - living-room concert streams, "Howdy, neighbor" giveaways, and contests;
-  - a virtual draft party, home sports challenges, and game day;
-  - a charity gaming tournament on Twitch and game-night streams.
+Only brand content and research fields are released. Collector identities, emails, administrative timestamps, screenshot links and collection annotations are omitted. No Study 2 user records are included. Public brand text is third-party content; the repository's code and documentation licenses do not relicense that text.
 
-  Everyday brand posts make up the rest: recipes, holidays, launches, heritage,
-  events, and miscellaneous chatter.
-- **Benchmark.** The benchmark is 250 posts drawn at random from the lockdown months, when all five
-  themes are most prevalent. Its labels are generator truth. All 250 texts occur in the corpus and share its templates. The synthetic-oracle mapping also uses generator labels across the corpus; these checks are not independent human validation. Gaming has only three benchmark examples.
-
-## Archived synthetic reference run
-
-[`reference_run/`](reference_run/) holds the outputs of a full reference run on
-this corpus from the earlier implementation. They are preserved for comparison, not the current acceptance baseline. The current full run and all five stages are in [the validation record](../validation/index.html):
-
-- **Stage 1** comes from `python run_pipeline.py --stages 1`, with seed 42 and 50 iterations × 24 solutions (1,200 candidate models).
-  - The winning configuration was UMAP with 35 neighbors, 8 components, and min_dist 0.05; HDBSCAN with a minimum cluster size of 35; and a maximum of 21 topics.
-  - It gave 20 topics at **c_v = 0.790**.
-  - Every topic is at least 95.6% pure with respect to the ground-truth theme. All five themes surface:
-    - Alcohol Delivery and Isolation Drinking: 3 topics;
-    - Sports: 2;
-    - Social Media Promotions: 5;
-    - Restaurant Support: 1;
-    - Gaming: 1.
-
-    The remaining 8 topics are everyday content (recipes and chatter).
-  - Files: `stage1_parameters.json`, `stage1_all_iteration_results.json`,
-    `stage1_coherence_curve.png`, and `stage1_topics_with_ground_truth.csv`. The last of these
-    gives each topic's words, size, and majority ground-truth theme. It is the answer key for a
-    Stage 3 synthesis exercise.
-- **Stage 5** comes from `python run_pipeline.py --ground-truth --stages 5`.
-  - It matches the published rounded prevalence and significance pattern by construction.
-  - Files: `stage5_ground_truth_prevalence_by_period.csv`, `stage5_ground_truth_ztest_results.csv`,
-    and `stage5_ground_truth_theme_counts.csv`.
-
-The archived reference has no Stage 2 or 4 measurements. The new [full synthetic acceptance archive](../validation/synthetic-validation-2026-11-16.zip) includes 420 live naming votes, benchmark predictions, all corpus classifications, API responses and usage. New calls can differ; report the actual model and execution evidence.
-
-## What it is not
-
-- **Not real data.** Every brand, person, handle, app, charity, and post is invented. No text
-  comes from the dissertation data or from any real social media account. Any
-  resemblance to a real brand is coincidental.
-- **Not a substitute for the original analysis.** The corpus is generated from
-  templates, so it is cleaner and more regular than real brand feeds. Expect
-  sharper topics and higher classifier agreement than on real text.
-- **Not evidence.** Results computed on this corpus show how the pipeline behaves.
-  They say nothing about alcohol marketing.
-
-## Reproducing the files
-
-```bash
-cd dtm_pipeline
-python make_demo_data.py        # seeded: rewrites these four files byte for byte
-python -m pytest tests -q       # includes a check that the shipped files match the generator
-```
-
-## Restricted study data
-
-Original study posts are not distributed because of privacy and IRB obligations. The public tool uses fully synthetic records only. No original records, fitted study model or historical ballots are available for this demonstration.
+Legacy `demonstration_*`, `study-demo.json`, `reference_run/` and synthetic validation files remain software-test fixtures or historical engineering evidence. They are not the current website demonstration or default research inputs. Their generated labels are never human annotations.

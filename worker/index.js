@@ -2,6 +2,7 @@ import examples from '../docs/data/live-examples.json' with {type:'json'};
 import {validateCall,sendOpenAI} from './provider.js';
 import {hash,sign,equal,session,issueSession} from './session.js';
 import {guideCall,guideResult,GUIDE_VERSION} from './guide.js';
+import {publicLimits} from './limits.js';
 export {validateCall};
 export {DemoQuota} from './quota.js';
 const json=(data,status=200,headers={})=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers}});
@@ -19,14 +20,14 @@ async function readBody(request){
 }
 
 export function demoCall(input){
-  if(!input||!['name','classify'].includes(input.task))throw new Error('Select a synthetic example.');
+  if(!input||!['name','classify'].includes(input.task))throw new Error('Select a Study 1 example.');
   const field=input.task==='name'?'topicId':'exampleId';
-  if(Object.keys(input).some(k=>!['task',field].includes(k)))throw new Error('The public demo accepts fixed synthetic example IDs only.');
+  if(Object.keys(input).some(k=>!['task',field].includes(k)))throw new Error('The public demo accepts released Study 1 example IDs only.');
   if(input.task==='name'){
-    const topic=examples.topics.find(t=>t.id===input.topicId);if(!topic)throw new Error('Unknown synthetic topic.');
+    const topic=examples.topics.find(t=>t.id===input.topicId);if(!topic)throw new Error('Unknown recorded topic.');
     return {task:'name',words:topic.words,domain:examples.domain};
   }
-  const example=examples.examples.find(e=>e.id===input.exampleId);if(!example)throw new Error('Unknown synthetic example.');
+  const example=examples.examples.find(e=>e.id===input.exampleId);if(!example)throw new Error('Unknown Study 1 example.');
   return {task:'classify',text:example.text,themes:examples.themes};
 }
 
@@ -42,7 +43,7 @@ export default {async fetch(request,env){
   if(!path.startsWith('/api/'))return env.ASSETS.fetch(request);
   const ready=configured(env), publicLive=ready&&env.LIVE_DEMO_ENABLED==='true';
   const guideLive=publicLive&&env.GUIDE_ENABLED==='true';
-  if(path==='/api/config'&&request.method==='GET')return json({ready,provider:'openai',model:env.OPENAI_MODEL||null,access:'synthetic-examples-and-research-guide',publicLive,guideLive,guideVersion:GUIDE_VERSION,maxTextLength:8000,sessionCallsPerDay:10,ipCallsPerDay:30});
+  if(path==='/api/config'&&request.method==='GET')return json({ready,provider:'openai',model:env.OPENAI_MODEL||null,access:'released-study1-examples-and-research-guide',publicLive,guideLive,guideVersion:GUIDE_VERSION,maxTextLength:8000,...publicLimits(env)});
   if(path==='/api/health'&&request.method==='GET'){
     try{
       if(!ready)return json({status:'unconfigured',live_examples:false},503);
@@ -101,7 +102,7 @@ export default {async fetch(request,env){
   }catch{return json({error:'Usage controls are unavailable. No model request was sent.',retryable:false},503);}
   const response=await sendOpenAI(call,env);let providerResult=await response.json(),httpStatus=response.status,ok=response.ok;
   if(isGuide&&ok){try{providerResult=guideResult(providerResult,call);}catch(error){providerResult={error:error.message,usage:providerResult.usage,retryable:false};httpStatus=502;ok=false;}}
-  const result={...providerResult,...(isPublic?{mode:isGuide?'research-guide':'live-synthetic-example',remaining_session:reservation.remaining_session}:{})};
+  const result={...providerResult,...(isPublic?{mode:isGuide?'research-guide':'live-study1-example',remaining_session:reservation.remaining_session}:{})};
   const usage=result.usage;
   const actual=Number.isInteger(usage?.prompt_tokens)&&Number.isInteger(usage?.completion_tokens)?usage.prompt_tokens*2500+usage.completion_tokens*10000:null;
   try{

@@ -7,11 +7,10 @@ Usage:
     python run_pipeline.py --stages 4,5        # after Stage 3 consensus
     python run_pipeline.py --stages all
 
-Defaults run on the open demonstration corpus (docs/data/). Without an
-API key, the whole pipeline can be exercised end to end:
-    python run_pipeline.py --stages 1                  # discovery
-    python run_pipeline.py --stages 2,3 --mock-llm     # keyless dry run
-    python run_pipeline.py --ground-truth --stages 5   # reference inference
+Defaults use original Study 1 data: a 704-text discovery subset and a separate
+5,871-nonempty-text analysis corpus. The full release retains all 5,872 records.
+Use --profile quickcheck for offline data integrity, or --profile study1-demo
+for discovery. Synthetic profiles are explicit legacy software fixtures only.
 
 Stage 3 consensus is a human step: between stages 3 and 4, complete
 theme_map_TEMPLATE.csv -> theme_map.csv and set `themes` in config.py.
@@ -72,7 +71,7 @@ def write_ground_truth_classification() -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Democratic topic modeling pipeline")
-    parser.add_argument('--profile',choices=['research','quickcheck','synthetic-e2e'],default='research')
+    parser.add_argument('--profile',choices=['study1-demo','research','quickcheck','synthetic-e2e','synthetic-quickcheck'],default='study1-demo')
     parser.add_argument('--discovery',choices=['full','reuse'],default='full',help='synthetic-e2e: run full discovery or use verified existing Stage 1 artifacts')
     parser.add_argument('--config',help='JSON object of PipelineConfig fields; no executable configuration')
     parser.add_argument('--backend',choices=['openai','mock','gateway'])
@@ -84,6 +83,7 @@ def main() -> None:
     parser.add_argument("--stages", default="all",
                         help="comma-separated stage numbers (e.g. 1,2,3) or 'all'")
     parser.add_argument("--input", default=None, help="override input CSV path")
+    parser.add_argument("--discovery-input", default=None, help="Separate discovery CSV; --input alone uses that corpus for discovery too")
     parser.add_argument("--benchmark", default=None, help="override benchmark CSV path")
     parser.add_argument("--output-dir", default=None, help="override output directory")
     parser.add_argument("--stopwords", default=None, help="override domain stopword file")
@@ -100,6 +100,13 @@ def main() -> None:
     parser.add_argument("--score-archival", action="store_true",
                         help="score the benchmark's existing *_label columns (no API) and exit")
     args = parser.parse_args()
+    if args.profile in ('synthetic-e2e','synthetic-quickcheck'):
+        if __package__:
+            from .config import synthetic_fixture_config
+        else:
+            from config import synthetic_fixture_config
+        fixture=synthetic_fixture_config()
+        for key in ('input_csv','discovery_input_csv','benchmark_csv','stopwords_file'):setattr(CONFIG,key,getattr(fixture,key))
     if args.config:
         if __package__:
             from .config import PipelineConfig
@@ -109,8 +116,10 @@ def main() -> None:
         allowed={f.name for f in fields(PipelineConfig)}
         if not isinstance(values,dict) or set(values)-allowed: parser.error('Configuration must contain only PipelineConfig fields.')
         for key,value in values.items():setattr(CONFIG,key,value)
+        if 'input_csv' in values and 'discovery_input_csv' not in values: CONFIG.discovery_input_csv=None
 
-    for flag, attr in (("input", "input_csv"), ("benchmark", "benchmark_csv"),
+    if args.input and args.discovery_input is None: CONFIG.discovery_input_csv=None
+    for flag, attr in (("input", "input_csv"), ("discovery_input", "discovery_input_csv"), ("benchmark", "benchmark_csv"),
                        ("stopwords", "stopwords_file"),
                        ("output_dir", "output_dir"), ("iterations", "search_iterations"),
                        ("seed", "random_seed"), ("votes", "votes_per_topic"),
@@ -129,22 +138,30 @@ def main() -> None:
             from review import record_human_review
         record_human_review(CONFIG,args.reviewers or [])
         print('Recorded researcher approval bound to the current evidence.');return
+    if args.profile=='study1-demo' and args.stages=='all': args.stages='1'
     if args.plan:
         import csv
         count=lambda path:sum(1 for _ in csv.DictReader(open(path,encoding='utf-8')))
         topics=Path(CONFIG.output_dir)/'stage1/topics_for_naming.csv'
         n_topics=count(topics) if topics.exists() else CONFIG.topic_max
-        planned=[5] if args.profile=='quickcheck' else ([1,2,3,4,5] if args.profile=='synthetic-e2e' or args.stages=='all' else [int(s) for s in args.stages.split(',')])
+        planned=[] if args.profile=='quickcheck' else [5] if args.profile=='synthetic-quickcheck' else ([1,2,3,4,5] if args.profile=='synthetic-e2e' or args.stages=='all' else [int(s) for s in args.stages.split(',')])
         print(json.dumps({'profile':args.profile,'stages':planned,'discovery_candidates':CONFIG.search_iterations*(CONFIG.topic_max-CONFIG.topic_min+1) if 1 in planned else 0,
               'naming_calls':n_topics*CONFIG.votes_per_topic if 2 in planned else 0,'benchmark_calls':count(CONFIG.benchmark_csv) if 4 in planned else 0,
               'maximum_corpus_calls':count(CONFIG.input_csv) if 4 in planned else 0,'budget_usd':CONFIG.api_budget_usd,'call_ceiling':CONFIG.max_api_calls,
-              'note':'Retries consume additional calls; synthetic oracle review is not human approval.'},indent=2));return
-    if args.profile=='quickcheck':
+              'discovery_input':CONFIG.discovery_input_csv or CONFIG.input_csv,'analysis_input':CONFIG.input_csv,'note':'Original Study 1 is an illustrative rerun. Research interpretation requires researcher review; synthetic profiles are test fixtures.'},indent=2));return
+    if args.profile=='synthetic-quickcheck':
         if __package__:
             from .synthetic_workflow import quickcheck
         else:
             from synthetic_workflow import quickcheck
         quickcheck(CONFIG);print('PASS: 5 themes, 15 comparisons, all calibrated percentages. No API calls.');return
+    if args.profile=='quickcheck':
+        if __package__:
+            from .study1 import quickcheck
+        else:
+            from study1 import quickcheck
+        report=quickcheck(CONFIG)
+        print(json.dumps(report,indent=2));return
     requested_stages = [1,2,3,4,5] if args.profile=='synthetic-e2e' or args.stages.strip().lower()=='all' else [int(s) for s in args.stages.split(',')]
     paid = not args.score_archival and any(s in requested_stages for s in (2,4)) and CONFIG.llm_backend in ('openai','gateway')
     if paid:

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "topicllm-research"
-version = "0.3.0"
+version = "0.4.0"
 description = "Auditable topic interpretation and prevalence workflows for research"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -28,4 +28,4 @@ Documentation = "https://topicllm.dev/reproduce/"
 packages = ["dtm_pipeline"]
 
 [tool.setuptools.package-data]
-dtm_pipeline = ["data/*.csv", "data/*.json", "data/*.txt"]
+dtm_pipeline = ["data/*.csv", "data/*.json", "data/*.txt", "data/study1/*"]

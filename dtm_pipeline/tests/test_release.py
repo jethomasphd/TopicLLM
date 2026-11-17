@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 import pytest
-from config import PipelineConfig
+from config import PipelineConfig, synthetic_fixture_config
 from api_budget import ApiBudget, BudgetExceeded, request_fingerprint
 from llm_backend import LLMBackend
 from review import require_review, record_human_review, exact_synthetic_inputs
@@ -64,13 +64,13 @@ def test_research_requires_current_evidence_bound_human_attestation(tmp_path):
 def test_synthetic_review_and_benchmark_cannot_authorize_research(tmp_path):
     cfg=review_fixture(tmp_path)
     record_human_review(cfg,['Fixture Researcher A','Fixture Researcher B'])
-    cfg.benchmark_csv=PipelineConfig().benchmark_csv
+    cfg.benchmark_csv=synthetic_fixture_config().benchmark_csv
     with pytest.raises(ValueError,match='bundled synthetic benchmark'):require_review(cfg)
     with pytest.raises(ValueError,match='exact bundled'):exact_synthetic_inputs(cfg)
 
 
 def test_offline_quickcheck_exercises_real_inference(tmp_path):
-    report=quickcheck(PipelineConfig(output_dir=str(tmp_path)))
+    report=quickcheck(synthetic_fixture_config(output_dir=str(tmp_path)))
     assert report['records']==5872 and report['comparisons']==15
     assert all(row['computed']==row['reported'] for row in report['prevalence_comparison'])
     assert not report['human_validation'] and not report['historical_recomputation']
@@ -86,7 +86,7 @@ def test_external_review_records_require_distinct_nonblank_names(tmp_path, names
 
 
 def test_synthetic_fixture_rejects_changed_inference_design():
-    cfg=PipelineConfig();cfg.themes=['Unrelated theme']
+    cfg=synthetic_fixture_config();cfg.themes=['Unrelated theme']
     with pytest.raises(ValueError,match='taxonomy'):exact_synthetic_inputs(cfg)
 
 
@@ -115,7 +115,7 @@ def test_quickcheck_plan_has_zero_calls(monkeypatch,capsys):
     monkeypatch.setattr(run_pipeline,'CONFIG',PipelineConfig())
     monkeypatch.setattr(sys,'argv',['topicllm','--profile','quickcheck','--plan'])
     run_pipeline.main();plan=json.loads(capsys.readouterr().out)
-    assert plan['stages']==[5]
+    assert plan['stages']==[]
     assert plan['naming_calls']==plan['benchmark_calls']==plan['maximum_corpus_calls']==0
 
 

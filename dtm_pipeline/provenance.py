@@ -11,6 +11,11 @@ def input_kind(path, bundled_filename):
     else:
         from config import DEMO_DIR
     source = Path(path)
+    study_manifest=Path(DEMO_DIR)/'study1'/'manifest.json'
+    if source.is_file() and study_manifest.exists():
+        digest=hashlib.sha256(source.read_bytes()).hexdigest()
+        if any(item['sha256']==digest for item in json.loads(study_manifest.read_text(encoding='utf-8'))['files'].values()):
+            return 'released-study1'
     expected = json.loads((Path(DEMO_DIR)/'synthetic-integrity.json').read_text(encoding='utf-8'))['files'].get(bundled_filename)
     return ('bundled-synthetic' if expected and source.is_file()
             and hashlib.sha256(source.read_bytes()).hexdigest() == expected else 'researcher-supplied-unverified')

@@ -3,8 +3,19 @@ import assert from 'node:assert/strict';
 import worker,{demoCall} from '../worker/index.js';
 import {environment} from './quota-fixture.mjs';
 import {issueSession,session} from '../worker/session.js';
+import {readFileSync} from 'node:fs';
 const reserve=(env,input)=>env.QUOTAS.get('x').fetch(new Request('https://quota/reserve',{method:'POST',body:JSON.stringify({scope:'public',session:'session1',ip:'ip1',fingerprint:'f',reserved:1000000,...input})}));
 const settle=(env,key,extra={})=>env.QUOTAS.get('x').fetch(new Request('https://quota/settle',{method:'POST',body:JSON.stringify({key,ok:true,http_status:200,response:{text:'Gaming'},...extra})}));
+
+test('production allowance permits experiments and stops at the configured session ceiling',async()=>{
+  const config=JSON.parse(readFileSync(new URL('../wrangler.jsonc',import.meta.url),'utf8'));
+  const env=environment(config.vars);
+  const result=await (await worker.fetch(new Request('https://example.org/api/config'),env)).json();
+  assert.deepEqual([result.dailyUsd,result.monthlyUsd,result.sessionCallsPerDay,result.ipCallsPerDay],[20,620,200,600]);
+  assert.equal(env.OPERATOR_LLM_ENABLED,'false');
+  for(let i=0;i<200;i++){assert.equal((await reserve(env,{key:'experiment-'+i})).status,200);await settle(env,'experiment-'+i,{actual:1000});}
+  assert.equal((await reserve(env,{key:'over-session-limit'})).status,429);
+});
 
 test('public tasks reject arbitrary text, themes and unknown IDs',()=>{
   assert.throws(()=>demoCall({task:'classify',exampleId:'0',text:'private corpus'}));
@@ -36,12 +47,12 @@ test('completed retries are idempotent and altered payloads are rejected',async(
   assert.equal((await reserve(env,{key:'first',fingerprint:'changed'})).status,409);
 });
 test('session caps hold even after successful low-cost requests',async()=>{
-  const env=environment();
+  const env=environment({DEMO_SESSION_CALLS:'10'});
   for(let i=0;i<10;i++){assert.equal((await reserve(env,{key:'k'+i})).status,200);await settle(env,'k'+i,{actual:1000});}
   assert.equal((await reserve(env,{key:'eleventh'})).status,429);
 });
 test('IP cap survives session rotation',async()=>{
-  const env=environment();
+  const env=environment({DEMO_IP_CALLS:'30'});
   for(let i=0;i<30;i++){assert.equal((await reserve(env,{key:'k'+i,session:'s'+i})).status,200);await settle(env,'k'+i,{actual:1000});}
   assert.equal((await reserve(env,{key:'overflow',session:'fresh'})).status,429);
 });
@@ -60,13 +71,13 @@ test('a malformed successful reservation fails closed',async()=>{
   const result=await worker.fetch(new Request('https://example.org/api/llm',{method:'POST',headers:{Authorization:'Bearer research-code','Content-Type':'application/json'},body:'{"task":"name","domain":"posts","words":"charity,gaming"}'}),env);
   assert.equal(result.status,503);assert.match((await result.json()).error,/No model request/);
 });
-test('anonymous request sends only server-selected synthetic text to OpenAI',async()=>{
+test('anonymous request sends only server-selected released Study 1 text to OpenAI',async()=>{
   const previous=globalThis.fetch,env=environment(),cookie=await issueSession(env);let calls=0;
   try{
     globalThis.fetch=async(url,options)=>{calls++;const data=JSON.parse(options.body);assert.match(data.messages[1].content,/Classify/);return Response.json({model:'gpt-4o-2024-08-06',choices:[{finish_reason:'stop',message:{content:'Gaming'}}],usage:{prompt_tokens:100,completion_tokens:1}});};
     const request=()=>new Request('https://example.org/api/demo',{method:'POST',headers:{Origin:'https://example.org',Cookie:'__Host-topicllm='+cookie,'Content-Type':'application/json','X-Request-ID':'repeat-operation'},body:'{"task":"classify","exampleId":"4"}'});
-    const first=await worker.fetch(request(),env);assert.equal(first.status,200);assert.equal((await first.json()).mode,'live-synthetic-example');
-    const second=await worker.fetch(request(),env),again=await second.json();assert.equal(again.cached,true);assert.equal(again.mode,'live-synthetic-example');assert.equal(calls,1);
+    const first=await worker.fetch(request(),env);assert.equal(first.status,200);assert.equal((await first.json()).mode,'live-study1-example');
+    const second=await worker.fetch(request(),env),again=await second.json();assert.equal(again.cached,true);assert.equal(again.mode,'live-study1-example');assert.equal(calls,1);
   }finally{globalThis.fetch=previous;}
 });
 

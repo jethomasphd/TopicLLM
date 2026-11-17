@@ -287,12 +287,14 @@ def run_stage1(cfg=CONFIG) -> str:
     umap_seed = cfg.random_seed if cfg.seed_umap else None
 
     # ---- Load & preprocess -------------------------------------------------
-    df = pd.read_csv(cfg.input_csv)
+    discovery_path = cfg.discovery_input_csv or cfg.input_csv
+    df = pd.read_csv(discovery_path)
     if "tweet" not in df.columns:
-        raise ValueError(f"{cfg.input_csv} must contain a 'tweet' column.")
+        raise ValueError(f"{discovery_path} must contain a 'tweet' column.")
     preprocess, stop_words = build_preprocessor(cfg.stopwords_file)
     manifest = {
-        "input_sha256": hashlib.sha256(Path(cfg.input_csv).read_bytes()).hexdigest(),
+        "input_sha256": hashlib.sha256(Path(discovery_path).read_bytes()).hexdigest(),
+        "analysis_corpus_sha256": hashlib.sha256(Path(cfg.input_csv).read_bytes()).hexdigest(),
         "effective_stopwords": sorted(stop_words),
         "config": asdict(cfg), "environment": environment(),
         "mode": "maintained-python-discovery", "status": "started",

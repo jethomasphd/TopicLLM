@@ -2,6 +2,7 @@
  * No raw prompts, provider credentials, email addresses or raw IPs are stored.
  * Short response receipts support delivery retries and expire after 30 minutes.
  * UTC day/month windows; uncertain requests retain their conservative charge. */
+import {publicLimits} from './limits.js';
 export class DemoQuota {
   constructor(state, env) { this.state=state; this.env=env; }
   async alarm(){
@@ -64,13 +65,14 @@ export class DemoQuota {
       const pending=Object.values(book.receipts).filter(r=>r.state==='pending' && r.scope===scope).length;
       const lifetime=scope==='operator'?bucket('operator:validation:v1'):null;
       const lifetimeLimit=Number(this.env.OPERATOR_VALIDATION_USD||'5');
+      const limits=publicLimits(this.env);
       let error=null,busy=false;
       if(book.bound_breached || !Number.isFinite(dayLimit)||!Number.isFinite(monthLimit)||dayLimit<=0||monthLimit<=0) error='Live examples are temporarily disabled.';
       else if(!Number.isSafeInteger(input.reserved)||input.reserved<=0) error='Invalid budget reservation.';
       else if(daily.charged+input.reserved>Math.round(dayLimit*1e9)||monthly.charged+input.reserved>Math.round(monthLimit*1e9)) error='The site’s shared live-service allowance is used up. The walkthrough and research briefing remain available.';
       else if(lifetime && (!Number.isFinite(lifetimeLimit)||lifetimeLimit<=0||lifetime.charged+input.reserved>Math.round(lifetimeLimit*1e9)))error='The one-time operator validation allowance is used up.';
-      else if(scope==='public' && (session>=10||ip>=30||daily.calls>=1000)) error='Your shared daily live-service allowance is used up. The walkthrough and research briefing remain available.';
-      else if(pending>=(scope==='public'?4:12)){error='Live examples are busy. Try again shortly.';busy=true;}
+      else if(scope==='public' && (session>=limits.sessionCallsPerDay||ip>=limits.ipCallsPerDay||daily.calls>=limits.siteCallsPerDay)) error='Your shared daily live-service allowance is used up. The walkthrough and research briefing remain available.';
+      else if(pending>=(scope==='public'?limits.concurrentCalls:12)){error='Live examples are busy. Try again shortly.';busy=true;}
       if(error) {
         daily.denied++;monthly.denied++;await tx.put('ledger',book);
         return {status:429,data:{error,retryable:busy,...(busy?{retry_after:2}:{})}};
@@ -82,7 +84,7 @@ export class DemoQuota {
       book.receipts[input.key]={scope,fingerprint:input.fingerprint,reserved:input.reserved,buckets:keys,state:'pending',started:now,expires:now+1800000};
       await tx.put('ledger',book);
       if(this.state.storage.setAlarm)await this.state.storage.setAlarm(Math.min(...Object.values(book.receipts).map(r=>r.expires)));
-      return {status:200,data:{allowed:true,remaining_session:scope==='public'?9-session:null}};
+      return {status:200,data:{allowed:true,remaining_session:scope==='public'?limits.sessionCallsPerDay-session-1:null}};
     });
     return Response.json(result.data,{status:result.status});
   }

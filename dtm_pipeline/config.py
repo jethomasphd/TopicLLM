@@ -10,9 +10,8 @@ so a run remains auditable from one file.
 import os
 from dataclasses import dataclass, field
 
-# The open demonstration corpus (fully synthetic, CC BY 4.0; see
-# make_demo_data.py). Original dissertation data are restricted by privacy/IRB
-# obligations and are not available for this demonstration.
+# Original Study 1 brand data are public for an illustrative rerun.
+# Study 2 user data are not included. Legacy synthetic files are test fixtures.
 DEMO_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                          "..", "docs", "data"))
 if not os.path.isdir(DEMO_DIR):
@@ -26,9 +25,10 @@ class PipelineConfig:
     max_api_calls: int = 10000
     gateway_url: str = 'https://topicllm.dev'
     # ----- I/O ---------------------------------------------------------------
-    input_csv: str = os.path.join(DEMO_DIR, "demonstration_corpus.csv")  # needs a 'tweet' column
+    input_csv: str = os.path.join(DEMO_DIR, "study1", "analysis.csv")  # 5,871 nonempty texts; full.csv retains 5,872 records
+    discovery_input_csv: str | None = os.path.join(DEMO_DIR, "study1", "discovery.csv")  # 704 archived lockdown texts; None uses input_csv
     output_dir: str = "pipeline_output"        # all stage artifacts land here
-    stopwords_file: str = os.path.join(DEMO_DIR, "demonstration_stopwords.txt")
+    stopwords_file: str = os.path.join(DEMO_DIR, "study1", "stopwords.txt")
     # (custom_stopwords.txt is the dissertation's list, released as the
     #  reference implementation's expected input; use it with your own data.)
 
@@ -90,7 +90,7 @@ class PipelineConfig:
     none_label: str = "The text does not fit into any of these themes"
     classify_temperature: float = 0.5
     classify_max_tokens: int = 120 # maintained safeguard; archival value was 30
-    benchmark_csv: str = os.path.join(DEMO_DIR, "demonstration_benchmark.csv")  # tweet, human_label
+    benchmark_csv: str = "human_labels.csv"  # supplied independent annotations; no final study benchmark is asserted
     agreement_threshold: float = 0.85          # do not scale below this
     classify_workers: int = 1                  # concurrent API calls in Stage 4 (raise for
                                                # large corpora, e.g. 8-16, within rate limits)
@@ -107,5 +107,19 @@ class PipelineConfig:
     })
     alpha: float = 0.05                        # Bonferroni-corrected in stage 5
 
+    def __post_init__(self):
+        default_input=os.path.join(DEMO_DIR,'study1','analysis.csv')
+        default_discovery=os.path.join(DEMO_DIR,'study1','discovery.csv')
+        if self.input_csv!=default_input and self.discovery_input_csv==default_discovery:
+            self.discovery_input_csv=None
+
 
 CONFIG = PipelineConfig()
+
+def synthetic_fixture_config(**overrides):
+    """Explicit software-test inputs; never the default research corpus."""
+    values=dict(input_csv=os.path.join(DEMO_DIR,'demonstration_corpus.csv'),discovery_input_csv=None,
+                stopwords_file=os.path.join(DEMO_DIR,'demonstration_stopwords.txt'),
+                benchmark_csv=os.path.join(DEMO_DIR,'demonstration_benchmark.csv'))
+    values.update(overrides)
+    return PipelineConfig(**values)

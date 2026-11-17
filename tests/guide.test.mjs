@@ -8,9 +8,9 @@ import {environment} from './quota-fixture.mjs';
 import {issueSession} from '../worker/session.js';
 import library from '../worker/guide-sources.json' with {type:'json'};
 const req=(body,cookie,path='/api/guide',origin='https://example.org',id='guide-operation-1')=>new Request('https://example.org'+path,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json',Cookie:'__Host-topicllm='+cookie,'X-Request-ID':id},body:JSON.stringify(body)});
-const question={question:'Why did the dissertation find seven topics and the synthetic run 21?',page:'provenance'};
+const question={question:'Why can the original-data demonstration find a different number of topics?',page:'provenance'};
 const provider=content=>Response.json({model:'gpt-4o-2024-08-06',choices:[{finish_reason:'stop',message:{content:JSON.stringify(content)}}],usage:{prompt_tokens:7000,completion_tokens:150}});
-const good={answer:'Different corpora can produce different topics. The dissertation remains the historical source.',source_ids:['provenance','validation'],suggestions:['How do topics become themes?','How do I try the demo?']};
+const good={answer:'Probabilistic methods and changing seeds or environments can produce different topics. The dissertation remains the historical source.',source_ids:['provenance','validation'],suggestions:['How do topics become themes?','How do I try the demo?']};
 test('guide index matches its public sources and unchanged dissertation',async()=>{
  for(const [name,expected] of Object.entries({...library.source_hashes,'THOMAS-PRIMARY-2025.pdf':library.dissertation_sha256})){const bytes=await readFile(new URL('../'+name,import.meta.url));assert.equal(createHash('sha256').update(name.endsWith('.pdf')?bytes:bytes.toString('utf8').replace(/\r\n/g,'\n')).digest('hex'),expected,name);}
  assert.ok(library.chunks.some(c=>c.url.endsWith('#page=197')));assert.match(library.briefing,/Chapter 6/);
@@ -35,7 +35,7 @@ test('guide requires an enabled same-origin session',async()=>{
  assert.equal((await worker.fetch(req(question,cookie),environment({GUIDE_ENABLED:'false'}))).status,503);
 });
 test('guide is grounded, non-stored, idempotent and shares the public allowance',async()=>{
- const previous=globalThis.fetch,env=environment(),cookie=await issueSession(env);let calls=0;
+ const previous=globalThis.fetch,env=environment({DEMO_SESSION_CALLS:'10'}),cookie=await issueSession(env);let calls=0;
  try{
   globalThis.fetch=async(url,options)=>{calls++;const b=JSON.parse(options.body);assert.equal(b.store,false);assert.equal(b.model,env.OPENAI_MODEL);assert.match(b.messages[0].content,/BRIEFING/);assert.match(b.messages[0].content,/SOURCE EXCERPTS/);assert.ok(!b.messages[0].content.includes(env.OPENAI_API_KEY));return provider(good);};
   const first=await worker.fetch(req(question,cookie),env),data=await first.json();assert.equal(first.status,200);assert.equal(data.mode,'research-guide');assert.equal(data.remaining_session,9);assert.equal(data.sources[0].url,'/audit/');
@@ -47,7 +47,7 @@ test('guide is grounded, non-stored, idempotent and shares the public allowance'
 });
 test('guide blocks paid calls without storage or sufficient reserved allowance',async()=>{
  const previous=globalThis.fetch;let called=false;globalThis.fetch=async()=>{called=true;return provider(good);};
- try{for(const env of [environment({DEMO_DAILY_USD:'0.001'}),environment()]){const cookie=await issueSession(env);if(env.DEMO_DAILY_USD==='1')env.QUOTAS.get=()=>({fetch:async()=>{throw new Error('offline');}});assert.ok([429,503].includes((await worker.fetch(req(question,cookie),env)).status));}assert.equal(called,false);}finally{globalThis.fetch=previous;}
+ try{for(const env of [environment({DEMO_DAILY_USD:'0.001'}),environment()]){const cookie=await issueSession(env);if(env.DEMO_DAILY_USD==='20')env.QUOTAS.get=()=>({fetch:async()=>{throw new Error('offline');}});assert.ok([429,503].includes((await worker.fetch(req(question,cookie),env)).status));}assert.equal(called,false);}finally{globalThis.fetch=previous;}
 });
 test('invalid model citations fail while returned token usage is settled',async()=>{
  const previous=globalThis.fetch,env=environment(),cookie=await issueSession(env);

@@ -75,7 +75,7 @@ export function lineChart(container, { points, xLabel, yLabel, highlightX, value
 
   for (const t of niceTicks(yMin - yPad, yMax + yPad, 4)) {
     el("line", { x1: m.left, x2: W - m.right, y1: Y(t), y2: Y(t), class: "grid" }, svg);
-    el("text", { x: m.left - 8, y: Y(t) + 4, class: "tick", "text-anchor": "end" }, svg).textContent = t.toFixed(2);
+    el("text", { x: m.left - 8, y: Y(t) + 4, class: "tick", "text-anchor": "end" }, svg).textContent = t.toFixed(yMax-yMin<0.05?4:2);
   }
   for (const t of niceTicks(xMin, xMax, 8).filter(Number.isInteger)) {
     el("text", { x: X(t), y: H - m.bottom + 18, class: "tick", "text-anchor": "middle" }, svg).textContent = t;
@@ -95,7 +95,8 @@ export function lineChart(container, { points, xLabel, yLabel, highlightX, value
     const isHi = x === highlightX;
     el("circle", { cx: X(x), cy: Y(y), r: isHi ? 5 : 3, class: isHi ? "dot dot-hi" : "dot" }, svg);
     if (isHi) {
-      el("text", { x: X(x), y: Y(y) - 10, class: "direct-label", "text-anchor": "middle" }, svg)
+      const nearLeft=X(x)<m.left+90, nearRight=X(x)>W-m.right-90;
+      el("text", { x: X(x)+(nearLeft?12:nearRight?-12:0), y: Y(y) - 14, class: "direct-label", "text-anchor": nearLeft?"start":nearRight?"end":"middle" }, svg)
         .textContent = `${valueFmt(y)} @ ${x}`;
     }
     const hit = el("circle", { cx: X(x), cy: Y(y), r: 12, fill: "transparent" }, svg);
@@ -135,7 +136,7 @@ export function groupedBarChart(container, { groups, series, values, valueFmt = 
   const max=Math.max(...values.flat(),.001),limit=Math.ceil(max/5)*5;
   const plot=W-left-right,X=value=>left+value/limit*plot;
   const names={pre:'Pre',peri:'Peri',post:'Post'};
-  const svg=el('svg',{class:'chart',role:'img','aria-label':'Synthetic theme prevalence by period. Exact percentages and denominators are provided in the table below.'},container);
+  const svg=el('svg',{class:'chart',role:'img','aria-label':'Theme prevalence by period. Read the accompanying table and source description for values and provenance.'},container);
   let y=28;
   if(!narrow){let lx=left;series.forEach((period,i)=>{el('rect',{x:lx,y:2,width:8,height:8,rx:2,class:`bar s${i+1}`},svg);el('text',{x:lx+14,y:10,class:'tick'},svg).textContent=names[period]||period;lx+=80;});}
   for(let t=0;t<=limit;t+=5){el('text',{x:X(t),y:y+7,class:'tick','text-anchor':'middle'},svg).textContent=t+'%';}

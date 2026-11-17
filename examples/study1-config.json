@@ -1,0 +1,11 @@
+{
+  "input_csv": "docs/data/study1/analysis.csv",
+  "discovery_input_csv": "docs/data/study1/discovery.csv",
+  "stopwords_file": "docs/data/study1/stopwords.txt",
+  "benchmark_csv": "private/independent-benchmark.csv",
+  "output_dir": "runs/study1",
+  "votes_per_topic": 20,
+  "random_seed": 42,
+  "search_iterations": 50,
+  "llm_model": "gpt-4o-2024-08-06"
+}

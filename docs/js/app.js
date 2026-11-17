@@ -1,6 +1,6 @@
 /* app.js — UI orchestration for the browser pipeline.
  * Stage 1 runs locally in a Web Worker. The public sandbox uses a teaching
- * mock; live OpenAI is confined to separate fixed synthetic examples. Every stage exposes the same artifacts the Python
+ * mock; live OpenAI is confined to separate released Study 1 examples. Every stage exposes the same artifacts the Python
  * reference implementation writes to disk, as downloads. */
 
 import { parseCSV, toCSV, downloadText, downloadBlob, buildZip, mulberry32, sample, pct, escapeHTML } from "./util.js";
@@ -116,32 +116,32 @@ function summarizeData() {
   const hasDate = S.corpus.some(r => r.date);
   el.innerHTML =
     `<strong>${S.corpus.length.toLocaleString()}</strong> documents loaded` +
-    `${S.isDemo ? " (demonstration corpus, synthetic)" : ""} — text column <code>${escapeHTML(S.textCol)}</code>` +
+    `${S.isDemo ? " (original Study 1 discovery data)" : ""} — text column <code>${escapeHTML(S.textCol)}</code>` +
     `${hasDate ? ", with dates" : ", no date column (Stage 5 period tests disabled)"}.` +
-    (S.benchmark ? ` Benchmark: <strong>${S.benchmark.length}</strong> ${S.isDemo ? "generator-labeled synthetic" : "researcher-labeled"} documents.`
+    (S.benchmark ? ` Benchmark: <strong>${S.benchmark.length}</strong> researcher-supplied documents.`
                  : " No benchmark loaded (needed for Stage 4).");
   $("run1").disabled = !S.corpus;
   $("step-0")?.classList.toggle("done", !!S.corpus);
 }
 
 async function loadDemo() {
-  logCmd("log-0", "load_demonstration_corpus()   # open, fully synthetic — no real data");
+  logCmd("log-0", "load_study1_discovery()   # original brand tweets, illustrative rerun");
   termStatus(0, "loading…");
   let data;
   try { data = await loadDemoData(); }
   catch (err) { log("log-0", `could not load the demonstration corpus: ${err.message}`, "warn"); termStatus(0, "error"); return; }
   resetAfter(0);
   S.corpusHash = await sha256(JSON.stringify(data.corpus));
-  S.sourceMode = "synthetic-exploration";
+  S.sourceMode = "original-study1-illustration";
   S.corpus = data.corpus; S.benchmark = data.benchmark; S.textCol = "tweet"; S.isDemo = true;
-  S.benchmarkProvenance = 'generator-assigned synthetic truth';
+  S.benchmarkProvenance = null;
   $("stopwords").value = data.stopwords;
   // A browser-sized search: the reference implementation runs 50 iterations.
   // Never silently alter the researcher’s requested search budget.
   summarizeData();
-  log("log-0", `corpus  → ${S.corpus.length.toLocaleString()} posts from 11 fictional brands, Jan 2019 – Jul 2021`, "ok");
-  log("log-0", `benchmark → ${S.benchmark.length} generator-labeled synthetic posts (compatibility column: human_label)`, "ok");
-  log("log-0", "stopwords → brand terms + time words (demonstration_stopwords.txt)", "ok");
+  log("log-0", `corpus  → ${S.corpus.length.toLocaleString()} original brand posts, March 25 – May 31, 2020`, "ok");
+  log("log-0", "No final human benchmark is bundled; supply independently annotated examples for research validation.", "ok");
+  log("log-0", "stopwords → brand terms + time words (study1/stopwords.txt)", "ok");
   log("log-0", "Exploratory browser approximation. Topic count can differ from the seven reported in the dissertation.", "meta");
   log("log-0", "ready — run Stage 1 below", "meta");
   termStatus(0, "corpus loaded");
@@ -456,8 +456,9 @@ function renderStage2() {
     `<tr><td>${w.topic}</td><td>${escapeHTML(w.modal_label)}</td><td>${pct(w.modal_share)}</td>` +
     `<td>${pct(w.margin_over_runner_up)}</td><td>${w.total_votes}</td></tr>`).join("");
   $("s2-table").innerHTML =
+    `<p class="note"><strong>Teaching mock outputs.</strong> These labels illustrate the controls; no OpenAI calls were made. Use the live examples tab to collect actual model responses.</p>` +
     `<table><thead><tr><th>Topic</th><th>Modal label</th><th>Vote share</th><th>Margin</th><th>Votes</th></tr></thead><tbody>${rows}</tbody></table>` +
-    `<p class="note">A fragmented vote (low modal share) flags a semantically ambiguous topic — give it extra scrutiny in Stage 3.</p>`;
+    `<p class="note">A fragmented vote can reflect alternative wording or ambiguity. Inspect the posts and proposed labels in Stage 3.</p>`;
 }
 
 function voteTallyRows() {

@@ -8,3 +8,6 @@
 :root{--review:#865b19}:root[data-theme=dark]{--review:#edc98b}@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--review:#edc98b}}
 
 .hero-guide-link{font:inherit;color:#a1e9cc;padding:0;background:none;border:0;text-decoration:underline;text-underline-offset:4px;cursor:pointer}.hero-art img{mask-image:linear-gradient(to right,transparent,#000 6%,#000 96%,transparent),linear-gradient(to bottom,transparent,#000 5%,#000 94%,transparent)}
+
+/* Plain-language orientation for people supervising agent workflows. */
+.research-introduction{padding:76px 0;border-bottom:1px solid var(--rule);}.research-introduction h2{font-size:clamp(2rem,4vw,3.4rem);line-height:1.1;max-width:900px;}.overview-lead{font-size:clamp(1.05rem,1.8vw,1.25rem);line-height:1.7;max-width:900px;color:var(--ink-2);}.overview-roles{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin:32px 0;}.overview-roles article{border-top:2px solid var(--accent);padding-top:18px;}.overview-roles span{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;}.overview-roles h3{font-size:20px;line-height:1.3;}.overview-roles p{line-height:1.6;color:var(--ink-2);}@media(max-width:740px){.research-introduction{padding:44px 0}.overview-roles{grid-template-columns:1fr;gap:16px;}}

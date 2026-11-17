@@ -1,4 +1,4 @@
-import {mkdir, cp, readFile, writeFile, stat} from 'node:fs/promises';
+import {mkdir, cp, readFile, writeFile, stat, rm} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
@@ -8,7 +8,10 @@ for (const file of manifest.files) {
   const bytes = await readFile(path.join(root,file.path));
   if (createHash('sha256').update(bytes).digest('hex') !== file.sha256) throw new Error(`Protected source changed: ${file.path}`);
 }
-await mkdir(path.join(root,'dist'), {recursive:true});
+const dist=path.resolve(root,'dist');
+if(path.dirname(dist)!==root||path.basename(dist)!=='dist')throw new Error('Unsafe build target');
+await rm(dist,{recursive:true,force:true});
+await mkdir(dist, {recursive:true});
 await cp(path.join(root,'docs'), path.join(root,'dist'), {recursive:true});
 const pdfjs=path.join(root,'node_modules','pdfjs-dist'), pdfdest=path.join(root,'dist','vendor','pdfjs');
 await mkdir(pdfdest,{recursive:true});

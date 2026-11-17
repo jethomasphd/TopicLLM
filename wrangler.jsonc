@@ -14,18 +14,22 @@
     "LIVE_DEMO_ENABLED": "true",
     "GUIDE_ENABLED": "true",
     "OPERATOR_LLM_ENABLED": "false",
-    "DEMO_DAILY_USD": "1",
-    "DEMO_MONTHLY_USD": "5",
+    "DEMO_DAILY_USD": "20",
+    "DEMO_MONTHLY_USD": "620",
     "OPERATOR_DAILY_USD": "5",
     "OPERATOR_MONTHLY_USD": "5",
-    "OPERATOR_VALIDATION_USD": "5"
+    "OPERATOR_VALIDATION_USD": "5",
+    "DEMO_SESSION_CALLS": "200",
+    "DEMO_IP_CALLS": "600",
+    "DEMO_SITE_CALLS": "20000",
+    "DEMO_CONCURRENT_CALLS": "8"
   },
   "ratelimits": [
     {
       "name": "RATE_LIMITER",
       "namespace_id": "1001",
       "simple": {
-        "limit": 20,
+        "limit": 60,
         "period": 60
       }
     },

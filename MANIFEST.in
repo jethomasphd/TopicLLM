@@ -2,3 +2,4 @@ include README.md LICENSE setup.py
 include dtm_pipeline/requirements*.txt
 include docs/data/demonstration*.csv docs/data/demonstration_stopwords.txt
 include docs/data/study.json docs/data/study-demo.json docs/data/synthetic-integrity.json
+recursive-include docs/data/study1 *
