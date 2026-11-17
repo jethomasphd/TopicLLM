@@ -41,7 +41,7 @@ export async function initLiveDemo(){
    }
    output.replaceChildren();const tally=new Map();for(const label of ballots)tally.set(label,(tally.get(label)||0)+1);
    for(const [label,count] of [...tally].sort((a,b)=>b[1]-a[1])){const p=document.createElement('p'),b=document.createElement('strong');b.textContent=label;p.append(b,document.createTextNode(n>1?` — ${count}/${n} votes`:''));output.append(p);}
-   const detail=document.createElement('p');detail.className='note';detail.textContent=task==='name'?`${n} independent calls, with the full tally retained. More votes reveal variation; they do not replace researcher interpretation.`:'One live classification, not an independently validated research label.';output.append(detail);
+   const detail=document.createElement('p');detail.className='note';detail.textContent=task==='name'?`${n} independent ${n===1?'call':'calls'}, with the full tally retained. More votes reveal variation; they do not replace researcher interpretation.`:'One live classification, not an independently validated research label.';output.append(detail);
   }catch(error){output.textContent=`${error.message}${ballots.length?` ${ballots.length} completed responses are retained in your download.`:''}`;}
   finally{busy=false;controls();$('live-download').disabled=!records.length;}
  });
