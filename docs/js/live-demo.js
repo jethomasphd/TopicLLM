@@ -2,7 +2,7 @@ import {downloadText} from './util.js';
 export async function initLiveDemo(){
  const root=document.getElementById('live-examples');if(!root)return;
  const $=id=>document.getElementById(id),status=$('live-status'),records=[];
- let data,available=false,busy=false,filtered=[];
+ let data,available=false,busy=false,filtered=[],viewedTopic=null,viewedExample=null;
  try{
   const [a,b]=await Promise.all([fetch('../data/trump/live-examples.json'),fetch('/api/config')]);
   if(!a.ok||!b.ok)throw new Error();data=await a.json();const config=await b.json();available=config.publicLive;
@@ -14,10 +14,13 @@ export async function initLiveDemo(){
  const update=()=>{
   $('live-words').textContent=data.topics.find(t=>t.id===$('live-topic').value)?.words||'';
   const e=data.examples.find(e=>e.id===$('live-example').value);
+  if(viewedTopic!==$('live-topic').value)$('live-name-result').textContent='The complete tally and model details will be available to download.';
+  if(viewedExample!==(e?.id||null))$('live-classify-result').textContent='A single model choice is an example to inspect, not an independently validated label.';
+  viewedTopic=$('live-topic').value;viewedExample=e?.id||null;
   $('live-text').textContent=e?.text||'No posts match. Try another word or date.';
   $('live-truth').textContent=e?`${e.date} · ${e.post_id} · ${e.is_retweet==='t'?'Retweet':'Account post'}. Public archive; practice classification only.`:'';
  };
- function filter(){const terms=$('live-search').value.toLowerCase().trim().split(/\s+/).filter(Boolean);filtered=data.examples.filter(e=>{const text=`${e.date} ${e.post_id} ${e.text}`.toLowerCase();return terms.every(term=>text.includes(term));});$('live-example').replaceChildren(...filtered.slice(0,100).map(e=>new Option(`${e.date} · ${e.post_id}`,e.id)));$('live-match-count').textContent=`${filtered.length.toLocaleString()} matching posts${filtered.length>100?' · showing the first 100; narrow your search or pick a random match':''}`;update();controls();}
+ function filter(){const terms=$('live-search').value.toLowerCase().trim().split(/\s+/).filter(Boolean);filtered=data.examples.filter(e=>{const text=`${e.date} ${e.post_id} ${e.text}`.toLowerCase();return terms.every(term=>text.includes(term));});$('live-example').replaceChildren(...filtered.slice(0,100).map(e=>new Option(`${e.date} · ${e.post_id}`,e.id)));$('live-match-count').textContent=`${filtered.length.toLocaleString()} matching ${filtered.length===1?'post':'posts'}${filtered.length>100?' · showing the first 100; narrow your search or pick a random match':''}`;update();controls();}
  $('live-search').addEventListener('input',filter);$('live-topic').addEventListener('change',update);$('live-example').addEventListener('change',update);
  $('live-random').onclick=()=>{if(!filtered.length)return;const e=filtered[Math.floor(Math.random()*filtered.length)];if(![...$('live-example').options].some(o=>o.value===e.id))$('live-example').add(new Option(`${e.date} · ${e.post_id}`,e.id));$('live-example').value=e.id;update();};filter();controls();
  for(const button of root.querySelectorAll('[data-live-task]'))button.addEventListener('click',async()=>{
