@@ -34,7 +34,7 @@
 <div id="app-message" class="message" role="alert" tabindex="-1" hidden></div>
 <button id="stop-run" class="btn stop-run" hidden>Stop LLM requests</button>
 <section id="tab-study" class="tab">
-  <div class="study-intro"><span class="mode-label">ORIGINAL STUDY 1 DATA · ILLUSTRATIVE RERUN</span><p>Follow the five stages with the released brand data. Inspect a recorded discovery run, try live naming and classification, and distinguish new demonstration outputs from the published findings.</p></div>
+  <div class="study-intro"><span class="mode-label">ORIGINAL STUDY 1 DATA · ILLUSTRATIVE RERUN</span><p>Follow a post from language to evidence. Explore each stage, then try naming and classification with OpenAI.</p></div>
   <div class="study-layout">
     <nav class="study-nav" aria-label="Study walkthrough">
       <button data-study-phase="0"><span>01</span> Discover</button>
@@ -58,7 +58,7 @@
 
 
 <section id="tab-live" class="tab" hidden>
-  <div class="reproduction-callout"><p class="eyebrow">One response you can inspect</p><h2>Experiment with the live model on real study posts.</h2><p>Search the released corpus, collect independent naming votes, and inspect each response. These are illustrative model outputs. For a complete research run with reviewed themes and an independently annotated benchmark, <a href="../reproduce/">fork and run the Python workflow</a>.</p></div>
+  <div class="reproduction-callout"><p class="eyebrow">One response you can inspect</p><h2>Experiment with the live model on real study posts.</h2><p>Name a topic or classify a post, then inspect the model’s response. These are live demonstrations; <a href="../reproduce/">run the reviewed research workflow in your own environment</a>.</p></div>
   <p id="live-status" role="status">Checking live-example availability…</p>
   <div id="live-examples" class="live-grid">
     <article class="live-card"><h3>From words to a candidate name</h3><label for="live-topic">Topic words</label><select id="live-topic"></select><blockquote id="live-words"></blockquote><label for="live-votes">Independent naming votes</label><select id="live-votes"><option value="1">1 response</option><option value="5" selected>5 votes</option><option value="10">10 votes</option><option value="20">20 votes</option></select><button class="btn primary" data-live-task="name" disabled>Collect naming votes</button><div id="live-name-result" class="live-result" role="status">Your response and its provenance will appear here.</div></article>
@@ -68,7 +68,7 @@
 
 <!-- ============================ ANALYZE ============================= -->
 <section id="tab-analyze" class="tab" hidden>
-  <div class="workbench-intro"><div><span class="mode-label">LOCAL TEACHING SANDBOX</span><p>Try local discovery and mock naming to understand the mechanics. The mock can fail validation; that is a useful demonstration of the gate. For complete research workflows, use the Python package and your own API environment.</p></div><div class="session-actions"><button class="btn" id="save-session">Save research record</button><label class="btn file">Load saved inputs<input id="restore-session" type="file" accept=".json" hidden></label></div></div>
+  <div class="workbench-intro"><div><span class="mode-label">LOCAL TEACHING SANDBOX</span><p>Explore discovery locally with simulated LLM responses. For real research, run the Python workflow in your own environment.</p></div><div class="session-actions"><button class="btn" id="save-session">Save research record</button><label class="btn file">Load saved inputs<input id="restore-session" type="file" accept=".json" hidden></label></div></div>
 
   <ol class="stepper">
     <li id="step-0" data-target="card-data"><b>00</b> data</li>
@@ -84,7 +84,7 @@
     <h2>00 · Data &amp; settings</h2>
     <p class="stage-sub">Load original Study 1 or approved local text and explore the mechanics. Discovery runs in your browser; naming and classification here use a teaching mock. Fixed live OpenAI examples are in their own tab. Run research in your Python environment.</p>
     <div class="row">
-      <button class="btn primary" id="btn-demo" data-tip="Loads the 704-text original Study 1 discovery input and supplied stopwords. No final human-validation labels are asserted.">Load Study 1 discovery data</button>
+      <button class="btn primary" id="btn-demo" data-tip="Loads the Study 1 example and its stopwords for local exploration.">Load Study 1 example</button>
       <label class="btn file" data-tip="A CSV with a 'tweet' (or 'text') column. An optional 'date' column (YYYY-MM-DD) enables Stage 5's period comparisons.">Upload corpus CSV<input type="file" id="file-corpus" accept=".csv" hidden></label>
       <label class="btn file" data-tip="Columns: tweet, human_label. These hand-coded documents are Stage 4's measuring stick — the dissertation used n=250. Keep validation documents separate from prompt tuning.">Upload benchmark CSV<input type="file" id="file-benchmark" accept=".csv" hidden></label>
     </div>
@@ -335,35 +335,13 @@
 
 
 <!-- ============================== HELP ============================== -->
-<section id="tab-help" class="tab" hidden>
-  <div class="card">
-    <h2>How this app relates to the paper</h2>
-    <p>The website illustrates the method with original Study 1 brand data. The walkthrough identifies reported findings and recorded modern discovery separately. Live examples send only released Study 1 records to OpenAI. The optional browser sandbox runs approximate local discovery with a teaching mock; the Python package is the research execution path.</p>
-    <p><a href="../reproduce/">Fork the repository or download the Python package</a> for your own corpus. An agent can prepare inputs, run checks, assemble review evidence and execute approved analysis; researcher interpretation and independent validation remain explicit checkpoints.</p>
-    <h3>Reading the terminals</h3>
-    <p>Each stage streams its work to a terminal panel: <code>$</code> lines echo the command being
-    executed with its exact parameters; <code>›</code> lines report steps; <code>·</code> lines are
-    configuration detail; <code>✓</code> lines confirm completed computations; <code>!</code> lines
-    are warnings; the <code>▸</code> line at the bottom is live progress. The status on the right
-    reads <code>exit 0</code> when a stage completes cleanly — and <code>gate refused</code> when
-    Stage 4 declines to scale an unvalidated classifier.</p>
-    <h3>What each mode means</h3>
-    <p>Study walkthrough: original data, recorded discovery, the published topic-to-theme map, and directly calculated period totals. Reported prevalence is labeled as published, not newly classified.</p>
-    <p>Exploratory workspace: original Study 1 or approved uploaded text, approximate browser discovery and mock LLM output. Use Python for research execution and inspect all interpretation and validation decisions.</p>
-    <p><strong>Python pipeline:</strong> the maintained research implementation. Its fixes, seeds and modern dependencies differ from the original S1–S3 supplements. Record versions, model identifiers, inputs, stopwords and outputs; a seed alone is not a reproducibility guarantee.</p>
-    <h3>Prepare a research corpus</h3>
-    <p>Upload a UTF-8 CSV with a <code>tweet</code> or <code>text</code> column and optional ISO <code>date</code> values (YYYY-MM-DD). Remove blank text and resolve duplicates according to a documented protocol. Browser discovery is limited to 6,000 documents because clustering uses quadratic memory; larger corpora belong in Python.</p>
-    <h3>Validate before scaling</h3>
-    <p>Use independently labeled, held-out documents that include positive examples of every theme. Check precision, sensitivity and confusion counts, as well as overall agreement. A classifier that misses every rare positive can still have very high accuracy. Generated labels and mock predictions do not establish human agreement.</p>
-    <h3>Data handling</h3>
-    <p>Sandbox files stay in this browser tab. The public live examples accept fixed example IDs only; they do not accept your corpus, prompts or API keys. A signed, one-day session cookie supports usage limits. <a href="../privacy/">Read data handling and retention</a>. Research data belong in your approved local or institutional environment.</p>
-    <h3>Cost and interruption</h3><p>The walkthrough and local sandbox make no paid calls. Live examples and the guide share 200 calls per browser session and 600 per network per UTC day, within $20/day and $620/month site-wide allowances. Full research uses your own approved API budget.</p>
-    <h3>Citing</h3>
-    <p>Thomas, J. E. (2026). <em>Coherence-Optimized Topic Modeling with Democratic Large Language Model
-    Interpretation: A Human-in-the-Loop Pipeline for Public Health Surveillance of Social Media.</em>
-    Preprint.</p>
-  </div>
-</section>
+<section id="tab-help" class="tab" hidden><div class="card">
+<h2>Start with the walkthrough.</h2><p>Follow five stages: discover topics, name them, synthesize themes, classify posts and compare prevalence. Each view identifies whether you are seeing a recorded run, a live response or a dissertation finding.</p>
+<h3>Choose how to explore.</h3><p><strong>Explore the study</strong> explains the method with Study 1. <strong>Try live OpenAI</strong> lets you name topics and classify posts. The optional <strong>Browser sandbox</strong> runs approximate local discovery with simulated LLM output.</p>
+<h3>Ready for your own research?</h3><p><a href="../reproduce/">Fork the repository or install the Python package</a>. Your agent runs the scripts and keeps the evidence. Researchers approve themes and assess an independent benchmark before classifying the corpus.</p>
+<details><summary>Browser sandbox: inputs and controls</summary><p>Upload a UTF-8 CSV with a <code>tweet</code> or <code>text</code> column and optional ISO <code>date</code> values (YYYY-MM-DD). Resolve missing text and duplicates first. Browser discovery supports up to 6,000 documents; use Python for larger corpora.</p><p>Terminal panels show commands, settings and progress. <code>exit 0</code> means a stage completed; <code>gate refused</code> means classification did not pass validation. Save inputs or download the session’s artifacts to inspect your work.</p></details>
+<h3>Data and live calls</h3><p>Sandbox uploads stay in your browser. Hosted OpenAI examples use only released Study 1 posts; your research data and credentials belong in your approved environment. The guide and live examples share a usage allowance. <a href="../privacy/">Read data handling and limits</a>.</p>
+<p><a href="../paper/">Read the methods</a> · <a href="../audit/">Research library</a> · <a href="../validation/">Inside the demo</a></p></div></section>
 
 </main>
 <footer><div class="wrap"><p><a href="../">TopicLLM</a> · Thomas, Murthy, Pinedo, Loukas &amp; Pasch (2026) ·

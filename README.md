@@ -24,11 +24,11 @@ The dissertation studies received committee review. The study editions and metho
 
 ## The actual study, ready to explore
 
-The default demonstration uses **original Study 1 alcohol-brand data**, released by the author: **5,872 records from 11 brands**, with a separate **704-text lockdown discovery input**. Study 2 user data are not included. Collector and administrative fields have been removed.
+The demonstration uses **original Study 1 alcohol-brand data**: **5,872 records from 11 brands**. The data and configuration are included in the package.
 
 This is an **illustrative modern rerun**, not a promise of identical historical outputs. Topic models and LLMs include probabilistic steps. A fresh run can group or label some posts differently, especially when the random seed, model, or software version changes.
 
-The site lets you walk through the method, search 5,871 nonempty original posts, collect independent OpenAI naming votes and inspect live classifications. Published dissertation results are clearly identified beside new demonstration outputs.
+Walk through the five stages, search the study posts, collect OpenAI naming votes and inspect live classifications. Dissertation findings and new demonstration outputs are labeled where they appear.
 
 ## Start in minutes
 
@@ -42,7 +42,7 @@ python -m pip install ".[dev]"
 topicllm --profile quickcheck --output-dir runs/check
 ```
 
-The free quickcheck verifies hashes, reconstructs the original cohort and confirms 5,872 records, 11 brands, one blank text, 5,871 nonempty analysis records and 704 discovery texts. It makes no model calls.
+The free quickcheck verifies the bundled data and setup. It makes no model or API calls.
 
 To rerun discovery:
 
@@ -52,7 +52,7 @@ topicllm --profile study1-demo --output-dir runs/study1 --plan
 topicllm --profile study1-demo --output-dir runs/study1
 ```
 
-The first run may download the embedding model and NLP resources. Discovery is local and makes no paid OpenAI calls. An [installable wheel and source archive](https://topicllm.dev/reproduce/) are also available; this is not a claim of a PyPI release.
+The first run may download the embedding model and NLP resources. Discovery is local and makes no paid OpenAI calls. An [installable wheel and source archive](https://topicllm.dev/reproduce/) are also available.
 
 ## Give your agent a method
 
@@ -70,11 +70,11 @@ The first run may download the embedding model and NLP resources. Discovery is l
 
 ## Evidence you can inspect
 
-The recorded modern discovery retained **1,200 candidate results**. It selected **five statistical topics** with c_v **0.7803**, leaving **433 of 704 texts as outliers**. That coverage limitation is visible; these topics are not automatically the dissertation's five interpreted themes. The [recorded run](https://topicllm.dev/validation/) includes settings, assignments, counts and environment. Different seeds at the reported parameter settings returned 9, 10 and 9 topics; repeating the same seed reproduced assignments in the recorded environment.
+The [demo record](https://topicllm.dev/validation/) shows the selected topics and model coverage, with complete run artifacts available to download. The dissertation supplies the reported study findings. Topic models and LLMs can vary across runs; retain the inputs, settings and outputs when adapting the method.
 
-The dissertation remains the source for its reported seven topics, five themes and prevalence findings. Original papers and supplements remain byte-identical under [source-integrity.json](source-integrity.json). [Data provenance](docs/data/README.md) documents preparation and minor printed brand/count pairing differences without altering the source.
+[Methods](https://topicllm.dev/paper/) explain the research decisions. [Technical data documentation](docs/data/README.md) specifies the inputs. [Source checksums](source-integrity.json) protect the original papers and supplements.
 
-Research classification requires an independent human benchmark; the release does not invent one. The five-stage package does not implement LIWC sentiment analysis or Study 2's exposure-index/GSEM analysis. Legacy synthetic fixtures remain engineering tests, not the main demonstration.
+The maintained package covers the topic-to-prevalence workflow. Research classification requires an independent human benchmark. Study 2 user data, LIWC sentiment analysis and Study 2’s exposure-index/GSEM analysis are outside this package.
 
 ## Repository map
 
@@ -88,6 +88,6 @@ Research classification requires an independent human benchmark; the release doe
 | `tests/`, `dtm_pipeline/tests/` | Software and data-integrity checks |
 | `scripts/` | Build, source verification and release tooling |
 
-The public service supports 200 calls per browser session and 600 per shared network per UTC day, within a shared **$20/day** and **$620/month** allowance. Researchers use their own approved credentials and explicit budgets for full workflows. Keys never belong in prompts or version control.
+The live demo has [shared service limits](https://topicllm.dev/privacy/). Full research runs use your own credentials and declared budget. Keep keys out of prompts and version control.
 
 Code: MIT. Documentation and original author-created materials: see [LICENSE-CONTENT.md](LICENSE-CONTENT.md). Third-party brand text is not relicensed by those licenses. Cite the dissertation, methods and software using [CITATION.cff](CITATION.cff).

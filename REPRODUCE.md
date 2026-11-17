@@ -11,7 +11,7 @@ python -m pip install ".[dev]"
 topicllm --profile quickcheck --output-dir runs/check
 ```
 
-Expected: input hashes verified; the 5,872-record, 11-brand cohort reconstructed; one blank text; 5,871 nonempty analysis records; 704 archived discovery texts. No model or API calls. The wheel includes the same original-data files. `docs/data/README.md` describes their provenance.
+Expected: the bundled Study 1 data and configuration pass verification, with no model or API calls. The wheel includes the same dataset and settings. Exact input counts, stage selections and preparation records are in `docs/data/README.md`.
 
 ## 2. Give the agent the contract
 
@@ -27,9 +27,9 @@ topicllm --profile study1-demo --output-dir runs/study1 --plan
 topicllm --profile study1-demo --output-dir runs/study1
 ```
 
-This profile defaults to Stage 1, the 704-text discovery input, 50 draws, topic ceilings 2–25 and seed 42. The first run may download MiniLM and NLTK resources. It makes no paid API calls. `--iterations 2` is a clearly smaller exploratory run; it does not recreate the full search.
+This profile runs Study 1 topic discovery with 50 draws, topic ceilings 2–25 and seed 42. The first run may download MiniLM and NLTK resources. It makes no paid API calls. `--iterations 2` is a smaller exploratory run; it does not recreate the full search.
 
-The configuration has two corpus paths: `discovery_input_csv` (704 archived texts) and `input_csv` (5,871 nonempty full-period records). Stage 1 hashes and uses the discovery input. Classification uses the analysis input. The full 5,872-row file retains the blank text for cohort accounting. Both corpora are bound into research review records. `display_text` is for reading only; discovery uses the archived `tweet` values without silent encoding repair.
+Study 1 has stage-specific inputs: `discovery_input_csv` selects the lockdown texts for topic discovery, and `input_csv` selects full-period text for classification. The bundled configuration and data specification retain the exact file roles and hashes. Research review records bind both stage inputs. `display_text` is for reading only; discovery uses the archived `tweet` values without silent encoding repair.
 
 For other data, `--input your.csv` uses that file for both discovery and classification unless `--discovery-input subset.csv` is explicitly supplied. A JSON config can declare the two inputs separately. Set an independent `--benchmark human_labels.csv` for research validation.
 

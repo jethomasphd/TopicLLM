@@ -1,0 +1,205 @@
+{
+  "review_date": "2026-11-17",
+  "authority": "THOMAS-PRIMARY-2025.pdf",
+  "authority_sha256": "1f2cddd10fc297420b2e5f744fd69daae409038a01149f3a89f499ed4a79a129",
+  "scope": "Study 1 topic-to-prevalence method, Chapter 3 methods rationale, Chapter 4 methods and results, and Appendices 1–3. LIWC/DSMM retained as historical scope, not implemented functionality. General background and Study 2 exposure/GSEM citations are outside this methods paper.",
+  "dataset_presentation": "One Study 1 worked example; exact stage-specific inputs and preparation preserved in docs/data/README.md and docs/protocol.json. No source data, recorded runs or original papers changed.",
+  "coverage": [
+    {
+      "section": "1",
+      "pages": [
+        127,
+        148,
+        159,
+        160
+      ],
+      "items": [
+        "Theme and Topic framework",
+        "qualitative interpretation",
+        "researcher/agent roles"
+      ],
+      "citations": [
+        "Gillies 2022",
+        "Braun and Clarke 2006",
+        "Nowell 2017"
+      ]
+    },
+    {
+      "section": "2.1",
+      "pages": [
+        154,
+        155,
+        156,
+        230,
+        231
+      ],
+      "items": [
+        "5,872 records and 11 brands",
+        "sampling frame and minimum followers",
+        "collection dates, quality control, institutional determination",
+        "Python 3.9.12",
+        "NLTK and custom stopwords",
+        "POS WordNet lemmatization from Appendix 1"
+      ],
+      "citations": [
+        "Python Software Foundation 2022",
+        "Bird 2009"
+      ]
+    },
+    {
+      "section": "2.2",
+      "pages": [
+        156,
+        157,
+        158,
+        163,
+        230,
+        231,
+        232,
+        233,
+        234
+      ],
+      "items": [
+        "embedding and vectorizer components",
+        "UMAP and HDBSCAN metrics",
+        "all random-search parameter values",
+        "50 draws and 24 ceilings",
+        "coherence objective",
+        "reported winning fit",
+        "current fit-once/reduce option distinguished"
+      ],
+      "citations": [
+        "Egger and Yu 2022",
+        "Wang 2020",
+        "McInnes 2018",
+        "Campello 2013",
+        "Grootendorst 2022",
+        "Ramos 2003",
+        "Bergstra and Bengio 2012",
+        "Röder 2015",
+        "Newman 2010",
+        "Lee 2024"
+      ],
+      "additional_implementation_reference": "Reimers and Gurevych 2019"
+    },
+    {
+      "section": "2.3 and 3",
+      "pages": [
+        159,
+        235,
+        236
+      ],
+      "items": [
+        "5,000 calls per topic",
+        "modal naming",
+        "exact prompt templates",
+        "temperature 0.5, max_tokens 15, n=1",
+        "historical GPT-4o versus pinned current identifier",
+        "current tally rules and optional stopping clearly identified"
+      ],
+      "citations": [
+        "OpenAI 2024",
+        "Li 2023"
+      ]
+    },
+    {
+      "section": "2.4 and Table 1",
+      "pages": [
+        159,
+        160,
+        165
+      ],
+      "items": [
+        "two-researcher consensus procedure",
+        "representative documents and contextual literature",
+        "seven topics to five themes"
+      ],
+      "citations": [
+        "Gillies 2022",
+        "Lee 2024",
+        "Martino 2021",
+        "Gerritsen 2021"
+      ]
+    },
+    {
+      "section": "2.5 and 3",
+      "pages": [
+        136,
+        137,
+        161,
+        237,
+        238
+      ],
+      "items": [
+        "Boolean and LLM pilots",
+        "250 human classifications and >85% during prompt engineering",
+        "verbatim single-label classification plus residual",
+        "temperature 0.5, historical max_tokens 30 and maintained 120",
+        "new independent benchmark gate distinguished from historical evidence"
+      ],
+      "citations": [
+        "Fields 2024",
+        "OpenAI 2024"
+      ]
+    },
+    {
+      "section": "2.6",
+      "pages": [
+        161,
+        162,
+        166
+      ],
+      "items": [
+        "three period boundaries",
+        "pooled two-proportion z comparisons",
+        "5 themes by 3 comparisons",
+        "Bonferroni alpha 0.05/15",
+        "denominators and inferential scope"
+      ],
+      "citations": [
+        "StataCorp 2021",
+        "Bland and Altman 1995"
+      ]
+    },
+    {
+      "section": "4",
+      "pages": [
+        162
+      ],
+      "items": [
+        "historical LIWC and DSMM context clearly outside package scope"
+      ],
+      "citations": [
+        "Chung and Pennebaker 2012",
+        "Boyd 2022",
+        "Valkenburg and Peter 2013"
+      ]
+    }
+  ],
+  "bibliographic_normalization": [
+    "Correct author pairs used in text for two-author works.",
+    "Bergstra and Bengio metadata follows JMLR primary record.",
+    "Nowell DOI completed from publisher record.",
+    "Ramos cited by title/year without unverified proceedings pagination.",
+    "Lee retained as 2024 advance online publication, as cited in dissertation."
+  ],
+  "restored_reference_count": 18,
+  "total_reference_count": 27,
+  "not_claimed": [
+    "independent scientific replication",
+    "recovered final historical benchmark",
+    "bias-free LLM labels",
+    "identical historical outputs",
+    "LIWC or GSEM implemented"
+  ],
+  "standalone_content": [
+    "Research problem and five-stage overview",
+    "Definitions of corpus, topic, theme, prevalence and democratic naming",
+    "Expanded algorithm names and roles",
+    "Historical topic-to-theme example and prevalence illustration",
+    "Exact prompt substitutions and model defaults",
+    "Input schemas and installation/execution recipe",
+    "Researcher-review and independent benchmark requirements",
+    "Self-contained references and availability statement"
+  ]
+}
