@@ -28,7 +28,7 @@ export function demoCall(input){
     return {task:'name',words:topic.words,domain:examples.domain};
   }
   const example=examples.examples.find(e=>e.id===input.exampleId);if(!example)throw new Error('Unknown Trump example.');
-  return {task:'classify',text:example.text,themes:examples.themes};
+  return {task:'classify',text:example.text,themes:examples.themes,codebook:examples.codebook};
 }
 
 export default {async fetch(request,env){

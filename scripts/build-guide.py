@@ -24,6 +24,6 @@ for name in inputs[1:]:
     url={'docs/paper/index.html':'/paper/','docs/welcome/index.html':'/welcome/','docs/validation/index.html':'/validation/','docs/audit/index.html':'/audit/'}.get(name) or ('/'+name[5:] if name.startswith('docs/') else 'https://github.com/jethomasphd/TopicLLM/blob/main/'+name)
     for offset in range(0,len(raw),2600):
         chunks.append({'id':re.sub(r'\W+','-',name)+f'-{offset//2600}', 'title':name, 'url':url, 'text':raw[max(0,offset-180):offset+2600]})
-result={'version':'2026-11-18-campaign-presidency-draft','text_hash_format':'UTF-8 with LF line endings','dissertation_sha256':sha(pdf),'source_hashes':{name:hashlib.sha256((root/name).read_bytes().replace(b'\r\n',b'\n')).hexdigest() for name in inputs},'briefing':(root/inputs[0]).read_text(encoding='utf-8'),'chunks':chunks}
+result={'version':'2026-11-18-human-synthesis-complete','text_hash_format':'UTF-8 with LF line endings','dissertation_sha256':sha(pdf),'source_hashes':{name:hashlib.sha256((root/name).read_bytes().replace(b'\r\n',b'\n')).hexdigest() for name in inputs},'briefing':(root/inputs[0]).read_text(encoding='utf-8'),'chunks':chunks}
 (root/'worker/guide-sources.json').write_text(json.dumps(result,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8')
 print(f'Indexed {len(chunks)} excerpts from the dissertation and repository; original hashes verified.')

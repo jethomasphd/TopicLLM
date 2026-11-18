@@ -185,21 +185,21 @@
       20
     ]
   },
-  "release": "0.6.0",
+  "release": "0.6.1",
   "tutorial": {
     "source": "https://www.kaggle.com/datasets/codebreaker619/donald-trump-tweets-dataset",
     "window": [
       "2015-06-16",
       "2021-01-08"
     ],
-    "human_review_performed": false,
+    "human_review_performed": true,
     "classifier_validated": false,
     "prevalence_inference": "requires researcher approval and independent validation; topic-assignment summaries are descriptive only",
     "current_design": "Campaign discovery followed by independently validated presidential classification.",
     "prior_diagnostic": "The existing whole-archive reference run is retained separately; it is not the campaign research run."
   },
   "research_application": {
-    "status": "human_synthesis_pending",
+    "status": "independent_annotation_pending",
     "discovery_complete": true,
     "source_posts": 34416,
     "campaign_posts": 7805,
@@ -210,7 +210,7 @@
     "search_draws": 50,
     "candidate_evaluations": 1200,
     "human_reviewers_required": 2,
-    "human_review_performed": false,
+    "human_review_performed": true,
     "classifier_validated": false,
     "prevalence_complete": false,
     "reporting": "overall presidency prevalence only",
@@ -219,6 +219,12 @@
     "selected_coherence": 0.5405823389348793,
     "campaign_unassigned": 3854,
     "naming_complete": true,
-    "naming_responses": 6000
+    "naming_responses": 6000,
+    "approved_themes": 12,
+    "reviewers": [
+      "Jacob E. Thomas",
+      "Research Assistant"
+    ],
+    "synthesis_record": "data/trump/campaign/human_synthesis_submission.json"
   }
 }

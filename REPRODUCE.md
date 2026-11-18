@@ -53,7 +53,7 @@ The total includes all attempts and resumed operations in the run directory. The
 
 ## 4. Researchers interpret and freeze the codebook
 
-Two actual researchers inspect `stage3/synthesis_workspace.html` (or the Markdown worksheet), original posts, outliers, topic words and naming ballots. The local workspace keeps draft decisions separate from completed human review, provides fields for theme definitions and both researchers' notes, and exports a JSON decision record. Extend close reading when needed. No theme is approved automatically.
+Two actual researchers inspect `stage3/synthesis_workspace.html` (or the Markdown worksheet), original posts, outliers, topic words and naming ballots. The local workspace offers a visible topic-to-theme overview, a **Combine selected topics** control and an **existing theme** selector on each topic. Several topics can share one theme. Original topics, rationales and draft definition text remain intact; changing a decision clears the review confirmations. The workspace keeps drafts separate from completed human review, provides definition fields and both researchers' notes, and exports a JSON decision record. Extend close reading when needed. No theme is approved automatically.
 
 After both researchers actually complete the review, import their exported record:
 
@@ -74,16 +74,16 @@ The record binds source, date windows, assignments, naming, map and codebook. It
 
 ## 5. Annotate without model suggestions
 
-Agree sample sizes before evaluation. The proposed application plan uses 100 development and 250 held-out posts, subject to researcher confirmation. Evaluation is drawn first as a simple random sample without replacement from the complete target. Development sampling excludes all exact evaluation texts. No IDs or exact text appear in both sets.
+Agree sample sizes before evaluation. The agreed application plan uses 100 development and 250 held-out posts per researcher. Evaluation is drawn first as a simple random sample without replacement from the complete target. Development sampling excludes all exact evaluation texts. No IDs or exact text appear in both sets.
 
 ```bash
-python scripts/prepare-annotations.py --config research-config.json --output runs/annotations --development-n 100 --evaluation-n 250
+python scripts/prepare-annotations.py --config research-approved.json --output runs/annotations --development-n 100 --evaluation-n 250
 ```
 
-With a frozen codebook, this creates standalone local HTML interfaces and blank CSVs. Each researcher works independently without predictions, saves backups, and exports completed labels. Keep evaluation labels unavailable to prompt tuning and classifier selection.
+With a frozen codebook, this creates standalone local HTML interfaces and blank CSVs. If samples were already drawn, use the same output folder with --render-only to add the approved codebook without resampling. Complete development annotation and freeze the selected classifier before opening evaluation labels. Each researcher works independently without predictions, saves backups, and exports completed labels. Keep evaluation labels unavailable to prompt tuning and classifier selection.
 
 ```bash
-python scripts/prepare-annotations.py --config research-config.json --output runs/annotations/development_labels.csv --reviewer-exports reviewer-one-development.csv reviewer-two-development.csv
+python scripts/prepare-annotations.py --config research-approved.json --output runs/annotations/development_labels.csv --reviewer-exports reviewer-one-development.csv reviewer-two-development.csv
 ```
 
 The merge retains both original labels and leaves disagreements blank for actual adjudication. Repeat for evaluation. Set `development_csv` and `benchmark_csv` to the adjudicated files, and `annotation_manifest` to the generated `sampling_manifest.json`. The transfer workflow checks the exact sampled IDs, target population, original text and both reviewer identities. Record actual annotation review with `--record-annotations PATH --reviewers ...`; do not certify generated labels.

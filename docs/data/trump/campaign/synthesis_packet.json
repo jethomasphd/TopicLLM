@@ -1,0 +1,1569 @@
+{
+  "schema_version": 1,
+  "topics": [
+    {
+      "topic": 0,
+      "words": "poll, debate, trump, cruz, rubio, jeb, ted, say, marco, fail",
+      "modal_label": "Republican Primary Campaign Dynamics",
+      "votes_for_modal": 175,
+      "total_votes": 500,
+      "modal_share": 0.35,
+      "margin_over_runner_up": 0.06,
+      "distinct_labels": 31,
+      "model": "gpt-4o-2024-08-06",
+      "count": 1323,
+      "samples": [
+        {
+          "post_id": "684817323333693442",
+          "date": "2016-01-06",
+          "tweet": "Don’t like @SamuelLJackson’s golf swing.  Not athletic. I’ve won many club championships. Play him for charity!"
+        },
+        {
+          "post_id": "660590507551248384",
+          "date": "2015-10-31",
+          "tweet": "\"\"\"@sean_in_NH: @realDonaldTrump @realOllieTaylor so true. In all previous debates, no one watched and they were  cancelled\"\"\""
+        },
+        {
+          "post_id": "642557678678577152",
+          "date": "2015-09-12",
+          "tweet": "\"\"\"@GinHay: Trump's polls are going to skyrocket after appearance on @jimmyfallon tonight. The young people are going to love him!\"\"\""
+        },
+        {
+          "post_id": "658653111159005184",
+          "date": "2015-10-26",
+          "tweet": "This whole Super PAC scam is very unfair to a person like me who has disavowed all PAC's &amp, is self-funding."
+        },
+        {
+          "post_id": "617435650112004097",
+          "date": "2015-07-04",
+          "tweet": "\"\"\"@rodsandguitars: @danaperino just lied about DonaldTrump - Dana, Trump Did NOT say \"\"ALL are criminals &amp, rapists\"\" .. #ProudAmerican#NoLying\"\"\""
+        },
+        {
+          "post_id": "648589539829805056",
+          "date": "2015-09-28",
+          "tweet": "\"\"\"The GOP Debate Scorecard: Donald Trump and Energy\"\"  by Wayne Allyn Root. http://t.co/MmFJeGRNf8\""
+        },
+        {
+          "post_id": "699805136038846464",
+          "date": "2016-02-17",
+          "tweet": "Why does @megynkelly devote so much time on her shows to me, almost always negative?  Without me her ratings would tank. Get a life Megyn!"
+        },
+        {
+          "post_id": "707261100061020162",
+          "date": "2016-03-08",
+          "tweet": "#VoteTrumpID! #Trump2016https://t.co/c6NHn6d6jX"
+        },
+        {
+          "post_id": "665253317304524800",
+          "date": "2015-11-13",
+          "tweet": "\"\"\"@DRUDGE_REPORT: REUTERS 5-DAY ROLLING POLL: TRUMP 34%, CARSON 19.6%, RUBIO 9.7%, CRUZ 7.7%...\"\" Thank you - a great honor!\""
+        },
+        {
+          "post_id": "663923846949548032",
+          "date": "2015-11-10",
+          "tweet": "Marco Rubio is totally weak on illegal immigration &amp, in favor of easy amnesty. A lightweight choker - bad for #USA!"
+        },
+        {
+          "post_id": "671348849647198208",
+          "date": "2015-11-30",
+          "tweet": "The Republican establishment, out of self preservation, is concerned w/ my high poll #'s. More concerned are Dems—I beat Hillary heads up!"
+        },
+        {
+          "post_id": "669995673945808896",
+          "date": "2015-11-26",
+          "tweet": "The failing @nytimes should focus on fair and balanced reporting rather than constant hit jobs on me. Yesterday 3 boring articles, today2!"
+        },
+        {
+          "post_id": "701089616825159680",
+          "date": "2016-02-20",
+          "tweet": "Remember that Marco Rubio is very weak on illegal immigration. South Carolina needs strength as illegals and Syrians pour in. Don't allow it"
+        },
+        {
+          "post_id": "654103469066977280",
+          "date": "2015-10-14",
+          "tweet": "\"\"\"@princeolivier13: Why do we have to be tortured by watching these clowns! Have the election tomorrow! #trump2016 #DemDebate\"\"\""
+        },
+        {
+          "post_id": "658277066287226880",
+          "date": "2015-10-25",
+          "tweet": "Big poll comes out today on Face The Nation at 10:30 on @CBSNews."
+        }
+      ],
+      "top_names": [
+        {
+          "topic": 0,
+          "norm": "republican primary campaign dynamics",
+          "votes": 175
+        },
+        {
+          "topic": 0,
+          "norm": "republican primary campaign dynamics 2015-2016",
+          "votes": 145
+        },
+        {
+          "topic": 0,
+          "norm": "republican primary campaign and candidate dynamics",
+          "votes": 49
+        },
+        {
+          "topic": 0,
+          "norm": "republican primary campaign commentary",
+          "votes": 19
+        },
+        {
+          "topic": 0,
+          "norm": "republican primary campaign discourse",
+          "votes": 19
+        }
+      ]
+    },
+    {
+      "topic": 1,
+      "words": "makeamericagreatagain, trump, border, america, make, great, illegal, thank, immigration, mexico",
+      "modal_label": "U.S. Immigration and Nationalism During the 2016 Presidential Campaign",
+      "votes_for_modal": 100,
+      "total_votes": 500,
+      "modal_share": 0.2,
+      "margin_over_runner_up": 0.11,
+      "distinct_labels": 73,
+      "model": "gpt-4o-2024-08-06",
+      "count": 758,
+      "samples": [
+        {
+          "post_id": "728531431824166912",
+          "date": "2016-05-06",
+          "tweet": "So many great endorsements yesterday, except for Paul Ryan! We must put America first and MAKE AMERICA GREAT AGAIN!"
+        },
+        {
+          "post_id": "617715390504943617",
+          "date": "2015-07-05",
+          "tweet": "Flashback – Jeb Bush says  illegal immigrants breaking our laws is an “act of love” http://t.co/p8yFzVuw8w He will never secure the border."
+        },
+        {
+          "post_id": "651186676518096897",
+          "date": "2015-10-06",
+          "tweet": "So, so, so important - MAKE AMERICA GREAT AGAIN!"
+        },
+        {
+          "post_id": "755502053003190273",
+          "date": "2016-07-19",
+          "tweet": "#MakeAmericaWorkAgain #TrumpPence16 #RNCinCLE https://t.co/bsUp4MSysD https://t.co/mYBjp03XYf"
+        },
+        {
+          "post_id": "723885342743494659",
+          "date": "2016-04-23",
+          "tweet": "#MakeAmericaGreatAgainVideo: https://t.co/Dsa2v9X3ol https://t.co/aGUHmO98Xm"
+        },
+        {
+          "post_id": "617178148724195329",
+          "date": "2015-07-04",
+          "tweet": "\"\"\"@myGianLuca:  @CNNPolitics @teddyschleifer Say it LOUD &amp, PROUD @realDonaldTrump! *** ILLEGAL IMMIGRATION *** Is an Attack on Our Country!\"\"\""
+        },
+        {
+          "post_id": "616290130916155392",
+          "date": "2015-07-01",
+          "tweet": "Those who believe in tight border security, stopping illegal immigration &amp,  SMART trade deals w/other countries should boycott @Macys."
+        },
+        {
+          "post_id": "619117783465463808",
+          "date": "2015-07-09",
+          "tweet": "\"\"\"@bdevil89: @krauthammer &amp, rest of pundits r scared of truth teller like @realDonaldTrump - #immigration affects everything in society.\""
+        },
+        {
+          "post_id": "659761323526389760",
+          "date": "2015-10-29",
+          "tweet": "\"\"\"@victoryorbust: The One, The Only, Donald Trump, will and can Make America Great Again !  @Reince @blewthebigone https://t.co/5kAtLBBFJA\"\"\""
+        },
+        {
+          "post_id": "700404921913335808",
+          "date": "2016-02-18",
+          "tweet": "RT @TomOdell: .@FoxNews - Pope who lives in a Vatican city fortified with huge walls thinks it's wrong to build walls? Really? https://t.co..."
+        },
+        {
+          "post_id": "615245708568997889",
+          "date": "2015-06-28",
+          "tweet": "\"\"\"@itsEmilyshine: @realDonaldTrump would be the best president 🙌🏻🙌🏻🙌🏻 #DonaldTrumpforPresident\"\"\""
+        },
+        {
+          "post_id": "755983654728245248",
+          "date": "2016-07-21",
+          "tweet": "Great job @EricTrump! Proud of you!#AmericaFirst #RNCinCLE https://t.co/S7IHXDrmsJ"
+        },
+        {
+          "post_id": "710138547827769344",
+          "date": "2016-03-16",
+          "tweet": "Is this what we want for a President? https://t.co/2yYy6Nyta9"
+        },
+        {
+          "post_id": "746415333741756418",
+          "date": "2016-06-24",
+          "tweet": "I want all Americans to succeed together. President Obama's illegal executive amnesty undermines job prospects for...https://t.co/dpIDejXzJw"
+        },
+        {
+          "post_id": "732732712268746753",
+          "date": "2016-05-18",
+          "tweet": "\"\"\"@johnkirtley:  @megynkelly @realDonaldTrump #MakeAmericaGreatAgain Thank you for this discourse. Wounds have been healed. Great job!\"\"\""
+        }
+      ],
+      "top_names": [
+        {
+          "topic": 1,
+          "norm": "u.s. immigration and nationalism during the 2016 presidential campaign",
+          "votes": 100
+        },
+        {
+          "topic": 1,
+          "norm": "u.s. immigration and nationalism during 2016 presidential campaign",
+          "votes": 45
+        },
+        {
+          "topic": 1,
+          "norm": "trump's 2016 campaign focus on immigration and nationalism",
+          "votes": 37
+        },
+        {
+          "topic": 1,
+          "norm": "u.s. immigration and border policy during 2016 presidential campaign",
+          "votes": 37
+        },
+        {
+          "topic": 1,
+          "norm": "u.s. immigration and nationalism in the 2016 presidential campaign",
+          "votes": 28
+        }
+      ]
+    },
+    {
+      "topic": 2,
+      "words": "iowa, thank, carolina, hampshire, crowd, new, south, great, makeamericagreatagain, join",
+      "modal_label": "Campaign Rallies and Support in Key States",
+      "votes_for_modal": 112,
+      "total_votes": 500,
+      "modal_share": 0.224,
+      "margin_over_runner_up": 0.07,
+      "distinct_labels": 65,
+      "model": "gpt-4o-2024-08-06",
+      "count": 577,
+      "samples": [
+        {
+          "post_id": "667935527044255744",
+          "date": "2015-11-21",
+          "tweet": "\"\"\"@michaelglassner: A GREAT DAY in South Carolina for DonaldTrump &amp, #TeamTrump! #Trump2016 #MakeAmericaGreatAgain https://t.co/Re655JmhqJ\"\"\""
+        },
+        {
+          "post_id": "726609734653104129",
+          "date": "2016-05-01",
+          "tweet": "I will be in Indiana on Sunday and Monday at four MAKE AMERICA GREAT AGAIN rallies. See you there!"
+        },
+        {
+          "post_id": "786340623804751872",
+          "date": "2016-10-12",
+          "tweet": "I will be in Cincinnati, Ohio tomorrow night at 7:30pm- join me! #OhioVotesEarly #VoteTrumpPence16 Tickets:... https://t.co/Bp5iHKbT2d"
+        },
+        {
+          "post_id": "660461891991543809",
+          "date": "2015-10-31",
+          "tweet": "\"\"\"@MarshallFSmith: @LexingtonBobby @realDonaldTrump And its a Glorious Fall Day in Norfolk!! Knock'em dead Donald!\"\" Thanks!\""
+        },
+        {
+          "post_id": "758004154417553409",
+          "date": "2016-07-26",
+          "tweet": "Thank you New Hampshire! #MakeAmericaGreatAgain https://t.co/KRCdV77BQp"
+        },
+        {
+          "post_id": "676571597285687296",
+          "date": "2015-12-15",
+          "tweet": "Why doesn't @CNN use the #CNN Iowa poll? @andersoncooper @andydean2014"
+        },
+        {
+          "post_id": "686996181268983810",
+          "date": "2016-01-12",
+          "tweet": "On my way to Cedar Falls, Iowa, now. Will be great--I love the people of Iowa!"
+        },
+        {
+          "post_id": "625748754684116992",
+          "date": "2015-07-27",
+          "tweet": "“Iowans Drawn to Donald Trump Praise His Antiestablishment Bent” http://t.co/nyYk3DBXD5 via @WSJ by @heatherhaddon &amp, @reidepstein"
+        },
+        {
+          "post_id": "657956250928459776",
+          "date": "2015-10-24",
+          "tweet": "Saying goodbye to some of my great workers at @TrumpDoral in Miami. https://t.co/C8AG3eGSus"
+        },
+        {
+          "post_id": "690337376061788161",
+          "date": "2016-01-22",
+          "tweet": "Thank you, Iowa! #FITN #IACaucus#MakeAmericaGreatAgain #Trump2016 https://t.co/wVJldvTSag"
+        },
+        {
+          "post_id": "721495328097042432",
+          "date": "2016-04-17",
+          "tweet": "Thank you California, Connecticut, Maryland, and Pennsylvania!#MakeAmericaGreatAgain #Trump2016 https://t.co/pwFFHyzSE6"
+        },
+        {
+          "post_id": "679314834060673024",
+          "date": "2015-12-22",
+          "tweet": "Thank you - New Hampshire!#MakeAmericaGreatAgain #Trump2016https://t.co/VlGF418r2x https://t.co/zZleg3vnJN"
+        },
+        {
+          "post_id": "696447301783592961",
+          "date": "2016-02-07",
+          "tweet": "Thank you- Plymouth, New Hampshire! #FITN #NHPrimary https://t.co/1hzn6iZIEw"
+        },
+        {
+          "post_id": "657884265322008576",
+          "date": "2015-10-24",
+          "tweet": "Massive crowds already forming in Jacksonville - will be and incredible day - 12 noon!  MAKE AMERICA GREAT AGAIN!"
+        },
+        {
+          "post_id": "789966670630715394",
+          "date": "2016-10-22",
+          "tweet": "Just arrived in Cleveland, Ohio- join Governor @Mike_Pence and I now, LIVE via: https://t.co/SS58ChFTNy"
+        }
+      ],
+      "top_names": [
+        {
+          "topic": 2,
+          "norm": "campaign rallies and support in key states",
+          "votes": 112
+        },
+        {
+          "topic": 2,
+          "norm": "campaign rallies and support in key primary states",
+          "votes": 77
+        },
+        {
+          "topic": 2,
+          "norm": "campaign rallies and support in early primary states",
+          "votes": 76
+        },
+        {
+          "topic": 2,
+          "norm": "campaign rallies and voter engagement",
+          "votes": 46
+        },
+        {
+          "topic": 2,
+          "norm": "trump campaign rallies and support in early primary states",
+          "votes": 22
+        }
+      ]
+    },
+    {
+      "topic": 3,
+      "words": "hillary, crooked, clinton, sander, bernie, email, bad, judgement, mail, warren",
+      "modal_label": "Criticism of Political Opponents and Email Controversy",
+      "votes_for_modal": 375,
+      "total_votes": 500,
+      "modal_share": 0.75,
+      "margin_over_runner_up": 0.622,
+      "distinct_labels": 13,
+      "model": "gpt-4o-2024-08-06",
+      "count": 358,
+      "samples": [
+        {
+          "post_id": "759008377577967616",
+          "date": "2016-07-29",
+          "tweet": "\"Crooked Hillary Clinton made up facts about me, and \"\"forgot\"\" to mention the many problems of our country, in her very average scream!\""
+        },
+        {
+          "post_id": "683070410993364992",
+          "date": "2016-01-01",
+          "tweet": "The person that Hillary Clinton least wants to run against is, by far, me. It will be the largest voter turnout ever - she will be swamped!"
+        },
+        {
+          "post_id": "772417922279043073",
+          "date": "2016-09-04",
+          "tweet": "Wow, the failing @nytimes has not reported properly on Crooked's FBI release. They are at the back of the pack - no longer a credible source"
+        },
+        {
+          "post_id": "787699930718695425",
+          "date": "2016-10-16",
+          "tweet": "The election is absolutely being rigged by the dishonest and distorted media pushing Crooked Hillary - but also at many polling places - SAD"
+        },
+        {
+          "post_id": "718761006068051968",
+          "date": "2016-04-09",
+          "tweet": "Bernie Sanders says that Hillary Clinton is unqualified to be president. Based on her decision making ability, I can go along with that!"
+        },
+        {
+          "post_id": "787258211283918848",
+          "date": "2016-10-15",
+          "tweet": "This election is being rigged by the media pushing false and unsubstantiated charges, and outright lies, in order to elect Crooked Hillary!"
+        },
+        {
+          "post_id": "649417390086819844",
+          "date": "2015-10-01",
+          "tweet": "\"\"\"@AnnieClarkCole: How can anyone vote for Hillary when she careless with emails that jeopardize our security. She is not to be trusted.\"\"\""
+        },
+        {
+          "post_id": "718998170315976708",
+          "date": "2016-04-10",
+          "tweet": "\"\"\"@AnnCoulter: GOP is trying to steal nomination from the winner (Trump) not block an insurgent catching up 2 frontrunner (Sanders).\""
+        },
+        {
+          "post_id": "764867963845484545",
+          "date": "2016-08-14",
+          "tweet": "I am not only fighting Crooked Hillary, I am fighting the dishonest and corrupt media and her government protection process. People get it!"
+        },
+        {
+          "post_id": "739998110915678208",
+          "date": "2016-06-07",
+          "tweet": "A former Secret Service Agent for President Clinton excoriates Crooked Hillary describing her as ERRATIC &amp, VIOLENT. Bad temperament for pres"
+        },
+        {
+          "post_id": "730488544700010496",
+          "date": "2016-05-11",
+          "tweet": "Our Native American Senator, goofy Elizabeth Warren, couldn’t care less about the American worker...does nothing to help!"
+        },
+        {
+          "post_id": "770039317142069248",
+          "date": "2016-08-28",
+          "tweet": "I think that both candidates, Crooked Hillary and myself, should release detailed medical records. I have no problem in doing so! Hillary?"
+        },
+        {
+          "post_id": "757546442240167936",
+          "date": "2016-07-25",
+          "tweet": "Hillary was involved in the e-mail scandal because she is the only one with judgement so bad that such a thing could have happened!"
+        },
+        {
+          "post_id": "780030282854432768",
+          "date": "2016-09-25",
+          "tweet": "Bernie Sanders gave Hillary the Dem nomination when he gave up on the e-mails. That issue has only gotten bigger!"
+        },
+        {
+          "post_id": "738720347239809024",
+          "date": "2016-06-03",
+          "tweet": "In Crooked Hillary's telepromter speech yesterday, she made up things that I said or believe but have no basis in fact. Not honest!"
+        }
+      ],
+      "top_names": [
+        {
+          "topic": 3,
+          "norm": "criticism of political opponents and email controversy",
+          "votes": 375
+        },
+        {
+          "topic": 3,
+          "norm": "criticism of political opponents and email controversy during 2016 campaign",
+          "votes": 64
+        },
+        {
+          "topic": 3,
+          "norm": "criticism of political opponents and controversies",
+          "votes": 19
+        },
+        {
+          "topic": 3,
+          "norm": "criticism of democratic opponents and email controversy",
+          "votes": 15
+        },
+        {
+          "topic": 3,
+          "norm": "criticism of political opponents during 2016 campaign",
+          "votes": 13
+        }
+      ]
+    },
+    {
+      "topic": 4,
+      "words": "interview, interviewed, enjoy, tonight, morning, melania, pm, great, wife, watch",
+      "modal_label": "Media Appearances and Personal Life Highlights",
+      "votes_for_modal": 345,
+      "total_votes": 500,
+      "modal_share": 0.69,
+      "margin_over_runner_up": 0.564,
+      "distinct_labels": 13,
+      "model": "gpt-4o-2024-08-06",
+      "count": 238,
+      "samples": [
+        {
+          "post_id": "674795406480535552",
+          "date": "2015-12-10",
+          "tweet": "\"\"\"@Ajdx4Sdesq: @CNN @donlemon @realDonaldTrump this is the best interview so far. Honest, well reasoned and without all the name calling.\""
+        },
+        {
+          "post_id": "628043551750909952",
+          "date": "2015-08-03",
+          "tweet": "I will be interviewed on @foxandfriends tomorrow morning at 7:00. Enjoy!"
+        },
+        {
+          "post_id": "756105919470116864",
+          "date": "2016-07-21",
+          "tweet": "I am soooo proud of my children, Don, Eric and Tiffany - their speeches, under enormous pressure, were incredible. Ivanka intros me tonight!"
+        },
+        {
+          "post_id": "685977534983462912",
+          "date": "2016-01-10",
+          "tweet": "Will be on Meet the Press with @ChuckTodd tomorrow morning. Enjoy!"
+        },
+        {
+          "post_id": "616016438097219585",
+          "date": "2015-06-30",
+          "tweet": "Get ready for @Oreillyfactor tonight at 8- always interesting!"
+        },
+        {
+          "post_id": "723092613457448960",
+          "date": "2016-04-21",
+          "tweet": "I will be doing the @TODAYshow with my wife, Melania, and the rest of my family in a major Town Hall. Hopefully, it will be fun! Enjoy.7A.M."
+        },
+        {
+          "post_id": "623289032273981440",
+          "date": "2015-07-21",
+          "tweet": "\"\"\"@mikeezepek: @DLoesch Great interview! Give Trump a hot mic and watch out! It is the rawness, the non-PC guy. #MakeAmericaGreatAgain\"\"\""
+        },
+        {
+          "post_id": "775787262869180417",
+          "date": "2016-09-13",
+          "tweet": "RT @IvankaTrump: Ivanka is joining @realDonaldTrump to outline an innovative new child care policy to support American families. Tune in to..."
+        },
+        {
+          "post_id": "673736828982321152",
+          "date": "2015-12-07",
+          "tweet": "Thank you Graham Ledger of the Daily Ledger @OANN for your really fair coverage and your great interview with Peter Roff of U.S. NEWS &amp, W.R."
+        },
+        {
+          "post_id": "773330142785630208",
+          "date": "2016-09-07",
+          "tweet": "I will be interviewed on @oreillyfactor tonight at 11pmE @FoxNews. Enjoy!"
+        },
+        {
+          "post_id": "729643519846055936",
+          "date": "2016-05-09",
+          "tweet": "\"\"\"@NathanDWilsonFL: @MariaBartiromo you had a great interview with Donald today! I started watching your show due to Donald Trump.\""
+        },
+        {
+          "post_id": "694960957928431617",
+          "date": "2016-02-03",
+          "tweet": "I will be interviewed on @greta at 7:00 P.M. Enjoy! @FoxNews"
+        },
+        {
+          "post_id": "645524696440696832",
+          "date": "2015-09-20",
+          "tweet": "\"\"\"@MoeHoward86: THE best interview thus far...keep it up Trump! Donald Trump: \"\"Enough With the Nice!\"\" https://t.co/3sOY0pTCNB via @YouTube\"\"\""
+        },
+        {
+          "post_id": "732733747586469888",
+          "date": "2016-05-18",
+          "tweet": "\"\"\"@johnjohnlacca: Donald u have done a terrific job so far on the interview. Cannot wait until u r president #MegynKellyPresents\""
+        },
+        {
+          "post_id": "674366424467533825",
+          "date": "2015-12-08",
+          "tweet": "Will be on @ABC News tonight at 6:30. Interviewed by the legendary @BarbaraJWalters! Enjoy"
+        }
+      ],
+      "top_names": [
+        {
+          "topic": 4,
+          "norm": "media appearances and personal life highlights",
+          "votes": 345
+        },
+        {
+          "topic": 4,
+          "norm": "media appearances and personal life highlights during campaign",
+          "votes": 63
+        },
+        {
+          "topic": 4,
+          "norm": "media appearances and personal life during campaign",
+          "votes": 31
+        },
+        {
+          "topic": 4,
+          "norm": "media appearances and personal highlights",
+          "votes": 17
+        },
+        {
+          "topic": 4,
+          "norm": "media appearances and personal life",
+          "votes": 14
+        }
+      ]
+    },
+    {
+      "topic": 5,
+      "words": "obama, iran, radical, terrorist, islamic, isi, president, terrorism, attack, refugee",
+      "modal_label": "Terrorism and National Security Concerns During the 2015-2016 Presidential Campaign",
+      "votes_for_modal": 112,
+      "total_votes": 500,
+      "modal_share": 0.224,
+      "margin_over_runner_up": 0.118,
+      "distinct_labels": 76,
+      "model": "gpt-4o-2024-08-06",
+      "count": 198,
+      "samples": [
+        {
+          "post_id": "673667223848882176",
+          "date": "2015-12-07",
+          "tweet": "Hillary won't call out radical Islam! She will be soundly defeated."
+        },
+        {
+          "post_id": "713558033129930752",
+          "date": "2016-03-26",
+          "tweet": "\"\"\"@theAgeofLeo: Your instincts on foreign policy &amp, terrorism have been better than all of these so called experienced politicians combined.\"\"\""
+        },
+        {
+          "post_id": "635809949428400128",
+          "date": "2015-08-24",
+          "tweet": "\"\"\"@ZephyrusMatrix: Will you finally get respect for predicting U.S. concerns even weeks before disaster strikes.The country needs a visionary\""
+        },
+        {
+          "post_id": "754789482621243392",
+          "date": "2016-07-17",
+          "tweet": "President Obama just had a news conference, but he doesn't have a clue. Our country is a divided crime scene, and it will only get worse!"
+        },
+        {
+          "post_id": "760532443061420033",
+          "date": "2016-08-02",
+          "tweet": "STATEMENT IN RESPONSE TO PRESIDENT OBAMA'S FAILED LEADERSHIP: https://t.co/SPgFIFuSO7"
+        },
+        {
+          "post_id": "742034549232766976",
+          "date": "2016-06-12",
+          "tweet": "Appreciate the congrats for being right on radical Islamic terrorism, I don't want congrats, I want toughness &amp, vigilance. We must be smart!"
+        },
+        {
+          "post_id": "753349911983235072",
+          "date": "2016-07-13",
+          "tweet": "Is President Obama trying to destroy Israel with all his bad moves? Think about it and let me know!"
+        },
+        {
+          "post_id": "641770394773520384",
+          "date": "2015-09-10",
+          "tweet": "I had a great day in D.C. even though the subject was an unpleasant one, the horrible Iran Nuke deal. Amazing crowd and enthusiasm!"
+        },
+        {
+          "post_id": "637080393410310144",
+          "date": "2015-08-28",
+          "tweet": "\"\"\"@jp_sitles: @realDonaldTrump HillaryClinton: she compared republicans to terrorist but will not call terrorists , terrorists. #OhMe\"\"\""
+        },
+        {
+          "post_id": "777112789672341504",
+          "date": "2016-09-17",
+          "tweet": "I never met former Defense Secretary Robert Gates. He knows nothing about me. But look at the results under his guidance - a total disaster!"
+        },
+        {
+          "post_id": "760552601356267520",
+          "date": "2016-08-02",
+          "tweet": "President Obama will go down as perhaps the worst president in the history of the United States!"
+        },
+        {
+          "post_id": "631182609930932224",
+          "date": "2015-08-11",
+          "tweet": "The #IranDeal is a catastrophe that must be stopped. Will lead to at least partial world destruction &amp, make Iran a force like never before."
+        },
+        {
+          "post_id": "667865318212157441",
+          "date": "2015-11-21",
+          "tweet": "\"\"\"@JamesPWilson1: @realDonaldTrump When you become president, we will avenge all of the innocents who isis killed\"\"\""
+        },
+        {
+          "post_id": "668202786417459200",
+          "date": "2015-11-21",
+          "tweet": "\"\"\"@GStephanopoulos: I’ll talk to Donald Trump about his comments on Syrian refugees, and much more, Sunday on @ThisWeekABC.\"\"\""
+        },
+        {
+          "post_id": "714189569793646597",
+          "date": "2016-03-27",
+          "tweet": "Another radical Islamic attack, this time in Pakistan, targeting Christian women &amp, children. At least 67 dead,400 injured. I alone can solve"
+        }
+      ],
+      "top_names": [
+        {
+          "topic": 5,
+          "norm": "terrorism and national security concerns during the 2015-2016 presidential campaign",
+          "votes": 112
+        },
+        {
+          "topic": 5,
+          "norm": "terrorism and national security concerns during the 2016 presidential campaign",
+          "votes": 53
+        },
+        {
+          "topic": 5,
+          "norm": "terrorism and national security concerns during the 2015-2016 campaign",
+          "votes": 40
+        },
+        {
+          "topic": 5,
+          "norm": "u.s. national security and terrorism concerns during the 2015-2016 presidential campaign",
+          "votes": 30
+        },
+        {
+          "topic": 5,
+          "norm": "u.s. national security and foreign policy concerns during the 2015-2016 presidential campaign",
+          "votes": 19
+        }
+      ]
+    },
+    {
+      "topic": 6,
+      "words": "thank, thanks, nice, word, great, job, appreciate, true, happy, much",
+      "modal_label": "Expressions of Gratitude and Positivity",
+      "votes_for_modal": 485,
+      "total_votes": 500,
+      "modal_share": 0.97,
+      "margin_over_runner_up": 0.956,
+      "distinct_labels": 7,
+      "model": "gpt-4o-2024-08-06",
+      "count": 176,
+      "samples": [
+        {
+          "post_id": "624228848637509633",
+          "date": "2015-07-23",
+          "tweet": "Thanks.  https://t.co/CD3SYvgKfj"
+        },
+        {
+          "post_id": "639155923991330816",
+          "date": "2015-09-02",
+          "tweet": ".@kevinolearytv Great job on @foxandfriends this morning. You tell it like it is! Also, thx for the nice mention. Your book sounds great!"
+        },
+        {
+          "post_id": "729121112148353025",
+          "date": "2016-05-08",
+          "tweet": ".@EdGoeas thank you for your support tonight on @JudgeJeanine."
+        },
+        {
+          "post_id": "626904854900928512",
+          "date": "2015-07-30",
+          "tweet": "Thank you.  https://t.co/BbD9deWjbQ"
+        },
+        {
+          "post_id": "653863869966909440",
+          "date": "2015-10-13",
+          "tweet": "\"\"\"@deqwik2: @SaraMurray @realDonaldTrump Sorry link above not working. Here's good link http://t.co/0DoJeMrzC9\"\"  @CNN and Jeb - apologize!\""
+        },
+        {
+          "post_id": "623844047392796672",
+          "date": "2015-07-22",
+          "tweet": "True, thanks. https://t.co/xqlRporCwT"
+        },
+        {
+          "post_id": "689292259276226561",
+          "date": "2016-01-19",
+          "tweet": ".@TheBrodyFile great job on @AC360. Thank you for the very smart and kind words!"
+        },
+        {
+          "post_id": "785863826361184257",
+          "date": "2016-10-11",
+          "tweet": "Wow. Unbelievable. https://t.co/RcBPCcmwnD"
+        },
+        {
+          "post_id": "682764544402440192",
+          "date": "2016-01-01",
+          "tweet": "HAPPY NEW YEAR &amp, THANK YOU! https://t.co/YO1Yi8QbZy https://t.co/uxUXWJ1Rbv"
+        },
+        {
+          "post_id": "729291290848956416",
+          "date": "2016-05-08",
+          "tweet": "#HappyMothersDay! https://t.co/T35f2y5YxR https://t.co/BVSHiG2iPA"
+        },
+        {
+          "post_id": "624976148527742978",
+          "date": "2015-07-25",
+          "tweet": ".@ShawnJohnson Congratulations on your engagement --- he is a lucky guy. You are  a true winner and will be an amazing couple."
+        },
+        {
+          "post_id": "772036179420127232",
+          "date": "2016-09-03",
+          "tweet": "#ImWithYou https://t.co/I8dHzezmY4"
+        },
+        {
+          "post_id": "636208905467654144",
+          "date": "2015-08-25",
+          "tweet": "True, thanks.  https://t.co/HDZt12Oaid"
+        },
+        {
+          "post_id": "686753035637370881",
+          "date": "2016-01-12",
+          "tweet": "Fantastic job on @CNN  tonight. @kayleighmcenany is a winner! @donlemon"
+        },
+        {
+          "post_id": "621735115895517184",
+          "date": "2015-07-16",
+          "tweet": "Thank you. https://t.co/iGNIDSqlfZ"
+        }
+      ],
+      "top_names": [
+        {
+          "topic": 6,
+          "norm": "expressions of gratitude and positivity",
+          "votes": 485
+        },
+        {
+          "topic": 6,
+          "norm": "expressions of gratitude and appreciation",
+          "votes": 7
+        },
+        {
+          "topic": 6,
+          "norm": "expressions of gratitude and positivity in campaign communication",
+          "votes": 3
+        },
+        {
+          "topic": 6,
+          "norm": "expressions of gratitude and approval",
+          "votes": 2
+        },
+        {
+          "topic": 6,
+          "norm": "expressions of gratitude and affirmation",
+          "votes": 1
+        }
+      ]
+    },
+    {
+      "topic": 7,
+      "words": "tax, obamacare, repeal, replace, plan, disaster, premium, obamacarefail, healthcare, raise",
+      "modal_label": "Healthcare Policy and Obamacare Critique During 2015-2016 Campaign",
+      "votes_for_modal": 63,
+      "total_votes": 500,
+      "modal_share": 0.126,
+      "margin_over_runner_up": 0.028,
+      "distinct_labels": 79,
+      "model": "gpt-4o-2024-08-06",
+      "count": 98,
+      "samples": [
+        {
+          "post_id": "785292936095424512",
+          "date": "2016-10-10",
+          "tweet": "RT @TeamTrump: We agree with Bill, ObamaCare is “the craziest thing in the world.” #BigLeagueTruth #Debates2016 https://t.co/v2yo6pSYoB"
+        },
+        {
+          "post_id": "730500562022760448",
+          "date": "2016-05-11",
+          "tweet": "In interview I told @AP that my taxes are under routine audit and I would release my tax returns when audit is complete, not after election!"
+        },
+        {
+          "post_id": "793769750056677376",
+          "date": "2016-11-02",
+          "tweet": "I am going to repeal and replace ObamaCare. We will have MUCH less expensive and MUCH better healthcare. With Hillary, costs will triple!"
+        },
+        {
+          "post_id": "673881733415178240",
+          "date": "2015-12-07",
+          "tweet": "The @washingtonpost, which loses a fortune, is owned by  @JeffBezos for purposes of keeping taxes down at his no profit company, @amazon."
+        },
+        {
+          "post_id": "790936360953716736",
+          "date": "2016-10-25",
+          "tweet": "#ObamacareFail https://t.co/5Zvsys8j5w"
+        },
+        {
+          "post_id": "790948782288596992",
+          "date": "2016-10-25",
+          "tweet": "#ObamacareFail https://t.co/90Aixp25Oc"
+        },
+        {
+          "post_id": "785299429381242880",
+          "date": "2016-10-10",
+          "tweet": "RT @TeamTrump: .@HillaryClinton is RAISING your taxes to a disastrous level. @realDonaldTrump is going to LOWER your taxes - BIG LEAGUE! #D..."
+        },
+        {
+          "post_id": "738494609597157376",
+          "date": "2016-06-02",
+          "tweet": "A 60% increase in Texas Blue Cross/Blue Shield through ObamaCare. I told you so, there is panic and anger as healthcare costs explode!"
+        },
+        {
+          "post_id": "648706734270382080",
+          "date": "2015-09-29",
+          "tweet": "\"\"\"@polina6: @realDonaldTrump MAN WITH A PLAN-THE BEST TAX PLAN! GO TRUMP 2016!\"\"\""
+        },
+        {
+          "post_id": "612784754077888512",
+          "date": "2015-06-22",
+          "tweet": "\"\"\"@TeamBobbyEwing:  @foxnews @karlrove I am stunned that Rove would suggest repealing the #2A! That will not solve the problem, IMO!\"\"\""
+        },
+        {
+          "post_id": "702891487776866306",
+          "date": "2016-02-25",
+          "tweet": "Just for your info, tax returns have 0 to do w/ someone’s net worth. I have already filed my financial statements w/ FEC. They are great!"
+        },
+        {
+          "post_id": "789207626143834112",
+          "date": "2016-10-20",
+          "tweet": "When Obama took office in 2009 employer-provided premiums cost $13,375. Today they are $18,142. Thanks, Obama."
+        },
+        {
+          "post_id": "768922208987127808",
+          "date": "2016-08-25",
+          "tweet": "HRC is using the oldest play in the Dem playbook- when their policies fail, they are left w/this one tired argument!https://t.co/FNbCMmwLTn"
+        },
+        {
+          "post_id": "697182075045179392",
+          "date": "2016-02-09",
+          "tweet": "We will immediately repeal and replace ObamaCare - and nobody can do that like me. We will save $'s and have much better healthcare!"
+        },
+        {
+          "post_id": "764055793951834114",
+          "date": "2016-08-12",
+          "tweet": "A massive tax increase will be necessary to fund Crooked Hillary Clinton's agenda. What a terrible (and boring) rollout that was yesterday!"
+        }
+      ],
+      "top_names": [
+        {
+          "topic": 7,
+          "norm": "healthcare policy and obamacare critique during 2015-2016 campaign",
+          "votes": 63
+        },
+        {
+          "topic": 7,
+          "norm": "healthcare policy and critique of obamacare",
+          "votes": 49
+        },
+        {
+          "topic": 7,
+          "norm": "healthcare policy and tax reform debate during 2015-2016 campaign",
+          "votes": 43
+        },
+        {
+          "topic": 7,
+          "norm": "healthcare policy and critique during 2015-2016 campaign",
+          "votes": 28
+        },
+        {
+          "topic": 7,
+          "norm": "healthcare policy and tax reform debate",
+          "votes": 26
+        }
+      ]
+    },
+    {
+      "topic": 8,
+      "words": "veteran, mccain, vet, john, va, care, military, treat, trump, take",
+      "modal_label": "Veterans' Affairs and Military Service",
+      "votes_for_modal": 119,
+      "total_votes": 500,
+      "modal_share": 0.238,
+      "margin_over_runner_up": 0.066,
+      "distinct_labels": 79,
+      "model": "gpt-4o-2024-08-06",
+      "count": 83,
+      "samples": [
+        {
+          "post_id": "624039780653903872",
+          "date": "2015-07-23",
+          "tweet": ".@FrankLuntz knows nothing about me or my religion. Came to my office looking for work. I had NO interest. I will save the vets!"
+        },
+        {
+          "post_id": "621979974556381184",
+          "date": "2015-07-17",
+          "tweet": "\"\"\"@GotMade: @realDonaldTrump @JohnMcCain Trump speaks the truth about foolish leaders negotiating and you hate the truth McCain\"\"\""
+        },
+        {
+          "post_id": "623366869492350977",
+          "date": "2015-07-21",
+          "tweet": "\"\"\"@MrdannyArthur: @Paul_Beiss @Lg4Lg @seanhannity  @SenJohnMcCain Phoenix VA, led the league in scandals! McCain knew! Did nothing!\"\"\""
+        },
+        {
+          "post_id": "624046726161285123",
+          "date": "2015-07-23",
+          "tweet": "\"\"\"@RonNussbeck: @Maxinerunner I am a veteran from Arizona John McCain voted to give illegal Aliens benefits &amp, take them from disabled Vets\"\"\""
+        },
+        {
+          "post_id": "623166164135505921",
+          "date": "2015-07-20",
+          "tweet": "\"\"\"@amit_ @realdonaldtrump I agree 100%. McCain is fighting for illegal immigrant but never did anything for our Vets.\"\"\""
+        },
+        {
+          "post_id": "623534318867116033",
+          "date": "2015-07-21",
+          "tweet": "Flags to be flown at Half-Staff at all Trump Properties in Honor of the Five Fallen Soldiers-http://t.co/bgKmJ8TU67"
+        },
+        {
+          "post_id": "622545987219910656",
+          "date": "2015-07-18",
+          "tweet": "One of the reasons I am no fan of John McCain is that our Vets are being treated so badly by him and the politicians. I will fix VA quickly."
+        },
+        {
+          "post_id": "659203537558089729",
+          "date": "2015-10-28",
+          "tweet": "\"\"\"@fairy_tabibi: Loved seeing @realDonaldTrump speak to the wounded warrior &amp, his family.He has a caring heart and will take care of our vets\""
+        },
+        {
+          "post_id": "622469683476889601",
+          "date": "2015-07-18",
+          "tweet": "The Veterans of our country have been treated like third class citizens for many years..."
+        },
+        {
+          "post_id": "622711436272398336",
+          "date": "2015-07-19",
+          "tweet": "\"John McCain called thousands of people \"\"crazies\"\" when they came to seek help on illegal immigration last week in Phoenix. He owes apology!\""
+        },
+        {
+          "post_id": "654103759400894464",
+          "date": "2015-10-14",
+          "tweet": "\"\"\"@rjdicksii: @realDonaldTrump. These cats are like bad used car salesmen.\"\"\""
+        },
+        {
+          "post_id": "625124672229781504",
+          "date": "2015-07-26",
+          "tweet": "\"\"\"@YossiGestetner: Whoa! @realDonaldTrump shoots up to 28% in YouGov from 15% two wks ago, outperforms McCain in favorables among Vets. Great\""
+        },
+        {
+          "post_id": "693122207799721985",
+          "date": "2016-01-29",
+          "tweet": "\"\"\"Every American needs to say 2 simple words to every Vet they meet: THANK YOU!\"\" John Wayne Walding https://t.co/wG8EzPHZt1\""
+        },
+        {
+          "post_id": "625126907680571392",
+          "date": "2015-07-26",
+          "tweet": "\"\"\"@Hturne: @realDonaldTrump vets tired of McCain using them as talking points and photo ops, AND NOTHING BEING DONE.\"\"\""
+        },
+        {
+          "post_id": "717170068430397440",
+          "date": "2016-04-05",
+          "tweet": "\"\"\"@vikkideiter: Something VERY close to my heart. I'm a NAVY VET! I love @realDonaldTrump's  VETERANS ADMINISTRATION REFORMS.\""
+        }
+      ],
+      "top_names": [
+        {
+          "topic": 8,
+          "norm": "veterans' affairs and military service",
+          "votes": 119
+        },
+        {
+          "topic": 8,
+          "norm": "veterans' issues and military service",
+          "votes": 86
+        },
+        {
+          "topic": 8,
+          "norm": "veterans' affairs and military service issues",
+          "votes": 32
+        },
+        {
+          "topic": 8,
+          "norm": "veterans' affairs and military service discussion",
+          "votes": 20
+        },
+        {
+          "topic": 8,
+          "norm": "veterans' affairs and military service issues during the 2016 campaign",
+          "votes": 19
+        }
+      ]
+    },
+    {
+      "topic": 9,
+      "words": "book, copy, cripple, signing, sign, order, gift, america, holiday, stream",
+      "modal_label": "Trump Campaign Merchandise and Book Promotions",
+      "votes_for_modal": 147,
+      "total_votes": 500,
+      "modal_share": 0.294,
+      "margin_over_runner_up": 0.134,
+      "distinct_labels": 67,
+      "model": "gpt-4o-2024-08-06",
+      "count": 43,
+      "samples": [
+        {
+          "post_id": "692673426402713600",
+          "date": "2016-01-28",
+          "tweet": "\"\"\"@CJCboi: @DRJAMESCABOT @realDonaldTrump @DanScavino @Carolde @PlaysTrumpCard Checked YOUR wallet lately, Mr Ailes?\"\"\""
+        },
+        {
+          "post_id": "672511106259288067",
+          "date": "2015-12-03",
+          "tweet": "Purchase your copy of CRIPPLED AMERICA now &amp, be on potential call list for my live streaming signing event tonite.  https://t.co/TICkBt5xnH"
+        },
+        {
+          "post_id": "672543213639630850",
+          "date": "2015-12-03",
+          "tweet": "I invite you to join my campaign to Make America Great Again! Sign up to Volunteer! https://t.co/2XBs5SSRC3"
+        },
+        {
+          "post_id": "679409480321392640",
+          "date": "2015-12-22",
+          "tweet": "\"\"\"@janienorris22: @realDonaldTrump Got my autographed book yesterday can't wait to read it. You got them scared to death! Love it.\"\". Great!\""
+        },
+        {
+          "post_id": "674617775697055744",
+          "date": "2015-12-09",
+          "tweet": "I am signing copies of my book CRIPPLED AMERICA. Makes a great holiday gift. Order yours now!  https://t.co/jg50w3rcnn ... ..."
+        },
+        {
+          "post_id": "760492962157432832",
+          "date": "2016-08-02",
+          "tweet": "\"LIMITED EDITION signed copies of my book \"\"The Art of the Deal\"\" for your donation of $184 or more.  Get YOURS today!  https://t.co/KpVEN635SH\""
+        },
+        {
+          "post_id": "659791287374053377",
+          "date": "2015-10-29",
+          "tweet": "Join me Tuesday, Nov. 3rd at 12pm in Trump Tower NYC.  I’ll be signing copies of my new book CRIPPLED AMERICA.  Don’t miss it!"
+        },
+        {
+          "post_id": "662198327270875136",
+          "date": "2015-11-05",
+          "tweet": "\"\"\"@TeamSpringsteen: @realDonaldTrump I just finished reading Crippled America. It's a detailed blueprint to get America back on track.\"\"\""
+        },
+        {
+          "post_id": "661304796188688384",
+          "date": "2015-11-02",
+          "tweet": "Join me tomorrow, Nov. 3rd, at 12pm in #TrumpTowerNY. I’ll be signing copies of my new book CRIPPLED AMERICA.  Don’t miss it!"
+        },
+        {
+          "post_id": "624639363473915904",
+          "date": "2015-07-24",
+          "tweet": "Be sure to get a copy of @williebosshog's new book, American Hunter."
+        },
+        {
+          "post_id": "660888538473439232",
+          "date": "2015-11-01",
+          "tweet": "Join me Tuesday Nov. 3rd at 12 PM in #TrumpTower in NYC. I'll be signing copies of my book CRIPPLED AMERICA. Don't miss it!"
+        },
+        {
+          "post_id": "672641905117761536",
+          "date": "2015-12-04",
+          "tweet": "\"\"\"@TomNocera: @realDonaldTrump Your hand must be tired from all the Crippled America books you autographed tonight-one is mine.\"\"  Great!\""
+        },
+        {
+          "post_id": "673618735228391424",
+          "date": "2015-12-06",
+          "tweet": "Order my book CRIPPLED AMERICA for your holiday gifts. I will be signing books for the next two weeks! https://t.co/jg50w3rcnn"
+        },
+        {
+          "post_id": "671809255561932806",
+          "date": "2015-12-01",
+          "tweet": "\"\"\"@HyperbolicX: @realDonaldTrump I just signed up in support of your campaign on your website https://t.co/mq1It15s5b.\"\"\""
+        },
+        {
+          "post_id": "671698489735270400",
+          "date": "2015-12-01",
+          "tweet": "A signed copy of CRIPPLED AMERICA makes a great gift. Order &amp, join my live streaming book signing event on 12/3   https://t.co/TICkBt5xnH"
+        }
+      ],
+      "top_names": [
+        {
+          "topic": 9,
+          "norm": "trump campaign merchandise and book promotions",
+          "votes": 147
+        },
+        {
+          "topic": 9,
+          "norm": "promotional activities and merchandise during campaign",
+          "votes": 80
+        },
+        {
+          "topic": 9,
+          "norm": "trump campaign merchandise and promotions",
+          "votes": 67
+        },
+        {
+          "topic": 9,
+          "norm": "book promotion and merchandise sales during campaign",
+          "votes": 34
+        },
+        {
+          "topic": 9,
+          "norm": "promotional activities and merchandise",
+          "votes": 30
+        }
+      ]
+    },
+    {
+      "topic": 10,
+      "words": "macy, shop, store, stock, boycott, merchandise, disloyal, boycottmacys, card, shopping",
+      "modal_label": "Macy's Boycott and Consumer Relations",
+      "votes_for_modal": 97,
+      "total_votes": 500,
+      "modal_share": 0.194,
+      "margin_over_runner_up": 0.024,
+      "distinct_labels": 72,
+      "model": "gpt-4o-2024-08-06",
+      "count": 42,
+      "samples": [
+        {
+          "post_id": "624050557829955584",
+          "date": "2015-07-23",
+          "tweet": "Boycott @Macys, no guts, no glory. Besides, there are far better stores!"
+        },
+        {
+          "post_id": "618162634324615168",
+          "date": "2015-07-06",
+          "tweet": "\"\"\"@fernandocarnal @realDonaldTrump @Macys not shopping there again!\"\"\""
+        },
+        {
+          "post_id": "616732359359115265",
+          "date": "2015-07-02",
+          "tweet": "\"\"\"@chipman88 @realDonaldTrump @DavidDCarpenter @lafrana @Macys I didn't know Macy's was still in business. Oh well, still not going there.\"\"\""
+        },
+        {
+          "post_id": "624970463106723841",
+          "date": "2015-07-25",
+          "tweet": ".@Macy’s is a big contributor to @PPFA . Anybody against Planned Parenthood should boycott racial profiling Macy’s."
+        },
+        {
+          "post_id": "616624633312354304",
+          "date": "2015-07-02",
+          "tweet": ".@Macys stock just dropped. Interesting. So many people calling to say they are cutting up their @Macys credit card. Thank you!"
+        },
+        {
+          "post_id": "755946954979364867",
+          "date": "2016-07-21",
+          "tweet": "Limited opportunity to get your OFFICIAL Trump gear! Shop now! https://t.co/LQMDdNkUwR https://t.co/KSAv65FuiD"
+        },
+        {
+          "post_id": "619734914750025729",
+          "date": "2015-07-11",
+          "tweet": "I love that thousands of people are boycotting @Macys and cutting up credit cards. No guts no glory. This really backfired - love it!"
+        },
+        {
+          "post_id": "631884976611528704",
+          "date": "2015-08-13",
+          "tweet": "Our campaign store is officially open! Visit http://t.co/3zYiIYWs87 to shop the latest #MakeAmericaGreatAgain merchandise."
+        },
+        {
+          "post_id": "633721535438700544",
+          "date": "2015-08-18",
+          "tweet": "Our online campaign store is open! Visit http://t.co/3zYiIYWs87 for #MakeAmericaGreatAgain merchandise including my signature hat!"
+        },
+        {
+          "post_id": "616646192609558528",
+          "date": "2015-07-02",
+          "tweet": "\"\"\"@racheljoycowley I'm done with Macy's. Apparently, they follow the trend of trying to force legislation on every American freedom. Done!\"\"\""
+        },
+        {
+          "post_id": "631137255634149376",
+          "date": "2015-08-11",
+          "tweet": "Our online store is officially open! Visit http://t.co/3zYiIYWs87 to shop the latest #MakeAmericaGreatAgain merchandise."
+        },
+        {
+          "post_id": "617465381108715520",
+          "date": "2015-07-04",
+          "tweet": "\"\"\"@judiejudyjudy: @Macys I will never shop in your store 4 the rest of my life because of how quickly U turned on DonaldTrump.U have no spine\""
+        },
+        {
+          "post_id": "618810296233291776",
+          "date": "2015-07-08",
+          "tweet": "\"\"\"@CrystalPrebola @realDonaldTrump @MARCMODE @CNNPolitics @mj_lee @Macys Me too. No more shopping at Macy's.\"\"\""
+        },
+        {
+          "post_id": "616777038100340736",
+          "date": "2015-07-03",
+          "tweet": "\"\"\"@jeanne_mazzotta: @Macys @realDonaldTrump shame on you Macy's. Whatever happened to freedom of speech #cancelingmycard\"\"\""
+        },
+        {
+          "post_id": "618540086976716800",
+          "date": "2015-07-07",
+          "tweet": "Wow! I hear that thousands of people are cutting up their @Macys credit card. That's great. #MakeAmericaGreatAgain!"
+        }
+      ],
+      "top_names": [
+        {
+          "topic": 10,
+          "norm": "macy's boycott and consumer relations",
+          "votes": 97
+        },
+        {
+          "topic": 10,
+          "norm": "retail boycott and brand loyalty issues",
+          "votes": 85
+        },
+        {
+          "topic": 10,
+          "norm": "retail boycott and brand loyalty dispute",
+          "votes": 32
+        },
+        {
+          "topic": 10,
+          "norm": "macy's boycott and retail dispute",
+          "votes": 24
+        },
+        {
+          "topic": 10,
+          "norm": "macy's boycott and retail controversy",
+          "votes": 18
+        }
+      ]
+    },
+    {
+      "topic": 11,
+      "words": "turnberry, scotland, resort, golf, open, best, ireland, british, great, opening",
+      "modal_label": "Trump's International Golf Resorts and Openings",
+      "votes_for_modal": 40,
+      "total_votes": 500,
+      "modal_share": 0.08,
+      "margin_over_runner_up": 0.006,
+      "distinct_labels": 108,
+      "model": "gpt-4o-2024-08-06",
+      "count": 31,
+      "samples": [
+        {
+          "post_id": "746456564337344512",
+          "date": "2016-06-24",
+          "tweet": "The opening of Trump Turnberry in Scotland was a big success. Good timing, I was here for BREXIT. Very exciting news conference today!"
+        },
+        {
+          "post_id": "684817275430539264",
+          "date": "2016-01-06",
+          "tweet": "I don’t cheat at golf but @SamuelLJackson cheats—with his game he has no choice—and stop doing commercials!"
+        },
+        {
+          "post_id": "738576553508929536",
+          "date": "2016-06-03",
+          "tweet": "After @TrumpScotland, I will visit @TrumpDoonbeg in Ireland, the magnificent resort fronting on the Atlantic Ocean."
+        },
+        {
+          "post_id": "706840633508536320",
+          "date": "2016-03-07",
+          "tweet": "Congratulation to Adam Scott and all of the folks at Trump National Doral on producing a really great WGC Tournament. Amazing finish!"
+        },
+        {
+          "post_id": "642659029102272512",
+          "date": "2015-09-12",
+          "tweet": "\"\"\"@ArthurOHara: #Trump International Hotel &amp, Golf Links. Luxury resort in #Doonbeg on Ireland's @wildatlanticway https://t.co/JYRWwMdSwG\"\"\""
+        },
+        {
+          "post_id": "656557928229576706",
+          "date": "2015-10-20",
+          "tweet": "Both Aberdeen and Turnberry in Scotland, and the soon to open Doonbeg in Ireland, blow Bandon Dunes away. Bandon is a toy by comparison!"
+        },
+        {
+          "post_id": "754516280615501824",
+          "date": "2016-07-17",
+          "tweet": "\"\"\"@TrumpDoonbeg: Great news! We've been nominated for Ireland's Best Golf Hotel 2016.We would appreciate your vote! https://t.co/5uEBphqdG9\"\"\""
+        },
+        {
+          "post_id": "738808292550397953",
+          "date": "2016-06-03",
+          "tweet": "So much interest in my visit to Scotland! I greatly look forward to attending the opening event @TrumpTurnberry- taking place on June 24th."
+        },
+        {
+          "post_id": "676156511039590400",
+          "date": "2015-12-13",
+          "tweet": "Many think that the Championship Course at Turnberry, home of The Duel In The Sun, will be the worlds best after the renovation."
+        },
+        {
+          "post_id": "612989191459368960",
+          "date": "2015-06-22",
+          "tweet": "\"\"\"@SovAdjEast  The USA is like Wollman Rink or Ferrypoint before DJT. You came you saw and built a masterpiece. Now it's the USA' s turn.\"\"\""
+        },
+        {
+          "post_id": "626544737252704256",
+          "date": "2015-07-30",
+          "tweet": "Getting ready to leave for my GREAT resort, Turnberry, in Scotland. Hosting The Women's British Open (biggest tournament). Will be back Sat."
+        },
+        {
+          "post_id": "706543741088067584",
+          "date": "2016-03-06",
+          "tweet": "I am at Trump National Doral-best resort in U.S. Rory and Adam Scott are doing great! Watch on NBC at 3:00 P.M.  MAKE AMERICA GREAT AGAIN!"
+        },
+        {
+          "post_id": "626839550170632192",
+          "date": "2015-07-30",
+          "tweet": "Just at a news conference from Trump Turnberry in Scotland. Everybody was there &amp, will be all over television tonite. Back on trail Saturday"
+        },
+        {
+          "post_id": "676509769562251264",
+          "date": "2015-12-14",
+          "tweet": "Another great accolade for @TrumpGolf. Highly respected Golf Odyssey- awarded @TrumpDoral Blue Monster with best redesign. Thank you!"
+        },
+        {
+          "post_id": "675403252209422336",
+          "date": "2015-12-11",
+          "tweet": "Our spectacular ballroom under construction at the great Turnberry resort in Scotland. https://t.co/QmXD8kHFhS"
+        }
+      ],
+      "top_names": [
+        {
+          "topic": 11,
+          "norm": "trump's international golf resorts and openings",
+          "votes": 40
+        },
+        {
+          "topic": 11,
+          "norm": "trump's international golf resorts promotion",
+          "votes": 37
+        },
+        {
+          "topic": 11,
+          "norm": "trump international golf developments and events in the uk and ireland",
+          "votes": 34
+        },
+        {
+          "topic": 11,
+          "norm": "trump international golf ventures and developments in the uk and ireland",
+          "votes": 25
+        },
+        {
+          "topic": 11,
+          "norm": "trump international golf ventures and developments",
+          "votes": 22
+        }
+      ]
+    }
+  ],
+  "modeled_records": 7779,
+  "outlier_count": 3854,
+  "outlier_samples": [
+    {
+      "post_id": "759450053379579905",
+      "date": "2016-07-30",
+      "tweet": "Violent crime is rising across the United States, yet the DNC convention ignored it. Crime reduction will be one of my top priorities."
+    },
+    {
+      "post_id": "624149212796715008",
+      "date": "2015-07-23",
+      "tweet": "\"\"\"@3rdedit: Media attacking you early this morning. A GOOD SIGN!America is proud of you for ignoring the MEDIA &amp, telling it like it is!\"\"\""
+    },
+    {
+      "post_id": "619116650613329920",
+      "date": "2015-07-09",
+      "tweet": "\"\"\"@williamonlyrent: @realDonaldTrump @krauthammer Only good candidate in this GOP field is you sir! Go Trump. #Trump2016\"\" Thank you.\""
+    },
+    {
+      "post_id": "792031499075944448",
+      "date": "2016-10-28",
+      "tweet": "\"If my people said the things about me that Podesta &amp, Hillary's people said about her, I would fire them out of self respect. \"\"Bad instincts\"\"\""
+    },
+    {
+      "post_id": "672983285514043392",
+      "date": "2015-12-05",
+      "tweet": "\"\"\"@PattyDs50:  @CwiseCwise1 @iliveamongyou @pennybishop16 @GOP Yes! We love you Donald!! We are behind you all the way to Whitehouse!!\"\"\""
+    },
+    {
+      "post_id": "701954385404760064",
+      "date": "2016-02-23",
+      "tweet": "Great Town Hall tonight at 10:00 P.M. (Eastern) conducted by @seanhannity on @FoxNews"
+    },
+    {
+      "post_id": "642727277755805696",
+      "date": "2015-09-12",
+      "tweet": "Trump’s Campaign Hat Becomes an Ironic Summer Accessory - The New York Times. http://t.co/XLELUQfxof"
+    },
+    {
+      "post_id": "692724677945483264",
+      "date": "2016-01-28",
+      "tweet": "“What America Needs: The Case for Trump” Great new book by the esteemed Jeffrey Lord @JeffJlpa1 Available now. https://t.co/xeHKbIDApr"
+    },
+    {
+      "post_id": "628735190928617473",
+      "date": "2015-08-05",
+      "tweet": "\"\"\"@Mike_Beacham: Trump Leads, Jeb Slips, Rubio Crashes In WSJ/NBC News Poll http://t.co/ZR3PvOAARe #StraightTalk @SenTedCruz #ccot #tcot #2A\"\"\""
+    },
+    {
+      "post_id": "701162206914879490",
+      "date": "2016-02-20",
+      "tweet": "\"\"\"@CarrollKuykend2: This veteran just voted @realDonaldTrump in the SC primary, let's make America great again!\"\"\""
+    },
+    {
+      "post_id": "762284533341417472",
+      "date": "2016-08-07",
+      "tweet": "I see where Mayor Stephanie Rawlings-Blake of Baltimore is pushing Crooked hard. Look at the job she has done in Baltimore. She is a joke!"
+    },
+    {
+      "post_id": "767135128950898689",
+      "date": "2016-08-20",
+      "tweet": "Will be back soon Virginia. We are going to MAKE AMERICA GREAT AGAIN! #TrumpPence16 https://t.co/IU4JPSi0rZ"
+    },
+    {
+      "post_id": "623292410827829249",
+      "date": "2015-07-21",
+      "tweet": "\"\"\"@djf123: @realDonaldTrump @PJTV #DonaldWillBeTheGOPNominee!\""
+    },
+    {
+      "post_id": "657235829413289984",
+      "date": "2015-10-22",
+      "tweet": "\"\"\"@toddinwichita @realDonaldTrump Hillary is doing a HORRIBLE job at #BenghaziHearings reading from the script. #pathetic . She is no leader\"\"\""
+    },
+    {
+      "post_id": "623290494915878912",
+      "date": "2015-07-21",
+      "tweet": "\"\"\"@ShepherdGarrett: It doesn't matter what the media thinks--It matters what the American people think  Keep It Up! #MakeAmericaGreatAgain\"\"\""
+    },
+    {
+      "post_id": "781678954570735616",
+      "date": "2016-09-30",
+      "tweet": "Wow, did you see how badly @CNN (Clinton News Network) is doing in the ratings. With people like @donlemon, who could expect any more?"
+    },
+    {
+      "post_id": "646015127293161472",
+      "date": "2015-09-21",
+      "tweet": "I just wrapped up a Q&amp,A @TwitterNYC. Thanks for all your questions! #AskTrump http://t.co/zpbcRHfxy6"
+    },
+    {
+      "post_id": "699284455282884612",
+      "date": "2016-02-15",
+      "tweet": "\"JEB is a hypocrite! Used massive private \"\"Eminent Domain\"\" --- Just another clueless politician! https://t.co/yZT3lSutt9\""
+    },
+    {
+      "post_id": "730059920280793088",
+      "date": "2016-05-10",
+      "tweet": "\"Via @JTAnews and Jason Greenblatt  \"\"Donald Trump is a Visionary With Talents Our Country Needs\"\" @JasonDovEsq   https://t.co/lEGJyAinUh\""
+    },
+    {
+      "post_id": "735465352436408320",
+      "date": "2016-05-25",
+      "tweet": "The protesters in New Mexico were thugs who were flying the Mexican flag. The rally inside was big and beautiful, but outside, criminals!"
+    },
+    {
+      "post_id": "724237889886904320",
+      "date": "2016-04-24",
+      "tweet": "\"\"\"@DiamondandSilk: .@DonaldJTrumpJr awesome job on @CNNSotu. DonaldTrump has integrity &amp, he refuses 2 play the game call \"\"Delegate Bribery\"\"\""
+    },
+    {
+      "post_id": "624666907090751488",
+      "date": "2015-07-24",
+      "tweet": ".@marklevinshow has written a great book, Plunder and Deceit. He powerfully analyzes issues that are crucial to us today. Read it!"
+    },
+    {
+      "post_id": "710868991309443072",
+      "date": "2016-03-18",
+      "tweet": "Lyin' Ted Cruz lost all five races on Tuesday-and he was just given the jinx - a Lindsey Graham endorsement. Also backed Jeb. Lindsey got 0!"
+    },
+    {
+      "post_id": "691965633043513345",
+      "date": "2016-01-26",
+      "tweet": "RT @Morning_Joe: VIDEO: @realDonaldTrump announces 'a very powerful endorsement' will be coming today.  https://t.co/cJsMBcVcdY"
+    },
+    {
+      "post_id": "678769142376304640",
+      "date": "2015-12-21",
+      "tweet": ".@MissUniverse final 3 on now. Great people, great new owner @IMG. WATCH."
+    },
+    {
+      "post_id": "744355251365511169",
+      "date": "2016-06-19",
+      "tweet": "Donald Trump's Speech Is a Game Changer. #Trump2016https://t.co/VXjtSivvuU https://t.co/dIK3IyrYGC"
+    },
+    {
+      "post_id": "616775708170420224",
+      "date": "2015-07-03",
+      "tweet": "\"\"\"@PerryJames778:  @Highlander6700 @Macys The media Loves to twist words, and so do the politicians. @realDonaldTrump will set it straight!\"\"\""
+    },
+    {
+      "post_id": "676790691775643648",
+      "date": "2015-12-15",
+      "tweet": "I am in Trump International Hotel, Las Vegas, getting ready and waiting for the debate tonight. Look forward -   hope I get treated fairly!"
+    },
+    {
+      "post_id": "788445970539253761",
+      "date": "2016-10-18",
+      "tweet": "It is time to #DrainTheSwamp in Washington, D.C! Vote Nov. 8th to take down the #RIGGED system! https://t.co/Ox9hH13Q9I"
+    },
+    {
+      "post_id": "650523179497205761",
+      "date": "2015-10-04",
+      "tweet": "\"\"\"@SolFusionGreg: @Mediaite The more the Progressives &amp, RINO's poke at the DonaldTrump the stronger he gets and more REAL PEOPLE like him!\"\"\""
+    }
+  ],
+  "discovery_window": [
+    "2015-06-16",
+    "2016-11-08"
+  ],
+  "target_window": [
+    "2017-01-20",
+    "2021-01-08"
+  ],
+  "source_hashes": {
+    "stage1/best_model/classified_tweets.csv": "aa5aa2f24f708dae6a88de258b1b790e910da6bc1108eeab42f3b9e30c951afb",
+    "stage2/topic_names.csv": "55b407f7b09188f061f30b498fabc144131fe4b448fa13bcc182d676187bc262",
+    "stage2/vote_tallies.csv": "d4187910da22e9dfa07551e0f63cf73ad2762aa480f6fc15b13b182955f8399a"
+  },
+  "none_label": "The text does not fit into any of these themes",
+  "sample_seed": 42,
+  "corpus_sha256": "8256646462a1267c5c6e177d3c951a852a17bcbd8553cb0f98e2a89ce5f3206a",
+  "discovery_input_sha256": "8256646462a1267c5c6e177d3c951a852a17bcbd8553cb0f98e2a89ce5f3206a",
+  "packet_sha256": "c3753159fc466d90d7012c7a0ca29f2fd970cbd073b2e5745e0e9dbd664b2b21"
+}

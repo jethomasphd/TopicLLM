@@ -85,6 +85,8 @@ def publish(config_path,allow_in_progress=False):
     if (run/'stage3/review_record.json').exists():
         require_review(cfg);summary['human_review_performed']=True
         summary['codebook']=read(Path(cfg.codebook_path))
+        summary['theme_map']=rows(run/'stage3/theme_map.csv')
+        summary['reviewers']=read(run/'stage3/review_record.json')['reviewers']
     if (run/'stage4/validation_review.json').exists():
         require_validation_review(cfg);summary['classifier_validated']=True
         summary['validation']=read(run/'stage4/validation_report.json')
@@ -103,6 +105,12 @@ def publish(config_path,allow_in_progress=False):
         selection='1,024 evenly spaced presidential source rows including endpoints; public practice classifications, not a probability sample for validation.')
     live['examples']=[{'id':'trump-'+r['post_id'],'post_id':r['post_id'],'text':r['tweet'],'date':r['date'],'is_retweet':r['is_retweet']}
                       for r in [target[round(i*(len(target)-1)/1023)] for i in range(1024)]]
+    if summary['human_review_performed']:
+        live.update(themes=cfg.themes,codebook=summary['codebook'],human_review_performed=True,
+                    codebook_sha256=hashlib.sha256(Path(cfg.codebook_path).read_bytes()).hexdigest(),
+                    taxonomy_status='Human-reviewed themes; classifier performance remains unvalidated.' if not complete else 'Human-reviewed themes with independently validated research classification.')
+        for name in ['theme_map.csv','codebook.json','review_record.json','human_synthesis_submission.json','synthesis_packet.json']:
+            shutil.copy2(run/'stage3'/name,evidence/name)
     dump(out/'live-examples.json',live)
     for source,target_name in [('all_iteration_results.json','all_iteration_results.json'),('best_model/parameters.json','parameters.json'),('topics_for_naming.csv','topics_for_naming.csv'),('selection_record.json','selection_record.json'),('coherence_curve.png','coherence_curve.png')]:
         shutil.copy2(stage/source,evidence/target_name)

@@ -44,7 +44,12 @@ test('every live example preserves its public source text and never uses a disse
  const source=new Map(rows.map(r=>[r.post_id,r]));
  const live=JSON.parse(await readFile(new URL('live-examples.json',base)));
  for(const e of live.examples){assert.equal(e.id,'trump-'+e.post_id);assert.equal(e.text,source.get(e.post_id).tweet);}
- assert.ok(live.examples.length>=1024);assert.match(live.taxonomy_status,/Unvalidated/);
+ assert.ok(live.examples.length>=1024);assert.match(live.taxonomy_status,/unvalidated/i);
+ assert.deepEqual(new Set(live.themes),new Set(Object.keys(live.codebook.themes)));
+ const run=JSON.parse(await readFile(new URL('reference-run.json',base)));
+ assert.equal(run.human_review_performed,true);assert.deepEqual(live.codebook,run.codebook);
+ const codebook=await readFile(new URL('campaign/codebook.json',base));
+ assert.equal(createHash('sha256').update(codebook).digest('hex'),live.codebook_sha256);
 });
 
 test('withdrawn public data and old wheels cannot fall through to assets',async()=>{

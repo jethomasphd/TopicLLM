@@ -33,6 +33,7 @@ def render_synthesis_workspace(cfg, output=None):
     template=Path(__file__).with_name('synthesis_ui.html').read_text(encoding='utf-8')
     path=Path(output) if output else root/'stage3/synthesis_workspace.html'
     path.parent.mkdir(parents=True,exist_ok=True)
-    path.write_text(template.replace('__PACKET_JSON__',payload),encoding='utf-8',newline='\n')
+    logic=Path(__file__).with_name('synthesis_logic.js').read_text(encoding='utf-8')
+    path.write_text(template.replace('__PACKET_JSON__',payload).replace('__GROUPING_LOGIC__',logic),encoding='utf-8',newline='\n')
     (root/'stage3/synthesis_packet.json').write_text(json.dumps(packet,indent=2,ensure_ascii=False)+'\n',encoding='utf-8',newline='\n')
     return path

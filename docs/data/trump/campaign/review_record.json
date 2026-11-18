@@ -1,0 +1,40 @@
+{
+  "corpus_sha256": "8256646462a1267c5c6e177d3c951a852a17bcbd8553cb0f98e2a89ce5f3206a",
+  "discovery_corpus_sha256": "8256646462a1267c5c6e177d3c951a852a17bcbd8553cb0f98e2a89ce5f3206a",
+  "topic_words_sha256": "f58c807420f4e99d47d5bf1214e8f10297b55640baa78fbdd246947137b589cd",
+  "assignments_sha256": "aa5aa2f24f708dae6a88de258b1b790e910da6bc1108eeab42f3b9e30c951afb",
+  "naming_sha256": "55b407f7b09188f061f30b498fabc144131fe4b448fa13bcc182d676187bc262",
+  "theme_map_sha256": "cf25f85e001a884324b9cca9799527ca8eea29d44aebcf1f3b363041f58eea17",
+  "codebook_sha256": "552617f68c1a7213522df33c5dcf03077400cc698b3788a20d6e5242b8c9f961",
+  "discovery_window": [
+    "2015-06-16",
+    "2016-11-08"
+  ],
+  "target_window": [
+    "2017-01-20",
+    "2021-01-08"
+  ],
+  "require_disjoint_windows": true,
+  "themes": [
+    "Republican Primary Campaign Dynamics",
+    "Immigration Reform and Nationalism",
+    "Campaign Rallies and Support in Key States",
+    "Criticism of Political Opponents",
+    "Media Appearances and Personal Life Highlights",
+    "Terrorism, National Security Concerns, and Criticism of Previous Administration",
+    "Expressions of Gratitude and Positivity",
+    "Tax and Healthcare Policy",
+    "Issues related to Military Service and Criticism of John McCain",
+    "Trump Campaign Merchandise and Book Promotions",
+    "Macy's Boycott and Consumer Relations",
+    "Trump's International Golf Resorts and Openings"
+  ],
+  "review_mode": "human",
+  "human_review_performed": true,
+  "decision": "approved",
+  "reviewers": [
+    "Jacob E. Thomas",
+    "Research Assistant"
+  ],
+  "recorded_at": "2026-11-18T21:16:28.806781+00:00"
+}

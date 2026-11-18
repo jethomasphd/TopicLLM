@@ -70,7 +70,6 @@ story=[]
 for el in page:
     cls=el.get('class','')
     if el.tag=='style' or cls=='banner':continue
-    if el.tag=='h2' and el.text_content().strip()=='References':story.append(PageBreak())
     if el.tag=='h1':story.append(Paragraph(markup(el),styles['Title2']));continue
     if cls=='subtitle':story.append(Paragraph(markup(el),styles['Subtitle']));continue
     if cls=='formula':
@@ -88,6 +87,7 @@ for el in page:
         caption=Paragraph(markup(table.find('caption')),styles['Caption'])
         rows=[[Paragraph(markup(c),styles['Small2']) for c in r] for r in table.xpath('.//tr')]
         widths={2:[280,188],3:[126,190,152],4:[270,66,66,66]}.get(len(rows[0]),[468/len(rows[0])]*len(rows[0]))
+        if table.find('caption').text_content().startswith('Table 4.'):widths=[66,402]
         tab=LongTable(rows,colWidths=widths,repeatRows=1,hAlign='LEFT')
         tab.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),colors.HexColor('#eeeeee')),('GRID',(0,0),(-1,-1),.5,colors.HexColor('#cccccc')),('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),8),('RIGHTPADDING',(0,0),(-1,-1),8),('TOPPADDING',(0,0),(-1,-1),7),('BOTTOMPADDING',(0,0),(-1,-1),3)]))
         group=[caption,tab]

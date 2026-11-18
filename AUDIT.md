@@ -4,7 +4,7 @@ The dissertation (Thomas, 2025) is authoritative for historical research claims.
 
 The maintained methods paper is a separate, identified edition. It explains the historical method and transfers it to the public Trump archive. The one tutorial corpus has 34,416 posts, June 16, 2015 through January 8, 2021. Its provenance, exact selection and hashes are in docs/data/trump/manifest.json. Dissertation datasets are not part of the release.
 
-The tutorial's recorded discovery is measured computation; live model responses and visitor theme maps are illustrative. No human-approved Trump taxonomy or independent classifier benchmark is asserted. The research gates require those inputs before corpus classification and inference. Never compare tutorial output to the dissertation as though the two corpora should yield the same findings.
+Campaign discovery, naming and two-human synthesis are complete. The approved 12-theme codebook, map and original reviewer submission are preserved under docs/data/trump/campaign/. Live calls use that codebook; individual responses and visitor maps do not constitute classifier validation. Independent annotations, held-out evaluation, classifier acceptance and presidential prevalence remain pending. The research gates require those inputs before corpus classification and inference. Never compare tutorial output to the dissertation as though the two corpora should yield the same findings.
 
 Source readers: https://topicllm.dev/audit/ . Execution evidence: https://topicllm.dev/validation/ . Agent workflow: REPRODUCE.md and AGENTS.md. Active methods source mapping: docs/paper/source-map.json.
 

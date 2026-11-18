@@ -32,7 +32,7 @@ Discovery outputs are measured model results, not human annotations. The site pr
 
 ## Live examples from the same corpus
 
-The live lab uses 1,024 evenly spaced presidential source rows, including that period's endpoints, for classification practice. Naming examples use the 12 adopted campaign topics. These are lightweight views of the same corpus, not probability samples for classifier validation. `live-examples.json` preserves the selected source text and IDs; the complete source remains available in `corpus.csv`. Six broad practice categories illustrate classification mechanics. They are not researcher-approved themes or benchmark labels.
+The live lab uses 1,024 evenly spaced presidential source rows, including that period's endpoints, for classification practice. Naming examples use the 12 adopted campaign topics. These are lightweight views of the same corpus, not probability samples for classifier validation. `live-examples.json` preserves the selected source text and IDs; the complete source remains available in `corpus.csv`. Live classifications use the same frozen 12-theme codebook approved by Jacob E. Thomas and a human research assistant. Its definitions and primary-theme rule are supplied with each call. The classifier remains unvalidated; live outputs are examples to inspect, not independent benchmark labels.
 
 ## Attribution and scope
 

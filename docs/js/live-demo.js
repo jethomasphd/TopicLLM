@@ -9,7 +9,7 @@ export async function initLiveDemo(){
   for(const topic of data.topics)$('live-topic').add(new Option(`Recorded topic ${topic.id} · ${topic.count} posts`,topic.id));
   status.textContent=available?`Live OpenAI is ready. Up to ${config.sessionCallsPerDay} shared calls per browser session today; service limits apply.`:'Live examples are paused. The recorded walkthrough and downloads remain available.';
  }catch{status.textContent='Live access is unavailable. Explore the recorded walkthrough or run locally.';return;}
- for(const theme of data.themes){const li=document.createElement('li');li.textContent=theme;$('live-categories')?.append(li);}
+ for(const theme of data.themes){const li=document.createElement('li');const heading=document.createElement('strong');heading.textContent=theme;li.append(heading);if(data.codebook?.themes[theme]){const details=document.createElement('details'),summary=document.createElement('summary'),definition=document.createElement('p');summary.textContent='Definition and boundaries';definition.textContent=data.codebook.themes[theme];definition.style.whiteSpace='pre-wrap';details.append(summary,definition);li.append(details);}$('live-categories')?.append(li);}
  const controls=()=>root.querySelectorAll('button,select,input').forEach(el=>{el.disabled=busy||(!available&&el.matches('[data-live-task]'))||(el.matches('[data-live-task="classify"]')&&!$('live-example').value)||(el.id==='live-download'&&!records.length)||(['live-random','live-example'].includes(el.id)&&!filtered.length);});
  const update=()=>{
   $('live-words').textContent=data.topics.find(t=>t.id===$('live-topic').value)?.words||'';
@@ -34,7 +34,7 @@ export async function initLiveDemo(){
     output.textContent=`Requesting independent response ${i+1} of ${n}…`;
     const response=await fetch('/api/demo',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-Request-ID':crypto.randomUUID()},body:JSON.stringify(input),signal:AbortSignal.timeout(60000)});
     const result=await response.json();
-    const source=task==='name'?{topic:data.topics.find(t=>t.id===input.topicId),domain:data.domain}:{example:data.examples.find(e=>e.id===input.exampleId),categories:[...data.themes,'The text does not fit into any of these themes']};
+    const source=task==='name'?{topic:data.topics.find(t=>t.id===input.topicId),domain:data.domain}:{example:data.examples.find(e=>e.id===input.exampleId),categories:[...data.themes,'The text does not fit into any of these themes'],codebook:data.codebook,codebook_sha256:data.codebook_sha256};
     records.push({input,source,result,http_status:response.status,received_at:new Date().toISOString(),mode:'live-trump-example'});
     if(Number.isInteger(result.remaining_session))status.textContent=`${result.remaining_session} shared live calls remain today. Public archive; illustrative responses for you to inspect.`;
     if(!response.ok)throw new Error(result.error||'The request could not be completed.');ballots.push(result.text);
@@ -45,5 +45,5 @@ export async function initLiveDemo(){
   }catch(error){output.textContent=`${error.message}${ballots.length?` ${ballots.length} completed responses are retained in your download.`:''}`;}
   finally{busy=false;controls();$('live-download').disabled=!records.length;}
  });
- $('live-download').onclick=()=>downloadText('topicllm-trump-live-responses.json',JSON.stringify({schema_version:1,mode:'public-trump-tutorial',dataset:data.dataset,corpus_sha256:data.corpus_sha256,taxonomy_status:data.taxonomy_status,human_validation:false,records},null,2),'application/json');
+ $('live-download').onclick=()=>downloadText('topicllm-trump-live-responses.json',JSON.stringify({schema_version:1,mode:'public-trump-tutorial',dataset:data.dataset,corpus_sha256:data.corpus_sha256,taxonomy_status:data.taxonomy_status,human_synthesis:data.human_review_performed,classifier_validated:false,codebook_sha256:data.codebook_sha256,records},null,2),'application/json');
 }

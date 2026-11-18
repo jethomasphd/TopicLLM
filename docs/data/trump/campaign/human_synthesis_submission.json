@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "packet_sha256": "c3753159fc466d90d7012c7a0ca29f2fd970cbd073b2e5745e0e9dbd664b2b21",
+  "source_hashes": {
+    "stage1/best_model/classified_tweets.csv": "aa5aa2f24f708dae6a88de258b1b790e910da6bc1108eeab42f3b9e30c951afb",
+    "stage2/topic_names.csv": "55b407f7b09188f061f30b498fabc144131fe4b448fa13bcc182d676187bc262",
+    "stage2/vote_tallies.csv": "d4187910da22e9dfa07551e0f63cf73ad2762aa480f6fc15b13b182955f8399a"
+  },
+  "decision": "human-consensus-submitted",
+  "human_review_performed": true,
+  "reviewers": [
+    "Jacob E. Thomas",
+    "Research Assistant"
+  ],
+  "theme_map": [
+    {
+      "topic": 0,
+      "modal_label": "Republican Primary Campaign Dynamics",
+      "theme": "Republican Primary Campaign Dynamics",
+      "excluded": false,
+      "rationale": "The context fits what the LLM voted for, generally speaking. Some of the tweets that made it into the review corpus included other non-republican primary debates and some off-topic/broad content. "
+    },
+    {
+      "topic": 1,
+      "modal_label": "U.S. Immigration and Nationalism During the 2016 Presidential Campaign",
+      "theme": "Immigration Reform and Nationalism",
+      "excluded": false,
+      "rationale": "This group of topic is nearly universally appealing to campaign slogans and immigration. "
+    },
+    {
+      "topic": 2,
+      "modal_label": "Campaign Rallies and Support in Key States",
+      "theme": "Campaign Rallies and Support in Key States",
+      "excluded": false,
+      "rationale": "This cluster of topics largely focused on raising awareness for states early in the election process such as Iowa and South Carolina, and New Hampshire. The LLM voted for a good naming convention."
+    },
+    {
+      "topic": 3,
+      "modal_label": "Criticism of Political Opponents and Email Controversy",
+      "theme": "Criticism of Political Opponents",
+      "excluded": false,
+      "rationale": "The corpus of sampled tweets is clearly all negative and directed at political opponents. The within-topic variation (e.g., emails, teleprompters, tax and medical records, etc.) is prominent, but it all relates to attacking opponents."
+    },
+    {
+      "topic": 4,
+      "modal_label": "Media Appearances and Personal Life Highlights",
+      "theme": "Media Appearances and Personal Life Highlights",
+      "excluded": false,
+      "rationale": "This corpus is clearly promotions and cross-promotions of various media appearances, and associated praises of his family members."
+    },
+    {
+      "topic": 5,
+      "modal_label": "Terrorism and National Security Concerns During the 2015-2016 Presidential Campaign",
+      "theme": "Terrorism, National Security Concerns, and Criticism of Previous Administration",
+      "excluded": false,
+      "rationale": "The LLM votes are good here, but much of the national security concerns were addressed at Obama and presented alongside attacks on the Obama Administration's policies."
+    },
+    {
+      "topic": 6,
+      "modal_label": "Expressions of Gratitude and Positivity",
+      "theme": "Expressions of Gratitude and Positivity",
+      "excluded": false,
+      "rationale": "Very broad but the LLM voted label captures it nicely. "
+    },
+    {
+      "topic": 7,
+      "modal_label": "Healthcare Policy and Obamacare Critique During 2015-2016 Campaign",
+      "theme": "Tax and Healthcare Policy",
+      "excluded": false,
+      "rationale": "This topic is largely focused on Obamacare and concerns of Trump's personal taxes as well as tax policy."
+    },
+    {
+      "topic": 8,
+      "modal_label": "Veterans' Affairs and Military Service",
+      "theme": "Issues related to Military Service and Criticism of John McCain",
+      "excluded": false,
+      "rationale": "The LLM votes identified the veterans' affairs issues but did not realize that a common thread to said content was criticizing McCain."
+    },
+    {
+      "topic": 9,
+      "modal_label": "Trump Campaign Merchandise and Book Promotions",
+      "theme": "Trump Campaign Merchandise and Book Promotions",
+      "excluded": false,
+      "rationale": "The LLM vote captured the essence of this theme. "
+    },
+    {
+      "topic": 10,
+      "modal_label": "Macy's Boycott and Consumer Relations",
+      "theme": "Macy's Boycott and Consumer Relations",
+      "excluded": false,
+      "rationale": "This theme skews heavily towards content targeted at the Macy's boycott, but does include general sympathies with policies related to retail and to his own merchandise/online shop. "
+    },
+    {
+      "topic": 11,
+      "modal_label": "Trump's International Golf Resorts and Openings",
+      "theme": "Trump's International Golf Resorts and Openings",
+      "excluded": false,
+      "rationale": "Dense content cluster related to a specific event for his personal brand. "
+    }
+  ],
+  "codebook": {
+    "themes": {
+      "Republican Primary Campaign Dynamics": "Meaning: Related during the election to his republican opponents during the primary as well as specific reactions to debated. \nInclude: During the presidential era, this should generalize to broad criticism of other republicans or former allies. \nExclude: criticism of other opponents such as democrats\nExamples and boundaries: \"Marco Rubio is totally weak on illegal immigration &amp, in favor of easy amnesty. A lightweight choker - bad for #USA!\"",
+      "Immigration Reform and Nationalism": "Meaning: Immigration reform is realted to any attack on Hispanic Migrants, proposed law changes, an all things related to the border wall. Nationalism associated with Donald Trump (often tied to his \"America First\" platform and the broader Trumpism and MAGA movement) centers on prioritizing national sovereignty, protectionist trade, and strict immigration controls over globalist frameworks\nInclude: Any MAGA or RNC slogans fit the nationalism flag.\nExclude: tweets that do not mention immigration, border security, nationalism, MAGA\nExamples and boundaries: Flashback – Jeb Bush says  illegal immigrants breaking our laws is an “act of love” http://t.co/p8yFzVuw8w He will never secure the border.",
+      "Campaign Rallies and Support in Key States": "Meaning: During the election he promoted early reporting states (e.g., Iowa) heavily. \nInclude: This will generalize to his continued rally's during his presidential term. \nExclude: Discussion of events that are not political rallies / campaign events / promotional for his policies\nExamples and boundaries: I will be in Indiana on Sunday and Monday at four MAKE AMERICA GREAT AGAIN rallies. See you there!",
+      "Criticism of Political Opponents": "Meaning: Attacks and critique of all percieved opponents \nInclude: Obama, Clinton, the media, Bush, Biden, China\nExclude: When he is not attacking or directing at opponents. \nExamples and boundaries: \"Crooked Hillary Clinton made up facts about me, and \"\"forgot\"\" to mention the many problems of our country, in her very average scream!\"",
+      "Media Appearances and Personal Life Highlights": "Meaning: Largely promoting his media appearances and his family members\nInclude: Content related to self promotion, personal brand, etc.\nExclude: Irrelevant updates that are not promo or praise\nExamples and boundaries: I will be interviewed on @foxandfriends tomorrow morning at 7:00. Enjoy!",
+      "Terrorism, National Security Concerns, and Criticism of Previous Administration": "Meaning: Largely national security concerns related to the Middle East and Immigration at the southern border. A lot of this was associated with criticizing the Obama Administration\nInclude: When Terrorism, national security, and Obama's foreign policy is mentioned\nExclude: topics related to domestic / social issues\nExamples and boundaries: Hillary won't call out radical Islam! She will be soundly defeated.",
+      "Expressions of Gratitude and Positivity": "Meaning: This is a very broad and general theme that includes a lot of \"follow up\" messages following media spots, as well as shout outs.\nInclude: Positivity, thanksgiving, praise\nExclude: angry content, attacks, etc.\nExamples and boundaries: HAPPY NEW YEAR &amp, THANK YOU! ",
+      "Tax and Healthcare Policy": "Meaning: Theme is largely focused on his personal taxes, the Clinton's taxes, Obamacare, and other tax or healthcare policy. \nInclude: taxes, tax reform, obamacare, healthcare, medicare, medicaid, etc.\nExclude: irrelevant content\nExamples and boundaries: 1. In interview I told @AP that my taxes are under routine audit and I would release my tax returns when audit is complete, not after election!  | \n2. I am going to repeal and replace ObamaCare. We will have MUCH less expensive and MUCH better healthcare. With Hillary, costs will triple!",
+      "Issues related to Military Service and Criticism of John McCain": "Meaning: Policy issues related to the VA, military action in recent wars, and sharp critique of then-senator McCain.\nInclude: anything military related or related to McCain\nExclude: irrelevant content, content addressing other senators not related to military\nExamples and boundaries: One of the reasons I am no fan of John McCain is that our Vets are being treated so badly by him and the politicians. I will fix VA quickly.",
+      "Trump Campaign Merchandise and Book Promotions": "Meaning: Viral promotion of his MAGA hats, yard signs, other campaign merch and his books.\nInclude: any campaign merch or books authored or signed by Trump\nExclude: non-campaign-related products\nExamples and boundaries: I am signing copies of my book CRIPPLED AMERICA. Makes a great holiday gift. Order yours now!",
+      "Macy's Boycott and Consumer Relations": "Meaning: This is largely a 1-off theme related to a Macy's boycott. Minimally, other retail-related policy and some of his own merchandise promotion.\nInclude: Generalize to other retail related policy and to other consumer relation events\nExclude: foreign policy, taxes, healthcare... essentially anything not consumer-related\nExamples and boundaries: Boycott @Macys, no guts, no glory. Besides, there are far better stores!",
+      "Trump's International Golf Resorts and Openings": "Meaning: 1-off theme related to his specific Scottish Golf Resort that opened during the campaign\nInclude: Generalize to the promotion of other resorts, hotels, clubs, or Trump brand related.\nExclude: anything not related to Trump brand or Trump property\nExamples and boundaries: The opening of Trump Turnberry in Scotland was a big success. Good timing, I was here for BREXIT. Very exciting news conference today!"
+    },
+    "decision_rule": "When multiple themes are present, extrapolate the primary theme by evaluating the proportion of words that could reasonable be attributed to a theme, as well as inspecting the #. Use the residual label when there is nothing closely related. [Added after discussion with Second Researcher: We have concerns about transferability of themes, given that some of them are closely tied to the election itself or a on-off event. When coding the presidential-era content we can be more liberal in classification (e.g., attacking other republicans may stand-in for the republican primary dynamics; his Scottish golf resort may stand-in for later general promotion of any of his hotels or other businesses)."
+  },
+  "review_notes": {
+    "first": "The LLM voting did a very good job, and generally speaking this was an easy qualitative review. I do not think that any of these distinct topic are collapsable into shared themes, but that feature needs to be available to easily accomplish. ",
+    "second": "-Have we thought about transferability (primary concern)... many of these themes are election-related or 1-off events so they may be an utter impossibility of appearing in the presidential corpus.\n-Topic 1 label may be off... only about 6 of 15 sampled posts are about immigration. The rest are MAGA slogans, RNC hashtags, endorsements, and quoted fan praise.\n-Media Criticism is unmentioned, even though topic 3 contains claims directed at NYT, CNN, etc.,  rather than the direct opponents. ",
+    "consensus": "-We added concerns about transferability into the Primary-theme decision rule and codebook. \n-Related to topic 1, we agree now that the \"nationalism\" flag in the theme name captures the MAGA and RNC slogans quite well.\n-For topic 3, we agree that \"the media\" can be considered a self-identified opponent of Trump.",
+    "literature": "This corpus is well documented and highly culturally salient. Ballotpedia is a good entry-level resource for robust identification of things the Trump campaign broadly discussed, but there are also many peer-reviewed studies that attempt to extract topics from his corpus of tweets 2015-2021."
+  },
+  "exported_at": "2026-11-18T21:14:03.314Z"
+}
