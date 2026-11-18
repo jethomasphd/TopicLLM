@@ -27,7 +27,9 @@ pnpm exec wrangler deploy --dry-run
 pnpm exec wrangler deploy
 ```
 
-Keep exactly one wheel in `dist_wheels`. The packager includes source, selected public Trump data and licenses, excludes private runs and credentials, and writes download hashes. The build copies `docs`, PDF.js and unchanged archival sources into `dist`; it verifies all ten protected source hashes. Publish the built assets, not raw `docs`. CI installs the wheel outside the checkout and runs the offline quickcheck on Windows/Ubuntu and Python 3.11/3.12. This lightweight matrix is not a full ML numerical-equivalence test.
+Keep exactly one wheel for the version declared in `pyproject.toml`; older versions are ignored. The packager includes source, selected public Trump data and licenses, excludes private runs and credentials, and writes the served wheel's download hash. Full repository downloads use GitHub's current-main archive; record its commit for an analysis. The locally generated source ZIP is excluded from static hosting because accumulated research evidence can exceed Cloudflare's [25 MiB per-file limit](https://developers.cloudflare.com/workers/platform/limits/).
+
+The build copies `docs`, PDF.js and unchanged archival sources into `dist`; it verifies all ten protected source hashes. Publish the built assets, not raw `docs`. CI installs the wheel outside the checkout and runs the offline quickcheck on Windows/Ubuntu and Python 3.11/3.12. This lightweight matrix is not a full ML numerical-equivalence test.
 
 ## Secrets and endpoints
 
@@ -39,7 +41,7 @@ pnpm exec wrangler secret put OPENAI_API_KEY
 pnpm exec wrangler secret put RESEARCH_ACCESS_TOKEN
 ```
 
-Never put secrets in source, chat, command arguments, browser storage or screenshots. The high-entropy research token signs sessions and authorizes operator status. It is never issued to visitors. Rotating it invalidates sessions. `/api/llm` is a private validation route, paused after the acceptance run, not a public research backend.
+Never put secrets in source, chat, command arguments, browser storage or screenshots. The high-entropy research token signs sessions and authorizes operator status. It is never issued to visitors. Rotating it invalidates sessions. `/api/llm` carries authenticated research requests, including the exact frozen codebook prompt, only during explicitly budgeted execution. It is paused at human research gates and outside active runs. Visitors execute their own research in their own environment.
 
 | Route | Purpose |
 |---|---|
@@ -48,7 +50,7 @@ Never put secrets in source, chat, command arguments, browser storage or screens
 | `GET /api/session` | Signed one-day secure HttpOnly session cookie |
 | `POST /api/demo` | Same-origin, session-bound approved public Trump example IDs |
 | `GET /api/admin/status` | Bearer-token-protected aggregate counters |
-| `POST /api/llm` | Private validation; disabled in the public release |
+| `POST /api/llm` | Private budgeted research; paused at human gates and outside active runs |
 
 The model is pinned to `gpt-4o-2024-08-06`; this is not asserted to be the dissertation's exact snapshot. Changing it requires reviewing prompts, token bounds, prices, validation and tests. Calls use `store:false`, which does not mean zero provider retention.
 
@@ -62,7 +64,7 @@ Reservations use integer nano-dollars, a conservative UTF-8 input bound and the 
 
 Request IDs bind to task fingerprints. Repeating a completed operation within thirty minutes returns its response without another provider request; altered payloads are rejected. Explicit retries use distinct attempt IDs. Python derives IDs from the logical operation, prompt/settings fingerprint and attempt number. Resume uses its local durable cache. Only one process should own a run directory.
 
-Operator validation has separate daily/monthly caps, twelve concurrent calls and a nonresetting `operator:validation:v1` allowance. Do not delete the ledger or rename the object to evade a ceiling. Keep `OPERATOR_LLM_ENABLED=false` after validation.
+Operator research has separate daily/monthly caps, twelve concurrent calls and a nonresetting allowance keyed by `OPERATOR_RUN_ID` (default `v1`). The authorized campaign-to-presidency application uses `campaign-presidency-20261118` and a $100 cumulative ceiling, separate from earlier engineering validation. Its completed naming responses and abandoned attempts remain charged to that same run. Preserve the run ID when resuming after human review; a new ID requires a separately authorized research budget. Do not delete the ledger, rename the object or rotate run IDs to evade a ceiling. Keep `OPERATOR_LLM_ENABLED=false` at human gates and after execution.
 
 ## Check and operate
 
