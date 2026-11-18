@@ -1,90 +1,130 @@
-# Run TopicLLM with your agent
+# Discover in the campaign. Measure in the presidency.
 
-Start with the [Trump visual walkthrough](https://topicllm.dev/app/), then run the same method in your fork. The dissertation and study papers document prior applications; their datasets are not included. The tutorial uses one public corpus: 34,416 account posts from 2015-06-16 through 2021-01-08.
+The worked application uses one public Trump account archive with separate temporal roles: **7,805 campaign posts** for topic discovery and **26,239 presidential posts** for prevalence measurement. The original dissertation and papers remain in the research library; their datasets are not distributed.
+
+The question is: **which themes emerge from campaign posts, and what share of subsequent presidential posts expresses each theme?** The standalone manuscript connects that question to executable scripts, actual human interpretation, and independent evaluation.
 
 ## 1. Install and verify
 
-Use Python 3.11+ and a fresh environment. Clone or fork https://github.com/jethomasphd/TopicLLM . From the checkout:
+Use Python 3.11+ in a fresh environment. Fork or clone https://github.com/jethomasphd/TopicLLM .
 
 ```bash
 python -m venv .venv
-# Windows: .venv/Scripts/Activate.ps1
+# PowerShell: .venv/Scripts/Activate.ps1
 # macOS/Linux: source .venv/bin/activate
 python -m pip install ".[dev]"
 topicllm --profile quickcheck --output-dir runs/quickcheck
 ```
 
-A downloadable wheel also installs with `python -m pip install /path/to/topicllm_research-0.5.0-py3-none-any.whl`. PyPI publication is not assumed. quickcheck verifies hashes, 34,416 unique IDs, dates and flags; it makes no model or API calls. Record the commit and `python -m pip freeze`. The Windows/Python 3.12 ML lock documents the measured environment, not a universal lock for other platforms.
+Quickcheck verifies the canonical archive's hashes, unique IDs, dates, and counts without model/API calls. Record the commit and `python -m pip freeze`. The Windows/Python 3.12 ML lock records a measured environment, not a universal lock for other platforms.
 
-## 2. Discover topics
+## 2. Declare the design and discover topics
+
+Copy `examples/campaign-presidency-config.json` to `research-config.json`; set `output_dir` to a new run directory. Discovery is **2015-06-16–2016-11-08**; the target is **2017-01-20–2021-01-08**, both inclusive. The 372 transition records remain in the source but enter neither view. The archive ends January 8, before the constitutional term ended.
+
+With a wheel installation, create the same editable starting point using `topicllm --profile trump-demo --write-config research-config.json`. This exports the effective settings and bundled data paths without executing analysis or making paid calls. Review the JSON before running; the command refuses to overwrite an existing configuration.
+
+The example supplies no approved themes, annotations, or spending authorization. `sampling.py` rejects invalid dates, duplicate IDs and overlapping windows, and records the ordered selected-ID hashes. Retweets and distinct-ID repeated texts remain posting events.
 
 ```bash
 python -m pip install ".[ml]"
-topicllm --profile trump-demo --plan
-topicllm --profile trump-demo --output-dir runs/trump
+topicllm --profile research --config research-config.json --stages 1 --plan
+topicllm --profile research --config research-config.json --stages 1
 ```
 
-The default runs Stage 1 only: 50 random configurations × topic ceilings 2–25. Embeddings run locally; the first run may download MiniLM and NLTK resources. The complete archive is the input. Empty modeled texts are logged and excluded from discovery only. Topic count and outlier share are results, never targets. Inspect all candidates and the winning model, not coherence alone. `--iterations 2` is a smaller declared exploration, not the published reference search.
+Discovery makes 50 base fits and evaluates ceilings 2–25, using local compute and no paid calls. It retains every candidate's score, sizes, words and assignments, plus the highest-coherence fitted model. Empty modeled text is excluded from discovery only. Inspect topic coverage, outliers and original posts; coherence alone does not establish a useful taxonomy.
 
-## 3. Collect names and prepare the review
+If a researcher selects another saved candidate, `scripts/select-campaign-candidate.py` records the rationale, preserves the numerical winner, and requires exact reconstruction of the alternative's assignments and words. Do not silently change the selection rule or tune campaign discovery against presidential outcomes.
 
-Configure `OPENAI_API_KEY` privately in your environment. Never paste keys into an agent chat or commit them. Decide the number of calls and a spending ceiling before execution. Twenty votes per topic are a small teaching run; the historical protocol used 5,000. More votes do not create independent human judgments.
+An installed wheel supplies the same tools as console commands: `topicllm-select-candidate`, `topicllm-annotations` and `topicllm-import-synthesis`. Their `--help` output describes the arguments. The `scripts/` commands below are equivalent checkout entry points; a fork is not required to use the research gates.
+
+## 3. Collect naming evidence
+
+The application configuration uses 500 fixed naming calls per adopted topic, temperature 0.5 and a 32-token output maximum. Twelve bounded workers reduce elapsed time. Raw ballots and tallying rules are retained; repeated model answers are not independent human judgments.
+
+Set `OPENAI_API_KEY` privately, or use an explicitly authorized operator gateway. Never put credentials in an agent conversation, configuration file or Git. Inspect both dollar and attempted-call ceilings.
 
 ```bash
-topicllm --profile research --stages 2,3 --votes 20 --output-dir runs/trump --plan
-# Replace the amount with your approved total ceiling, including resumed calls:
-topicllm --profile research --stages 2,3 --votes 20 --output-dir runs/trump --budget-usd 5
+topicllm --profile research --config research-config.json --stages 2,3 --plan
+topicllm --profile research --config research-config.json --stages 2,3 --budget-usd YOUR_APPROVED_TOTAL
 ```
 
-The budget is an upper bound, not an expected charge. The default attempted-call ceiling is 10,000 across stages and resumed calls. A historical-size naming run or full Trump classification can exceed it: inspect `--plan`, then explicitly set `--max-api-calls` to your approved ceiling as well as the dollar budget. The local ledger tracks attempts, caches completed logical operations and retains conservative reservations for uncertain requests. Review `api_usage.json` and `api_responses.json`. Stop if inputs/settings change; use a new run directory rather than overwriting incompatible checkpoints.
+The total includes all attempts and resumed operations in the run directory. The SQLite ledger retains responses and conservative reservations for uncertain calls. Changed inputs/settings require a new declared analysis; incompatible checkpoints are rejected.
 
-## 4. Researchers interpret and validate
+## 4. Researchers interpret and freeze the codebook
 
-Read `stage3/synthesis_worksheet.md`, topic words, sampled posts and raw ballots. Two actual researchers use relevant domain literature to decide the themes. Fill `theme_map_TEMPLATE.csv`, save `theme_map.csv`, and document definitions, inclusion/exclusion rules and ambiguous cases. The agent must not approve the map.
+Two actual researchers inspect `stage3/synthesis_workspace.html` (or the Markdown worksheet), original posts, outliers, topic words and naming ballots. The local workspace keeps draft decisions separate from completed human review, provides fields for theme definitions and both researchers' notes, and exports a JSON decision record. Extend close reading when needed. No theme is approved automatically.
 
-Copy `examples/trump-config.json` to a research configuration and fill its `themes` array with the approved names. Supply `benchmark_csv` with independent human annotations (`tweet,human_label`; stable `post_id` recommended). Keep benchmark material separate from prompt tuning. The residual option is exactly `The text does not fit into any of these themes`. There is no bundled human benchmark for the Trump data.
+After both researchers actually complete the review, import their exported record:
 
 ```bash
-# Only after the named researchers have actually reviewed and approved:
-topicllm --profile research --config research-config.json --output-dir runs/trump --record-review --reviewers "Actual researcher name" "Actual reviewer name"
-topicllm --profile research --config research-config.json --stages 4 --output-dir runs/trump --plan
-# Set an independently approved ceiling for benchmark + possible corpus calls:
-topicllm --profile research --config research-config.json --stages 4 --output-dir runs/trump --budget-usd YOUR_APPROVED_AMOUNT
+python scripts/import-synthesis.py --config research-config.json --review TopicLLM-human-synthesis.json --output-config research-approved.json
 ```
 
-Stage 4 benchmarks Boolean and LLM classifiers, chooses the higher agreement (LLM on a tie), and scales only if agreement is strictly >0.85 and every substantive theme has positive support and nonzero sensitivity. Inspect per-theme precision, recall and confusion counts; these minimum gates are not sufficient evidence for every research purpose. Repeatedly tuning against a held-out benchmark compromises its independence; collect a fresh evaluation set when needed. Full-corpus LLM classification can cost much more than the small naming exercise.
+This checks the evidence hashes and temporal design, writes the agreed map/codebook, and binds actual approval to those artifacts. Use the resulting configuration for subsequent stages. For a manual workflow, document definitions, grouping rationale and disagreements and save the completed map as `stage3/theme_map.csv`.
 
-## 5. Estimate and interpret
+Create a JSON codebook with a `themes` object mapping each approved name to its definition, inclusion/exclusion rules and examples, plus a `decision_rule` for choosing one primary theme. Set `themes` and `codebook_path` in the configuration. The residual is exactly `The text does not fit into any of these themes`.
 
 ```bash
-topicllm --profile research --config research-config.json --stages 5 --output-dir runs/trump
+# Only after these people have actually completed the review:
+topicllm --profile research --config research-config.json --record-review --reviewers "Actual researcher" "Actual second researcher"
 ```
 
-Resolve missing, failed and ambiguous labels first. Review `prevalence_by_period.csv`, `ztest_results.csv`, counts, exclusions and denominators. Tutorial periods are campaign, transition and presidency through January 8, 2021; they exhaust the selected corpus but differ substantially in duration. The z-test assumes independent binomial observations and conditions on assigned labels. A single account's repeated, temporally dependent posts and retweets can violate that approximation. Report descriptive patterns, justify inferential alternatives and avoid causal claims.
+The record binds source, date windows, assignments, naming, map and codebook. It records an actual attestation; executing a command does not prove someone reviewed the evidence. An agent must never fabricate it.
 
-## Your own corpus
+## 5. Annotate without model suggestions
 
-Use `--input /path/to/corpus.csv`, a `tweet` column, unique stable IDs and valid dates if comparing time periods. This selects one input for discovery and classification. `--discovery-input` is optional only for a deliberately different research sampling design. Declare new stopwords, naming domain, periods, taxonomy, independent benchmark and budget in JSON. Do not inherit Trump-specific choices accidentally. `--mock-llm` exercises mechanics and labels outputs as mock; it cannot substitute for human review or scientific validation.
-
-## Evidence to deliver
-
-Retain source/input hashes, ordered IDs, source selection, effective preprocessing and stopwords, excluded texts, model revision, dependencies, seeds, all candidate scores/failures, assignments/outliers, the fitted model, raw naming ballots, synthesis decisions, review record, benchmark metrics, accepted labels and errors, period counts and tests, and API costs. Only load a fitted pickle that you trust. The downloadable reference evidence is linked from https://topicllm.dev/validation/ .
-
-## Verify the recorded tutorial run
-
-After discovery finishes, verify your own trusted model in the same ML environment:
+Agree sample sizes before evaluation. The proposed application plan uses 100 development and 250 held-out posts, subject to researcher confirmation. Evaluation is drawn first as a simple random sample without replacement from the complete target. Development sampling excludes all exact evaluation texts. No IDs or exact text appear in both sets.
 
 ```bash
-python scripts/verify-trump-run.py --run runs/trump
+python scripts/prepare-annotations.py --config research-config.json --output runs/annotations --development-n 100 --evaluation-n 250
 ```
 
-This checks input/model hashes, the complete candidate search, an exact partition of source IDs and equality of saved assignments after model reload. It does not certify the scientific interpretation. Maintainers can rebuild the tutorial with `scripts/publish-trump-reference.py --run runs/trump`, followed by `scripts/build-tutorial-evidence.py`, `scripts/render-methods.py` and `scripts/build-guide.py`.
-
-## Verify software changes
+With a frozen codebook, this creates standalone local HTML interfaces and blank CSVs. Each researcher works independently without predictions, saves backups, and exports completed labels. Keep evaluation labels unavailable to prompt tuning and classifier selection.
 
 ```bash
-node --test tests/*.test.mjs
+python scripts/prepare-annotations.py --config research-config.json --output runs/annotations/development_labels.csv --reviewer-exports reviewer-one-development.csv reviewer-two-development.csv
+```
+
+The merge retains both original labels and leaves disagreements blank for actual adjudication. Repeat for evaluation. Set `development_csv` and `benchmark_csv` to the adjudicated files, and `annotation_manifest` to the generated `sampling_manifest.json`. The transfer workflow checks the exact sampled IDs, target population, original text and both reviewer identities. Record actual annotation review with `--record-annotations PATH --reviewers ...`; do not certify generated labels.
+
+## 6. Develop, evaluate, then accept
+
+Development selects the higher-agreement Boolean or LLM classifier (LLM on a tie). Validation assesses only that frozen choice on the holdout. The phases run separately.
+
+```bash
+topicllm --profile research --config research-config.json --stages 4 --stage4-action development --plan
+topicllm --profile research --config research-config.json --stages 4 --stage4-action development --budget-usd YOUR_APPROVED_TOTAL
+# Only after selection is frozen and evaluation annotations are complete:
+topicllm --profile research --config research-config.json --stages 4 --stage4-action validate --budget-usd YOUR_APPROVED_TOTAL
+```
+
+Inspect agreement, κ, per-theme support/precision/recall, confusion counts and individual errors. The minimum gate is agreement strictly >0.85, positive support and nonzero recall for every substantive theme. Researchers must also judge whether the errors are acceptable for the question. Revisions after evaluation require a fresh held-out sample; rare-category diagnostic samples cannot silently replace probability-sample accuracy.
+
+After both researchers accept the observed performance:
+
+```bash
+topicllm --profile research --config research-config.json --record-validation-review --reviewers "Actual researcher" "Actual second researcher"
+topicllm --profile research --config research-config.json --stages 4 --stage4-action classify --plan
+topicllm --profile research --config research-config.json --stages 4 --stage4-action classify --budget-usd YOUR_APPROVED_TOTAL
+topicllm --profile research --config research-config.json --stages 5
+```
+
+## 7. Report overall presidential prevalence
+
+Resolve all errors first. `stage5/theme_counts.csv` reports each theme's numerator, common denominator and share, including zero-count themes and the residual. Classification must exhaust exactly the 26,239 target IDs. Campaign discovery exclusions do not alter that denominator.
+
+The primary application reports overall prevalence only: `periods={}` and `run_pairwise_tests=false`. These are classifier-assigned shares of archived posting events, conditional on the codebook and measured errors. The residual shows the campaign codebook's coverage of presidential communication. The estimates do not measure public opinion or causal effects.
+
+## Evidence and verification
+
+Retain source and ordered-ID hashes, configuration and execution-source hashes, dependencies, model revisions, stopwords, exclusions, every candidate, selected model and rationale, ballots, actual interpretations, codebook, independent labels, adjudication, classifier selection/evaluation/acceptance, final classifications, counts and the API ledger. Load only trusted fitted-model pickles in the recorded environment.
+
+For another corpus, explicitly define its question, discovery/target windows, stopwords, coding framework and validation design. Generic Python configuration has no implicit temporal filter. The `trump-demo` CLI profile supplies campaign/presidency windows for the bundled archive.
+
+```bash
 python -m pytest dtm_pipeline/tests -q
+node --test tests/*.test.mjs
 node scripts/verify-sources.mjs
 python -m build --wheel --outdir dist_wheels
 python scripts/package-release.py
@@ -92,4 +132,4 @@ node scripts/build.mjs
 node scripts/check-site.mjs
 ```
 
-Install the built wheel in a fresh environment outside the checkout and rerun quickcheck. Source preservation and software checks are separate from independent scientific validation.
+Rebuild the guide index after maintained documentation changes. Install the wheel outside the checkout and run quickcheck. Inspect the PDF and every responsive website surface. Software verification, source preservation and scientific validation are separate claims.

@@ -1,0 +1,139 @@
+"""Publish measured campaign evidence and only actually completed research stages."""
+import argparse,csv,hashlib,json,random,shutil,sys,zipfile
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT))
+from dtm_pipeline.config import PipelineConfig
+from dtm_pipeline.sampling import read_selected,CAMPAIGN,PRESIDENCY
+from dtm_pipeline.review import require_review
+from dtm_pipeline.research_validation import require_validation_review
+
+
+def publish(config_path,allow_in_progress=False):
+    cfg=PipelineConfig(**json.loads(Path(config_path).read_text(encoding='utf-8')))
+    if cfg.discovery_window!=CAMPAIGN or cfg.target_window!=PRESIDENCY or not cfg.require_disjoint_windows:
+        raise ValueError('This publisher is specific to the declared campaign-to-presidency application.')
+    run=Path(cfg.output_dir);stage=run/'stage1';out=ROOT/'docs/data/trump';evidence=out/'campaign'
+    read=lambda p:json.loads(p.read_text(encoding='utf-8'))
+    rows=lambda p:list(csv.DictReader(p.open(encoding='utf-8',newline='')))
+    dump=lambda p,v:p.write_text(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n',encoding='utf-8',newline='\n')
+    verify=read(run/'verification.json')
+    record=read(stage/'run_manifest.json')
+    selected,selection=read_selected(cfg,'discovery');target,target_selection=read_selected(cfg,'target')
+    if verify['status']!='complete' or not verify['selected_model_reload_verified'] or verify['input_sha256']!=selection['source_sha256'] or verify['selection']!=selection:
+        raise ValueError('Verify the exact selected campaign model before publishing evidence.')
+    if hashlib.sha256((stage/'best_model/fitted_model.pkl').read_bytes()).hexdigest()!=verify['fitted_model_sha256']:
+        raise ValueError('The verified model changed.')
+    if selection['source_sha256']!=read(out/'manifest.json')['files']['corpus.csv']['sha256']:
+        raise ValueError('Only the canonical public archive can be published.')
+    assignments=rows(stage/'best_model/classified_tweets.csv');excluded=rows(stage/'excluded_empty.csv')
+    ids=[r['post_id'] for r in assignments+excluded]
+    if len(ids)!=len(set(ids)) or set(ids)!={r['post_id'] for r in selected}:
+        raise ValueError('Assignments and exclusions must exactly partition campaign IDs.')
+    complete=(run/'stage5/theme_counts.csv').exists()
+    if complete:
+        require_review(cfg);require_validation_review(cfg)
+        classified=rows(run/'stage4/classified_corpus.csv')
+        if len(classified)!=len(target) or {r['post_id'] for r in classified}!={r['post_id'] for r in target}:
+            raise ValueError('Classifications must exhaust the target population exactly.')
+    elif not allow_in_progress:
+        raise ValueError('Human validation and prevalence are unfinished. An explicit draft build is required.')
+    names={int(r['topic']):r for r in rows(run/'stage2/topic_names.csv')} if (run/'stage2/topic_names.csv').exists() else {}
+    tallies=rows(run/'stage2/vote_tallies.csv') if names else []
+    if names:
+        ballots=rows(run/'stage2/vote_log.csv')
+        manifest=read(run/'stage2/naming_manifest.json')['specification']
+        expected={int(r['topic']) for r in rows(stage/'topics_for_naming.csv')}
+        if set(names)!=expected or set(int(r['topic']) for r in ballots)!=expected:
+            raise ValueError('Naming must cover every adopted topic exactly.')
+        for key,value in {'model':cfg.llm_model,'domain':cfg.domain_context,'max_tokens':cfg.naming_max_tokens,
+                          'temperature':cfg.naming_temperature,'votes':cfg.votes_per_topic,'naming_run_id':cfg.naming_run_id}.items():
+            if manifest.get(key)!=value:raise ValueError('Naming settings differ from the declared configuration: '+key)
+        for ident in expected:
+            group=[r for r in ballots if int(r['topic'])==ident]
+            if len(group)!=cfg.votes_per_topic or {int(r['vote_index']) for r in group}!=set(range(1,cfg.votes_per_topic+1)) or any(r.get('complete')!='True' or r['label']=='__API_ERROR__' or not r['label'].strip() for r in group):
+                raise ValueError('Incomplete or duplicated naming ballots.')
+            if int(names[ident]['total_votes'])!=len(group) or sum(int(r['votes']) for r in tallies if int(r['topic'])==ident)!=len(group):
+                raise ValueError('Naming totals do not match the retained ballots.')
+    if any(row.get('model')!=cfg.llm_model or row.get('model')=='MOCK' for row in names.values()):
+        raise ValueError('Only real, declared model measurements can be published as naming evidence.')
+    if complete and any(row.get('model')=='MOCK' for row in classified):
+        raise ValueError('Mock classifications cannot be published as research findings.')
+    topics=[]
+    for item in rows(stage/'topics_for_naming.csv'):
+        ident=int(item['topic']);group=[r for r in assignments if int(r['topic'])==ident]
+        sample=random.Random(42).sample(group,min(5,len(group)))
+        topic={'id':ident,'words':item['words'].split(', '),'count':len(group),
+               'examples':[{k:r[k] for k in ['post_id','tweet','date','is_retweet']} for r in sample]}
+        if ident in names:
+            name=names[ident]
+            topic['naming']={'modal_label':name['modal_label'],'votes_for_modal':int(name['votes_for_modal']),
+               'total_votes':int(name['total_votes']),'modal_share':float(name['modal_share']),
+               'distinct_labels':int(name['distinct_labels']),'model':name['model'],
+               'top_names':[{'label':r['norm'],'votes':int(r['votes'])} for r in tallies if int(r['topic'])==ident][:5]}
+        topics.append(topic)
+    noise=[r for r in assignments if int(r['topic'])==-1]
+    summary={'schema_version':2,'dataset':'Donald Trump account archive: campaign-to-presidency application',
+        'mode':'validated-campaign-presidency' if complete else 'campaign-research-in-progress',
+        'input_sha256':selection['source_sha256'],'archive_records':selection['source_records'],
+        'source_records':len(selected),'discovery_records':len(assignments),'excluded_empty':len(excluded),
+        'discovery_window':CAMPAIGN,'target_window':PRESIDENCY,'target_records':len(target),
+        'outliers':len(noise),'topics':topics,'parameters':read(stage/'best_model/parameters.json'),
+        'selection_record':read(stage/'selection_record.json'),'verification':verify,
+        'naming_completed':len(names)==len(topics),'human_review_performed':False,'classifier_validated':False,
+        'scope':'Campaign topic discovery, human theme synthesis, independent evaluation and overall presidential prevalence.'}
+    if (run/'stage3/review_record.json').exists():
+        require_review(cfg);summary['human_review_performed']=True
+        summary['codebook']=read(Path(cfg.codebook_path))
+    if (run/'stage4/validation_review.json').exists():
+        require_validation_review(cfg);summary['classifier_validated']=True
+        summary['validation']=read(run/'stage4/validation_report.json')
+    if complete:summary['prevalence']=rows(run/'stage5/theme_counts.csv')
+    evidence.mkdir(exist_ok=True)
+    # Keep the previous measured run as a clearly separate historical artifact.
+    old=out/'reference-run.json'
+    if old.exists() and read(old).get('schema_version')!=2:
+        archive=out/'prior-diagnostic';archive.mkdir(exist_ok=True)
+        for name in ['reference-run.json','reference-evidence.zip']:
+            if (out/name).exists() and not (archive/name).exists():shutil.copy2(out/name,archive/name)
+    dump(out/'reference-run.json',summary)
+    live=read(out/'live-examples.json')
+    live.update(domain=cfg.domain_context,discovery_window=CAMPAIGN,target_window=PRESIDENCY,
+        topics=[{'id':str(t['id']),'words':', '.join(t['words']),'count':t['count']} for t in topics],
+        selection='1,024 evenly spaced presidential source rows including endpoints; public practice classifications, not a probability sample for validation.')
+    live['examples']=[{'id':'trump-'+r['post_id'],'post_id':r['post_id'],'text':r['tweet'],'date':r['date'],'is_retweet':r['is_retweet']}
+                      for r in [target[round(i*(len(target)-1)/1023)] for i in range(1024)]]
+    dump(out/'live-examples.json',live)
+    for source,target_name in [('all_iteration_results.json','all_iteration_results.json'),('best_model/parameters.json','parameters.json'),('topics_for_naming.csv','topics_for_naming.csv'),('selection_record.json','selection_record.json'),('coherence_curve.png','coherence_curve.png')]:
+        shutil.copy2(stage/source,evidence/target_name)
+    for name,records,fields in [('assignments.csv',assignments,['post_id','date','topic']),('excluded.csv',excluded,['post_id','date'])]:
+        with (evidence/name).open('w',encoding='utf-8',newline='') as handle:
+            writer=csv.DictWriter(handle,fieldnames=fields,lineterminator='\n');writer.writeheader();writer.writerows({k:r[k] for k in fields} for r in records)
+    for name in ['topic_names.csv','vote_tallies.csv','vote_log.csv']:
+        if (run/'stage2'/name).exists() and names:shutil.copy2(run/'stage2'/name,evidence/name)
+    record['config'].update(input_csv='docs/data/trump/corpus.csv',discovery_input_csv=None,stopwords_file='docs/data/trump/stopwords.txt',output_dir='runs/campaign-presidency')
+    record['publication_note']='Local input/output paths normalized; measured parameters and source/model hashes preserved.'
+    record['scope']='Stage 1 discovery execution. The separate naming_manifest.json records the exact subsequent naming settings and revision.'
+    dump(evidence/'run_manifest.json',record);dump(evidence/'verification.json',verify)
+    if (run/'api_usage.json').exists():dump(evidence/'api_usage.json',read(run/'api_usage.json'))
+    if names:
+        for name in ['naming_manifest.json','all_naming_attempts.jsonl']:
+            shutil.copy2(run/'stage2'/name,evidence/name)
+        if (run/'stage2/naming_verification.json').exists():shutil.copy2(run/'stage2/naming_verification.json',evidence/'naming_verification.json')
+        for name in ['api_responses.json','naming_revision.json']:
+            if (run/name).exists():shutil.copy2(run/name,evidence/name)
+        # Initial attempts remain available separately and cannot enter final tallies.
+        for attempt in ['naming-attempt-15tokens','naming-attempt-32tokens-encoding']:
+            if (run/attempt).exists():
+                shutil.copytree(run/attempt,evidence/attempt,dirs_exist_ok=True)
+    hashes={p.relative_to(evidence).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(evidence.rglob('*')) if p.is_file() and p.name!='artifact-integrity.json'}
+    dump(evidence/'artifact-integrity.json',{'files':hashes})
+    with zipfile.ZipFile(out/'campaign-evidence.zip','w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
+        for path in sorted(evidence.rglob('*')):
+            if path.is_file():z.write(path,path.relative_to(evidence).as_posix())
+    print(json.dumps({k:summary[k] for k in ['mode','source_records','discovery_records','target_records','outliers','naming_completed','human_review_performed','classifier_validated']},indent=2))
+
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser();parser.add_argument('--config',required=True);parser.add_argument('--allow-in-progress',action='store_true')
+    args=parser.parse_args();publish(args.config,args.allow_in_progress)

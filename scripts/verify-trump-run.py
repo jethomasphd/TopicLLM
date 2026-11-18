@@ -8,10 +8,13 @@ import argparse
 import csv
 import hashlib
 import json
+import sys
+from dataclasses import fields
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT))
 
 
 def verify(run):
@@ -27,7 +30,12 @@ def verify(run):
         raise ValueError('A completed run on the canonical tutorial corpus is required.')
     assignments = rows(stage / 'best_model/classified_tweets.csv')
     exclusions = rows(stage / 'excluded_empty.csv')
-    source_ids = {r['post_id'] for r in rows(corpus)}
+    from dtm_pipeline.config import PipelineConfig
+    from dtm_pipeline.sampling import read_selected
+    cfg=PipelineConfig(**{key:value for key,value in record['config'].items() if key in {f.name for f in fields(PipelineConfig)}})
+    cfg.input_csv=str(corpus)
+    selected,selection=read_selected(cfg,'discovery')
+    source_ids = {r['post_id'] for r in selected}
     observed_ids = [r['post_id'] for r in assignments + exclusions]
     if len(observed_ids) != len(source_ids) or set(observed_ids) != source_ids:
         raise ValueError('Modeled and excluded records must partition the source IDs exactly.')
@@ -43,10 +51,11 @@ def verify(run):
     if list(model.topics_) != [int(r['topic']) for r in assignments]:
         raise ValueError('Reloaded model assignments differ from the published assignment file.')
     result = {
-        'status': 'complete', 'scope': 'Trump archive discovery walkthrough',
+        'status': 'complete', 'scope': 'campaign-only discovery' if cfg.discovery_window else 'prior whole-archive diagnostic',
         'historical_replication': False, 'api_calls': 0,
         'selected_model_reload_verified': True,
         'input_records': len(source_ids), 'discovery_records': len(assignments),
+        'source_records':selection['source_records'],'selection':selection,
         'excluded_empty': len(exclusions), 'search_draws': draws,
         'candidate_ceilings': draws * ceilings,
         'input_sha256': sha(corpus), 'fitted_model_sha256': sha(model_path),

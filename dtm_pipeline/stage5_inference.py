@@ -1,11 +1,12 @@
 """
 stage5_inference.py — From classifications to theme prevalence (Stage 5).
 
-The pipeline terminates in the statistic that motivates it: theme prevalence.
-  1. Whole-corpus theme prevalence — document counts and shares per theme.
-  2. Proportional z-tests comparing theme prevalence across periods, with a
-     Bonferroni correction of alpha / (n_themes x tests_per_theme). Requires
-     a 'date' column in the source CSV; skipped otherwise.
+The primary output is overall target-corpus prevalence: counts and shares for
+every approved theme and the residual, including zero-count categories. The
+campaign-to-presidency application verifies exact target ID coverage and a
+current accepted classifier before computing these descriptive proportions.
+Period comparisons are an explicit opt-in extension, disabled for this study;
+they require dates and use Bonferroni-adjusted proportional z-tests.
 
 Inputs   : pipeline_output/stage4/classified_corpus.csv
 Artifacts: pipeline_output/stage5/
@@ -15,6 +16,9 @@ Artifacts: pipeline_output/stage5/
 """
 
 import os
+import json
+import hashlib
+from pathlib import Path
 from itertools import combinations
 
 import pandas as pd
@@ -34,6 +38,17 @@ def run_stage5(cfg=CONFIG) -> str:
     out = os.path.join(cfg.output_dir, "stage5")
     os.makedirs(out, exist_ok=True)
     corpus = pd.read_csv(os.path.join(cfg.output_dir, "stage4", "classified_corpus.csv"))
+    if cfg.require_disjoint_windows:
+        if __package__:
+            from .research_validation import require_validation_review
+            from .sampling import read_selected
+        else:
+            from research_validation import require_validation_review
+            from sampling import read_selected
+        require_validation_review(cfg)
+        selected, selection = read_selected(cfg, 'target')
+        if len(corpus) != len(selected) or set(corpus.post_id.astype(str)) != {r['post_id'] for r in selected}:
+            raise ValueError('Classifications do not exhaust the declared target corpus exactly.')
 
     allowed = set(cfg.themes + [cfg.none_label])
     if corpus.empty or not cfg.themes or len(set(cfg.themes)) != len(cfg.themes):
@@ -45,8 +60,8 @@ def run_stage5(cfg=CONFIG) -> str:
     if not 0 < cfg.alpha < 1:
         raise ValueError("Alpha must be between zero and one.")
     ranges = list(cfg.periods.items())
-    if len(ranges) < 2:
-        raise ValueError("Define at least two non-overlapping periods.")
+    if cfg.run_pairwise_tests and len(ranges) < 2:
+        raise ValueError("Pairwise tests require at least two non-overlapping periods.")
     for i,(name,(start,end)) in enumerate(ranges):
         if not name or pd.Timestamp(start) > pd.Timestamp(end):
             raise ValueError("Invalid period definition.")
@@ -55,16 +70,24 @@ def run_stage5(cfg=CONFIG) -> str:
                 raise ValueError("Period ranges overlap.")
 
     # ---- 1. Whole-corpus theme prevalence ----------------------------------
-    counts = corpus["theme"].value_counts()
+    counts = corpus["theme"].value_counts().reindex(cfg.themes + [cfg.none_label], fill_value=0)
     theme_rows = [{"theme": theme, "documents": int(n),
-                   "share": round(n / len(corpus), 4)}
+                   "denominator": len(corpus), "share": n / len(corpus)}
                   for theme, n in counts.items()]
     pd.DataFrame(theme_rows).to_csv(os.path.join(out, "theme_counts.csv"), index=False)
+    input_path=Path(cfg.output_dir,'stage4','classified_corpus.csv')
+    Path(out,'estimand.json').write_text(json.dumps({
+        'unit':'posting event','denominator':len(corpus),'target_window':cfg.target_window,
+        'periods':cfg.periods,'pairwise_tests':cfg.run_pairwise_tests,
+        'classified_corpus_sha256':hashlib.sha256(input_path.read_bytes()).hexdigest(),
+        'model_mode':'MOCK' if cfg.llm_backend=='mock' else 'research',
+        'interpretation':'Engineering output only; not research findings.' if cfg.llm_backend=='mock' else 'Descriptive classifier-assigned shares of archived account posts; no causal or public-opinion inference.'
+    },indent=2),encoding='utf-8')
     print(f"[stage5] Whole-corpus prevalence written for {len(theme_rows)} labels "
           f"({len(corpus):,} documents).")
 
     # ---- 2. Prevalence by period + proportional z-tests --------------------
-    if "date" in corpus.columns:
+    if "date" in corpus.columns and cfg.periods:
         corpus["date"] = pd.to_datetime(corpus["date"], errors="coerce", utc=True).dt.tz_convert(None).dt.normalize()
         if corpus["date"].isna().any():
             raise ValueError("Missing or invalid document dates.")
@@ -80,14 +103,13 @@ def run_stage5(cfg=CONFIG) -> str:
         if any(totals.get(p,0) == 0 for p in cfg.periods):
             raise ValueError("At least one declared period has no documents.")
         prev_rows, test_rows = [], []
-        period_pairs = list(combinations(cfg.periods.keys(), 2))
+        period_pairs = list(combinations(cfg.periods.keys(), 2)) if cfg.run_pairwise_tests else []
         # Bonferroni: alpha / (n_themes x tests per theme) — reference design
         # runs 3 pairwise tests per theme (pre-peri, peri-post, pre-post).
-        alpha_adj = cfg.alpha / (len(cfg.themes) * len(period_pairs))
-        print(f"[stage5] Bonferroni-adjusted alpha = {cfg.alpha} / "
-              f"({len(cfg.themes)} themes x {len(period_pairs)} tests) = {alpha_adj:.4f}")
+        alpha_adj = cfg.alpha / (len(cfg.themes) * len(period_pairs)) if period_pairs else None
 
-        for theme in cfg.themes:
+        long_rows=[]
+        for theme in cfg.themes + [cfg.none_label]:
             counts = (in_period.assign(hit=in_period["theme"] == theme)
                       .groupby("period")["hit"].sum())
             row = {"theme": theme}
@@ -95,9 +117,11 @@ def run_stage5(cfg=CONFIG) -> str:
                 n, k = int(totals.get(p, 0)), int(counts.get(p, 0))
                 row[f"{p}_pct"] = round(100 * k / n, 2) if n else None
                 row[f"{p}_n"] = n
+                row[f"{p}_k"] = k
+                long_rows.append({'period':p, 'theme':theme, 'documents':k, 'denominator':n, 'share':k/n})
             prev_rows.append(row)
 
-            for a, b in period_pairs:
+            for a, b in period_pairs if theme in cfg.themes else []:
                 ka, na = int(counts.get(a, 0)), int(totals.get(a, 0))
                 kb, nb = int(counts.get(b, 0)), int(totals.get(b, 0))
                 if min(na, nb) == 0:
@@ -121,7 +145,9 @@ def run_stage5(cfg=CONFIG) -> str:
                 })
 
         pd.DataFrame(prev_rows).to_csv(os.path.join(out, "prevalence_by_period.csv"), index=False)
-        pd.DataFrame(test_rows).to_csv(os.path.join(out, "ztest_results.csv"), index=False)
+        pd.DataFrame(long_rows).to_csv(os.path.join(out, "prevalence_long.csv"), index=False)
+        if test_rows: pd.DataFrame(test_rows).to_csv(os.path.join(out, "ztest_results.csv"), index=False)
+        elif Path(out,'ztest_results.csv').exists(): Path(out,'ztest_results.csv').unlink()
         print(f"[stage5] Prevalence table and {len(test_rows)} z-tests written.")
     else:
         print("[stage5] No 'date' column — skipping period prevalence/z-tests.")

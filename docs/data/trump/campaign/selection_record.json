@@ -1,0 +1,50 @@
+{
+  "decision": "researcher-selected-candidate",
+  "researcher": "Researcher 1",
+  "rationale": "The researcher selected candidate B from the original-post review packet on 2026-11-18. It preserves 12 interpretable campaign keyword groups rather than the coherence winner dominated by one heterogeneous cluster. Its 49.5% outlier share remains an explicit limitation to inspect during synthesis; no presidential outcomes informed selection.",
+  "recorded_at": "2026-11-18T17:23:26.220994+00:00",
+  "candidate_sha256": "d2e1aba948320b69776d74b50f526478fc28ba5f49a715a703fe18a48fe77efb",
+  "exact_assignment_reconstruction_verified": true,
+  "selected_model_reload_verified": true,
+  "coherence_winner": {
+    "iteration": 5,
+    "umap_params": {
+      "n_neighbors": 20,
+      "n_components": 4,
+      "min_dist": 0.5,
+      "metric": "cosine"
+    },
+    "hdbscan_params": {
+      "min_cluster_size": 20,
+      "metric": "euclidean",
+      "cluster_selection_method": "eom"
+    },
+    "max_topics": 3,
+    "n_topics": 2,
+    "coherence": 0.6090481572980635,
+    "seed": 42,
+    "seed_umap": true
+  },
+  "selected_candidate": {
+    "iteration": 10,
+    "umap_params": {
+      "n_neighbors": 35,
+      "n_components": 9,
+      "min_dist": 0.05,
+      "metric": "cosine"
+    },
+    "hdbscan_params": {
+      "min_cluster_size": 25,
+      "metric": "euclidean",
+      "cluster_selection_method": "eom"
+    },
+    "max_topics": 13,
+    "coherence": 0.5405823389348793,
+    "n_topics": 12,
+    "seed": 42,
+    "seed_umap": true
+  },
+  "scope": "campaign evidence only; no presidential outcomes used",
+  "researcher_response_verbatim": "B — Review the 12-topic candidate (recommended)",
+  "rationale_origin": "Agent explanation of the selected candidate and its limitations; researcher supplied the candidate choice."
+}

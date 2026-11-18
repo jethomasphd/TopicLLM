@@ -1,204 +1,1061 @@
 {
-  "dataset": "trump-tweets-2015-2021",
-  "mode": "measured-discovery-tutorial",
+  "schema_version": 2,
+  "dataset": "Donald Trump account archive: campaign-to-presidency application",
+  "mode": "campaign-research-in-progress",
   "input_sha256": "8256646462a1267c5c6e177d3c951a852a17bcbd8553cb0f98e2a89ce5f3206a",
-  "source_records": 34416,
-  "discovery_records": 32725,
-  "excluded_empty": 1691,
-  "outliers": 11636,
-  "outlier_period_counts": {
-    "campaign": 2952,
-    "transition": 159,
-    "presidency": 8525
-  },
-  "excluded_period_counts": {
-    "campaign": 26,
-    "transition": 0,
-    "presidency": 1665
-  },
-  "periods": {
-    "campaign": [
-      "2015-06-16",
-      "2016-11-08"
-    ],
-    "transition": [
-      "2016-11-09",
-      "2017-01-19"
-    ],
-    "presidency": [
-      "2017-01-20",
-      "2021-01-08"
-    ]
-  },
-  "period_counts": {
-    "campaign": 7805,
-    "transition": 372,
-    "presidency": 26239
-  },
+  "archive_records": 34416,
+  "source_records": 7805,
+  "discovery_records": 7779,
+  "excluded_empty": 26,
+  "discovery_window": [
+    "2015-06-16",
+    "2016-11-08"
+  ],
+  "target_window": [
+    "2017-01-20",
+    "2021-01-08"
+  ],
+  "target_records": 26239,
+  "outliers": 3854,
   "topics": [
     {
       "id": 0,
       "words": [
-        "great",
+        "poll",
+        "debate",
         "trump",
-        "president",
-        "thank",
-        "people",
-        "get",
-        "make",
-        "democrat",
-        "state",
-        "go"
+        "cruz",
+        "rubio",
+        "jeb",
+        "ted",
+        "say",
+        "marco",
+        "fail"
       ],
-      "count": 21073,
-      "period_counts": {
-        "campaign": 4827,
-        "transition": 213,
-        "presidency": 16033
-      },
+      "count": 1323,
       "examples": [
         {
-          "post_id": "1343807029572460545",
-          "tweet": "RT @RepMattGaetz: The NDAA was hijacked by the forever war lobby and their bought and paid for allies in the United States Congress.\n\nPresi…",
-          "date": "2020-12-29",
-          "is_retweet": "t"
-        },
-        {
-          "post_id": "742066996767031296",
-          "tweet": "\"Reporting that Orlando killer shouted \"\"Allah hu Akbar!\"\" as he slaughtered clubgoers. 2nd man arrested in LA with rifles near Gay parade.\"",
-          "date": "2016-06-12",
+          "post_id": "788928050008207360",
+          "tweet": "#BigLeagueTruth #DrainTheSwamp https://t.co/eoBiXFPc5f",
+          "date": "2016-10-20",
           "is_retweet": "f"
         },
         {
-          "post_id": "640278865584197633",
-          "tweet": "Hillary said such nasty things about me, read directly off her teleprompter...but there was no emotion, no truth. Just can't read speeches!",
-          "date": "2015-09-05",
+          "post_id": "640688501411971072",
+          "tweet": "\"\"\"@soz58: @realDonaldTrump @BOB_EWASHINGTON @club4growth it's good to show the public such things,a lot of nerve to ask for a million dollars\"",
+          "date": "2015-09-07",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "617460107945857024",
+          "tweet": "Why would Republican candidates want the support of Mitt Romney. He lost an election against Obama that should NEVER have been lost!",
+          "date": "2015-07-04",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "664763701845745664",
+          "tweet": "\"All seven on-line polls, including Drudge and Time, with thousands of respondents, said I won the debate. @krauthammer said I was \"\"so, so.\"\"\"",
+          "date": "2015-11-12",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "662194590909378560",
+          "tweet": "\"\"\"@Destiny: Why didn't @seanhannity correct Jeb when he said @realDonaldTrump has run 4 president 2X B4~Jeb needs 2B corrected b/c he lied.\"\"\"",
+          "date": "2015-11-05",
           "is_retweet": "f"
         }
-      ]
+      ],
+      "naming": {
+        "modal_label": "Republican Primary Campaign Dynamics",
+        "votes_for_modal": 175,
+        "total_votes": 500,
+        "modal_share": 0.35,
+        "distinct_labels": 31,
+        "model": "gpt-4o-2024-08-06",
+        "top_names": [
+          {
+            "label": "republican primary campaign dynamics",
+            "votes": 175
+          },
+          {
+            "label": "republican primary campaign dynamics 2015-2016",
+            "votes": 145
+          },
+          {
+            "label": "republican primary campaign and candidate dynamics",
+            "votes": 49
+          },
+          {
+            "label": "republican primary campaign commentary",
+            "votes": 19
+          },
+          {
+            "label": "republican primary campaign discourse",
+            "votes": 19
+          }
+        ]
+      }
     },
     {
       "id": 1,
       "words": [
-        "clinesmith",
-        "guilty",
-        "plead",
-        "kevin",
-        "resistance",
-        "fbi",
-        "falsify",
-        "plea",
-        "deliberately",
-        "lawyer"
+        "makeamericagreatagain",
+        "trump",
+        "border",
+        "america",
+        "make",
+        "great",
+        "illegal",
+        "thank",
+        "immigration",
+        "mexico"
       ],
-      "count": 10,
-      "period_counts": {
-        "campaign": 0,
-        "transition": 0,
-        "presidency": 10
-      },
+      "count": 758,
       "examples": [
         {
-          "post_id": "1294378976769695746",
-          "tweet": "RT @seanmdav: Clinesmith's guilty plea is the beginning of the end of the NeverTrump and Resistance delusion that there was no spying, no c…",
-          "date": "2020-08-14",
-          "is_retweet": "t"
+          "post_id": "754348235951661056",
+          "tweet": "Thank you! #TrumpPence16 https://t.co/RHprMCsGT6",
+          "date": "2016-07-16",
+          "is_retweet": "f"
         },
         {
-          "post_id": "1294378779318591488",
-          "tweet": "RT @seanmdav: Kevin Clinesmith, the corrupt FBI lawyer who deliberately fabricated evidence to justify spying on Page, will plead guilty to…",
-          "date": "2020-08-14",
-          "is_retweet": "t"
+          "post_id": "619215137434640384",
+          "tweet": "\"\"\"@tommyz63 @Reince let Trump speak. He is only saying what the rest of us, including you, already know #Illegals are a huge problem!\"\"\"",
+          "date": "2015-07-09",
+          "is_retweet": "f"
         },
         {
-          "post_id": "1295568160792485888",
-          "tweet": "RT @rkylesmith: The Russia-Obsessed Media Does Its Best to Ignore Clinesmith’s Guilty Plea https://t.co/VWdoIyXZy1",
-          "date": "2020-08-18",
-          "is_retweet": "t"
+          "post_id": "614077418089922560",
+          "tweet": "Univision wants to back out of signed @MissUniverse contract because I exposed the terrible trade deals that the U.S. makes with Mexico.",
+          "date": "2015-06-25",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "651186676518096897",
+          "tweet": "So, so, so important - MAKE AMERICA GREAT AGAIN!",
+          "date": "2015-10-06",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "641450277602750464",
+          "tweet": "\"\"\"@Chris0u24: @realDonaldTrump I've just lost hope Mr Trump. Hope you put America back the way it was\"\"\"",
+          "date": "2015-09-09",
+          "is_retweet": "f"
         }
-      ]
+      ],
+      "naming": {
+        "modal_label": "U.S. Immigration and Nationalism During the 2016 Presidential Campaign",
+        "votes_for_modal": 100,
+        "total_votes": 500,
+        "modal_share": 0.2,
+        "distinct_labels": 73,
+        "model": "gpt-4o-2024-08-06",
+        "top_names": [
+          {
+            "label": "u.s. immigration and nationalism during the 2016 presidential campaign",
+            "votes": 100
+          },
+          {
+            "label": "u.s. immigration and nationalism during 2016 presidential campaign",
+            "votes": 45
+          },
+          {
+            "label": "trump's 2016 campaign focus on immigration and nationalism",
+            "votes": 37
+          },
+          {
+            "label": "u.s. immigration and border policy during 2016 presidential campaign",
+            "votes": 37
+          },
+          {
+            "label": "u.s. immigration and nationalism in the 2016 presidential campaign",
+            "votes": 28
+          }
+        ]
+      }
     },
     {
       "id": 2,
       "words": [
-        "izing",
-        "dominion",
-        "vote",
-        "part",
-        "via",
-        "one",
-        "three",
-        "two"
+        "iowa",
+        "thank",
+        "carolina",
+        "hampshire",
+        "crowd",
+        "new",
+        "south",
+        "great",
+        "makeamericagreatagain",
+        "join"
       ],
-      "count": 6,
-      "period_counts": {
-        "campaign": 0,
-        "transition": 0,
-        "presidency": 6
-      },
+      "count": 577,
       "examples": [
         {
-          "post_id": "1329526819876458497",
-          "tweet": "RT @realDonaldTrump: \"Dominion-izing the Vote\" https://t.co/ZOFsgDXsuH",
-          "date": "2020-11-19",
+          "post_id": "667529956155633664",
+          "tweet": "A great evening in Iowa! Thank you Des Moines Area Community College for a great forum! #Trump2016 #IAForums https://t.co/092t2VrMEw",
+          "date": "2015-11-20",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "625481341006671872",
+          "tweet": "\"\"\"@MitchPrefach: DonaldTrump Iowa speech excellent. Particularly the end about Israel and Iran. More foreign policy please. You have my vote.\"",
+          "date": "2015-07-27",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "699801607177945088",
+          "tweet": "Thank you  @kayleighmcenany for your nice words - great knowledge and style! We are doing really well in South Carolina. @CNN @donlemon",
+          "date": "2016-02-17",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "695650797615521792",
+          "tweet": "Big storm in New Hampshire. Moved my event to Monday. Will be there next four days.",
+          "date": "2016-02-05",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "692918726795104256",
+          "tweet": "An unbelievable night in Iowa with our great Veterans! We raised $6,000,000.00 while the politicians talked! #GOPDebate",
+          "date": "2016-01-29",
+          "is_retweet": "f"
+        }
+      ],
+      "naming": {
+        "modal_label": "Campaign Rallies and Support in Key States",
+        "votes_for_modal": 112,
+        "total_votes": 500,
+        "modal_share": 0.224,
+        "distinct_labels": 65,
+        "model": "gpt-4o-2024-08-06",
+        "top_names": [
+          {
+            "label": "campaign rallies and support in key states",
+            "votes": 112
+          },
+          {
+            "label": "campaign rallies and support in key primary states",
+            "votes": 77
+          },
+          {
+            "label": "campaign rallies and support in early primary states",
+            "votes": 76
+          },
+          {
+            "label": "campaign rallies and voter engagement",
+            "votes": 46
+          },
+          {
+            "label": "trump campaign rallies and support in early primary states",
+            "votes": 22
+          }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "words": [
+        "hillary",
+        "crooked",
+        "clinton",
+        "sander",
+        "bernie",
+        "email",
+        "bad",
+        "judgement",
+        "mail",
+        "warren"
+      ],
+      "count": 358,
+      "examples": [
+        {
+          "post_id": "789594671387447297",
+          "tweet": "\"\"\"{Crooked Hillary Clinton} created this mess, and she knows it.\"\" #DrainTheSwamp https://t.co/3cBNYjl5CD https://t.co/sjwkuq3nkk\"",
+          "date": "2016-10-21",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "718998170315976708",
+          "tweet": "\"\"\"@AnnCoulter: GOP is trying to steal nomination from the winner (Trump) not block an insurgent catching up 2 frontrunner (Sanders).\"",
+          "date": "2016-04-10",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "638512537433149440",
+          "tweet": "150 Clinton E-mails still contain classified information. More sensitive when she was Sec.of State. This is a very big deal.",
+          "date": "2015-09-01",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "745969049943875585",
+          "tweet": "\"\"\"Hillary Clinton may be the most corrupt person ever to seek the presidency.\"\"  --   Donald J. Trump\"",
+          "date": "2016-06-23",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "740005642228862981",
+          "tweet": "In just out book, Secret Service Agent Gary Byrne doesn't believe that Crooked Hillary has the temperament or integrity to be the president!",
+          "date": "2016-06-07",
+          "is_retweet": "f"
+        }
+      ],
+      "naming": {
+        "modal_label": "Criticism of Political Opponents and Email Controversy",
+        "votes_for_modal": 375,
+        "total_votes": 500,
+        "modal_share": 0.75,
+        "distinct_labels": 13,
+        "model": "gpt-4o-2024-08-06",
+        "top_names": [
+          {
+            "label": "criticism of political opponents and email controversy",
+            "votes": 375
+          },
+          {
+            "label": "criticism of political opponents and email controversy during 2016 campaign",
+            "votes": 64
+          },
+          {
+            "label": "criticism of political opponents and controversies",
+            "votes": 19
+          },
+          {
+            "label": "criticism of democratic opponents and email controversy",
+            "votes": 15
+          },
+          {
+            "label": "criticism of political opponents during 2016 campaign",
+            "votes": 13
+          }
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "words": [
+        "interview",
+        "interviewed",
+        "enjoy",
+        "tonight",
+        "morning",
+        "melania",
+        "pm",
+        "great",
+        "wife",
+        "watch"
+      ],
+      "count": 238,
+      "examples": [
+        {
+          "post_id": "716462678802345984",
+          "tweet": "I will be interviewed by @jdickerson on @FaceTheNation tomorrow morning. Enjoy! #Trump2016",
+          "date": "2016-04-03",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "641339495099465728",
+          "tweet": "I'm on Bill @oreillyfactor tonight at 8 PM. It will be another lively interview about how to #MakeAmericaGreatAgain!",
+          "date": "2015-09-08",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "616016438097219585",
+          "tweet": "Get ready for @Oreillyfactor tonight at 8- always interesting!",
+          "date": "2015-06-30",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "732733300763037696",
+          "tweet": "\"\"\"@ladytsbrug: Lovely interview, Mr. Trump! @realDonaldTrump\"\" Thanks.\"",
+          "date": "2016-05-18",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "655768104946028544",
+          "tweet": "\"\"\"@smr111382: @realDonaldTrump One of the best interviews I have seen!\"\"  @FoxNews\"",
+          "date": "2015-10-18",
+          "is_retweet": "f"
+        }
+      ],
+      "naming": {
+        "modal_label": "Media Appearances and Personal Life Highlights",
+        "votes_for_modal": 345,
+        "total_votes": 500,
+        "modal_share": 0.69,
+        "distinct_labels": 13,
+        "model": "gpt-4o-2024-08-06",
+        "top_names": [
+          {
+            "label": "media appearances and personal life highlights",
+            "votes": 345
+          },
+          {
+            "label": "media appearances and personal life highlights during campaign",
+            "votes": 63
+          },
+          {
+            "label": "media appearances and personal life during campaign",
+            "votes": 31
+          },
+          {
+            "label": "media appearances and personal highlights",
+            "votes": 17
+          },
+          {
+            "label": "media appearances and personal life",
+            "votes": 14
+          }
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "words": [
+        "obama",
+        "iran",
+        "radical",
+        "terrorist",
+        "islamic",
+        "isi",
+        "president",
+        "terrorism",
+        "attack",
+        "refugee"
+      ],
+      "count": 198,
+      "examples": [
+        {
+          "post_id": "761511930238496772",
+          "tweet": "The plane I saw on television was the hostage plane in Geneva, Switzerland, not the plane carrying $400 million in cash going to Iran!",
+          "date": "2016-08-05",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "641392516403695616",
+          "tweet": "\"Via @USATODAY- \"\"Amateur hour with the Iran nuclear deal\"\" http://t.co/vdLxPLPj7i\"",
+          "date": "2015-09-08",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "620957579729084416",
+          "tweet": "I can't believe that President Obama isn't able or willing to make just one phone call to the family of Kate Steinle.Come on Pres-MAKE CALL!",
+          "date": "2015-07-14",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "789132223479947264",
+          "tweet": "If elected POTUS - I will stop RADICAL ISLAMIC TERRORISM in this country! In order to do this, we need to... https://t.co/45Vyk6z18m",
+          "date": "2016-10-20",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "674382044097449985",
+          "tweet": "Despite my great respect for King Abdullah II, I will not be visiting Jordan at this time. This is in response to the false @AP report.",
+          "date": "2015-12-09",
+          "is_retweet": "f"
+        }
+      ],
+      "naming": {
+        "modal_label": "Terrorism and National Security Concerns During the 2015-2016 Presidential Campaign",
+        "votes_for_modal": 112,
+        "total_votes": 500,
+        "modal_share": 0.224,
+        "distinct_labels": 76,
+        "model": "gpt-4o-2024-08-06",
+        "top_names": [
+          {
+            "label": "terrorism and national security concerns during the 2015-2016 presidential campaign",
+            "votes": 112
+          },
+          {
+            "label": "terrorism and national security concerns during the 2016 presidential campaign",
+            "votes": 53
+          },
+          {
+            "label": "terrorism and national security concerns during the 2015-2016 campaign",
+            "votes": 40
+          },
+          {
+            "label": "u.s. national security and terrorism concerns during the 2015-2016 presidential campaign",
+            "votes": 30
+          },
+          {
+            "label": "u.s. national security and foreign policy concerns during the 2015-2016 presidential campaign",
+            "votes": 19
+          }
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "words": [
+        "thank",
+        "thanks",
+        "nice",
+        "word",
+        "great",
+        "job",
+        "appreciate",
+        "true",
+        "happy",
+        "much"
+      ],
+      "count": 176,
+      "examples": [
+        {
+          "post_id": "775887550506536960",
+          "tweet": "Thank you @RepReneeEllmers!https://t.co/1DrZpfa6je https://t.co/rzEw8pQhds",
+          "date": "2016-09-14",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "626060739850203136",
+          "tweet": "Thank you @mcuban for your nice words. I am rapidly becoming a @dallasmavs fan!   https://t.co/sLXkCh9qfg",
+          "date": "2015-07-28",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "613729699106267136",
+          "tweet": "Thank you.  https://t.co/H8ZxLh6NCd",
+          "date": "2015-06-24",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "655114551805915136",
+          "tweet": "Nice story from @businessinsider http://t.co/O0snYivV0M",
+          "date": "2015-10-16",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "652242093881040896",
+          "tweet": ".@EWErickson ran @RedState into the ground. A change was necessary. Congratulations to @RedState and good luck in the future!",
+          "date": "2015-10-08",
+          "is_retweet": "f"
+        }
+      ],
+      "naming": {
+        "modal_label": "Expressions of Gratitude and Positivity",
+        "votes_for_modal": 485,
+        "total_votes": 500,
+        "modal_share": 0.97,
+        "distinct_labels": 7,
+        "model": "gpt-4o-2024-08-06",
+        "top_names": [
+          {
+            "label": "expressions of gratitude and positivity",
+            "votes": 485
+          },
+          {
+            "label": "expressions of gratitude and appreciation",
+            "votes": 7
+          },
+          {
+            "label": "expressions of gratitude and positivity in campaign communication",
+            "votes": 3
+          },
+          {
+            "label": "expressions of gratitude and approval",
+            "votes": 2
+          },
+          {
+            "label": "expressions of gratitude and affirmation",
+            "votes": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": 7,
+      "words": [
+        "tax",
+        "obamacare",
+        "repeal",
+        "replace",
+        "plan",
+        "disaster",
+        "premium",
+        "obamacarefail",
+        "healthcare",
+        "raise"
+      ],
+      "count": 98,
+      "examples": [
+        {
+          "post_id": "790936360953716736",
+          "tweet": "#ObamacareFail https://t.co/5Zvsys8j5w",
+          "date": "2016-10-25",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "662194179011911680",
+          "tweet": "\"\"\"@spiritofshiloh: Carson has the WORST health plan EVER re: Soc Sec and Medicare. @realDonaldTrump  He wants to abolish Medicare - no way!\"",
+          "date": "2015-11-05",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "633751809492844544",
+          "tweet": "My H-1B reform plan will transform program so it delivers for country, not lobbyists, &amp, will have bipartisan support: http://t.co/xDay480qfv",
+          "date": "2015-08-18",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "793769750056677376",
+          "tweet": "I am going to repeal and replace ObamaCare. We will have MUCH less expensive and MUCH better healthcare. With Hillary, costs will triple!",
+          "date": "2016-11-02",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "705173204948656129",
+          "tweet": "I am going to repeal and replace ObamaCare! Read more about my positions on healthcare reform here: https://t.co/WwIVhIud06",
+          "date": "2016-03-02",
+          "is_retweet": "f"
+        }
+      ],
+      "naming": {
+        "modal_label": "Healthcare Policy and Obamacare Critique During 2015-2016 Campaign",
+        "votes_for_modal": 63,
+        "total_votes": 500,
+        "modal_share": 0.126,
+        "distinct_labels": 79,
+        "model": "gpt-4o-2024-08-06",
+        "top_names": [
+          {
+            "label": "healthcare policy and obamacare critique during 2015-2016 campaign",
+            "votes": 63
+          },
+          {
+            "label": "healthcare policy and critique of obamacare",
+            "votes": 49
+          },
+          {
+            "label": "healthcare policy and tax reform debate during 2015-2016 campaign",
+            "votes": 43
+          },
+          {
+            "label": "healthcare policy and critique during 2015-2016 campaign",
+            "votes": 28
+          },
+          {
+            "label": "healthcare policy and tax reform debate",
+            "votes": 26
+          }
+        ]
+      }
+    },
+    {
+      "id": 8,
+      "words": [
+        "veteran",
+        "mccain",
+        "vet",
+        "john",
+        "va",
+        "care",
+        "military",
+        "treat",
+        "trump",
+        "take"
+      ],
+      "count": 83,
+      "examples": [
+        {
+          "post_id": "785295867863568384",
+          "tweet": ".@HillaryClinton - ITS CALLED EXTREME VETTING! #Debates2016 https://t.co/ueq7cbOg9Y",
+          "date": "2016-10-10",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "622941231706976257",
+          "tweet": "\"\"\"@HL3tweets: McCain epitomizes the career politicians who have gotten us into our $19 TRILLION train-wreck, including the VA debacle.\"\"\"",
+          "date": "2015-07-20",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "622465729737138176",
+          "tweet": "Captured or not, all our soldiers are heroes!",
+          "date": "2015-07-18",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "625126907680571392",
+          "tweet": "\"\"\"@Hturne: @realDonaldTrump vets tired of McCain using them as talking points and photo ops, AND NOTHING BEING DONE.\"\"\"",
+          "date": "2015-07-26",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "624046726161285123",
+          "tweet": "\"\"\"@RonNussbeck: @Maxinerunner I am a veteran from Arizona John McCain voted to give illegal Aliens benefits &amp, take them from disabled Vets\"\"\"",
+          "date": "2015-07-23",
+          "is_retweet": "f"
+        }
+      ],
+      "naming": {
+        "modal_label": "Veterans' Affairs and Military Service",
+        "votes_for_modal": 119,
+        "total_votes": 500,
+        "modal_share": 0.238,
+        "distinct_labels": 79,
+        "model": "gpt-4o-2024-08-06",
+        "top_names": [
+          {
+            "label": "veterans' affairs and military service",
+            "votes": 119
+          },
+          {
+            "label": "veterans' issues and military service",
+            "votes": 86
+          },
+          {
+            "label": "veterans' affairs and military service issues",
+            "votes": 32
+          },
+          {
+            "label": "veterans' affairs and military service discussion",
+            "votes": 20
+          },
+          {
+            "label": "veterans' affairs and military service issues during the 2016 campaign",
+            "votes": 19
+          }
+        ]
+      }
+    },
+    {
+      "id": 9,
+      "words": [
+        "book",
+        "copy",
+        "cripple",
+        "signing",
+        "sign",
+        "order",
+        "gift",
+        "america",
+        "holiday",
+        "stream"
+      ],
+      "count": 43,
+      "examples": [
+        {
+          "post_id": "760493168286511104",
+          "tweet": "\"LIMITED EDITION signed copies of my book \"\"The Art of the Deal\"\" for your donation of $184 or more.  Get YOURS today! https://t.co/4LnzfKRsqZ\"",
+          "date": "2016-08-02",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "661212929560322050",
+          "tweet": "Meet me at @TrumpTowerNY and get your copy of my new book CRIPPLED AMERICA signed on 11/3 at 12pm! https://t.co/9M0C0vc2fv",
+          "date": "2015-11-02",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "613069021668356096",
+          "tweet": ".@DanaPerino  Have you released a copy of the beautiful thank you card you sent me? Would you like to see it? @ericbolling @kimguilfoyle",
+          "date": "2015-06-22",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "671698489735270400",
+          "tweet": "A signed copy of CRIPPLED AMERICA makes a great gift. Order &amp, join my live streaming book signing event on 12/3   https://t.co/TICkBt5xnH",
+          "date": "2015-12-01",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "668054560523599872",
+          "tweet": "\"People are really liking my new book, \"\"Crippled America.\"\" Check it out!\"",
+          "date": "2015-11-21",
+          "is_retweet": "f"
+        }
+      ],
+      "naming": {
+        "modal_label": "Trump Campaign Merchandise and Book Promotions",
+        "votes_for_modal": 147,
+        "total_votes": 500,
+        "modal_share": 0.294,
+        "distinct_labels": 67,
+        "model": "gpt-4o-2024-08-06",
+        "top_names": [
+          {
+            "label": "trump campaign merchandise and book promotions",
+            "votes": 147
+          },
+          {
+            "label": "promotional activities and merchandise during campaign",
+            "votes": 80
+          },
+          {
+            "label": "trump campaign merchandise and promotions",
+            "votes": 67
+          },
+          {
+            "label": "book promotion and merchandise sales during campaign",
+            "votes": 34
+          },
+          {
+            "label": "promotional activities and merchandise",
+            "votes": 30
+          }
+        ]
+      }
+    },
+    {
+      "id": 10,
+      "words": [
+        "macy",
+        "shop",
+        "store",
+        "stock",
+        "boycott",
+        "merchandise",
+        "disloyal",
+        "boycottmacys",
+        "card",
+        "shopping"
+      ],
+      "count": 42,
+      "examples": [
+        {
+          "post_id": "755950289128087552",
+          "tweet": "Limited opportunity to get your OFFICIAL Trump gear! Shop now! https://t.co/3lUaSztKYx https://t.co/ssNVgF7PTt",
+          "date": "2016-07-21",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "616679013109604352",
+          "tweet": "\"\"\"@RunPureMichigan  Macy's stock drops after coming out in support of #illegals dust up with @realDonaldTrump and public #BoycottMacys\"\"\"",
+          "date": "2015-07-02",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "616572034408169472",
+          "tweet": "\"\"\"@JewNamedLew: @realDonaldTrump @Macys to pay $650,000 settlement over racial profiling... http://t.co/bT6S8F9NnK\"\"  Boycott Macy's.\"",
+          "date": "2015-07-02",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "618810296233291776",
+          "tweet": "\"\"\"@CrystalPrebola @realDonaldTrump @MARCMODE @CNNPolitics @mj_lee @Macys Me too. No more shopping at Macy's.\"\"\"",
+          "date": "2015-07-08",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "618540086976716800",
+          "tweet": "Wow! I hear that thousands of people are cutting up their @Macys credit card. That's great. #MakeAmericaGreatAgain!",
+          "date": "2015-07-07",
+          "is_retweet": "f"
+        }
+      ],
+      "naming": {
+        "modal_label": "Macy's Boycott and Consumer Relations",
+        "votes_for_modal": 97,
+        "total_votes": 500,
+        "modal_share": 0.194,
+        "distinct_labels": 72,
+        "model": "gpt-4o-2024-08-06",
+        "top_names": [
+          {
+            "label": "macy's boycott and consumer relations",
+            "votes": 97
+          },
+          {
+            "label": "retail boycott and brand loyalty issues",
+            "votes": 85
+          },
+          {
+            "label": "retail boycott and brand loyalty dispute",
+            "votes": 32
+          },
+          {
+            "label": "macy's boycott and retail dispute",
+            "votes": 24
+          },
+          {
+            "label": "macy's boycott and retail controversy",
+            "votes": 18
+          }
+        ]
+      }
+    },
+    {
+      "id": 11,
+      "words": [
+        "turnberry",
+        "scotland",
+        "resort",
+        "golf",
+        "open",
+        "best",
+        "ireland",
+        "british",
+        "great",
+        "opening"
+      ],
+      "count": 31,
+      "examples": [
+        {
+          "post_id": "738538744911822848",
+          "tweet": "RT @IvankaTrump: Beautiful article about @realDonaldTrump written by my friend, the incredibly talented golfer Natalie Gulbis:https://t.co...",
+          "date": "2016-06-03",
           "is_retweet": "t"
         },
         {
-          "post_id": "1329298668403499009",
-          "tweet": "\"Dominion-izing the Vote\" https://t.co/ZOFsgDXsuH",
-          "date": "2020-11-19",
+          "post_id": "625784624283787264",
+          "tweet": "Be in Turnberry on Thurs AM for start of Women's British Open, one of  world's great golf tournaments. Back soon to #MakeAmericaGreatAgain!",
+          "date": "2015-07-27",
           "is_retweet": "f"
         },
         {
-          "post_id": "1330368448552169474",
-          "tweet": "“Dominion-izing the Vote”\nPart Three via @OANN @ChanelRion https://t.co/5En1SjPIol",
-          "date": "2020-11-22",
+          "post_id": "612989191459368960",
+          "tweet": "\"\"\"@SovAdjEast  The USA is like Wollman Rink or Ferrypoint before DJT. You came you saw and built a masterpiece. Now it's the USA' s turn.\"\"\"",
+          "date": "2015-06-22",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "738576553508929536",
+          "tweet": "After @TrumpScotland, I will visit @TrumpDoonbeg in Ireland, the magnificent resort fronting on the Atlantic Ocean.",
+          "date": "2016-06-03",
+          "is_retweet": "f"
+        },
+        {
+          "post_id": "642659029102272512",
+          "tweet": "\"\"\"@ArthurOHara: #Trump International Hotel &amp, Golf Links. Luxury resort in #Doonbeg on Ireland's @wildatlanticway https://t.co/JYRWwMdSwG\"\"\"",
+          "date": "2015-09-12",
           "is_retweet": "f"
         }
-      ]
+      ],
+      "naming": {
+        "modal_label": "Trump's International Golf Resorts and Openings",
+        "votes_for_modal": 40,
+        "total_votes": 500,
+        "modal_share": 0.08,
+        "distinct_labels": 108,
+        "model": "gpt-4o-2024-08-06",
+        "top_names": [
+          {
+            "label": "trump's international golf resorts and openings",
+            "votes": 40
+          },
+          {
+            "label": "trump's international golf resorts promotion",
+            "votes": 37
+          },
+          {
+            "label": "trump international golf developments and events in the uk and ireland",
+            "votes": 34
+          },
+          {
+            "label": "trump international golf ventures and developments in the uk and ireland",
+            "votes": 25
+          },
+          {
+            "label": "trump international golf ventures and developments",
+            "votes": 22
+          }
+        ]
+      }
     }
   ],
   "parameters": {
-    "iteration": 43,
+    "iteration": 10,
     "umap_params": {
-      "n_neighbors": 15,
-      "n_components": 3,
-      "min_dist": 0.01,
+      "n_neighbors": 35,
+      "n_components": 9,
+      "min_dist": 0.05,
       "metric": "cosine"
     },
     "hdbscan_params": {
-      "min_cluster_size": 5,
+      "min_cluster_size": 25,
       "metric": "euclidean",
       "cluster_selection_method": "eom"
     },
-    "max_topics": 4,
-    "n_topics": 3,
-    "coherence": 0.5897934006389718,
+    "max_topics": 13,
+    "coherence": 0.5405823389348793,
+    "n_topics": 12,
     "seed": 42,
     "seed_umap": true
   },
-  "candidate_status_counts": {
-    "insufficient_topics": 49,
-    "scored": 1151
+  "selection_record": {
+    "decision": "researcher-selected-candidate",
+    "researcher": "Researcher 1",
+    "rationale": "The researcher selected candidate B from the original-post review packet on 2026-11-18. It preserves 12 interpretable campaign keyword groups rather than the coherence winner dominated by one heterogeneous cluster. Its 49.5% outlier share remains an explicit limitation to inspect during synthesis; no presidential outcomes informed selection.",
+    "recorded_at": "2026-11-18T17:23:26.220994+00:00",
+    "candidate_sha256": "d2e1aba948320b69776d74b50f526478fc28ba5f49a715a703fe18a48fe77efb",
+    "exact_assignment_reconstruction_verified": true,
+    "selected_model_reload_verified": true,
+    "coherence_winner": {
+      "iteration": 5,
+      "umap_params": {
+        "n_neighbors": 20,
+        "n_components": 4,
+        "min_dist": 0.5,
+        "metric": "cosine"
+      },
+      "hdbscan_params": {
+        "min_cluster_size": 20,
+        "metric": "euclidean",
+        "cluster_selection_method": "eom"
+      },
+      "max_topics": 3,
+      "n_topics": 2,
+      "coherence": 0.6090481572980635,
+      "seed": 42,
+      "seed_umap": true
+    },
+    "selected_candidate": {
+      "iteration": 10,
+      "umap_params": {
+        "n_neighbors": 35,
+        "n_components": 9,
+        "min_dist": 0.05,
+        "metric": "cosine"
+      },
+      "hdbscan_params": {
+        "min_cluster_size": 25,
+        "metric": "euclidean",
+        "cluster_selection_method": "eom"
+      },
+      "max_topics": 13,
+      "coherence": 0.5405823389348793,
+      "n_topics": 12,
+      "seed": 42,
+      "seed_umap": true
+    },
+    "scope": "campaign evidence only; no presidential outcomes used",
+    "researcher_response_verbatim": "B — Review the 12-topic candidate (recommended)",
+    "rationale_origin": "Agent explanation of the selected candidate and its limitations; researcher supplied the candidate choice."
   },
   "verification": {
     "status": "complete",
-    "scope": "Trump archive discovery walkthrough",
+    "scope": "campaign-only discovery",
     "historical_replication": false,
     "api_calls": 0,
     "selected_model_reload_verified": true,
-    "input_records": 34416,
-    "discovery_records": 32725,
-    "excluded_empty": 1691,
+    "input_records": 7805,
+    "discovery_records": 7779,
+    "source_records": 34416,
+    "selection": {
+      "role": "discovery",
+      "source_sha256": "8256646462a1267c5c6e177d3c951a852a17bcbd8553cb0f98e2a89ce5f3206a",
+      "window_inclusive": [
+        "2015-06-16",
+        "2016-11-08"
+      ],
+      "source_records": 34416,
+      "selected_records": 7805,
+      "outside_window_records": 26611,
+      "ordered_selected_ids_sha256": "97f86a0e5baa8ca468fccb6aa8ff36eeaea2504a7ef91c1cfde34f94b45cb36c"
+    },
+    "excluded_empty": 26,
     "search_draws": 50,
     "candidate_ceilings": 1200,
     "input_sha256": "8256646462a1267c5c6e177d3c951a852a17bcbd8553cb0f98e2a89ce5f3206a",
-    "fitted_model_sha256": "901830bdf01d5f6403af45f13ba80f2fed65ec0f04bdf4850d1e72a99fc83231",
-    "verified_at": "2026-11-17T21:40:24.703764+00:00",
+    "fitted_model_sha256": "b67fce38ef29471620b0216c19af291d3e8d72781b440f4cf88825ece1b56153",
+    "verified_at": "2026-11-18T17:35:04.229495+00:00",
     "human_review_performed": false,
     "classifier_validated": false
   },
+  "naming_completed": true,
   "human_review_performed": false,
   "classifier_validated": false,
-  "scope": "Recorded discovery on a public archive. Topic-assignment shares are descriptive; no human-validated theme prevalence is asserted."
+  "scope": "Campaign topic discovery, human theme synthesis, independent evaluation and overall presidential prevalence."
 }

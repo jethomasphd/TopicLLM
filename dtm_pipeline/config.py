@@ -2,8 +2,8 @@
 config.py — Single source of truth for the democratic topic modeling pipeline.
 
 Defaults follow the maintained methods implementation described in:
-Thomas et al. (2026), "TopicLLM: A Human-Guided, Agent-Executable Workflow
-for Topic Interpretation and Prevalence Analysis." Change values here, not in the stage scripts,
+the standalone working manuscript, "TopicLLM: From Campaign Topics to
+Presidential Theme Prevalence." Change values here, not in the stage scripts,
 so a run remains auditable from one file.
 """
 
@@ -26,7 +26,10 @@ class PipelineConfig:
     gateway_url: str = 'https://topicllm.dev'
     # ----- I/O ---------------------------------------------------------------
     input_csv: str = os.path.join(DEMO_DIR, "trump", "corpus.csv")
-    discovery_input_csv: str | None = None  # one corpus for discovery and classification
+    discovery_input_csv: str | None = None  # optional separate source for other research designs
+    discovery_window: list | None = None  # inclusive ISO dates; set explicitly in research JSON
+    target_window: list | None = None
+    require_disjoint_windows: bool = False
     output_dir: str = "pipeline_output"        # all stage artifacts land here
     stopwords_file: str = os.path.join(DEMO_DIR, "trump", "stopwords.txt")
     strip_platform_artifacts: bool = True  # decode HTML entities; remove URLs and @handles before tokenization
@@ -44,8 +47,9 @@ class PipelineConfig:
                                                # configuration, then reduce to each maximum
                                                # topic solution (a maintained optimization,
                                                # not historical byte equivalence). True: refit the
-                                               # whole model for every solution, as archival S1 did.
+                                               # whole model for every solution.
     save_visualizations: bool = False          # per-iteration HTML (heavy; final model always saved)
+    save_candidate_evidence: bool = False       # words, sizes and assignments for actual model review
 
     # UMAP / HDBSCAN sampling spaces (identical to the reference implementation)
     umap_space: dict = field(default_factory=lambda: {
@@ -66,11 +70,13 @@ class PipelineConfig:
                                                # MOCK and are NOT measurements)
     llm_model: str = "gpt-4o-2024-08-06"                  # pin and report the identifier
     domain_context: str = (
-        "posts from the Donald Trump account archive, June 16, 2015 to January 8, 2021, including retweets; describe content neutrally"
+        "the researcher-declared text corpus; describe content neutrally"
     )                                          # domain-specific naming context
 
     # Stage 2: democratic naming
     votes_per_topic: int = 5000                # reference implementation value
+    naming_workers: int = 1                   # bounded concurrent requests; fixed-vote runs only
+    naming_run_id: str | None = None          # declared revision namespace; retains earlier paid attempts
     naming_temperature: float = 0.5
     naming_max_tokens: int = 15
     early_stop: bool = False                   # optional cost control:
@@ -84,6 +90,11 @@ class PipelineConfig:
     classify_temperature: float = 0.5
     classify_max_tokens: int = 120 # maintained safeguard; archival value was 30
     benchmark_csv: str = "human_labels.csv"  # supplied independent annotations; no final study benchmark is asserted
+    development_csv: str = "development_labels.csv"
+    validation_mode: str = "heldout"  # development selects; untouched evaluation validates
+    stage4_action: str = "development"  # development, validate, classify; separate invocations
+    codebook_path: str | None = None
+    annotation_manifest: str | None = None  # fixed probability-sample IDs; required for temporal transfer
     agreement_threshold: float = 0.85          # do not scale below this
     classify_workers: int = 1                  # concurrent API calls in Stage 4 (raise for
                                                # large corpora, e.g. 8-16, within rate limits)
@@ -91,14 +102,11 @@ class PipelineConfig:
                                                # resumes from it after an interruption
 
     # ----- Stage 5: theme prevalence ----------------------------------------
-    # Period boundaries for proportional z-tests (inclusive, YYYY-MM-DD).
+    # Optional period boundaries (inclusive, YYYY-MM-DD); unused in the primary application.
     # Requires a 'date' column in the input CSV.
-    periods: dict = field(default_factory=lambda: {
-        "campaign": ("2015-06-16", "2016-11-08"),
-        "transition": ("2016-11-09", "2017-01-19"),
-        "presidency": ("2017-01-20", "2021-01-08"),
-    })
+    periods: dict = field(default_factory=dict) # overall prevalence unless periods are explicitly declared
     alpha: float = 0.05                        # Bonferroni-corrected in stage 5
+    run_pairwise_tests: bool = False           # descriptive prevalence is the default
 
 
 CONFIG = PipelineConfig()

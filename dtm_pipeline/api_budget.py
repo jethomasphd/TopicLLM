@@ -59,7 +59,8 @@ class ApiBudget:
             # Ignore caching discounts: conservatively charge the ordinary input rate.
             known = isinstance(usage.get('prompt_tokens'), int) and isinstance(usage.get('completion_tokens'), int)
             actual = usage['prompt_tokens']*2500 + usage['completion_tokens']*10000 if known else reserved
-            if actual > reserved:
+            exceeded_reservation = actual > reserved
+            if exceeded_reservation:
                 error = 'Provider usage exceeded the reservation; review the price/token bound.'
             value = json.dumps(result if result else {'error_type':error}, ensure_ascii=False)
             db.execute('UPDATE calls SET charged=?,status=?,result=? WHERE id=?', (actual,'success' if result and not error else 'failed',value,call_id))
@@ -67,7 +68,7 @@ class ApiBudget:
                 db.execute('INSERT OR REPLACE INTO responses VALUES (?,?,?)',(key,digest,value))
         # The caller exports a consistent report at stage boundaries; the SQLite
         # transaction above is the durable audit record for every request.
-        if result and error:
+        if exceeded_reservation:
             raise BudgetExceeded(error)
 
     def export(self):
@@ -78,7 +79,10 @@ class ApiBudget:
             row['response'] = json.loads(row['response']) if row['response'] else None
         summary = {'price_date':'2026-11-16','model':self.cfg.llm_model,'input_usd_per_million':2.5,'output_usd_per_million':10,
                    'budget_usd':self.cfg.api_budget_usd,'call_ceiling':self.cfg.max_api_calls,'attempted_calls':len(records),
-                   'successful_calls':sum(r['status']=='success' for r in records),'conservatively_accounted_usd':sum(r['charged_nano_usd'] for r in records)/1e9,
+                   'successful_calls':sum(r['status']=='success' for r in records),
+                   'failed_calls':sum(r['status']=='failed' for r in records),
+                   'unsettled_calls':sum(r['status']=='reserved' for r in records),
+                   'conservatively_accounted_usd':sum(r['charged_nano_usd'] for r in records)/1e9,
                    'prompt_tokens':sum((r['response'] or {}).get('usage',{}).get('prompt_tokens',0) for r in records),
                    'completion_tokens':sum((r['response'] or {}).get('usage',{}).get('completion_tokens',0) for r in records)}
         # Export from the database on demand; concurrent writers never modify the ledger file directly.

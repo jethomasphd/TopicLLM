@@ -1,0 +1,33 @@
+{
+  "authorized_total_usd": 100,
+  "authorization": "User: spend up to $100, try to execute the whole thing",
+  "naming_calls": 6000,
+  "votes_per_topic": 500,
+  "naming_workers": 4,
+  "researcher_labels": [
+    "Researcher 1",
+    "Researcher 2"
+  ],
+  "proposed_development_n": 100,
+  "proposed_evaluation_n": 250,
+  "theme_approval_completed": false,
+  "sources": {
+    "annotations.py": "eebef7dfbaed7acde36c3e7e1f2fa3da8b66f2720bcd9cd76ece3aab09a7707d",
+    "api_budget.py": "1bda384e93d9e26a68c120b7e6e03b3dc6c580e4b32c5500ebfd879d5de9727e",
+    "config.py": "5ddd1c29f00b6afe625ff79801ef8512e6aed723fa787ed1a45c700797cd2b35",
+    "llm_backend.py": "ea130289879ac6def4ab6d6de929a0c251b6ba65cb37a1b43266d3910d92ae04",
+    "provenance.py": "89b3db90a1107d4f6ab0a2faec4b875fd8246185bdaf8af632faea1eb5a1e617",
+    "research_validation.py": "977491b78a8b91055f0d67d60a612ed1afcf8438f9fc3dc4bde5a95b03cfb15f",
+    "review.py": "8818bc348d3e41a6d2f6e87fac5cdb8abd5dbe5d5ea28d17df8ff13e88751096",
+    "run_pipeline.py": "66d49b31329c7da7c92212831fefa19ed924a854f5c80d4815d5caeea2e31203",
+    "sampling.py": "372effeefe3df78a2a3ba5447cb4e6833b5abd1844b486cbd8a28c3f7b14554c",
+    "stage1_topic_discovery.py": "167aed874ea4ae9dad17e8db5d2cb1032f1b3084724d1313f104a201f5e9441e",
+    "stage2_democratic_naming.py": "e3ac9cbea1a38044ae44f22771b65e78e4ff7b169f3ae0a16a304b35a37ad20e",
+    "stage3_synthesis_worksheet.py": "dd948cdbc2b578f4196f4ddbe2c3638dc1ed650f9b6cc06893d64f53c5221ae8",
+    "stage4_classification.py": "aa796c084fa440be1298caf00d5884c80f10478ce634f045d6deb42d2e93095e",
+    "stage5_inference.py": "6eea3980ef968df04b9afd421de82a1d0ff6959d4c70a8e571816c824d5eee2e",
+    "trump.py": "0399c0d93d29d0d83e59b1ef458dce614b3fe7daff5d62f48c3cda82c61f085c",
+    "__init__.py": "019db77aca991770a0481aa741b26440d23974226dfb285015e16f53b7ce2330",
+    "__main__.py": "da51624f4eb7ad9c9380fcc5b79a3d7d207616a5d1d35e408bd03a3f8caa490c"
+  }
+}

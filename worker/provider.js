@@ -3,11 +3,23 @@ const MAX_BODY = 24000;
 const json = (body, status = 200, extra = {}) => Response.json(body, {status, headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff', ...extra}});
 const textField = (value, max) => typeof value === 'string' && value.trim().length > 0 && value.length <= max;
 
+// Authenticated research runs carry the exact locally archived prompt, including
+// the frozen codebook. Public callers never reach this function with raw input.
+export function validateOperatorCall(data) {
+  if (!data?._research_prompt) return validateCall(data);
+  const p=data._research_prompt;
+  const naming=p.system==='You are an expert at naming topics.';
+  if (!naming && p.system!=='You are an expert at classifying text into themes.') throw new Error('Unsupported research system prompt.');
+  if (!textField(p.user,18000) || p.temperature!==0.5 || !Number.isInteger(p.max_tokens) || p.max_tokens<1 || p.max_tokens>(naming?64:120)) throw new Error('Research prompt exceeds server-controlled limits.');
+  if(data.task!==(naming?'name':'classify'))throw new Error('Research task and prompt disagree.');
+  return {system:p.system,user:p.user,max_tokens:p.max_tokens};
+}
+
 export function validateCall(data) {
   if (!data || !['name','classify'].includes(data.task)) throw new Error('Choose a supported research task.');
   if (data.task === 'name') {
     if (!textField(data.words, 1200) || !textField(data.domain, 400)) throw new Error('Topic words or domain context are missing or too long.');
-    return {max_tokens:15, system:'You are an expert at naming topics.', user:`The following words represent a topic derived from ${data.domain}: ${data.words}. Please provide a concise, meaningful topic name that clearly summarizes these words. `};
+    return {max_tokens:32, system:'You are an expert at naming topics.', user:`The following words represent a topic derived from ${data.domain}: ${data.words}. Please provide a concise, meaningful topic name that clearly summarizes these words. `};
   }
   if (!textField(data.text, 8000) || !Array.isArray(data.themes) || data.themes.length < 1 || data.themes.length > 25 || data.themes.some(t => !textField(t, 150)) || new Set(data.themes).size !== data.themes.length) throw new Error('Provide text and 1–25 unique theme names.');
   const options = [...data.themes, 'The text does not fit into any of these themes'];
@@ -51,7 +63,7 @@ export async function sendOpenAI(call, env) {
         return json({error:response.status === 429 ? 'OpenAI rate limit reached. Wait and retry.' : 'OpenAI did not complete the request. No classification was recorded.', retryable:response.status === 429 || response.status >= 500, request_id:response.headers.get('x-request-id')},response.status === 429 ? 429 : 502,headers);
       }
       const data = await response.json(), choice = data.choices?.[0], content = choice?.message?.content;
-      if (!content?.trim() || choice.finish_reason !== 'stop') return json({error:'OpenAI returned an empty or incomplete response. No label was recorded.'},502);
+      if (!content?.trim() || choice.finish_reason !== 'stop') return json({error:'OpenAI returned an empty or incomplete response. No label was recorded.',raw_text:content||'',finish_reason:choice?.finish_reason||null,model:data.model,system_fingerprint:data.system_fingerprint||null,request_id:response.headers.get('x-request-id'),usage:data.usage||null,retryable:true},502);
       return json({text:content.trim(), model:data.model, system_fingerprint:data.system_fingerprint || null, request_id:response.headers.get('x-request-id'), usage:data.usage || null, temperature:.5, max_tokens:call.max_tokens});
     } catch { return json({error:'The LLM service timed out or could not be reached. Retry this step.'},504); }
 }

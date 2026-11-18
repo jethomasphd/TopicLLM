@@ -13,6 +13,8 @@ def publish(run):
     verify=read(run/'verification.json')
     if verify['status']!='complete' or not verify['selected_model_reload_verified']:raise ValueError('A completed, reloaded model is required.')
     manifest=read(out/'manifest.json');record=read(stage/'run_manifest.json')
+    if record['config'].get('discovery_window'):
+        raise ValueError('This legacy publisher is for the prior whole-archive diagnostic, not the campaign research application.')
     if record['input_sha256']!=manifest['files']['corpus.csv']['sha256']:raise ValueError('Run uses a different corpus.')
     rows=lambda p:list(csv.DictReader(p.open(encoding='utf-8',newline='')))
     corpus=rows(out/'corpus.csv');assignments=rows(stage/'best_model/classified_tweets.csv');excluded=rows(stage/'excluded_empty.csv')

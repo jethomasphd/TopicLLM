@@ -11,8 +11,10 @@ Defaults use the one Trump account corpus (34,416 posts, 2015-06-16 through
 2021-01-08). quickcheck verifies its bytes and counts; trump-demo runs discovery.
 No final human taxonomy or independent benchmark is bundled.
 
-Stage 3 consensus is a human step: between stages 3 and 4, complete
-theme_map_TEMPLATE.csv -> theme_map.csv and set `themes` in config.py.
+Stage 3 consensus is a human step: complete the local theme-review workspace
+and import the actual researchers' approval with topicllm-import-synthesis.
+The importer writes the theme map, frozen codebook and JSON configuration.
+Stage 4 runs development, held-out validation and accepted scaling separately.
 Stages 2 and 4 call the OpenAI API and require OPENAI_API_KEY, unless
 --mock-llm is given (a keyless dry run whose outputs are labeled MOCK).
 """
@@ -22,7 +24,7 @@ import os
 import sys
 import json
 from pathlib import Path
-from dataclasses import fields
+from dataclasses import asdict, fields
 
 if __package__:
     from .config import CONFIG
@@ -38,11 +40,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Democratic topic modeling pipeline")
     parser.add_argument('--profile',choices=['trump-demo','research','quickcheck'],default='trump-demo')
     parser.add_argument('--config',help='JSON object of PipelineConfig fields; no executable configuration')
+    parser.add_argument('--write-config',metavar='PATH',help='Write the effective configuration as editable JSON and exit without running; refuses to overwrite')
     parser.add_argument('--backend',choices=['openai','mock','gateway'])
     parser.add_argument('--budget-usd',type=float,help='Explicit total paid-call ceiling, including previous attempts in this output directory')
     parser.add_argument('--max-api-calls',type=int,help='Total attempted-call ceiling across stages and resume')
     parser.add_argument('--plan',action='store_true',help='Print planned stages and worst-case call count without executing')
     parser.add_argument('--record-review',action='store_true',help='Record actual researcher approval of the completed theme map')
+    parser.add_argument('--record-validation-review',action='store_true',help='Record actual acceptance of held-out classifier performance')
+    parser.add_argument('--record-annotations',help='Record actual human review of this annotation CSV')
+    parser.add_argument('--stage4-action',choices=['development','validate','classify'],help='Separate research validation phases; default development')
     parser.add_argument('--reviewers',nargs='+',help='Names of the actual researchers who completed the review')
     parser.add_argument("--stages", default="all",
                         help="comma-separated stage numbers (e.g. 1,2,3) or 'all'")
@@ -61,6 +67,7 @@ def main() -> None:
     parser.add_argument("--score-archival", action="store_true",
                         help="score the benchmark's existing *_label columns (no API) and exit")
     args = parser.parse_args()
+    values={}
     if args.config:
         if __package__:
             from .config import PipelineConfig
@@ -81,10 +88,42 @@ def main() -> None:
                        ("max_api_calls","max_api_calls"),("backend","llm_backend")):
         if getattr(args, flag) is not None:
             setattr(CONFIG, attr, getattr(args, flag))
+    if args.stage4_action: CONFIG.stage4_action=args.stage4_action
+    if __package__:
+        from .sampling import CAMPAIGN, PRESIDENCY, read_selected, validate_design
+    else:
+        from sampling import CAMPAIGN, PRESIDENCY, read_selected, validate_design
+    if args.profile == 'trump-demo' and not args.input:
+        if CONFIG.discovery_window is None: CONFIG.discovery_window=list(CAMPAIGN)
+        if CONFIG.target_window is None: CONFIG.target_window=list(PRESIDENCY)
+        CONFIG.require_disjoint_windows=True
+        CONFIG.save_candidate_evidence=True
+        defaults={'domain_context':'Donald Trump account posts during the 2015-2016 presidential campaign, June 16, 2015 through November 8, 2016, including retweets; describe the content neutrally',
+                  'votes_per_topic':500,'naming_max_tokens':32,'naming_workers':12}
+        for key,value in defaults.items():
+            if key not in values and not (key=='votes_per_topic' and args.votes is not None):setattr(CONFIG,key,value)
+    validate_design(CONFIG)
     if args.mock_llm:
         CONFIG.llm_backend = "mock"
     CONFIG.run_mode='research'
     if any(value<1 for value in [CONFIG.search_iterations,CONFIG.votes_per_topic,CONFIG.classify_workers,CONFIG.max_api_calls]):parser.error('Iterations, votes, workers and call limit must be positive.')
+    if args.write_config:
+        try:
+            with Path(args.write_config).open('x', encoding='utf-8', newline='\n') as handle:
+                json.dump(asdict(CONFIG), handle, indent=2, ensure_ascii=False)
+                handle.write('\n')
+        except FileExistsError:
+            parser.error('Configuration already exists; choose a new path or edit the existing file.')
+        print(f'Wrote {args.write_config}. Review the settings before running; no analysis or API calls made.')
+        return
+    if args.record_annotations or args.record_validation_review:
+        if __package__:
+            from .research_validation import record_annotation_review, record_validation_review
+        else:
+            from research_validation import record_annotation_review, record_validation_review
+        if args.record_annotations: record_annotation_review(args.record_annotations,args.reviewers or [],CONFIG)
+        else: record_validation_review(CONFIG,args.reviewers or [])
+        print('Recorded actual researcher review.');return
     if args.record_review:
         if __package__:
             from .review import record_human_review
@@ -95,14 +134,22 @@ def main() -> None:
     if args.profile=='trump-demo' and args.stages=='all': args.stages='1'
     if args.plan:
         import csv
-        count=lambda path:sum(1 for _ in csv.DictReader(open(path,encoding='utf-8')))
+        def count(path):
+            if not Path(path).exists(): return None
+            with open(path,encoding='utf-8') as handle:return sum(1 for _ in csv.DictReader(handle))
         topics=Path(CONFIG.output_dir)/'stage1/topics_for_naming.csv'
         n_topics=count(topics) if topics.exists() else CONFIG.topic_max
         planned=[] if args.profile=='quickcheck' else ([1,2,3,4,5] if args.stages=='all' else [int(s) for s in args.stages.split(',')])
+        discovery=read_selected(CONFIG,'discovery')[1] if 1 in planned else None
+        target=read_selected(CONFIG,'target')[1] if 4 in planned else None
+        benchmark=count(CONFIG.development_csv if CONFIG.stage4_action=='development' else CONFIG.benchmark_csv) if 4 in planned and CONFIG.stage4_action!='classify' else 0
         print(json.dumps({'profile':args.profile,'stages':planned,'discovery_candidates':CONFIG.search_iterations*(CONFIG.topic_max-CONFIG.topic_min+1) if 1 in planned else 0,
-              'naming_calls':n_topics*CONFIG.votes_per_topic if 2 in planned else 0,'benchmark_calls':count(CONFIG.benchmark_csv) if 4 in planned else 0,
-              'maximum_corpus_calls':count(CONFIG.input_csv) if 4 in planned else 0,'budget_usd':CONFIG.api_budget_usd,'call_ceiling':CONFIG.max_api_calls,
-              'discovery_input':CONFIG.discovery_input_csv or CONFIG.input_csv,'analysis_input':CONFIG.input_csv,'note':'The Trump corpus is a method-transfer tutorial. Researcher synthesis and an independently annotated benchmark are required before classification.'},indent=2));return
+              'naming_calls':n_topics*CONFIG.votes_per_topic if 2 in planned else 0,'benchmark_calls':benchmark,
+              'maximum_corpus_calls':target['selected_records'] if target and CONFIG.stage4_action=='classify' else 0,
+              'stage4_action':CONFIG.stage4_action,'budget_usd':CONFIG.api_budget_usd,'call_ceiling':CONFIG.max_api_calls,
+              'discovery_selection':discovery,'target_selection':target,
+              'discovery_input':CONFIG.discovery_input_csv or CONFIG.input_csv,'analysis_input':CONFIG.input_csv,
+              'note':'Call counts exclude retries; the call and dollar ceilings include all attempts. Null benchmark count means annotations are not supplied. Development, held-out validation and approved scaling run separately.'},indent=2));return
     if args.profile=='quickcheck':
         if __package__:
             from .trump import quickcheck
@@ -158,14 +205,16 @@ def main() -> None:
         theme_map = os.path.join(CONFIG.output_dir, "stage3", "theme_map.csv")
         if not os.path.exists(theme_map):
             sys.exit(f"Stage 4 needs {theme_map} — complete the Stage 3 "
-                     f"consensus (fill theme_map_TEMPLATE.csv, save as "
-                     f"theme_map.csv, update config.themes) first.")
+                     f"human review workspace and import the approved export "
+                     f"with topicllm-import-synthesis first.")
         if __package__:
             from .stage4_classification import run_stage4
         else:
             from stage4_classification import run_stage4
         run_stage4(CONFIG)
     if 5 in stages:
+        if 4 in stages and CONFIG.validation_mode=='heldout' and CONFIG.stage4_action!='classify':
+            print('Stopped at the research validation gate. Stage 5 requires accepted corpus classification.');return
         if __package__:
             from .stage5_inference import run_stage5
         else:

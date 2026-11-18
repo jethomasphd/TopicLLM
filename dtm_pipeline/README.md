@@ -1,9 +1,13 @@
 # TopicLLM Python implementation
 
-This is the maintained five-stage research workflow. Read ../REPRODUCE.md for the complete recipe and ../AGENTS.md for the agent contract.
+Read [REPRODUCE.md](../REPRODUCE.md), [AGENTS.md](../AGENTS.md) and the [standalone methods](https://topicllm.dev/paper/). The scripts execute the analysis; humans supply interpretation and independent annotation.
 
-Default input: the public Trump account corpus, 34,416 posts from June 16, 2015 to January 8, 2021. Dissertation datasets and synthetic reconstructions are not distributed. `topicllm --profile quickcheck` verifies the tutorial without calls; `topicllm --profile trump-demo` runs discovery only. `--profile research --stages 2,3` collects names and prepares researcher review; stages 4–5 require actual approval and an independent benchmark.
+The campaign application uses one public Trump archive with two disjoint temporal views. `topicllm --profile quickcheck` checks the canonical source without calls. `topicllm --profile trump-demo` discovers topics only in the 7,805 campaign posts (2015-06-16–2016-11-08). The target is the 26,239 presidential posts (2017-01-20–2021-01-08). Generic `PipelineConfig` requires explicit windows for that design; use [the campaign configuration](../examples/campaign-presidency-config.json).
 
-Configure `PipelineConfig` fields with `--config file.json`; see ../examples/trump-config.json. The initial `themes` list is empty deliberately. Researchers define it after inspecting the evidence. Historical defaults of 50 search draws and 5,000 naming votes are computational parameters, not evidence of validation. Use `--plan` and an explicit `--budget-usd` for paid stages. Twenty naming votes are a declared teaching adaptation.
+Stage 1 retains all candidate evidence and the numerical coherence winner. Researchers inspect model quality and record any alternative selection. Stage 2 collects a declared vote budget; Stage 3 prepares actual human synthesis. The codebook and theme map must be reviewed by two real people.
 
-Each stage writes reviewable artifacts under its own run directory. Never fabricate review or annotations. Preserve unsuccessful outcomes as well as selected results. The browser walkthrough explains and illustrates; this package executes research in your approved environment.
+Stage 4 has three separate actions: `development` selects a classifier, `validate` tests the frozen choice against held-out human annotations, and `classify` scales only after actual acceptance. Stage 5 reports overall target-corpus prevalence, including the residual and zero-count themes. Period comparisons and pairwise tests are opt-in; this application requests overall prevalence only.
+
+Use `--plan` before paid stages and an explicitly approved `--budget-usd`. The example uses 500 naming responses/topic, a 32-token output ceiling and 12 bounded workers; the generic fixed-vote default remains 5,000. Neither setting provides scientific approval. Keep credentials private and preserve raw responses, failures, costs and configuration.
+
+`annotations.py` draws independent packets and merges real reviewer exports without resolving disagreements itself. Its standalone local interface displays no model predictions. An agent must never generate the human benchmark or approve its own output.

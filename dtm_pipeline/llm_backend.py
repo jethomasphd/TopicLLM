@@ -32,6 +32,13 @@ else:
 ERROR_LABEL = "__API_ERROR__"  # never silently folded into a theme
 
 
+class IncompleteModelResponse(ValueError):
+    """Retain provider evidence without accepting an incomplete label."""
+    def __init__(self, body):
+        super().__init__('Incomplete model response; no label recorded.')
+        self.body=body
+
+
 class LLMBackend:
     name = "base"
 
@@ -56,7 +63,8 @@ class LLMBackend:
             call_id = self.budget.reserve(key,digest,system,user,max_tokens) if self.budget else None
             try:
                 operation=hashlib.sha256(f'{key}:{digest}:{attempt}'.encode()).hexdigest()
-                result = self._gateway(task_data,operation) if self.name == 'gateway' else self._complete(system, user, max_tokens, temperature)
+                research_task = {**(task_data or {}), '_research_prompt': {'system':system, 'user':user, 'max_tokens':max_tokens, 'temperature':temperature}}
+                result = self._gateway(research_task,operation) if self.name == 'gateway' else self._complete(system, user, max_tokens, temperature)
                 if isinstance(result,str): result = {'text':result,'model':self.model_id}
                 if not result.get('text','').strip(): raise ValueError('Empty model response')
                 if self.budget: self.budget.settle(call_id,key,digest,result=result)
@@ -64,10 +72,15 @@ class LLMBackend:
             except BudgetExceeded:
                 raise
             except Exception as e:
-                if self.budget: self.budget.settle(call_id,key,digest,error=type(e).__name__)
+                if self.budget:
+                    body=getattr(e,'body',{}) or {}
+                    evidence={k:body[k] for k in ('raw_text','finish_reason','usage','model','system_fingerprint','request_id','code') if isinstance(body,dict) and k in body}
+                    if evidence:evidence['error_type']=type(e).__name__
+                    self.budget.settle(call_id,key,digest,result=evidence or None,error=type(e).__name__)
                 status = getattr(e,'status_code',None)
                 body = getattr(e,'body',{}) or {}
-                code = body.get('code') or body.get('error',{}).get('code') if isinstance(body,dict) else None
+                nested_error = body.get('error') if isinstance(body,dict) else None
+                code = (body.get('code') or (nested_error.get('code') if isinstance(nested_error,dict) else None)) if isinstance(body,dict) else None
                 if getattr(e,'retryable',True) is False or status in (400,401,403,404) or code in ('insufficient_quota','credit_balance_exhausted','organization_spend_limit_exceeded','project_spend_limit_exceeded','organization_usage_limit_exceeded'):
                     print(f'[{tag}] Non-retryable provider failure ({type(e).__name__}); no label recorded.')
                     return ERROR_LABEL
@@ -99,8 +112,11 @@ class OpenAIBackend(LLMBackend):
             n=1,
             store=False,
         )
-        if resp.choices[0].finish_reason != "stop":
-            raise ValueError("Incomplete model response; no label recorded.")
+        if resp.choices[0].finish_reason != "stop" or not (resp.choices[0].message.content or '').strip():
+            raise IncompleteModelResponse({'raw_text':resp.choices[0].message.content or '',
+                'finish_reason':resp.choices[0].finish_reason,'model':resp.model,
+                'request_id':getattr(resp,'_request_id',None),'system_fingerprint':resp.system_fingerprint,
+                'usage':resp.usage.model_dump() if resp.usage else {}})
         return {'text':resp.choices[0].message.content or '', 'model':resp.model,
                 'request_id':getattr(resp,'_request_id',None),'system_fingerprint':resp.system_fingerprint,
                 'usage':resp.usage.model_dump() if resp.usage else {},'temperature':temperature,'max_tokens':max_tokens}
@@ -125,6 +141,8 @@ class GatewayBackend(LLMBackend):
         except HTTPError as error:
             try: body=json.loads(error.read().decode())
             except (ValueError,UnicodeDecodeError): body={}
+            error.body=body
+            error.status_code=error.code
             error.retryable=body.get('retryable',error.code==429 or error.code>=500)
             error.retry_after=float(error.headers.get('Retry-After','0'))
             raise error

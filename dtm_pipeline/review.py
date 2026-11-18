@@ -26,6 +26,10 @@ def review_inputs(cfg):
             'assignments_sha256':sha(root/'stage1/best_model/classified_tweets.csv'),
             'naming_sha256':sha(root/'stage2/topic_names.csv'),
             'theme_map_sha256':sha(root/'stage3/theme_map.csv'),
+            'codebook_sha256':sha(cfg.codebook_path) if cfg.codebook_path else None,
+            'discovery_window':cfg.discovery_window,
+            'target_window':cfg.target_window,
+            'require_disjoint_windows':cfg.require_disjoint_windows,
             'themes':list(cfg.themes)}
 
 

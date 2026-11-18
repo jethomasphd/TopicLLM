@@ -1,0 +1,13 @@
+{
+  "price_date": "2026-11-16",
+  "model": "gpt-4o-2024-08-06",
+  "input_usd_per_million": 2.5,
+  "output_usd_per_million": 10,
+  "budget_usd": 100,
+  "call_ceiling": 60000,
+  "attempted_calls": 3748,
+  "successful_calls": 3671,
+  "conservatively_accounted_usd": 1.4931125,
+  "prompt_tokens": 394296,
+  "completion_tokens": 36258
+}

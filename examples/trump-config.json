@@ -1,28 +1,29 @@
 {
-  "input_csv": "docs/data/trump/corpus.csv",
-  "discovery_input_csv": null,
-  "stopwords_file": "docs/data/trump/stopwords.txt",
-  "strip_platform_artifacts": true,
-  "output_dir": "runs/trump",
+  "discovery_window": [
+    "2015-06-16",
+    "2016-11-08"
+  ],
+  "target_window": [
+    "2017-01-20",
+    "2021-01-08"
+  ],
+  "require_disjoint_windows": true,
+  "save_candidate_evidence": true,
   "search_iterations": 50,
+  "topic_min": 2,
+  "topic_max": 25,
   "random_seed": 42,
-  "votes_per_topic": 20,
-  "domain_context": "posts from the Donald Trump account archive, June 16, 2015 to January 8, 2021, including retweets; describe content neutrally",
+  "api_budget_usd": null,
+  "max_api_calls": 60000,
+  "votes_per_topic": 500,
+  "naming_workers": 12,
+  "classify_workers": 4,
+  "periods": {},
+  "run_pairwise_tests": false,
+  "domain_context": "Donald Trump account posts during the 2015-2016 presidential campaign, June 16, 2015 through November 8, 2016, including retweets; describe the content neutrally",
   "themes": [],
-  "benchmark_csv": "human_labels.csv",
-  "periods": {
-    "campaign": [
-      "2015-06-16",
-      "2016-11-08"
-    ],
-    "transition": [
-      "2016-11-09",
-      "2017-01-19"
-    ],
-    "presidency": [
-      "2017-01-20",
-      "2021-01-08"
-    ]
-  },
-  "agreement_threshold": 0.85
+  "input_csv": "docs/data/trump/corpus.csv",
+  "stopwords_file": "docs/data/trump/stopwords.txt",
+  "output_dir": "runs/trump",
+  "naming_max_tokens": 32
 }

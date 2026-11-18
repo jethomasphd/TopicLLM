@@ -3,12 +3,9 @@ stage2_democratic_naming.py — Democratic LLM topic interpretation (Stage 2).
 
 Queries the LLM independently `votes_per_topic` times per topic and adopts the
 modal label: topic naming treated as estimation of a distribution's mode, not
-one-shot generation. The historical prompt is reproduced in the maintained methods (section 3) with
-the domain context injected from config. Written against the current OpenAI
-SDK (openai>=1.0); the archival openai==0.27.0 version is Supplementary File S2.
-
-The dissertation used 7 topics x 5,000 votes = 35,000 API calls. A new run
-uses its own discovered topic count and declared vote budget. Ballots
+one-shot generation. The standalone methods paper gives the exact prompt;
+the domain context and decoding parameters come from the run configuration.
+Each application uses its reviewed topic count and declared vote budget. Ballots
 are checkpointed per topic: an interrupted run resumes at the first topic
 whose ballots are incomplete.
 
@@ -26,6 +23,7 @@ import json
 import uuid
 from datetime import datetime, timezone
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd
 
@@ -55,8 +53,7 @@ def build_naming_prompt(words: str, cfg=CONFIG) -> str:
 
 
 def name_once(backend: LLMBackend, words: str, cfg=CONFIG, request_key=None) -> str:
-    """One independent naming query. Decoding parameters match the reference
-    implementation: temperature 0.5, max_tokens 15, n=1."""
+    """One independent naming query using the declared decoding settings."""
     return backend.complete(SYSTEM, build_naming_prompt(words, cfg),
                             cfg.naming_max_tokens, cfg.naming_temperature, tag="stage2",request_key=request_key,
                             task_data={'task':'name','words':words,'domain':cfg.domain_context})
@@ -67,6 +64,22 @@ def normalize(label: str) -> str:
     trailing periods, and case-fold, so '"Sports."' and 'sports' are the
     same ballot."""
     return str(label).strip().strip('"\'“”').strip().rstrip(".").lower()
+
+
+def collect_votes(backend, words, topic_id, cfg):
+    """At most one bounded batch is in flight; logical vote IDs survive resume."""
+    workers = max(1, cfg.naming_workers)
+    if cfg.early_stop and workers != 1:
+        raise ValueError("Use one naming worker with an adaptive stopping rule.")
+    def one(v):
+        namespace=f'{cfg.naming_run_id}:' if cfg.naming_run_id else ''
+        return v, name_once(backend, words, cfg, request_key=f'naming:{namespace}{topic_id}:{v+1}')
+    if workers == 1:
+        for v in range(cfg.votes_per_topic): yield one(v)
+    else:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            for start in range(0, cfg.votes_per_topic, workers):
+                yield from pool.map(one, range(start, min(start+workers, cfg.votes_per_topic)))
 
 
 def run_stage2(cfg=CONFIG) -> str:
@@ -88,7 +101,7 @@ def run_stage2(cfg=CONFIG) -> str:
     checkpoint_guard(os.path.join(out,"naming_manifest.json"), {
         "topics":topics.to_dict("records"), "model":backend.model_id, "backend":backend.name,
         "system":SYSTEM, "domain":cfg.domain_context, "prompt_template":build_naming_prompt("{words}",cfg),
-        "temperature":cfg.naming_temperature,"max_tokens":cfg.naming_max_tokens,
+        "temperature":cfg.naming_temperature,"max_tokens":cfg.naming_max_tokens,"naming_run_id":cfg.naming_run_id,
         "votes":cfg.votes_per_topic,"early_stop":cfg.early_stop,
         "minimum_votes":cfg.early_stop_window,"share":cfg.early_stop_share,"normalization_version":1,
     }, checkpoint_exists=os.path.exists(ballot_path))
@@ -99,7 +112,8 @@ def run_stage2(cfg=CONFIG) -> str:
     if os.path.exists(ballot_path):
         prev = pd.read_csv(ballot_path)
         if not prev['complete'].all():
-            # Retried topics get fresh ballots; retain the previous attempt for audit.
+            # Retain the partial table; successful logical ballots are reused
+            # from the durable cache while unresolved calls are attempted again.
             stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
             shutil.copy2(ballot_path, os.path.join(out, f'vote_log_attempt_{stamp}.csv'))
         if "model" in prev.columns and (prev["model"] != backend.model_id).any():
@@ -121,8 +135,7 @@ def run_stage2(cfg=CONFIG) -> str:
         topic_ballots = []
         print(f"\n[stage2] Topic {topic_id}: [{words}]")
 
-        for v in range(cfg.votes_per_topic):
-            label = name_once(backend, words, cfg,request_key=f'naming:{topic_id}:{v+1}')
+        for v, label in collect_votes(backend, words, topic_id, cfg):
             # Append immediately, including failed responses. A stopped/retried
             # topic must not erase the observations that preceded the stop.
             with open(os.path.join(out, 'all_naming_attempts.jsonl'), 'a', encoding='utf-8') as audit:
@@ -194,6 +207,7 @@ def run_stage2(cfg=CONFIG) -> str:
         print(f"[stage2] Topic {t} WINNER: '{display}' ({win_n}/{total} = {win_n / total:.1%})")
 
     pd.DataFrame(winners).to_csv(os.path.join(out, "topic_names.csv"), index=False)
+    if backend.budget: backend.budget.export()
     print(f"\n[stage2] DONE — ballots, tallies, and modal labels in {out}/")
     return out
 

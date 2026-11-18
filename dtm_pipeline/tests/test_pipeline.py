@@ -118,7 +118,7 @@ def test_inference_counts_and_increase_positive_direction(tmp_path):
     rows=[{'tweet':str(i),'date':'2019-01-01' if i<10 else '2020-01-01','theme':'A' if i<2 or 10<=i<16 else 'Other','status':'matched'} for i in range(20)]
     (tmp_path/'stage4').mkdir()
     pd.DataFrame(rows).to_csv(tmp_path/'stage4/classified_corpus.csv',index=False)
-    cfg=PipelineConfig(output_dir=str(tmp_path),themes=['A'],none_label='Other',periods={'before':['2019-01-01','2019-12-31'],'after':['2020-01-01','2020-12-31']})
+    cfg=PipelineConfig(output_dir=str(tmp_path),themes=['A'],none_label='Other',run_pairwise_tests=True,periods={'before':['2019-01-01','2019-12-31'],'after':['2020-01-01','2020-12-31']})
     run_stage5(cfg)
     result=pd.read_csv(tmp_path/'stage5/ztest_results.csv').iloc[0]
     assert result.k_a==2 and result.n_a==10 and result.k_b==6 and result.n_b==10

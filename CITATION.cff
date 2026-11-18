@@ -1,17 +1,16 @@
 cff-version: 1.2.0
-message: "If you use TopicLLM, please cite the methods preprint and the software."
+message: "If you use TopicLLM, please cite the working methods manuscript and the software."
 title: "TopicLLM: Human-Guided Topic Interpretation and Prevalence Analysis"
 type: software
 authors:
   - family-names: Thomas
     given-names: Jacob E.
-    affiliation: "Department of Kinesiology and Health Education, The University of Texas at Austin"
     email: jethomasphd@gmail.com
 repository-code: "https://github.com/jethomasphd/TopicLLM"
 url: "https://topicllm.dev/"
 license: MIT
-version: "0.5.0"
-date-released: "2026-11-17"
+version: "0.6.0"
+date-released: "2026-11-18"
 keywords:
   - topic modeling
   - BERTopic
@@ -22,26 +21,13 @@ keywords:
   - public health surveillance
 preferred-citation:
   type: article
-  title: "TopicLLM: A Human-Guided, Agent-Executable Workflow for Topic Interpretation and Prevalence Analysis"
-  status: preprint
+  title: "TopicLLM: From Campaign Topics to Presidential Theme Prevalence"
+  status: in-preparation
   year: 2026
   url: "https://topicllm.dev/paper/"
   authors:
     - family-names: Thomas
       given-names: Jacob E.
-      affiliation: "Department of Kinesiology and Health Education, The University of Texas at Austin"
-    - family-names: Murthy
-      given-names: Dhiraj
-      affiliation: "School of Journalism and Media, The University of Texas at Austin"
-    - family-names: Pinedo
-      given-names: Miguel
-      affiliation: "Department of Kinesiology and Health Education, The University of Texas at Austin"
-    - family-names: Loukas
-      given-names: Alexandra
-      affiliation: "Department of Kinesiology and Health Education, The University of Texas at Austin"
-    - family-names: Pasch
-      given-names: Keryn E.
-      affiliation: "Department of Kinesiology and Health Education, The University of Texas at Austin"
 references:
   - type: article
     title: "Alcohol Marketing on Twitter During the COVID-19 Pandemic: Theme Identification, Prevalence Comparison, and Sentiment Analysis"

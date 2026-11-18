@@ -13,10 +13,13 @@ Artifacts: pipeline_output/stage3/
                                        vote share, representative words, and a
                                        random sample of mapped documents)
              theme_map_TEMPLATE.csv   (topic -> theme; researchers fill this in)
+             synthesis_workspace.html (local human review and codebook editor)
+             synthesis_packet.json    (source-bound evidence and packet hash)
 
-After the two researchers reach consensus, save the completed template as
-pipeline_output/stage3/theme_map.csv and update `themes` in the run configuration to the
-agreed theme names before running Stage 4.
+After the two researchers reach consensus, export their completed review from
+the local HTML workspace and run topicllm-import-synthesis. It verifies the
+evidence and writes the theme map, frozen codebook, human approval record and
+updated JSON configuration before classifier development can begin.
 """
 
 import os
@@ -50,7 +53,7 @@ def run_stage3(cfg=CONFIG) -> str:
         "   overlapping thematic connections between topics — reading against",
         "   the current literature of the target domain.",
         "2. Group topics by conceptual similarity into candidate themes.",
-        "3. SENIOR researcher: review and critique; reach",
+        "3. SECOND researcher: review and critique; reach",
         "   consensus through discussion.",
         "4. Record the consensus in theme_map_TEMPLATE.csv (save as",
         "   theme_map.csv) and set `themes` in your JSON run configuration accordingly.",
@@ -79,7 +82,7 @@ def run_stage3(cfg=CONFIG) -> str:
             context = " · ".join(str(document[k]) for k in ["post_id", "date"] if k in document)
             lines.append(f"    - [{context or 'source record'}] {document['tweet']}")
         lines += ["", "**Primary researcher notes:** ",
-                  "**Senior researcher critique:** ",
+                  "**Second researcher critique:** ",
                   "**Consensus candidate theme:** ", ""]
 
     with open(os.path.join(out, "synthesis_worksheet.md"), "w", encoding="utf-8") as f:
@@ -89,9 +92,15 @@ def run_stage3(cfg=CONFIG) -> str:
     template["theme"] = ""  # researchers fill in after consensus
     template.to_csv(os.path.join(out, "theme_map_TEMPLATE.csv"), index=False)
 
+    if __package__:
+        from .synthesis import render_synthesis_workspace
+    else:
+        from synthesis import render_synthesis_workspace
+    render_synthesis_workspace(cfg)
+
     print(f"[stage3] Review packet written: {out}/synthesis_worksheet.md")
-    print(f"[stage3] Fill in {out}/theme_map_TEMPLATE.csv -> save as theme_map.csv,")
-    print( "[stage3] then set `themes` in your JSON run configuration to the consensus names.")
+    print(f"[stage3] Open {out}/synthesis_workspace.html for actual human interpretation.")
+    print("[stage3] Import the completed human review with topicllm-import-synthesis before classifier development.")
     return out
 
 

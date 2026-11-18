@@ -1,6 +1,6 @@
 {
-  "schema_version": 4,
-  "authority": "Dissertation for historical research; maintained protocol for the Trump methodology-transfer tutorial.",
+  "schema_version": 5,
+  "authority": "Maintained campaign-to-presidency protocol for the new application; immutable original documents for the separate research library.",
   "modes": [
     "historical-research-example",
     "public-trump-tutorial",
@@ -9,24 +9,28 @@
   ],
   "input": {
     "benchmark": [
+      "post_id",
       "tweet",
       "human_label"
     ],
-    "benchmark_note": "No human benchmark is bundled. Independently annotate research examples.",
+    "benchmark_note": "Separate development and held-out human annotations; retain both independent reviewers and adjudication.",
     "python_corpus": [
       "tweet (nonempty string)",
       "post_id (stable unique identifier recommended)",
       "date YYYY-MM-DD for period inference"
     ],
-    "discovery": "One corpus: docs/data/trump/corpus.csv; input_csv by default",
-    "analysis": "Same corpus; 34,416 source records, 2015-06-16 through 2021-01-08"
+    "discovery": "Campaign view of the canonical archive: 2015-06-16 through 2016-11-08, inclusive; 7,805 posts.",
+    "analysis": "Presidency view of the same archive: 2017-01-20 through 2021-01-08, inclusive; 26,239 posts."
   },
   "naming": {
     "system": "You are an expert at naming topics.",
     "user_template": "The following words represent a topic derived from {domain}: {words}. Please provide a concise, meaningful topic name that clearly summarizes these words. ",
     "temperature": 0.5,
-    "max_tokens": 15,
-    "historical_votes_per_topic": 5000
+    "max_tokens": 32,
+    "historical_votes_per_topic": 5000,
+    "application_votes_per_topic": 500,
+    "naming_workers": 12,
+    "revision": "Initial 15-token attempt retained separately after truncation failures; all final 500-vote topic tallies use a uniform 32-token ceiling. All attempt costs remain counted."
   },
   "classification": {
     "system": "You are an expert at classifying text into themes.",
@@ -36,7 +40,17 @@
     "maintained_max_tokens": 120,
     "none_label": "The text does not fit into any of these themes",
     "invalid_response": "__INVALID_RESPONSE__",
-    "api_failure": "__API_ERROR__"
+    "api_failure": "__API_ERROR__",
+    "codebook": "Frozen JSON definitions and primary-theme rule are prepended to the classification prompt.",
+    "phases": [
+      "development",
+      "validate",
+      "classify"
+    ],
+    "selection": "Highest development agreement, LLM on a tie; choice frozen before held-out labels are opened.",
+    "acceptance": "Actual researchers inspect held-out errors and approve before scaling.",
+    "format_attempts": 5,
+    "transport_attempts": 5
   },
   "human_checkpoint": "Two researchers review and record a topic-to-theme map. Agents must not invent review or consensus.",
   "gate": {
@@ -45,11 +59,12 @@
     "per_theme": "positive benchmark support and nonzero sensitivity required; inspect precision and recall and justify acceptance for the study"
   },
   "statistics": {
-    "test": "pooled two-sided two-proportion z",
-    "z_direction": "period_b minus period_a",
-    "multiplicity": "alpha / (number of themes × number of pairs)",
+    "primary_estimand": "Overall classifier-assigned theme share of 26,239 presidential posting events",
+    "denominator": "exact target IDs; all resolved classifications including the residual",
+    "periods": {},
+    "pairwise_tests": false,
     "unresolved_labels": "block inference",
-    "zero_variance": "not estimable"
+    "scope": "descriptive archive measurement; no causal or public-opinion claim"
   },
   "reproduction_limit": "Method transfer to a new corpus, not reproduction of dissertation findings. Probabilistic algorithms, seeds, model revisions and dependencies can change outputs.",
   "intended_workflow": [
@@ -75,7 +90,16 @@
         1
       ],
       "api_calls": 0,
-      "records": 34416
+      "records": 7805,
+      "source_records": 34416,
+      "discovery_window": [
+        "2015-06-16",
+        "2016-11-08"
+      ],
+      "target_window": [
+        "2017-01-20",
+        "2021-01-08"
+      ]
     },
     "research": {
       "review_mode": "human",
@@ -91,7 +115,11 @@
       "assignments_sha256",
       "naming_sha256",
       "theme_map_sha256",
-      "themes"
+      "themes",
+      "codebook_sha256",
+      "discovery_window",
+      "target_window",
+      "require_disjoint_windows"
     ],
     "decision": "approved by actual researchers",
     "invalid_or_stale": "block Stage 4"
@@ -120,13 +148,15 @@
       "stage3/review_record.json"
     ],
     "4": [
-      "stage4/benchmark_predictions.csv",
-      "stage4/benchmark_report.json",
+      "stage4/classifier_selection.json",
+      "stage4/development_predictions.csv",
+      "stage4/validate_predictions.csv",
+      "stage4/validation_report.json",
+      "stage4/validation_review.json",
       "stage4/classified_corpus.csv"
     ],
     "5": [
-      "stage5/prevalence_by_period.csv",
-      "stage5/ztest_results.csv"
+      "stage5/theme_counts.csv"
     ],
     "run": [
       "api_usage.json",
@@ -155,7 +185,7 @@
       20
     ]
   },
-  "release": "0.5.0",
+  "release": "0.6.0",
   "tutorial": {
     "source": "https://www.kaggle.com/datasets/codebreaker619/donald-trump-tweets-dataset",
     "window": [
@@ -164,6 +194,31 @@
     ],
     "human_review_performed": false,
     "classifier_validated": false,
-    "prevalence_inference": "requires researcher approval and independent validation; topic-assignment summaries are descriptive only"
+    "prevalence_inference": "requires researcher approval and independent validation; topic-assignment summaries are descriptive only",
+    "current_design": "Campaign discovery followed by independently validated presidential classification.",
+    "prior_diagnostic": "The existing whole-archive reference run is retained separately; it is not the campaign research run."
+  },
+  "research_application": {
+    "status": "human_synthesis_pending",
+    "discovery_complete": true,
+    "source_posts": 34416,
+    "campaign_posts": 7805,
+    "campaign_modeled": 7779,
+    "campaign_empty_after_preprocessing": 26,
+    "target_posts": 26239,
+    "transition_outside_design": 372,
+    "search_draws": 50,
+    "candidate_evaluations": 1200,
+    "human_reviewers_required": 2,
+    "human_review_performed": false,
+    "classifier_validated": false,
+    "prevalence_complete": false,
+    "reporting": "overall presidency prevalence only",
+    "selected_candidate": "B",
+    "selected_topics": 12,
+    "selected_coherence": 0.5405823389348793,
+    "campaign_unassigned": 3854,
+    "naming_complete": true,
+    "naming_responses": 6000
   }
 }

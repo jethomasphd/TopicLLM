@@ -1,0 +1,80 @@
+{
+  "sha256": "5ce4aa401ac945101242874d8a0a223a0480df74ba4acfa690724bccfdf0b38c",
+  "specification": {
+    "topics": [
+      {
+        "topic": 0,
+        "words": "poll, debate, trump, cruz, rubio, jeb, ted, say, marco, fail",
+        "n_documents": 1323
+      },
+      {
+        "topic": 1,
+        "words": "makeamericagreatagain, trump, border, america, make, great, illegal, thank, immigration, mexico",
+        "n_documents": 758
+      },
+      {
+        "topic": 2,
+        "words": "iowa, thank, carolina, hampshire, crowd, new, south, great, makeamericagreatagain, join",
+        "n_documents": 577
+      },
+      {
+        "topic": 3,
+        "words": "hillary, crooked, clinton, sander, bernie, email, bad, judgement, mail, warren",
+        "n_documents": 358
+      },
+      {
+        "topic": 4,
+        "words": "interview, interviewed, enjoy, tonight, morning, melania, pm, great, wife, watch",
+        "n_documents": 238
+      },
+      {
+        "topic": 5,
+        "words": "obama, iran, radical, terrorist, islamic, isi, president, terrorism, attack, refugee",
+        "n_documents": 198
+      },
+      {
+        "topic": 6,
+        "words": "thank, thanks, nice, word, great, job, appreciate, true, happy, much",
+        "n_documents": 176
+      },
+      {
+        "topic": 7,
+        "words": "tax, obamacare, repeal, replace, plan, disaster, premium, obamacarefail, healthcare, raise",
+        "n_documents": 98
+      },
+      {
+        "topic": 8,
+        "words": "veteran, mccain, vet, john, va, care, military, treat, trump, take",
+        "n_documents": 83
+      },
+      {
+        "topic": 9,
+        "words": "book, copy, cripple, signing, sign, order, gift, america, holiday, stream",
+        "n_documents": 43
+      },
+      {
+        "topic": 10,
+        "words": "macy, shop, store, stock, boycott, merchandise, disloyal, boycottmacys, card, shopping",
+        "n_documents": 42
+      },
+      {
+        "topic": 11,
+        "words": "turnberry, scotland, resort, golf, open, best, ireland, british, great, opening",
+        "n_documents": 31
+      }
+    ],
+    "model": "gpt-4o-2024-08-06",
+    "backend": "gateway",
+    "system": "You are an expert at naming topics.",
+    "domain": "Donald Trump account posts during the 2015\u00e2\u20ac\u201c2016 presidential campaign, June 16, 2015 through November 8, 2016, including retweets; describe the content neutrally",
+    "prompt_template": "The following words represent a topic derived from Donald Trump account posts during the 2015\u00e2\u20ac\u201c2016 presidential campaign, June 16, 2015 through November 8, 2016, including retweets; describe the content neutrally: {words}. Please provide a concise, meaningful topic name that clearly summarizes these words. ",
+    "temperature": 0.5,
+    "max_tokens": 32,
+    "naming_run_id": "uniform-32-v1",
+    "votes": 500,
+    "early_stop": false,
+    "minimum_votes": 500,
+    "share": 0.6,
+    "normalization_version": 1
+  }
+}

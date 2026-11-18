@@ -4,6 +4,8 @@ import html,json,re
 from site_shell import apply_shell
 
 root=Path(__file__).resolve().parents[1]
+if json.loads((root/'docs/protocol.json').read_text(encoding='utf-8')).get('schema_version',0)>=5:
+    raise SystemExit('This legacy builder targets the prior whole-archive diagnostic. It must not overwrite the campaign application or standalone paper.')
 d=json.loads((root/'docs/data/trump/reference-run.json').read_text(encoding='utf-8'))
 f=lambda n:f'{n:,}'
 params=d['parameters'];statuses=d['candidate_status_counts']

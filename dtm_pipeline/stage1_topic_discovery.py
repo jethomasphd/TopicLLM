@@ -33,6 +33,7 @@ import os
 import re
 import hashlib
 import html
+import gzip
 from pathlib import Path
 from dataclasses import asdict
 from typing import Callable
@@ -63,8 +64,10 @@ else:
     from config import CONFIG
 if __package__:
     from .provenance import environment
+    from .sampling import read_selected
 else:
     from provenance import environment
+    from sampling import read_selected
 
 NLTK_PACKAGES = {  # resource path -> downloadable package
     "tokenizers/punkt": "punkt",
@@ -219,15 +222,20 @@ def topic_words_of(model: BERTopic) -> list[list[str]]:
 
 def summarize(model: BERTopic) -> dict:
     topics = np.asarray(model.topics_)
+    ids, counts = np.unique(topics[topics != -1], return_counts=True)
     return {"n_topics_found": int(len(set(topics.tolist()) - {-1})),
-            "outlier_share": round(float(np.mean(topics == -1)), 4)}
+            "outlier_share": round(float(np.mean(topics == -1)), 4),
+            "topic_sizes": {str(t): int(n) for t, n in zip(ids, counts)},
+            "smallest_topic_n": int(counts.min()) if len(counts) else 0,
+            "largest_topic_share_of_assigned": float(counts.max() / counts.sum()) if len(counts) else None}
 
 
 def evaluate_configuration(docs: list[str], embeddings: np.ndarray,
                            embedder: SentenceTransformer, stop_words: set,
                            umap_params: dict, hdbscan_params: dict,
                            topic_range: range, scorer: CoherenceScorer,
-                           seed: int | None, refit_per_solution: bool):
+                           seed: int | None, refit_per_solution: bool,
+                           save_candidate=None):
     """Score one sampled (UMAP, HDBSCAN) configuration across all maximum
     topic solutions.
 
@@ -268,6 +276,8 @@ def evaluate_configuration(docs: list[str], embeddings: np.ndarray,
                 continue
             info = {"max_topics": n_topics, "status": "scored", "coherence": coherence, **summarize(model)}
             results.append(info)
+            if save_candidate:
+                save_candidate(model, info)
             print(f"[stage1]   max_topics={n_topics:>2}  found={info['n_topics_found']:>2}  "
                   f"outliers={info['outlier_share']:.1%}  coherence={coherence:.4f}")
             if coherence > best_c:
@@ -295,18 +305,20 @@ def run_stage1(cfg=CONFIG) -> str:
     """Execute the full Stage 1 search. Returns the stage output directory."""
     out = os.path.join(cfg.output_dir, "stage1")
     os.makedirs(out, exist_ok=True)
+    if Path(out, "run_manifest.json").exists():
+        raise ValueError("Stage 1 already has a run manifest. Use a new output directory; do not overwrite research evidence.")
     rng = np.random.default_rng(cfg.random_seed)
     umap_seed = cfg.random_seed if cfg.seed_umap else None
 
     # ---- Load & preprocess -------------------------------------------------
     discovery_path = cfg.discovery_input_csv or cfg.input_csv
-    df = pd.read_csv(discovery_path)
-    if "tweet" not in df.columns:
-        raise ValueError(f"{discovery_path} must contain a 'tweet' column.")
+    selected, selection = read_selected(cfg, "discovery")
+    df = pd.DataFrame(selected)
     preprocess, stop_words = build_preprocessor(cfg.stopwords_file, cfg.strip_platform_artifacts)
     manifest = {
         "input_sha256": hashlib.sha256(Path(discovery_path).read_bytes()).hexdigest(),
         "analysis_corpus_sha256": hashlib.sha256(Path(cfg.input_csv).read_bytes()).hexdigest(),
+        "selection": selection,
         "effective_stopwords": sorted(stop_words),
         "config": asdict(cfg), "environment": environment(),
         "mode": "maintained-python-discovery", "status": "started",
@@ -333,6 +345,9 @@ def run_stage1(cfg=CONFIG) -> str:
     embedder = SentenceTransformer(cfg.embedding_model, revision=cfg.embedding_revision)
     manifest['resolved_embedding_revision'] = getattr(getattr(getattr(embedder[0], 'auto_model', None), 'config', None), '_commit_hash', None)
     embeddings = embedder.encode(docs, show_progress_bar=True)
+    if cfg.save_candidate_evidence:
+        np.save(Path(out, "embeddings.npy"), embeddings)
+        Path(out, "candidates").mkdir(exist_ok=True)
     scorer = CoherenceScorer(docs)
 
     # ---- Search ------------------------------------------------------------
@@ -352,9 +367,20 @@ def run_stage1(cfg=CONFIG) -> str:
         print(f"[stage1]   UMAP    : {umap_cfg}")
         print(f"[stage1]   HDBSCAN : {hdb_cfg}")
 
+        def save_candidate(model, info):
+            candidate = {"iteration": i + 1, "umap_params": umap_cfg,
+                         "hdbscan_params": hdb_cfg, **info,
+                         "topics": [{"topic": int(t), "words": [w for w, _ in model.get_topic(t) if w]}
+                                    for t in sorted(set(model.topics_)) if t != -1],
+                         "assignments": [int(t) for t in model.topics_]}
+            # Assignment order is bound to preprocessed_tweets.csv; retain every scored candidate.
+            payload = json.dumps(candidate, separators=(",", ":")).encode("utf-8")
+            Path(out, "candidates", f"iteration-{i+1:03d}-max-{info['max_topics']:02d}.json.gz").write_bytes(gzip.compress(payload, mtime=0))
+
         details, model = evaluate_configuration(
             docs, embeddings, embedder, stop_words, umap_cfg, hdb_cfg,
-            topic_range, scorer, umap_seed, cfg.refit_per_solution)
+            topic_range, scorer, umap_seed, cfg.refit_per_solution,
+            save_candidate if cfg.save_candidate_evidence else None)
         scored = [d for d in details if d["status"] == "scored"]
         top = max(scored, key=lambda d: d["coherence"]) if scored else None
         record = {

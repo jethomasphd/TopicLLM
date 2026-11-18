@@ -10,7 +10,7 @@ From the 56,571-row source CSV, retain every record whose source date is on or a
 
 There are 34,416 unique IDs, no blank raw texts, 9,852 retweets, 1,092 records flagged deleted, and 343 repeated-text events beyond the first occurrence. Retweets and repeated text are retained as distinct posting events, not deduplicated into authored statements. The archive may omit posts; counts describe this file, not a claim of complete account history.
 
-`trump/corpus.csv` is the single input for discovery and later research classification. `post_id` is a string identifier; preserve it exactly. `tweet` preserves the source text, including HTML entities. `date` is YYYY-MM-DD; `timestamp` retains the original timestamp without conversion. The source file supplies no timezone offset; selection uses its calendar dates without conversion. `is_retweet`, `is_deleted`, `is_flagged`, `device`, `favorites` and `retweets` preserve the source values. Engagement counts are archive snapshots, not current totals. Flags are archival metadata, not independently verified assessments.
+`trump/corpus.csv` is the canonical source. Discovery uses its 7,805 campaign posts; classification targets its 26,239 presidential posts. These are explicit temporal views of the same file. `post_id` is a string identifier; preserve it exactly. `tweet` preserves the source text, including HTML entities. `date` is YYYY-MM-DD; `timestamp` retains the original timestamp without conversion. The source file supplies no timezone offset; selection uses its calendar dates without conversion. `is_retweet`, `is_deleted`, `is_flagged`, `device`, `favorites` and `retweets` preserve the source values. Engagement counts are archive snapshots, not current totals. Flags are archival metadata, not independently verified assessments.
 
 ## Modeling choices
 
@@ -18,7 +18,7 @@ The modeling copy decodes HTML entities, removes URLs and @handles, replaces non
 
 The six added tokens are `rt, https, http, co, amp, realdonaldtrump`. No candidate, policy, opponent or ideological terms are removed. Retaining retweets preserves account amplification behavior; a research sensitivity analysis can separately examine non-retweets with its own declared input hash.
 
-Illustrative periods: campaign (2015-06-16–2016-11-08; 7,805 posts), transition (2016-11-09–2017-01-19; 372), presidency through archive end (2017-01-20–2021-01-08; 26,239). These exhaustive boundaries describe posting events. Unequal durations, dependence within a single account, retweets and changing platform use limit statistical interpretation.
+Analytic roles: campaign discovery (2015-06-16–2016-11-08; 7,805 posts), transition retained outside this design (2016-11-09–2017-01-19; 372), and presidential classification through archive end (2017-01-20–2021-01-08; 26,239). The primary report estimates overall presidential prevalence only. Repeated activity from one account limits population and causal interpretation.
 
 ## Verify or rebuild
 
@@ -32,7 +32,7 @@ Discovery outputs are measured model results, not human annotations. The site pr
 
 ## Live examples from the same corpus
 
-The live lab uses 1,024 evenly spaced chronological source rows, including the first and last records, plus three seeded samples from each recorded topic. Duplicate IDs are removed. This is a lightweight view of the same corpus, not another analysis population. `live-examples.json` preserves the selected source text and IDs; the complete source remains available in `corpus.csv`. Six broad practice categories illustrate classification mechanics. They are not researcher-approved themes or benchmark labels.
+The live lab uses 1,024 evenly spaced presidential source rows, including that period's endpoints, for classification practice. Naming examples use the 12 adopted campaign topics. These are lightweight views of the same corpus, not probability samples for classifier validation. `live-examples.json` preserves the selected source text and IDs; the complete source remains available in `corpus.csv`. Six broad practice categories illustrate classification mechanics. They are not researcher-approved themes or benchmark labels.
 
 ## Attribution and scope
 

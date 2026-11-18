@@ -12,7 +12,10 @@ const dist=path.resolve(root,'dist');
 if(path.dirname(dist)!==root||path.basename(dist)!=='dist')throw new Error('Unsafe build target');
 await rm(dist,{recursive:true,force:true});
 await mkdir(dist, {recursive:true});
-await cp(path.join(root,'docs'), path.join(root,'dist'), {recursive:true});
+// Full source archives include the dissertation and research logs and can
+// exceed the host's 25 MiB per-asset limit. The download route uses GitHub.
+await cp(path.join(root,'docs'), path.join(root,'dist'), {recursive:true,
+  filter:source=>path.basename(source)!=='topicllm-research-source.zip'});
 // Version the complete browser code/style set, including module imports, so a
 // returning visitor cannot combine a new page with a cached earlier interface.
 async function siteFiles(dir){
@@ -24,6 +27,7 @@ async function siteFiles(dir){
   return files.sort();
 }
 const files=await siteFiles(dist), browserHash=createHash('sha256');
+for(const file of files)if((await stat(file)).size>25*1024*1024)throw new Error(`Asset exceeds the hosting limit: ${path.relative(dist,file)}`);
 for(const file of files.filter(file=>/\.(?:css|js)$/.test(file))){browserHash.update(path.relative(dist,file).replaceAll('\\','/'));browserHash.update(await readFile(file));}
 const revision=browserHash.digest('hex').slice(0,12);
 for(const file of files.filter(file=>/\.(?:html|js)$/.test(file))){

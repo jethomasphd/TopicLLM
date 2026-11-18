@@ -1,0 +1,30 @@
+{
+  "status": "complete",
+  "scope": "campaign-only discovery",
+  "historical_replication": false,
+  "api_calls": 0,
+  "selected_model_reload_verified": true,
+  "input_records": 7805,
+  "discovery_records": 7779,
+  "source_records": 34416,
+  "selection": {
+    "role": "discovery",
+    "source_sha256": "8256646462a1267c5c6e177d3c951a852a17bcbd8553cb0f98e2a89ce5f3206a",
+    "window_inclusive": [
+      "2015-06-16",
+      "2016-11-08"
+    ],
+    "source_records": 34416,
+    "selected_records": 7805,
+    "outside_window_records": 26611,
+    "ordered_selected_ids_sha256": "97f86a0e5baa8ca468fccb6aa8ff36eeaea2504a7ef91c1cfde34f94b45cb36c"
+  },
+  "excluded_empty": 26,
+  "search_draws": 50,
+  "candidate_ceilings": 1200,
+  "input_sha256": "8256646462a1267c5c6e177d3c951a852a17bcbd8553cb0f98e2a89ce5f3206a",
+  "fitted_model_sha256": "b67fce38ef29471620b0216c19af291d3e8d72781b440f4cf88825ece1b56153",
+  "verified_at": "2026-11-18T17:35:04.229495+00:00",
+  "human_review_performed": false,
+  "classifier_validated": false
+}

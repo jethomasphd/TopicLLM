@@ -1,0 +1,35 @@
+{
+  "recorded_at": "2026-11-18T17:49:23.333835+00:00",
+  "reason": "The 15-token output limit produced truncated responses and exhausted retries. Repeat every topic with one uniform 32-token ceiling; do not mix earlier ballots into final tallies.",
+  "previous_attempt": {
+    "price_date": "2026-11-16",
+    "model": "gpt-4o-2024-08-06",
+    "input_usd_per_million": 2.5,
+    "output_usd_per_million": 10,
+    "budget_usd": 100,
+    "call_ceiling": 60000,
+    "attempted_calls": 2568,
+    "successful_calls": 2503,
+    "conservatively_accounted_usd": 1.0361825,
+    "prompt_tokens": 268312,
+    "completion_tokens": 24503
+  },
+  "preserved_directory": "naming-attempt-15tokens",
+  "topics": 12,
+  "completed_votes_per_topic": 500,
+  "planned_completed_calls": 6000,
+  "model": "gpt-4o-2024-08-06",
+  "temperature": 0.5,
+  "max_tokens": 32,
+  "workers": 12,
+  "logical_namespace": "uniform-32-v1",
+  "unchanged_total_budget_usd": 100,
+  "budget_note": "Same api_ledger.sqlite and server research run ID retain every earlier charge/reservation.",
+  "execution_source_sha256": {
+    "dtm_pipeline/config.py": "ca5caae39beb0fdf11490981e506b418355d6569c5bd68ffbf3b0977e739e6ba",
+    "dtm_pipeline/llm_backend.py": "8c25e147165314611b0b174b7fb42a12fa91f4e862c9fd008c9b8300adf6fd27",
+    "dtm_pipeline/api_budget.py": "7fe5b991c60d0ad8c44f3d51c05916a4dba8f97712baf14576f36a562662acca",
+    "dtm_pipeline/stage2_democratic_naming.py": "b3f1a033211fa37632abf645e9a5f475d8ca9b800bb90c844a6aab1086f84aa1",
+    "worker/provider.js": "ae7572abae0a041b7c29b1776c6893eef62ab965d8943bfbe6114f2df3b7cdb3"
+  }
+}

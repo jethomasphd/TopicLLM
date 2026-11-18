@@ -48,6 +48,6 @@ def test_failed_benchmark_retains_raw_responses(tmp_path, monkeypatch):
     monkeypatch.setattr(stage4,'build_theme_dictionaries',lambda cfg:{})
     monkeypatch.setattr('review.require_review',lambda cfg:{'review_mode':'test-fixture','human_review_performed':False})
     with pytest.raises(RuntimeError,match='benchmark calls failed'):
-        stage4.run_stage4(PipelineConfig(output_dir=str(tmp_path),benchmark_csv=str(benchmark),themes=["Sports"]))
+        stage4.run_stage4(PipelineConfig(output_dir=str(tmp_path),benchmark_csv=str(benchmark),themes=["Sports"],validation_mode="legacy-single-benchmark"))
     saved=pd.read_csv(tmp_path/'stage4/benchmark_predictions.csv')
     assert saved.llm_raw_response.tolist()==['__API_ERROR__']

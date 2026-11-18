@@ -10,7 +10,7 @@
 Born in dissertation research at **The University of Texas at Austin**, this release has two clear entry points:
 
 - **Research in action:** the unchanged dissertation and two study papers document applications to alcohol marketing and information dynamics during COVID-19. They are historical research examples, available for review. Dissertation datasets are not distributed.
-- **Learn by doing:** one new public corpus—**34,416 Trump account posts, June 16, 2015–January 8, 2021**—walks you through the method. This transfers the methodology to another domain; it does not reproduce the dissertation findings.
+- **Learn by doing:** discover topics in **7,805 campaign posts**, develop human-defined themes, validate their measurement, and estimate their overall prevalence in **26,239 presidential posts**. These are two temporal views of one public Trump account archive containing 34,416 posts. The 372 transition posts remain in the source but are outside the application.
 
 The selected Kaggle archive ends January 8, before the first term ended. It includes retweets and posts recorded as deleted. Account posts are not all personally authored statements, and the archive is not a guarantee of complete coverage. [Data card and attribution](docs/data/README.md).
 
@@ -18,11 +18,11 @@ The selected Kaggle archive ends January 8, before the first term ended. It incl
 
 ```mermaid
 flowchart LR
-  A[Documents] --> B[Discover topics]
+  A[Campaign posts] --> B[Discover topics]
   B --> C[Collect naming votes]
   C --> D[Researchers synthesize themes]
   D --> E[Validate the classifier]
-  E --> F[Estimate prevalence]
+  E --> F[Presidential theme prevalence]
 ```
 
 A **topic** groups similar language. A **theme** is a researcher-defined interpretation. A **label** assigns a document to a theme. Keeping these distinct prevents an attractive model output from becoming an unsupported scientific claim.
@@ -49,7 +49,7 @@ topicllm --profile trump-demo --plan
 topicllm --profile trump-demo --output-dir runs/trump
 ```
 
-Discovery runs on the full eligible corpus with 50 parameter draws and 24 topic ceilings per draw. It uses local compute, downloads the embedding model and NLTK resources when needed, and makes no paid API calls. Runtime depends on hardware. Do not expect seven topics: topic count is an observed result.
+Discovery uses only campaign posts from June 16, 2015 through November 8, 2016, with 50 parameter draws and 24 topic ceilings per draw. It uses local compute and makes no paid API calls. Researchers review candidate coverage and original posts before adopting a topic solution. The presidency, January 20, 2017 through January 8, 2021, is the subsequent classification target. Topic count is an observed result.
 
 **Giving this to an agent?** Start with this instruction:
 
@@ -64,10 +64,10 @@ Discovery runs on the full eligible corpus with 50 parameter draws and 24 topic 
 | Discover | MiniLM → UMAP → HDBSCAN → c-TF-IDF; select by cᵥ coherence | Every candidate, exclusions, outliers, assignments, fitted model |
 | Name | Independent LLM calls; modal candidate name | Raw ballots, tally, prompts, model and usage |
 | Synthesize | Two researchers interpret and agree | Worksheet, theme map, evidence-bound attestation |
-| Classify | Independent benchmark before scaling | Per-theme metrics, confusion counts, labels and errors |
-| Estimate | Declared periods and denominators | Counts, prevalence, two-proportion tests and multiplicity |
+| Classify | Development selection → untouched evaluation → human acceptance | Independent labels, frozen classifier, per-theme metrics and errors |
+| Estimate | Overall share of presidential posting events | Every theme's count, denominator and prevalence; residual coverage |
 
-No research taxonomy or human benchmark is pre-approved for the Trump corpus. The package stops at the corresponding gates. Paid steps require an explicit `--budget-usd` and private credentials. The public Worker accepts only tutorial examples; use your own approved environment for research data.
+Campaign discovery and 6,000 naming responses are complete for the selected 12-topic solution. Human synthesis, independent annotation and validated presidential prevalence remain in progress. No taxonomy, human annotations or scientific validation is implied by the public teaching examples. The package stops for actual researcher review, separate development and held-out evaluation, and acceptance before scaling. Paid steps require an explicit `--budget-usd` and private credentials. [Run the complete protocol](REPRODUCE.md) with [the campaign configuration](examples/campaign-presidency-config.json).
 
 ## Research in action
 
@@ -78,6 +78,8 @@ The papers preserve the research record byte for byte. The maintained [methods p
 Topic models and LLMs include probabilistic steps. Seeds, model revisions, dependencies and hardware can change groupings or names. Reproducibility means retaining enough information to rerun and assess the process—not promising identical output across changing environments.
 
 ## Contribute and cite
+
+Created and maintained by **Jacob E. Thomas**. The original studies retain their own authorship in the research library; those bylines do not imply participation in the new platform or methods manuscript.
 
 Questions, replication reports and improvements are welcome through [GitHub issues](https://github.com/jethomasphd/TopicLLM/issues). See [CITATION.cff](CITATION.cff), [source integrity](source-integrity.json), [deployment](DEPLOYMENT.md) and [data handling](https://topicllm.dev/privacy/).
 

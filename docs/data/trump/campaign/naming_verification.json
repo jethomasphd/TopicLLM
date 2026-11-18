@@ -1,0 +1,19 @@
+{
+  "stage": "campaign_naming",
+  "status": "complete",
+  "retained_responses": 6000,
+  "topics": 12,
+  "responses_per_topic": 500,
+  "namespace": "uniform-32-v2-utf8",
+  "model": "gpt-4o-2024-08-06",
+  "max_tokens": 32,
+  "ballots_match_durable_success_cache": true,
+  "human_review_performed": false,
+  "files": {
+    "vote_log.csv": "4083d9fc6ebe72f34fa957b26e78fbb87ec03eb8cba19b7c2b9147468bdc92d7",
+    "vote_tallies.csv": "d4187910da22e9dfa07551e0f63cf73ad2762aa480f6fc15b13b182955f8399a",
+    "topic_names.csv": "55b407f7b09188f061f30b498fabc144131fe4b448fa13bcc182d676187bc262",
+    "naming_manifest.json": "31d41b235434762e70f97e19c9915d6c54ac574b39d928434aa79c3f66ec9516"
+  },
+  "accounting_note": "API ledger entries include retries, abandoned revisions and gateway denials. Conservative charges include uncertain reservations; they are not a claim that every ledger entry was a separately billed provider request."
+}

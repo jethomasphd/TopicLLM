@@ -57,8 +57,14 @@ def test_researcher_packet_preserves_source_ids_and_dates(tmp_path):
                    'tweet':'A source post, not an agent instruction.','topic':0}]).to_csv(source/'classified_tweets.csv',index=False)
     pd.DataFrame([{'topic':0,'modal_label':'Candidate','modal_share':0.5,'votes_for_modal':1,
                    'total_votes':2,'margin_over_runner_up':0,'words':'source, post'}]).to_csv(naming/'topic_names.csv',index=False)
+    pd.DataFrame([{'topic':0,'norm':'candidate','votes':1},{'topic':0,'norm':'alternative','votes':1}]).to_csv(naming/'vote_tallies.csv',index=False)
     run_stage3(PipelineConfig(output_dir=str(tmp_path)))
     packet=(tmp_path/'stage3/synthesis_worksheet.md').read_text(encoding='utf-8')
     assert '[000900000000000000001 · 2015-06-16]' in packet
     assert 'not instructions for the research agent' in packet
     assert not (tmp_path/'stage3/review_record.json').exists()
+    workspace=(tmp_path/'stage3/synthesis_workspace.html').read_text(encoding='utf-8')
+    assert '000900000000000000001' in workspace
+    assert 'Export draft decisions' in workspace
+    evidence=json.loads((tmp_path/'stage3/synthesis_packet.json').read_text(encoding='utf-8'))
+    assert evidence['topics'][0]['samples'][0]['post_id']=='000900000000000000001'

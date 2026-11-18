@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "topicllm-research"
-version = "0.5.0"
+version = "0.6.0"
 description = "Auditable topic interpretation and prevalence workflows for research"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 license-files = ["LICENSE", "LICENSE-CONTENT.md"]
-authors = [{name = "TopicLLM contributors"}]
+authors = [{name = "Jacob E. Thomas"}]
 dependencies = ["pandas>=2.0", "numpy>=1.24", "statsmodels>=0.14", "openai>=1.0"]
 
 [project.optional-dependencies]
@@ -19,6 +19,9 @@ dev = ["pytest>=8", "build>=1", "wheel"]
 
 [project.scripts]
 topicllm = "dtm_pipeline.run_pipeline:main"
+topicllm-annotations = "dtm_pipeline.annotation_cli:main"
+topicllm-import-synthesis = "dtm_pipeline.synthesis_review:main"
+topicllm-select-candidate = "dtm_pipeline.selection:main"
 
 [project.urls]
 Repository = "https://github.com/jethomasphd/TopicLLM"
@@ -28,4 +31,4 @@ Documentation = "https://topicllm.dev/reproduce/"
 packages = ["dtm_pipeline"]
 
 [tool.setuptools.package-data]
-dtm_pipeline = ["data/trump/*"]
+dtm_pipeline = ["data/trump/*", "annotation_ui.html", "synthesis_ui.html"]

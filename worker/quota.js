@@ -63,7 +63,10 @@ export class DemoQuota {
       const sessionKey=`${day}:session:${input.session}`, ipKey=`${day}:ip:${input.ip}`;
       const session=book.identities[sessionKey] || 0, ip=book.identities[ipKey] || 0;
       const pending=Object.values(book.receipts).filter(r=>r.state==='pending' && r.scope===scope).length;
-      const lifetime=scope==='operator'?bucket('operator:validation:v1'):null;
+      const runId=this.env.OPERATOR_RUN_ID || 'v1';
+      if(!/^[a-zA-Z0-9_-]{1,80}$/.test(runId))return {status:503,data:{error:'Invalid operator budget configuration.',retryable:false}};
+      const lifetimeKey=`operator:validation:${runId}`;
+      const lifetime=scope==='operator'?bucket(lifetimeKey):null;
       const lifetimeLimit=Number(this.env.OPERATOR_VALIDATION_USD||'5');
       const limits=publicLimits(this.env);
       let error=null,busy=false;
@@ -78,7 +81,7 @@ export class DemoQuota {
         return {status:429,data:{error,retryable:busy,...(busy?{retry_after:2}:{})}};
       }
       const keys=[`${scope}:day:${day}`,`${scope}:month:${month}`];
-      if(lifetime)keys.push('operator:validation:v1');
+      if(lifetime)keys.push(lifetimeKey);
       for(const key of keys){const b=bucket(key);b.charged+=input.reserved;b.calls++;}
       if(scope==='public'){book.identities[sessionKey]=session+1;book.identities[ipKey]=ip+1;}
       book.receipts[input.key]={scope,fingerprint:input.fingerprint,reserved:input.reserved,buckets:keys,state:'pending',started:now,expires:now+1800000};

@@ -20,13 +20,21 @@ test('the public tutorial accounts for every source record exactly once',async()
  const rows=parseCSV(bytes.toString('utf8')).rows;
  assert.equal(rows.length,34416);assert.equal(new Set(rows.map(r=>r.post_id)).size,34416);
  assert.equal(rows[0].date,'2015-06-16');assert.equal(rows.at(-1).date,'2021-01-08');
- assert.equal(run.discovery_records+run.excluded_empty,rows.length);
+ const discovery=rows.filter(r=>r.date>='2015-06-16'&&r.date<='2016-11-08');
+ const target=rows.filter(r=>r.date>='2017-01-20'&&r.date<='2021-01-08');
+ assert.equal(run.schema_version,2);
+ assert.equal(run.archive_records,rows.length);
+ assert.equal(run.source_records,discovery.length);assert.equal(discovery.length,7805);
+ assert.equal(run.target_records,target.length);assert.equal(target.length,26239);
+ assert.equal(run.discovery_records+run.excluded_empty,discovery.length);
  assert.equal(run.topics.reduce((n,t)=>n+t.count,run.outliers),run.discovery_records);
- for(const p of Object.keys(run.periods)){
-  assert.equal(run.topics.reduce((n,t)=>n+t.period_counts[p],run.outlier_period_counts[p]+run.excluded_period_counts[p]),run.period_counts[p]);
- }
- assert.equal(Object.values(run.candidate_status_counts).reduce((a,b)=>a+b,0),1200);
- assert.equal(run.human_review_performed,false);assert.equal(run.classifier_validated,false);
+ const assignments=parseCSV(await readFile(new URL('campaign/assignments.csv',base),'utf8')).rows;
+ const exclusions=parseCSV(await readFile(new URL('campaign/excluded.csv',base),'utf8')).rows;
+ const ids=[...assignments,...exclusions].map(r=>r.post_id);
+ assert.equal(ids.length,new Set(ids).size);
+ assert.deepEqual(new Set(ids),new Set(discovery.map(r=>r.post_id)));
+ assert.equal(run.verification.candidate_ceilings,1200);
+ if(run.prevalence){assert.equal(run.classifier_validated,true);assert.equal(run.human_review_performed,true);assert.equal(run.prevalence.reduce((n,r)=>n+Number(r.documents),0),target.length);}
  assert.equal(run.verification.selected_model_reload_verified,true);
 });
 
