@@ -3,13 +3,13 @@
   "model": "gpt-4o-2024-08-06",
   "input_usd_per_million": 2.5,
   "output_usd_per_million": 10,
-  "budget_usd": 100,
+  "budget_usd": 100.0,
   "call_ceiling": 60000,
-  "attempted_calls": 9808,
-  "successful_calls": 9671,
+  "attempted_calls": 9908,
+  "successful_calls": 9771,
   "failed_calls": 125,
   "unsettled_calls": 12,
-  "conservatively_accounted_usd": 3.8024625,
-  "prompt_tokens": 1029296,
-  "completion_tokens": 96743
+  "conservatively_accounted_usd": 4.2090725,
+  "prompt_tokens": 1188300,
+  "completion_tokens": 97653
 }

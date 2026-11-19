@@ -185,7 +185,7 @@
       20
     ]
   },
-  "release": "0.6.1",
+  "release": "0.6.2",
   "tutorial": {
     "source": "https://www.kaggle.com/datasets/codebreaker619/donald-trump-tweets-dataset",
     "window": [
@@ -199,7 +199,7 @@
     "prior_diagnostic": "The existing whole-archive reference run is retained separately; it is not the campaign research run."
   },
   "research_application": {
-    "status": "independent_annotation_pending",
+    "status": "development_complete_holdout_unopened",
     "discovery_complete": true,
     "source_posts": 34416,
     "campaign_posts": 7805,
@@ -225,6 +225,16 @@
       "Jacob E. Thomas",
       "Research Assistant"
     ],
-    "synthesis_record": "data/trump/campaign/human_synthesis_submission.json"
+    "synthesis_record": "data/trump/campaign/human_synthesis_submission.json",
+    "development_complete": true,
+    "development_posts": 100,
+    "development_adjudicated_disagreements": 15,
+    "independent_development_human_agreement": 0.85,
+    "independent_development_human_kappa": 0.809,
+    "development_selected_classifier": "llm",
+    "development_llm_agreement": 0.64,
+    "development_boolean_agreement": 0.3,
+    "heldout_evaluation_opened": false,
+    "development_evidence": "data/trump/campaign/development_report.json"
   }
 }

@@ -12,7 +12,7 @@ import pypdfium2 as pdfium
 
 repo=Path(__file__).resolve().parents[1];base=repo/'build-qa'
 base.mkdir(exist_ok=True)
-out=repo/'docs/preprints/TopicLLM_Methods_2026-11-18.pdf'
+out=repo/'docs/preprints/TopicLLM_Methods_2026-11-19.pdf'
 for name,file in [('Text','times.ttf'),('TextBold','timesbd.ttf'),('TextItalic','timesi.ttf'),('TextBI','timesbi.ttf'),('UI','arial.ttf')]:
     fontfile=Path('C:/Windows/Fonts')/file
     if fontfile.exists():
@@ -79,7 +79,7 @@ for el in page:
     if cls in ['authors','affil']:
         story.append(Paragraph(markup(el),styles['Small2']));continue
     if cls=='abstract':
-        story.extend([Spacer(1,10),Paragraph('Working manuscript | 18 November 2026 | Research validation in progress',styles['Small2'])])
+        story.extend([Spacer(1,10),Paragraph('Working manuscript | 19 November 2026 | Research validation in progress',styles['Small2'])])
         for c in el:story.append(Paragraph(markup(c),styles['Sub' if c.tag=='h2' else 'Body']))
     elif cls=='prompt':story.append(KeepTogether([Paragraph(markup(el),styles['Prompt2'])]))
     elif cls=='tablewrap':
@@ -101,7 +101,7 @@ for el in page:
         story.append(Paragraph(markup(el),styles[{'h2':'Section','h3':'Sub','p':'Body'}[el.tag]]))
 def footer(canvas,doc):
     canvas.saveState();canvas.setFont('UI',8);canvas.setFillColor(colors.HexColor('#666666'))
-    canvas.drawString(72,36,'TopicLLM | Working manuscript | 18 November 2026');canvas.drawRightString(540,36,str(doc.page));canvas.restoreState()
+    canvas.drawString(72,36,'TopicLLM | Working manuscript | 19 November 2026');canvas.drawRightString(540,36,str(doc.page));canvas.restoreState()
 SimpleDocTemplate(str(out),pagesize=(612,792),leftMargin=72,rightMargin=72,topMargin=54,bottomMargin=58,title=page.find('h1').text_content(),author='Jacob E. Thomas').build(story,onFirstPage=footer,onLaterPages=footer)
 qa=base/'methods_pdf_qa';qa.mkdir(exist_ok=True)
 pdf=pdfium.PdfDocument(str(out))

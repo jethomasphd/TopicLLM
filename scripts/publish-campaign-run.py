@@ -1,12 +1,14 @@
 """Publish measured campaign evidence and only actually completed research stages."""
 import argparse,csv,hashlib,json,random,shutil,sys,zipfile
+import pandas as pd
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from dtm_pipeline.config import PipelineConfig
 from dtm_pipeline.sampling import read_selected,CAMPAIGN,PRESIDENCY
-from dtm_pipeline.review import require_review
-from dtm_pipeline.research_validation import require_validation_review
+from dtm_pipeline.review import require_review,sha
+from dtm_pipeline.research_validation import require_validation_review,read_annotations,validation_spec
+from dtm_pipeline.stage4_classification import score_labels
 
 
 def publish(config_path,allow_in_progress=False):
@@ -87,11 +89,48 @@ def publish(config_path,allow_in_progress=False):
         summary['codebook']=read(Path(cfg.codebook_path))
         summary['theme_map']=rows(run/'stage3/theme_map.csv')
         summary['reviewers']=read(run/'stage3/review_record.json')['reviewers']
+    development=None
+    if (run/'stage4/classifier_selection.json').exists():
+        require_review(cfg)
+        frozen=read(run/'stage4/classifier_selection.json')
+        if frozen['specification']!=validation_spec(cfg):
+            raise ValueError('Development selection no longer matches the approved research specification.')
+        annotations=read_annotations(cfg.development_csv,cfg,{r['post_id']:r for r in target},'development')
+        predictions=rows(run/'stage4/development_predictions.csv')
+        source=annotations.set_index('post_id').to_dict(orient='index')
+        if len(predictions)!=len(source) or {r['post_id'] for r in predictions}!=set(source):
+            raise ValueError('Development predictions do not exactly cover the frozen annotations.')
+        if any(any(row[key]!=source[row['post_id']][key] for key in annotations.columns if key!='post_id') for row in predictions):
+            raise ValueError('Development predictions changed the human annotation evidence.')
+        options=cfg.themes+[cfg.none_label]
+        for name,metrics in frozen['development_scores'].items():
+            if name=='llm' and any(r['llm_status']!='matched' for r in predictions):
+                raise ValueError('Unresolved development responses cannot be published as scored results.')
+            observed=score_labels(pd.Series([r['human_label'] for r in predictions]),pd.Series([r[name+'_pred'] for r in predictions]),options)
+            if observed!=metrics:raise ValueError('Development metrics do not match retained predictions.')
+        human=score_labels(annotations.reviewer_1_label,annotations.reviewer_2_label,options)
+        development={'phase':'development','n':len(annotations),'winner':frozen['winner'],
+            'selection_rule':frozen['selection_rule'],'selected_at':frozen['selected_at'],
+            'scores':frozen['development_scores'],
+            'independent_human_agreement':{k:human[k] for k in ['agreement','cohens_kappa','confusion']},
+            'adjudicated_disagreements':int((annotations.reviewer_1_label!=annotations.reviewer_2_label).sum()),
+            'annotations_sha256':sha(cfg.development_csv),
+            'codebook_sha256':sha(cfg.codebook_path),
+            'classifier_selection_sha256':sha(run/'stage4/classifier_selection.json'),
+            'interpretation':'Development comparison for selection, not independent validation or presidential prevalence.'}
+        summary['development']=development
     if (run/'stage4/validation_review.json').exists():
         require_validation_review(cfg);summary['classifier_validated']=True
         summary['validation']=read(run/'stage4/validation_report.json')
     if complete:summary['prevalence']=rows(run/'stage5/theme_counts.csv')
     evidence.mkdir(exist_ok=True)
+    if development:
+        dump(evidence/'development_report.json',development)
+        for source_path,target_name in [(Path(cfg.development_csv),'development_annotations.csv'),
+                (Path(str(cfg.development_csv)+'.review.json'),'development_annotations.review.json'),
+                (run/'stage4/classifier_selection.json','classifier_selection.json'),
+                (run/'stage4/development_predictions.csv','development_predictions.csv')]:
+            shutil.copy2(source_path,evidence/target_name)
     # Keep the previous measured run as a clearly separate historical artifact.
     old=out/'reference-run.json'
     if old.exists() and read(old).get('schema_version')!=2:

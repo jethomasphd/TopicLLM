@@ -36,7 +36,7 @@ export default {async fetch(request,env){
   // Withdrawn dissertation data must not be served by stale asset paths.
   if(path==='/S4_liwc_output.csv'||path.startsWith('/data/reference_run/')||path.startsWith('/data/study1/')||path==='/data/live-examples.json'||path.startsWith('/downloads/topicllm_research-0.4.0')||path==='/validation/results.json'||path.startsWith('/data/demonstration_')||path==='/data/study-demo.json'||path==='/data/study.json'||path.startsWith('/validation/synthetic-')||path==='/validation/legacy-synthetic-results.json')
     return new Response('This dataset or download has been withdrawn. Visit https://topicllm.dev for the current public demonstration.',{status:410,headers:{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'}});
-  if(['/preprints/TopicLLM_Methods_Revised_2026-11-16.pdf','/preprints/TopicLLM_Methods_2026-11-17.pdf'].includes(path))return Response.redirect('https://topicllm.dev/preprints/TopicLLM_Methods_2026-11-18.pdf',302);
+  if(['/preprints/TopicLLM_Methods_Revised_2026-11-16.pdf','/preprints/TopicLLM_Methods_2026-11-17.pdf'].includes(path))return Response.redirect('https://topicllm.dev/preprints/TopicLLM_Methods_2026-11-19.pdf',302);
   if(path==='/downloads/topicllm-research-source.zip')return Response.redirect('https://github.com/jethomasphd/TopicLLM/archive/refs/heads/main.zip',302);
   // Keep existing API clients on their origin; browser navigation uses the primary domain.
   if(env.CANONICAL_REDIRECTS!=='false'&&!path.startsWith('/api/')&&['GET','HEAD'].includes(request.method)&&
