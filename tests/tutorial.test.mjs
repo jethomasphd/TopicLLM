@@ -34,7 +34,10 @@ test('the public tutorial accounts for every source record exactly once',async()
  assert.equal(ids.length,new Set(ids).size);
  assert.deepEqual(new Set(ids),new Set(discovery.map(r=>r.post_id)));
  assert.equal(run.verification.candidate_ceilings,1200);
- if(run.prevalence){assert.equal(run.classifier_validated,true);assert.equal(run.human_review_performed,true);assert.equal(run.prevalence.reduce((n,r)=>n+Number(r.documents),0),target.length);}
+ if(run.prevalence){
+  assert.equal(run.human_review_performed,true);assert.equal(run.prevalence.reduce((n,r)=>n+Number(r.documents),0),target.length);
+  if(!run.classifier_validated){assert.equal(run.demonstration_exception?.decision,'continue_unvalidated_demonstration');assert.equal(run.estimand?.model_mode,'unvalidated-demonstration');assert.equal(run.estimand.classifier_validated,false);assert.equal(run.validation.gate_passed,false);}
+ }
  assert.equal(run.verification.selected_model_reload_verified,true);
 });
 
@@ -54,7 +57,7 @@ test('every live example preserves its public source text and never uses a disse
 
 test('withdrawn public data and old wheels cannot fall through to assets',async()=>{
  const env={ASSETS:{fetch(){throw new Error('Withdrawn asset reached storage');}}};
- for(const path of ['/S4_liwc_output.csv','/data/reference_run/stage1_parameters.json','/data/study1/full.csv','/data/study1/discovery.csv','/data/live-examples.json','/validation/results.json','/downloads/topicllm_research-0.4.0-py3-none-any.whl']){
+ for(const path of ['/S4_liwc_output.csv','/data/reference_run/stage1_parameters.json','/data/study1/full.csv','/data/study1/discovery.csv','/data/live-examples.json','/validation/results.json','/downloads/topicllm_research-0.4.0-py3-none-any.whl','/data/trump/campaign/development_annotations.csv','/data/trump/campaign/evaluation_annotations.csv','/data/trump/campaign/evaluation_predictions.csv','/data/trump/campaign/development_annotations.review.json','/data/trump/campaign/development_predictions.csv']){
   const response=await worker.fetch(new Request('https://topicllm.dev'+path),env);
   assert.equal(response.status,410,path);
  }

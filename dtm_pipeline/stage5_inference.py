@@ -38,6 +38,10 @@ def run_stage5(cfg=CONFIG) -> str:
     out = os.path.join(cfg.output_dir, "stage5")
     os.makedirs(out, exist_ok=True)
     corpus = pd.read_csv(os.path.join(cfg.output_dir, "stage4", "classified_corpus.csv"))
+    if cfg.demonstration_exception_path:
+        if __package__:from .demonstration import require_demonstration_exception
+        else:from demonstration import require_demonstration_exception
+        require_demonstration_exception(cfg)
     if cfg.require_disjoint_windows:
         if __package__:
             from .research_validation import require_validation_review
@@ -45,7 +49,7 @@ def run_stage5(cfg=CONFIG) -> str:
         else:
             from research_validation import require_validation_review
             from sampling import read_selected
-        require_validation_review(cfg)
+        if not cfg.demonstration_exception_path:require_validation_review(cfg)
         selected, selection = read_selected(cfg, 'target')
         if len(corpus) != len(selected) or set(corpus.post_id.astype(str)) != {r['post_id'] for r in selected}:
             raise ValueError('Classifications do not exhaust the declared target corpus exactly.')
@@ -80,8 +84,9 @@ def run_stage5(cfg=CONFIG) -> str:
         'unit':'posting event','denominator':len(corpus),'target_window':cfg.target_window,
         'periods':cfg.periods,'pairwise_tests':cfg.run_pairwise_tests,
         'classified_corpus_sha256':hashlib.sha256(input_path.read_bytes()).hexdigest(),
-        'model_mode':'MOCK' if cfg.llm_backend=='mock' else 'research',
-        'interpretation':'Engineering output only; not research findings.' if cfg.llm_backend=='mock' else 'Descriptive classifier-assigned shares of archived account posts; no causal or public-opinion inference.'
+        'model_mode':'MOCK' if cfg.llm_backend=='mock' else 'unvalidated-demonstration' if cfg.demonstration_exception_path else 'research',
+        'classifier_validated':False if cfg.demonstration_exception_path or cfg.llm_backend=='mock' else bool(cfg.require_disjoint_windows),
+        'interpretation':'Engineering output only; not research findings.' if cfg.llm_backend=='mock' else 'Unvalidated model-assigned shares for methodological illustration. Held-out acceptance criteria failed; these are not validated theme prevalence estimates.' if cfg.demonstration_exception_path else 'Descriptive classifier-assigned shares of archived account posts; no causal or public-opinion inference.'
     },indent=2),encoding='utf-8')
     print(f"[stage5] Whole-corpus prevalence written for {len(theme_rows)} labels "
           f"({len(corpus):,} documents).")

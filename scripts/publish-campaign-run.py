@@ -9,6 +9,8 @@ from dtm_pipeline.sampling import read_selected,CAMPAIGN,PRESIDENCY
 from dtm_pipeline.review import require_review,sha
 from dtm_pipeline.research_validation import require_validation_review,read_annotations,validation_spec
 from dtm_pipeline.stage4_classification import score_labels
+from dtm_pipeline.provenance import fingerprint
+from dtm_pipeline.demonstration import require_demonstration_exception
 
 
 def publish(config_path,allow_in_progress=False):
@@ -34,7 +36,9 @@ def publish(config_path,allow_in_progress=False):
         raise ValueError('Assignments and exclusions must exactly partition campaign IDs.')
     complete=(run/'stage5/theme_counts.csv').exists()
     if complete:
-        require_review(cfg);require_validation_review(cfg)
+        require_review(cfg)
+        if cfg.demonstration_exception_path:require_demonstration_exception(cfg)
+        else:require_validation_review(cfg)
         classified=rows(run/'stage4/classified_corpus.csv')
         if len(classified)!=len(target) or {r['post_id'] for r in classified}!={r['post_id'] for r in target}:
             raise ValueError('Classifications must exhaust the target population exactly.')
@@ -128,19 +132,66 @@ def publish(config_path,allow_in_progress=False):
             if any(decision.get(k)!=v for k,v in expected.items()):
                 raise ValueError('The decision to proceed belongs to different research evidence.')
             summary['evaluation_proceed_decision']=decision
+    evaluation=None
+    if (run/'stage4/validation_report.json').exists():
+        if not development:raise ValueError('Held-out results require a current frozen development selection.')
+        evaluation=read(run/'stage4/validation_report.json')
+        annotated=read_annotations(cfg.benchmark_csv,cfg,{r['post_id']:r for r in target},'evaluation')
+        predicted=rows(run/'stage4/validate_predictions.csv')
+        originals=annotated.set_index('post_id').to_dict(orient='index')
+        if len(predicted)!=len(originals) or {r['post_id'] for r in predicted}!=set(originals):
+            raise ValueError('Held-out predictions must exactly cover the reserved human reference.')
+        if any(any(row[k]!=originals[row['post_id']][k] for k in annotated.columns if k!='post_id') for row in predicted):
+            raise ValueError('Held-out predictions changed the human reference evidence.')
+        winner=frozen['winner']
+        if winner=='llm' and any(r['llm_status']!='matched' for r in predicted):
+            raise ValueError('Resolve every held-out response before publishing evaluation metrics.')
+        observed=score_labels(pd.Series([r['human_label'] for r in predicted]),pd.Series([r[winner+'_pred'] for r in predicted]),options)
+        unsupported=[name for name in cfg.themes if observed['per_label'][name]['human_n']==0 or observed['per_label'][name]['recall']==0]
+        expected={'n_benchmark':len(annotated),'winner':winner,'metrics':observed,
+            'benchmark_sha256':sha(cfg.benchmark_csv),'specification_sha256':fingerprint(validation_spec(cfg)),
+            'threshold':cfg.agreement_threshold,'unsupported_themes':unsupported,
+            'gate_passed':observed['agreement']>cfg.agreement_threshold and not unsupported}
+        if any(evaluation.get(k)!=v for k,v in expected.items()):
+            raise ValueError('Held-out report differs from the retained reference, predictions or frozen criteria.')
+        summary.update(evaluation_completed=True,evaluation_gate_passed=evaluation['gate_passed'],validation=evaluation)
     if (run/'stage4/validation_review.json').exists():
         require_validation_review(cfg);summary['classifier_validated']=True
-        summary['validation']=read(run/'stage4/validation_report.json')
-    if complete:summary['prevalence']=rows(run/'stage5/theme_counts.csv')
+    if cfg.demonstration_exception_path:
+        summary['demonstration_exception']=require_demonstration_exception(cfg)
+        summary['measurement_status']='unvalidated-demonstration'
+        summary['mode']='unvalidated-demonstration-complete' if complete else 'unvalidated-demonstration-in-progress'
+    if complete:
+        summary['prevalence']=rows(run/'stage5/theme_counts.csv')
+        summary['estimand']=read(run/'stage5/estimand.json')
+        if sum(int(r['documents']) for r in summary['prevalence'])!=len(target):raise ValueError('Shares must count the complete target corpus.')
+        if cfg.demonstration_exception_path and (summary['estimand'].get('model_mode')!='unvalidated-demonstration' or summary['estimand'].get('classifier_validated') is not False):
+            raise ValueError('Demonstration shares must preserve their unvalidated status.')
+        if summary['estimand']['classified_corpus_sha256']!=sha(run/'stage4/classified_corpus.csv'):
+            raise ValueError('The classified corpus changed after aggregation.')
+    summary['annotation_publication']='Aggregate results only. Independent human labels, adjudication notes and post-level evaluation predictions are retained privately.'
     evidence.mkdir(exist_ok=True)
+    # A previous publisher copied row-level human records. Withdraw those public
+    # copies without touching the private run or its original submissions.
+    for name in ['development_annotations.csv','development_annotations.review.json','development_predictions.csv',
+                 'evaluation_annotations.csv','evaluation_annotations.review.json','evaluation_predictions.csv']:
+        (evidence/name).unlink(missing_ok=True)
+    if evaluation:
+        for source_path,target_name in [(run/'stage4/validation_report.json','evaluation_report.json'),
+                (run/'annotations/evaluation_import_provenance.json','evaluation_import_provenance.json'),
+                (run/'stage4/evaluation_execution_record.json','evaluation_execution_record.json')]:
+            shutil.copy2(source_path,evidence/target_name)
+    if cfg.demonstration_exception_path:dump(evidence/'demonstration_exception.json',summary['demonstration_exception'])
+    if complete:
+        with (evidence/'theme_counts.csv').open('w',encoding='utf-8',newline='') as handle:
+            writer=csv.DictWriter(handle,fieldnames=['theme','documents','denominator','share','classifier_validated','interpretation'],lineterminator='\n');writer.writeheader()
+            writer.writerows({**row,'classifier_validated':summary['classifier_validated'],'interpretation':summary['estimand']['interpretation']} for row in summary['prevalence'])
+        shutil.copy2(run/'stage5/estimand.json',evidence/'estimand.json')
     if development:
         dump(evidence/'development_report.json',development)
         if summary.get('evaluation_proceed_decision'):
             shutil.copy2(run/'stage4/evaluation_proceed_decision.json',evidence/'evaluation_proceed_decision.json')
-        for source_path,target_name in [(Path(cfg.development_csv),'development_annotations.csv'),
-                (Path(str(cfg.development_csv)+'.review.json'),'development_annotations.review.json'),
-                (run/'stage4/classifier_selection.json','classifier_selection.json'),
-                (run/'stage4/development_predictions.csv','development_predictions.csv')]:
+        for source_path,target_name in [(run/'stage4/classifier_selection.json','classifier_selection.json')]:
             shutil.copy2(source_path,evidence/target_name)
     # Keep the previous measured run as a clearly separate historical artifact.
     old=out/'reference-run.json'
@@ -158,7 +209,7 @@ def publish(config_path,allow_in_progress=False):
     if summary['human_review_performed']:
         live.update(themes=cfg.themes,codebook=summary['codebook'],human_review_performed=True,
                     codebook_sha256=hashlib.sha256(Path(cfg.codebook_path).read_bytes()).hexdigest(),
-                    taxonomy_status='Human-reviewed themes; classifier performance remains unvalidated.' if not complete else 'Human-reviewed themes with independently validated research classification.')
+                    taxonomy_status=(f"Human-reviewed themes; classifier remains unvalidated. Held-out agreement {evaluation['metrics']['agreement']:.0%}, below the declared acceptance criteria." if evaluation and not evaluation['gate_passed'] else 'Human-reviewed themes; classifier performance remains unvalidated.') if not summary['classifier_validated'] else 'Human-reviewed themes with independently validated research classification.')
         for name in ['theme_map.csv','codebook.json','review_record.json','human_synthesis_submission.json','synthesis_packet.json']:
             shutil.copy2(run/'stage3'/name,evidence/name)
     dump(out/'live-examples.json',live)
@@ -178,8 +229,10 @@ def publish(config_path,allow_in_progress=False):
         for name in ['naming_manifest.json','all_naming_attempts.jsonl']:
             shutil.copy2(run/'stage2'/name,evidence/name)
         if (run/'stage2/naming_verification.json').exists():shutil.copy2(run/'stage2/naming_verification.json',evidence/'naming_verification.json')
-        for name in ['api_responses.json','naming_revision.json']:
+        for name in ['naming_revision.json']:
             if (run/name).exists():shutil.copy2(run/name,evidence/name)
+        if (run/'api_responses.json').exists():
+            dump(evidence/'api_responses.json',[r for r in read(run/'api_responses.json') if r['operation'].startswith('naming:')])
         # Initial attempts remain available separately and cannot enter final tallies.
         for attempt in ['naming-attempt-15tokens','naming-attempt-32tokens-encoding']:
             if (run/attempt).exists():

@@ -16,7 +16,7 @@
     "Macy's Boycott and Consumer Relations",
     "Trump's International Golf Resorts and Openings"
   ],
-  "taxonomy_status": "Human-reviewed themes; classifier performance remains unvalidated.",
+  "taxonomy_status": "Human-reviewed themes; classifier remains unvalidated. Held-out agreement 70%, below the declared acceptance criteria.",
   "selection": "1,024 evenly spaced presidential source rows including endpoints; public practice classifications, not a probability sample for validation.",
   "corpus_sha256": "8256646462a1267c5c6e177d3c951a852a17bcbd8553cb0f98e2a89ce5f3206a",
   "topics": [

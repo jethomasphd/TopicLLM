@@ -1,0 +1,45 @@
+{
+  "verified_at": "2026-11-19T20:56:30.520076+00:00",
+  "execution_commit": "55a4a1788e69863411ec7c5bf176e084517af1b9",
+  "sample_n": 250,
+  "matches": 175,
+  "agreement": 0.7,
+  "cohens_kappa": 0.6352707749766573,
+  "wilson_95": [
+    0.6405184593182178,
+    0.7534282208836043
+  ],
+  "human_independent_agreement": 0.68,
+  "human_independent_kappa": 0.6143834956136124,
+  "adjudicated_differences": 80,
+  "evaluation_calls": 250,
+  "evaluation_accounted_usd": 1.016085,
+  "prompt_tokens": 397638,
+  "completion_tokens": 2199,
+  "cumulative_usage": {
+    "price_date": "2026-11-16",
+    "model": "gpt-4o-2024-08-06",
+    "input_usd_per_million": 2.5,
+    "output_usd_per_million": 10,
+    "budget_usd": 100.0,
+    "call_ceiling": 60000,
+    "attempted_calls": 10158,
+    "successful_calls": 10021,
+    "failed_calls": 125,
+    "unsettled_calls": 12,
+    "conservatively_accounted_usd": 5.2251575,
+    "prompt_tokens": 1585938,
+    "completion_tokens": 99852
+  },
+  "checks": "Independent count-based confusion/accuracy/kappa and Wilson formula; exact codebook, classifier selection and benchmark hashes; every response matched; full 250-post coverage.",
+  "gate_passed": false,
+  "full_target_classification_executed": false,
+  "private_gateway_enabled": false,
+  "hashes": {
+    "stage3\\codebook.json": "552617f68c1a7213522df33c5dcf03077400cc698b3788a20d6e5242b8c9f961",
+    "stage4\\classifier_selection.json": "86924834442be005cd103a2492c1e5fe6906f20a6e73852b430c86552bb89438",
+    "stage4\\validation_report.json": "9b9b2a3c8c4fc8de747330733cf6087aea8b56e3744fde726aa1906d77fe2490",
+    "stage4\\validate_predictions.csv": "ebbd73395e2642ea212a7ee8f94e8033602c2d4d51106644af3f6e1b8eb55164",
+    "annotations\\evaluation_labels.csv": "8b224de48f6fd3b66a309aa61d761efbda811a4cf2de04edb3ec7d33561399a0"
+  }
+}

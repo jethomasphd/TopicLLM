@@ -1,0 +1,12 @@
+{
+  "source_completed_adjudication_sha256": "24ccf0736f00636ec64ad1774b6dbadbef5da7d9a1f08274ade82cd7387c0636",
+  "independent_labels_sha256": "c24d046a6cc9ed726306cce555c7a8985cda35d135dd56c75dc17641caa9e1de",
+  "pending_merge_sha256": "51306b579e2843d8e07089a5e656ddf820a5df7f10ccbea5497ff49dd20d2664",
+  "final_evaluation_sha256": "8b224de48f6fd3b66a309aa61d761efbda811a4cf2de04edb3ec7d33561399a0",
+  "codebook_sha256": "552617f68c1a7213522df33c5dcf03077400cc698b3788a20d6e5242b8c9f961",
+  "classifier_selection_sha256": "86924834442be005cd103a2492c1e5fe6906f20a6e73852b430c86552bb89438",
+  "records": 250,
+  "adjudicated": 80,
+  "unchanged_agreements": 170,
+  "interpretation": "Human adjudication notes are retained as reference-label decisions; no prompt, codebook or classifier settings were changed."
+}

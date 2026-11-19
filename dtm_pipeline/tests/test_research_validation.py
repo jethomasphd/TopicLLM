@@ -108,3 +108,53 @@ def test_independent_names_must_match_actual_attestation(tmp_path,monkeypatch):
     frame.to_csv(cfg.development_csv,index=False)
     record_annotation_review(cfg.development_csv,['Fixture Human A','Fixture Human B'],cfg)
     with pytest.raises(ValueError,match='reviewer names'):run_validated_stage4(cfg)
+
+
+def failed_demo_fixture(tmp_path,monkeypatch):
+    from research_validation import validation_spec
+    from provenance import fingerprint
+    from review import sha
+    from sampling import read_selected
+    cfg=fixture(tmp_path,monkeypatch);run_validated_stage4(cfg)
+    cfg.stage4_action='validate'
+    monkeypatch.setattr('stage4_classification.classify_text',lambda *a,**k:('A','matched','A'))
+    with pytest.raises(RuntimeError,match='evaluation failed'):run_validated_stage4(cfg)
+    cfg.api_budget_usd=150;cfg.demonstration_exception_path=str(tmp_path/'exception.json')
+    root=tmp_path/'stage4'
+    record={'decision':'continue_unvalidated_demonstration','classifier_validated':False,
+        'validation_report_sha256':sha(root/'validation_report.json'),
+        'classifier_selection_sha256':sha(root/'classifier_selection.json'),
+        'benchmark_sha256':sha(cfg.benchmark_csv),'specification_sha256':fingerprint(validation_spec(cfg)),
+        'target_selection':read_selected(cfg,'target')[1],'reporting':'unvalidated model-assigned shares',
+        'researcher':'Fixture investigator','rationale':'Artificial test of explicit exception, not research approval.',
+        'recorded_at':'2026-11-19T00:00:00Z','cumulative_budget_usd':150}
+    Path(cfg.demonstration_exception_path).write_text(json.dumps(record),encoding='utf-8')
+    cfg.stage4_action='classify'
+    return cfg
+
+
+def test_explicit_exception_preserves_failed_gate_and_unvalidated_output(tmp_path,monkeypatch):
+    from stage5_inference import run_stage5
+    cfg=failed_demo_fixture(tmp_path,monkeypatch)
+    with pytest.raises(ValueError,match='passing held-out'):record_validation_review(cfg,['Fixture Human A','Fixture Human B'])
+    run_validated_stage4(cfg);run_stage5(cfg)
+    assert not json.loads((tmp_path/'stage4/validation_report.json').read_text())['gate_passed']
+    assert not json.loads((tmp_path/'stage4/classification_status.json').read_text())['classifier_validated']
+    assert not json.loads((tmp_path/'stage5/estimand.json').read_text())['classifier_validated']
+    assert not (tmp_path/'stage4/validation_review.json').exists()
+    assert pd.read_csv(tmp_path/'stage5/theme_counts.csv').documents.sum()==6
+
+
+@pytest.mark.parametrize('change',['budget','prompt','annotations','target','validated','tests'])
+def test_demonstration_exception_rejects_changed_scope_before_paid_backend(tmp_path,monkeypatch,change):
+    cfg=failed_demo_fixture(tmp_path,monkeypatch)
+    def forbidden(*args):raise AssertionError('Backend must not open before the exception is checked.')
+    monkeypatch.setattr('llm_backend.make_backend',forbidden)
+    if change=='budget':cfg.api_budget_usd=151
+    elif change=='prompt':cfg.classify_temperature=.7
+    elif change=='annotations':Path(cfg.benchmark_csv).write_text(Path(cfg.benchmark_csv).read_text()+'\n')
+    elif change=='target':cfg.target_window=['2019-01-01','2019-12-31']
+    elif change=='tests':cfg.run_pairwise_tests=True
+    else:
+        path=Path(cfg.demonstration_exception_path);r=json.loads(path.read_text());r['classifier_validated']=True;path.write_text(json.dumps(r))
+    with pytest.raises(ValueError):run_validated_stage4(cfg)

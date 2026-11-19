@@ -108,6 +108,10 @@ This checks original labels, notes, source text, frozen sample IDs, codebook has
 
 Development selects the higher-agreement Boolean or LLM classifier (LLM on a tie). Validation assesses only that frozen choice on the holdout. The phases run separately.
 
+The published application completed evaluation at 70% agreement and failed its declared acceptance criteria. Its principal investigator explicitly authorized a **demonstration-only exception** to illustrate corpus classification with the unchanged model. This is not the default research path and does not establish validity. `demonstration_exception_path` identifies an actual researcher decision bound to the failed report, frozen classifier specification, annotation hash, exact target selection and cumulative spending ceiling. `demonstration.py` rejects changed evidence, excess spending, significance tests or a claim of validated status. Stage 5 labels the output as unvalidated model-assigned shares. An agent must never create this exception without the investigator’s explicit decision. The application’s record is [available here](docs/data/trump/campaign/demonstration_exception.json).
+
+Individual human labels, adjudication notes and evaluation predictions are private. Released reports include aggregate confusion counts and per-theme performance. A fork can reproduce the mechanics and check aggregate calculations; it must supply its own independently collected annotations to repeat the human validation. Keep local annotation files outside the public checkout, and review release contents before publishing.
+
 ```bash
 topicllm --profile research --config research-config.json --stages 4 --stage4-action development --plan
 topicllm --profile research --config research-config.json --stages 4 --stage4-action development --budget-usd YOUR_APPROVED_TOTAL

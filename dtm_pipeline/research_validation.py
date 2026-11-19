@@ -175,10 +175,16 @@ def run_validated_stage4(cfg):
         if set(development.post_id) & set(evaluation.post_id) or set(development.tweet) & set(evaluation.tweet):
             raise ValueError("Development and evaluation overlap by ID or exact text.")
     if action == "classify":
-        require_validation_review(cfg)
-        report = json.loads((root / "validation_report.json").read_text(encoding="utf-8"))
-        if not report["gate_passed"] or report["benchmark_sha256"] != sha(cfg.benchmark_csv):
-            raise ValueError("A passing current evaluation is required before scaling.")
+        if cfg.demonstration_exception_path:
+            if __package__:from .demonstration import require_demonstration_exception
+            else:from demonstration import require_demonstration_exception
+            require_demonstration_exception(cfg)
+            print('[stage4] Explicit demonstration exception: outputs remain UNVALIDATED model-assigned shares.')
+        else:
+            require_validation_review(cfg)
+            report = json.loads((root / "validation_report.json").read_text(encoding="utf-8"))
+            if not report["gate_passed"] or report["benchmark_sha256"] != sha(cfg.benchmark_csv):
+                raise ValueError("A passing current evaluation is required before scaling.")
 
     needs_llm = action == "development" or selection["winner"] == "llm"
     backend = make_backend(cfg) if needs_llm else None
@@ -236,6 +242,10 @@ def run_validated_stage4(cfg):
             corpus.to_csv(root / "classified_corpus.csv", index=False)
             if corpus.status.isin(["error", "unmatched", "empty"]).any():
                 raise RuntimeError("Unresolved target classifications remain; inference is blocked.")
+            write_json(root/'classification_status.json',{'classifier_validated':not bool(cfg.demonstration_exception_path),
+                'mode':'unvalidated-demonstration' if cfg.demonstration_exception_path else 'accepted-research',
+                'classified_corpus_sha256':sha(root/'classified_corpus.csv'),
+                'demonstration_exception_sha256':sha(cfg.demonstration_exception_path) if cfg.demonstration_exception_path else None})
             print(f"[stage4] Classified the declared target corpus ({len(corpus):,} posts).")
     finally:
         if backend and backend.budget:

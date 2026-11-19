@@ -39,7 +39,7 @@ h1,h2,h3,h4{font-family:var(--sans);letter-spacing:-.035em}h1{font-weight:600}h2
 .reproduce p>.btn{margin:6px 6px 0 0}
 @media(max-width:620px){
  .tablewrap:has(th:nth-child(3))::before,.table-box:has(th:nth-child(3))::before,.table-scroll:has(th:nth-child(3))::before{content:'Scroll across to see every column →';display:block;position:sticky;left:0;font:12px/1.5 var(--sans);color:var(--accent);padding:8px 0 12px;white-space:normal}
- .tablewrap:has(th:nth-child(3)) table,.table-scroll:has(th:nth-child(3)) table{min-width:660px}
+ .tablewrap:has(th:nth-child(3)) table:not(.evaluation-table),.table-scroll:has(th:nth-child(3)) table:not(.evaluation-table){min-width:660px}
  .table-box:has(th:nth-child(3)) table{min-width:460px}
  .tablewrap caption,.table-box caption{white-space:normal;text-align:left;max-width:calc(100vw - 85px)}
 }

@@ -185,7 +185,7 @@
       20
     ]
   },
-  "release": "0.6.2",
+  "release": "0.6.3",
   "tutorial": {
     "source": "https://www.kaggle.com/datasets/codebreaker619/donald-trump-tweets-dataset",
     "window": [
@@ -199,7 +199,7 @@
     "prior_diagnostic": "The existing whole-archive reference run is retained separately; it is not the campaign research run."
   },
   "research_application": {
-    "status": "heldout_annotation_pending",
+    "status": "unvalidated_demonstration_authorized",
     "discovery_complete": true,
     "source_posts": 34416,
     "campaign_posts": 7805,
@@ -234,10 +234,28 @@
     "development_selected_classifier": "llm",
     "development_llm_agreement": 0.64,
     "development_boolean_agreement": 0.3,
-    "heldout_evaluation_opened": false,
+    "heldout_evaluation_opened": true,
     "development_evidence": "data/trump/campaign/development_report.json",
     "heldout_annotation_packet_released": true,
     "evaluation_decision": "Retain the current codebook and frozen selected classifier for the methodological demonstration; proceed to independent held-out evaluation.",
-    "evaluation_decision_record": "data/trump/campaign/evaluation_proceed_decision.json"
+    "evaluation_decision_record": "data/trump/campaign/evaluation_proceed_decision.json",
+    "heldout_annotation_complete": true,
+    "heldout_evaluation_complete": true,
+    "evaluation_posts": 250,
+    "evaluation_matches": 175,
+    "evaluation_llm_agreement": 0.7,
+    "evaluation_llm_kappa": 0.6353,
+    "evaluation_wilson_95": [
+      0.6405184593182177,
+      0.7534282208836044
+    ],
+    "independent_evaluation_human_agreement": 0.68,
+    "independent_evaluation_human_kappa": 0.6144,
+    "evaluation_adjudicated_disagreements": 80,
+    "evaluation_gate_passed": false,
+    "evaluation_evidence": "data/trump/campaign/evaluation_report.json",
+    "demonstration_exception": "data/trump/campaign/demonstration_exception.json",
+    "annotation_publication": "aggregate_only",
+    "research_budget_usd": 150
   }
 }

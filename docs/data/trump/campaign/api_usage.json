@@ -5,11 +5,11 @@
   "output_usd_per_million": 10,
   "budget_usd": 100.0,
   "call_ceiling": 60000,
-  "attempted_calls": 9908,
-  "successful_calls": 9771,
+  "attempted_calls": 10158,
+  "successful_calls": 10021,
   "failed_calls": 125,
   "unsettled_calls": 12,
-  "conservatively_accounted_usd": 4.2090725,
-  "prompt_tokens": 1188300,
-  "completion_tokens": 97653
+  "conservatively_accounted_usd": 5.2251575,
+  "prompt_tokens": 1585938,
+  "completion_tokens": 99852
 }

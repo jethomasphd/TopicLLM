@@ -33,6 +33,8 @@ export function demoCall(input){
 
 export default {async fetch(request,env){
   const url=new URL(request.url),path=url.pathname;
+  if(/^\/data\/trump\/campaign\/(?:development|evaluation)_(?:annotations(?:\.review)?\.(?:csv|json)|predictions\.csv)$/.test(path))
+    return new Response('Individual research annotations and evaluation predictions are private. Aggregate results are available at /validation/.',{status:410,headers:{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'}});
   // Withdrawn dissertation data must not be served by stale asset paths.
   if(path==='/S4_liwc_output.csv'||path.startsWith('/data/reference_run/')||path.startsWith('/data/study1/')||path==='/data/live-examples.json'||path.startsWith('/downloads/topicllm_research-0.4.0')||path==='/validation/results.json'||path.startsWith('/data/demonstration_')||path==='/data/study-demo.json'||path==='/data/study.json'||path.startsWith('/validation/synthetic-')||path==='/validation/legacy-synthetic-results.json')
     return new Response('This dataset or download has been withdrawn. Visit https://topicllm.dev for the current public demonstration.',{status:410,headers:{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'}});

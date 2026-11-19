@@ -1,0 +1,36 @@
+{
+  "decision": "continue_unvalidated_demonstration",
+  "classifier_validated": false,
+  "researcher": "Jacob E. Thomas",
+  "recorded_at": "2026-11-19T21:10:43.101087+00:00",
+  "rationale": "The principal investigator explicitly chose to continue the methodological demonstration with the unchanged classifier after reviewing its 70% held-out agreement and failed acceptance criteria.",
+  "user_decision": "Continue demonstration; $150 total ceiling",
+  "cumulative_budget_usd": 150,
+  "reporting": "unvalidated model-assigned shares",
+  "annotation_publication": "Aggregate results only; keep annotations private.",
+  "validation_report_sha256": "9b9b2a3c8c4fc8de747330733cf6087aea8b56e3744fde726aa1906d77fe2490",
+  "classifier_selection_sha256": "86924834442be005cd103a2492c1e5fe6906f20a6e73852b430c86552bb89438",
+  "benchmark_sha256": "8b224de48f6fd3b66a309aa61d761efbda811a4cf2de04edb3ec7d33561399a0",
+  "specification_sha256": "0f87f08d9d129fa96eb8da94db8bdc2dd053d6eaba7c56a364048eaecf85d268",
+  "target_selection": {
+    "role": "target",
+    "source_sha256": "8256646462a1267c5c6e177d3c951a852a17bcbd8553cb0f98e2a89ce5f3206a",
+    "window_inclusive": [
+      "2017-01-20",
+      "2021-01-08"
+    ],
+    "source_records": 34416,
+    "selected_records": 26239,
+    "outside_window_records": 8177,
+    "ordered_selected_ids_sha256": "78169eb3691073650908e2d4b326454ff41b5f233e0391e878afcf067d6583dd"
+  },
+  "execution_plan": {
+    "target_posts": 26239,
+    "workers": 10,
+    "checkpoint_every": 100,
+    "maximum_format_and_transport_attempts": 5,
+    "base_calls": 26239,
+    "call_ceiling_including_prior_calls": 60000,
+    "preserve_existing_run_and_cost_ledger": true
+  }
+}

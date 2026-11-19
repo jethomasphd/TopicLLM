@@ -93,6 +93,7 @@ class PipelineConfig:
     development_csv: str = "development_labels.csv"
     validation_mode: str = "heldout"  # development selects; untouched evaluation validates
     stage4_action: str = "development"  # development, validate, classify; separate invocations
+    demonstration_exception_path: str | None = None  # explicit researcher-authorized unvalidated illustration
     codebook_path: str | None = None
     annotation_manifest: str | None = None  # fixed probability-sample IDs; required for temporal transfer
     agreement_threshold: float = 0.85          # do not scale below this

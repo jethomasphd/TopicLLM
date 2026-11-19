@@ -79,7 +79,7 @@ for el in page:
     if cls in ['authors','affil']:
         story.append(Paragraph(markup(el),styles['Small2']));continue
     if cls=='abstract':
-        story.extend([Spacer(1,10),Paragraph('Working manuscript | 19 November 2026 | Research validation in progress',styles['Small2'])])
+        story.extend([Spacer(1,10),Paragraph('Working manuscript | 19 November 2026 | Held-out evaluation complete',styles['Small2'])])
         for c in el:story.append(Paragraph(markup(c),styles['Sub' if c.tag=='h2' else 'Body']))
     elif cls=='prompt':story.append(KeepTogether([Paragraph(markup(el),styles['Prompt2'])]))
     elif cls=='tablewrap':
