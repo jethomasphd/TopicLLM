@@ -88,6 +88,22 @@ python scripts/prepare-annotations.py --config research-approved.json --output r
 
 The merge retains both original labels and leaves disagreements blank for actual adjudication. Repeat for evaluation. Set `development_csv` and `benchmark_csv` to the adjudicated files, and `annotation_manifest` to the generated `sampling_manifest.json`. The transfer workflow checks the exact sampled IDs, target population, original text and both reviewer identities. Record actual annotation review with `--record-annotations PATH --reviewers ...`; do not certify generated labels.
 
+For a joint review screen in your fork, render the unresolved merged file:
+
+```bash
+python scripts/prepare-adjudication.py --config research-approved.json --source runs/annotations/development_labels.csv --phase development --output development-adjudication.html
+```
+
+Both researchers discuss the disagreements using the frozen codebook. The local screen preserves the matching labels, shows both original answers, requires a consensus label and rationale for each difference, and exports a CSV only after both actual human confirmations. It supplies no suggested resolution. Save a draft if the discussion requires a codebook revision; record and approve that revision separately. The 250-post evaluation set remains outside development.
+
+Check the returned export before recording the actual annotation attestation:
+
+```bash
+python scripts/prepare-adjudication.py --config research-approved.json --source runs/annotations/development_labels.csv --phase development --check development-adjudicated.csv
+```
+
+This checks original labels, notes, source text, frozen sample IDs, codebook hashes and completion fields. It does not automatically certify human work or run classification. Use the exported file as `development_csv`. For held-out adjudication after classifier selection, use `--phase evaluation` and the separately merged evaluation file.
+
 ## 6. Develop, evaluate, then accept
 
 Development selects the higher-agreement Boolean or LLM classifier (LLM on a tie). Validation assesses only that frozen choice on the holdout. The phases run separately.

@@ -31,4 +31,4 @@ Documentation = "https://topicllm.dev/reproduce/"
 packages = ["dtm_pipeline"]
 
 [tool.setuptools.package-data]
-dtm_pipeline = ["data/trump/*", "annotation_ui.html", "synthesis_ui.html", "synthesis_logic.js"]
+dtm_pipeline = ["data/trump/*", "annotation_ui.html", "synthesis_ui.html", "synthesis_logic.js", "adjudication_ui.html"]
