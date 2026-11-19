@@ -119,6 +119,15 @@ def publish(config_path,allow_in_progress=False):
             'classifier_selection_sha256':sha(run/'stage4/classifier_selection.json'),
             'interpretation':'Development comparison for selection, not independent validation or presidential prevalence.'}
         summary['development']=development
+        decision_path=run/'stage4/evaluation_proceed_decision.json'
+        if decision_path.exists():
+            decision=read(decision_path)
+            expected={'codebook_sha256':sha(cfg.codebook_path),
+                'classifier_selection_sha256':sha(run/'stage4/classifier_selection.json'),
+                'sampling_manifest_sha256':sha(cfg.annotation_manifest)}
+            if any(decision.get(k)!=v for k,v in expected.items()):
+                raise ValueError('The decision to proceed belongs to different research evidence.')
+            summary['evaluation_proceed_decision']=decision
     if (run/'stage4/validation_review.json').exists():
         require_validation_review(cfg);summary['classifier_validated']=True
         summary['validation']=read(run/'stage4/validation_report.json')
@@ -126,6 +135,8 @@ def publish(config_path,allow_in_progress=False):
     evidence.mkdir(exist_ok=True)
     if development:
         dump(evidence/'development_report.json',development)
+        if summary.get('evaluation_proceed_decision'):
+            shutil.copy2(run/'stage4/evaluation_proceed_decision.json',evidence/'evaluation_proceed_decision.json')
         for source_path,target_name in [(Path(cfg.development_csv),'development_annotations.csv'),
                 (Path(str(cfg.development_csv)+'.review.json'),'development_annotations.review.json'),
                 (run/'stage4/classifier_selection.json','classifier_selection.json'),

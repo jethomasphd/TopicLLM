@@ -199,7 +199,7 @@
     "prior_diagnostic": "The existing whole-archive reference run is retained separately; it is not the campaign research run."
   },
   "research_application": {
-    "status": "development_complete_holdout_unopened",
+    "status": "heldout_annotation_pending",
     "discovery_complete": true,
     "source_posts": 34416,
     "campaign_posts": 7805,
@@ -235,6 +235,9 @@
     "development_llm_agreement": 0.64,
     "development_boolean_agreement": 0.3,
     "heldout_evaluation_opened": false,
-    "development_evidence": "data/trump/campaign/development_report.json"
+    "development_evidence": "data/trump/campaign/development_report.json",
+    "heldout_annotation_packet_released": true,
+    "evaluation_decision": "Retain the current codebook and frozen selected classifier for the methodological demonstration; proceed to independent held-out evaluation.",
+    "evaluation_decision_record": "data/trump/campaign/evaluation_proceed_decision.json"
   }
 }

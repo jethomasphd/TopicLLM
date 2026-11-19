@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-11-19T20:13:33.322354+00:00",
+  "decision": "retain_current_codebook_and_proceed_to_heldout_evaluation",
+  "decision_maker": "Jacob E. Thomas",
+  "role": "Principal Investigator",
+  "source": "Explicit user response after the 100-post development results were reported",
+  "verbatim_decision": "keep the current codebook and proceed. remember, this is a a demonstrative study",
+  "rationale": "The application is a methodological demonstration; assess the unchanged specification on the reserved evaluation sample.",
+  "codebook_sha256": "552617f68c1a7213522df33c5dcf03077400cc698b3788a20d6e5242b8c9f961",
+  "classifier_selection_sha256": "86924834442be005cd103a2492c1e5fe6906f20a6e73852b430c86552bb89438",
+  "sampling_manifest_sha256": "cd6979f12760072aa18881dd74b15d11c7b61a8fda3b8a809701848f6f0b3042",
+  "evaluation_packet_sha256": "306889d98a3f4ee15071d6aa256db80b51e352561f2d93ea1c2f0d051b2da367",
+  "development_llm_agreement": 0.64,
+  "codebook_revised": false,
+  "classifier_revised": false,
+  "evaluation_posts_per_reviewer": 250,
+  "human_annotation_complete": false,
+  "classifier_validated": false,
+  "scope": "Proceed to independent held-out annotation and evaluation. This is not a two-reviewer acceptance of classifier performance or a change to the declared evaluation criteria."
+}
