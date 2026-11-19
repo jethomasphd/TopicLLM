@@ -55,3 +55,18 @@ test('invalid model citations fail while returned token usage is settled',async(
  const status=await(await env.QUOTAS.get().fetch(new Request('https://quota/status',{method:'POST',body:'{}'}))).json();assert.ok(Object.values(status.buckets).some(b=>b.errors===1&&b.charged===19000000));
  }finally{globalThis.fetch=previous;}
 });
+
+test('a rejected guide response stays idempotent while explicit resubmission can recover',async()=>{
+ const previous=globalThis.fetch,env=environment(),cookie=await issueSession(env);let calls=0;
+ try{
+  globalThis.fetch=async()=>{calls++;return calls===1?Response.json({model:env.OPENAI_MODEL,choices:[{finish_reason:'length',message:{content:'{"answer":"unfinished'}}],usage:{prompt_tokens:7000,completion_tokens:900}}):provider(good);};
+  const failed=await worker.fetch(req(question,cookie),env),data=await failed.json();
+  assert.equal(failed.status,502);assert.equal(data.retry_new_operation,true);assert.match(data.error,/No answer was released/);
+  const cached=await(await worker.fetch(req(question,cookie),env)).json();assert.equal(cached.cached,true);assert.equal(cached.retry_new_operation,true);assert.equal(calls,1);
+  const recovered=await worker.fetch(req(question,cookie,'/api/guide','https://example.org','guide-explicit-retry'),env);
+  assert.equal(recovered.status,200);assert.equal((await recovered.json()).text,good.answer);assert.equal(calls,2);
+  const status=await(await env.QUOTAS.get().fetch(new Request('https://quota/status',{method:'POST',body:'{}'}))).json();
+  const day=Object.entries(status.buckets).find(([name])=>name.startsWith('public:day:'))[1];
+  assert.equal(day.calls,2);assert.equal(day.errors,1);assert.equal(day.success,1);assert.equal(day.charged,45500000);
+ }finally{globalThis.fetch=previous;}
+});

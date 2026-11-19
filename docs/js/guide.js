@@ -46,7 +46,7 @@ suggestions(starters);launcher.addEventListener('click',()=>openGuide());start.a
 document.addEventListener('click',e=>{const b=e.target.closest('[data-ask-guide]');if(b)openGuide(b.dataset.askGuide||'');});
 clear.addEventListener('click',()=>{if(busy)return;history=[];op=null;messages.replaceChildren(greeting,prompts);input.value='';status.textContent='Conversation cleared from this page. Short server receipts expire within 30 minutes.';suggestions(starters);input.focus();});
 input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();form.requestSubmit();}});
-async function request(path,options={}){const r=await fetch(path,{credentials:'same-origin',cache:'no-store',...options});let body;try{body=await r.json();}catch{throw new Error('The guide could not connect.');}if(!r.ok)throw new Error(body.error||'The guide is unavailable.');return body;}
+async function request(path,options={}){const r=await fetch(path,{credentials:'same-origin',cache:'no-store',...options});let body;try{body=await r.json();}catch{throw new Error('The guide could not connect.');}if(!r.ok)throw Object.assign(new Error(body.error||'The guide is unavailable.'),{retryNewOperation:body.retry_new_operation===true});return body;}
 form.addEventListener('submit',async e=>{
  e.preventDefault();if(busy||!input.value.trim())return;const question=input.value.trim(),recent=[];let size=0;
  for(let i=history.length-2;i>=0&&recent.length<6;i-=2){const pair=history.slice(i,i+2),chars=pair.reduce((n,m)=>n+m.content.length,0);if(size+chars>8500)break;recent.unshift(...pair);size+=chars;}
@@ -60,6 +60,6 @@ form.addEventListener('submit',async e=>{
   const answer=make('div','guide-message guide-answer');receivedAnswer=answer;answer.append(make('span','guide-speaker','TopicLLM guide'));for(const p of result.text.split(/\n\s*\n/))answer.append(make('p','',p));
   const links=make('div','guide-sources');links.setAttribute('aria-label','Sources for this answer');for(const source of result.sources||[]){const a=make('a','',source.title);a.href=source.url;a.target='_blank';a.rel='noopener';links.append(a);}answer.append(links);messages.insertBefore(answer,prompts);history.push({role:'user',content:question},{role:'assistant',content:result.text});input.value='';op=null;
   status.textContent=`${result.remaining_session} shared live calls remain today. AI can make mistakes; check the sources.`;busy=false;suggestions(result.suggestions?.length?result.suggestions:starters);
- }catch(error){asked.remove();status.textContent=(error.name==='TimeoutError'?'The request took too long. Retry the same question to recover a completed response safely.':error.message)+' The visual demo and research briefing remain available.';}
+ }catch(error){asked.remove();if(error.retryNewOperation)op=null;status.textContent=(error.name==='TimeoutError'?'The request took too long. Retry the same question to recover a completed response safely.':error.message)+' The visual demo and research briefing remain available.';}
  finally{busy=false;send.disabled=clear.disabled=input.disabled=false;prompts.querySelectorAll('button').forEach(b=>b.disabled=false);input.focus({preventScroll:true});if(receivedAnswer)messages.scrollTop+=receivedAnswer.getBoundingClientRect().top-messages.getBoundingClientRect().top-18;}
 });

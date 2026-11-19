@@ -110,6 +110,13 @@ export default {async fetch(request,env){
   const response=await sendOpenAI(call,env);let providerResult=await response.json(),httpStatus=response.status,ok=response.ok;
   if(ok&&call.allowed_options){try{providerResult=classificationResult(providerResult,call);}catch(error){providerResult={error:error.message,raw_text:providerResult.text,usage:providerResult.usage,request_id:providerResult.request_id,model:providerResult.model,retryable:false};httpStatus=502;ok=false;}}
   if(isGuide&&ok){try{providerResult=guideResult(providerResult,call);}catch(error){providerResult={error:error.message,usage:providerResult.usage,retryable:false};httpStatus=502;ok=false;}}
+  // A completed but rejected guide response is retained for delivery retries.
+  // A deliberate resubmission may request a fresh response; uncertain delivery
+  // must keep its original operation ID so it cannot silently double-charge.
+  if(isGuide&&!ok&&Number.isInteger(providerResult.usage?.completion_tokens)){
+    providerResult.retry_new_operation=true;
+    if(providerResult.finish_reason)providerResult.error='The guide received an incomplete response. No answer was released. Send the question again to try a new response.';
+  }
   const result={...providerResult,...(isPublic?{mode:isGuide?'research-guide':'live-trump-example',remaining_session:reservation.remaining_session}:{})};
   const usage=result.usage;
   const actual=Number.isInteger(usage?.prompt_tokens)&&Number.isInteger(usage?.completion_tokens)?usage.prompt_tokens*2500+usage.completion_tokens*10000:null;
