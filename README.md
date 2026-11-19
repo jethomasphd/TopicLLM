@@ -1,6 +1,6 @@
 <p align="center"><img src="docs/assets/topicllm-mark.svg" width="76" alt="TopicLLM language lens"></p>
 <h1 align="center">TopicLLM</h1>
-<p align="center"><strong>From language to evidence. Every step open.</strong><br>A human-guided research method. An executable protocol for your agent.</p>
+<p align="center"><strong>From language to evidence. Built for review.</strong><br>A human-guided research method. An executable protocol for your agent.</p>
 <p align="center"><a href="https://topicllm.dev/app/">Explore the Trump walkthrough</a> · <a href="https://topicllm.dev/paper/">Read the methods</a> · <a href="https://topicllm.dev/audit/">Research in action</a></p>
 
 ![Documents become topics, researcher-reviewed themes, and evidence. Conceptual illustration.](docs/assets/text-to-evidence-v2.jpg)
@@ -67,7 +67,30 @@ Discovery uses only campaign posts from June 16, 2015 through November 8, 2016, 
 | Classify | Development selection → untouched evaluation → human acceptance | Independent labels, frozen classifier, per-theme metrics and errors |
 | Estimate | Overall share of presidential posting events | Every theme's count, denominator and prevalence; residual coverage |
 
-Campaign discovery and 6,000 naming responses are complete for the selected 12-topic solution. Two human reviewers completed synthesis, retaining 12 distinct themes with definitions and rules for transfer to presidential language. The [frozen codebook](docs/data/trump/campaign/codebook.json) and [review record](docs/data/trump/campaign/human_synthesis_submission.json) are public. Two reviewers independently labeled 100 development posts and adjudicated 15 disagreements (initial agreement 85%; κ = 0.809). Development selected OpenAI at 64% agreement with consensus, versus 30% for the Boolean baseline. Held-out evaluation is complete: the unchanged LLM matched 175 of 250 adjudicated labels (70%; 95% Wilson interval 64.1%–75.3%; κ = 0.6353). Independent human agreement was 68% (κ = 0.6144), followed by adjudication of all 80 differences. The classifier did not meet the declared >85% agreement and per-theme support/recall criteria. Full-corpus classification has not run; presidential prevalence is not reported. [Inspect the held-out results](docs/data/trump/campaign/evaluation_report.json) and every prediction (retained privately). Live examples use the approved codebook; individual model responses are not validated findings. The package stops for actual researcher review, separate development and held-out evaluation, and acceptance before scaling. Paid steps require an explicit `--budget-usd` and private credentials. [Run the complete protocol](REPRODUCE.md) with [the campaign configuration](examples/campaign-presidency-config.json).
+## The recorded demonstration
+
+Campaign discovery produced the selected **12-topic solution**. After 6,000 naming responses, two human reviewers retained **12 distinct themes** and defined their boundaries for presidential language. Inspect the [frozen codebook](docs/data/trump/campaign/codebook.json) and [synthesis record](docs/data/trump/campaign/human_synthesis_submission.json).
+
+| Measurement | Development · 100 posts | Held-out evaluation · 250 posts |
+|---|---:|---:|
+| Independent human agreement, before adjudication | 85% | 68% |
+| Disagreements resolved by the researchers | 15 | 80 |
+| LLM agreement with final human consensus | 64% | **70%** |
+| Boolean baseline agreement | 30% | Not selected for evaluation |
+
+Human agreement compares the two independent reviewers. Model agreement compares predictions with their adjudicated consensus; these are different comparisons.
+
+The frozen LLM matched **175/250** held-out labels (95% Wilson interval 64.1%–75.3%; κ = 0.6353). It failed the declared >85% agreement and per-theme support/recall criteria. This result makes the distinction between discovering useful categories and measuring them reliably concrete. [Inspect the aggregate evaluation](docs/data/trump/campaign/evaluation_report.json).
+
+The principal investigator authorized an **unvalidated demonstration** with the unchanged codebook and classifier, under a US$150 cumulative research ceiling. It classified all 26,239 presidential posts. Its largest substantive assigned category was Criticism of Political Opponents (6,924; 26.39%); the residual received 10,430 posts (39.75%). These are unvalidated model-assigned shares, not validated estimates of theme prevalence. The [documented exception](docs/data/trump/campaign/demonstration_exception.json) does not establish classifier validity.
+
+Individual human labels, adjudication notes and post-level predictions remain private. Public confusion counts permit metric checks; independently repeating the human validation requires new annotations. Live examples use the approved codebook and demonstrate operations, not validated research findings.
+
+Check the released arithmetic without private data or API calls: `python scripts/check-published-metrics.py`. It independently recomputes agreement, κ, confidence intervals and per-theme metrics from aggregate confusion counts, and checks completed share tables and evidence hashes.
+
+[Explore the completed model-assigned shares](https://topicllm.dev/app/) · [Download aggregate counts](docs/data/trump/campaign/theme_counts.csv) · [Inspect complete-run verification](docs/data/trump/campaign/demonstration_verification.json)
+
+The default research workflow requires researcher review, independent evaluation and acceptance before scaling. Paid steps require an explicit `--budget-usd` and private credentials. [Run the complete protocol](REPRODUCE.md) with [the campaign configuration](examples/campaign-presidency-config.json).
 
 ## Research in action
 
@@ -84,6 +107,3 @@ Created and maintained by **Jacob E. Thomas**. The original studies retain their
 Questions, replication reports and improvements are welcome through [GitHub issues](https://github.com/jethomasphd/TopicLLM/issues). See [CITATION.cff](CITATION.cff), [source integrity](source-integrity.json), [deployment](DEPLOYMENT.md) and [data handling](https://topicllm.dev/privacy/).
 
 Code: MIT. Documentation: CC BY 4.0 unless otherwise stated. Trump text: **Data files © Original Authors**, as designated by the selected Kaggle source; it is not relicensed by this project. [Material-specific terms](LICENSE-CONTENT.md).
-
-
-The principal investigator explicitly authorized continuation as an **unvalidated demonstration**, retaining the failed evaluation, unchanged codebook and classifier, under a US$150 cumulative research ceiling. This exception does not establish classifier validity. Publish aggregate results only: individual human labels, adjudication notes and post-level evaluation predictions are retained privately. Public aggregate confusion counts support metric checks; the release does not permit independent re-adjudication of the private benchmark. The source-bound exception is recorded in `docs/data/trump/campaign/demonstration_exception.json`.

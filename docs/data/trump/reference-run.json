@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "dataset": "Donald Trump account archive: campaign-to-presidency application",
-  "mode": "campaign-research-in-progress",
+  "mode": "unvalidated-demonstration-complete",
   "input_sha256": "8256646462a1267c5c6e177d3c951a852a17bcbd8553cb0f98e2a89ce5f3206a",
   "archive_records": 34416,
   "source_records": 7805,
@@ -2512,5 +2512,99 @@
     }
   },
   "measurement_status": "unvalidated-demonstration",
+  "prevalence": [
+    {
+      "theme": "Republican Primary Campaign Dynamics",
+      "documents": "281",
+      "denominator": "26239",
+      "share": "0.010709249590304509"
+    },
+    {
+      "theme": "Immigration Reform and Nationalism",
+      "documents": "1458",
+      "denominator": "26239",
+      "share": "0.055566142002362894"
+    },
+    {
+      "theme": "Campaign Rallies and Support in Key States",
+      "documents": "808",
+      "denominator": "26239",
+      "share": "0.030793856473188764"
+    },
+    {
+      "theme": "Criticism of Political Opponents",
+      "documents": "6924",
+      "denominator": "26239",
+      "share": "0.2638820076984641"
+    },
+    {
+      "theme": "Media Appearances and Personal Life Highlights",
+      "documents": "786",
+      "denominator": "26239",
+      "share": "0.029955409886047488"
+    },
+    {
+      "theme": "Terrorism, National Security Concerns, and Criticism of Previous Administration",
+      "documents": "1289",
+      "denominator": "26239",
+      "share": "0.04912534776477762"
+    },
+    {
+      "theme": "Expressions of Gratitude and Positivity",
+      "documents": "3182",
+      "denominator": "26239",
+      "share": "0.12126986546743397"
+    },
+    {
+      "theme": "Tax and Healthcare Policy",
+      "documents": "524",
+      "denominator": "26239",
+      "share": "0.01997027325736499"
+    },
+    {
+      "theme": "Issues related to Military Service and Criticism of John McCain",
+      "documents": "427",
+      "denominator": "26239",
+      "share": "0.01627348603224208"
+    },
+    {
+      "theme": "Trump Campaign Merchandise and Book Promotions",
+      "documents": "76",
+      "denominator": "26239",
+      "share": "0.002896451846488052"
+    },
+    {
+      "theme": "Macy's Boycott and Consumer Relations",
+      "documents": "30",
+      "denominator": "26239",
+      "share": "0.0011433362551926522"
+    },
+    {
+      "theme": "Trump's International Golf Resorts and Openings",
+      "documents": "24",
+      "denominator": "26239",
+      "share": "0.0009146690041541217"
+    },
+    {
+      "theme": "The text does not fit into any of these themes",
+      "documents": "10430",
+      "denominator": "26239",
+      "share": "0.3974999047219787"
+    }
+  ],
+  "estimand": {
+    "unit": "posting event",
+    "denominator": 26239,
+    "target_window": [
+      "2017-01-20",
+      "2021-01-08"
+    ],
+    "periods": {},
+    "pairwise_tests": false,
+    "classified_corpus_sha256": "59b5a04f1ed395cedadef5a88419aba66c07e7ee55842a3c819fa083e30275cc",
+    "model_mode": "unvalidated-demonstration",
+    "classifier_validated": false,
+    "interpretation": "Unvalidated model-assigned shares for methodological illustration. Held-out acceptance criteria failed; these are not validated theme prevalence estimates."
+  },
   "annotation_publication": "Aggregate results only. Independent human labels, adjudication notes and post-level evaluation predictions are retained privately."
 }

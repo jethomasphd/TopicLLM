@@ -21,3 +21,10 @@ runs/
 private/
 docs/downloads/
 dist_wheels/
+
+# This application publishes aggregate benchmark results only.
+docs/data/trump/campaign/*_annotations.csv
+docs/data/trump/campaign/*_annotations.review.json
+docs/data/trump/campaign/*_predictions.csv
+docs/data/trump/campaign/*_labels.csv
+docs/data/trump/campaign/classified_corpus.csv

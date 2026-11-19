@@ -49,7 +49,8 @@ def markup(el):
         elif tag:value+=f'<{tag}>{inside}</{tag}>'
         else:value+=inside
         value+=html.escape(child.tail or '')
-    return value
+    value=re.sub(r'(\d{4}-\d{2}-\d{2})[\u2013\u2014](\d{4}-\d{2}-\d{2})',r'\1 to \2',value)
+    return re.sub('[\u2010-\u2015]', '-', value)
 
 class Concept(Flowable):
     def __init__(self): Flowable.__init__(self);self.width=468;self.height=112
@@ -66,6 +67,7 @@ class Concept(Flowable):
 
 doc=LH.fromstring((repo/'docs/paper/index.html').read_text(encoding='utf-8'))
 page=doc.xpath('//*[contains(concat(" ",normalize-space(@class)," ")," page ")]')[0]
+edition=clean(page.xpath('./div[@class="banner"]/span')[0].text_content()).replace(' · ',' | ')
 story=[]
 for el in page:
     cls=el.get('class','')
@@ -79,15 +81,16 @@ for el in page:
     if cls in ['authors','affil']:
         story.append(Paragraph(markup(el),styles['Small2']));continue
     if cls=='abstract':
-        story.extend([Spacer(1,10),Paragraph('Working manuscript | 19 November 2026 | Held-out evaluation complete',styles['Small2'])])
+        story.extend([Spacer(1,10),Paragraph(html.escape(edition),styles['Small2'])])
         for c in el:story.append(Paragraph(markup(c),styles['Sub' if c.tag=='h2' else 'Body']))
-    elif cls=='prompt':story.append(KeepTogether([Paragraph(markup(el),styles['Prompt2'])]))
+    elif cls=='prompt':story.append(KeepTogether([Paragraph(markup(el).replace('\n','<br/>'),styles['Prompt2'])]))
     elif cls=='tablewrap':
         table=el.find('table')
         caption=Paragraph(markup(table.find('caption')),styles['Caption'])
         rows=[[Paragraph(markup(c),styles['Small2']) for c in r] for r in table.xpath('.//tr')]
         widths={2:[280,188],3:[126,190,152],4:[270,66,66,66]}.get(len(rows[0]),[468/len(rows[0])]*len(rows[0]))
         if table.find('caption').text_content().startswith('Table 4.'):widths=[66,402]
+        if table.find('caption').text_content().startswith('Table 7.'):widths=[288,72,108]
         tab=LongTable(rows,colWidths=widths,repeatRows=1,hAlign='LEFT')
         tab.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),colors.HexColor('#eeeeee')),('GRID',(0,0),(-1,-1),.5,colors.HexColor('#cccccc')),('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),8),('RIGHTPADDING',(0,0),(-1,-1),8),('TOPPADDING',(0,0),(-1,-1),7),('BOTTOMPADDING',(0,0),(-1,-1),3)]))
         group=[caption,tab]

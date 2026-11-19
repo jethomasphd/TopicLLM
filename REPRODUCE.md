@@ -36,7 +36,15 @@ Discovery makes 50 base fits and evaluates ceilings 2–25, using local compute 
 
 If a researcher selects another saved candidate, `scripts/select-campaign-candidate.py` records the rationale, preserves the numerical winner, and requires exact reconstruction of the alternative's assignments and words. Do not silently change the selection rule or tune campaign discovery against presidential outcomes.
 
-An installed wheel supplies the same tools as console commands: `topicllm-select-candidate`, `topicllm-annotations` and `topicllm-import-synthesis`. Their `--help` output describes the arguments. The `scripts/` commands below are equivalent checkout entry points; a fork is not required to use the research gates.
+An installed wheel supplies the same tools as console commands. Use these equivalents with the same arguments; a fork is not required to use the research gates.
+
+| Checkout command | Installed-package command |
+|---|---|
+| `python scripts/select-campaign-candidate.py` | `topicllm-select-candidate` |
+| `python scripts/prepare-annotations.py` | `topicllm-annotations` |
+| `python scripts/import-synthesis.py` | `topicllm-import-synthesis` |
+
+Run any command with `--help` for its arguments. To add discovery dependencies to a wheel installation, use `python -m pip install "./topicllm_research-0.6.4-py3-none-any.whl[ml]"` from the directory containing your downloaded wheel. The `.[ml]` commands in this guide instead refer to a repository checkout.
 
 ## 3. Collect naming evidence
 
@@ -134,7 +142,7 @@ topicllm --profile research --config research-config.json --stages 5
 
 Resolve all errors first. `stage5/theme_counts.csv` reports each theme's numerator, common denominator and share, including zero-count themes and the residual. Classification must exhaust exactly the 26,239 target IDs. Campaign discovery exclusions do not alter that denominator.
 
-The primary application reports overall prevalence only: `periods={}` and `run_pairwise_tests=false`. These are classifier-assigned shares of archived posting events, conditional on the codebook and measured errors. The residual shows the campaign codebook's coverage of presidential communication. The estimates do not measure public opinion or causal effects.
+The primary application reports overall shares only: `periods={}` and `run_pairwise_tests=false`. These are classifier-assigned shares of archived posting events, conditional on the codebook and measured errors. In the recorded demonstration they remain explicitly unvalidated. The residual measures use of the fallback label; it can combine content outside the codebook with classification errors, so it does not establish that substantive themes were absent. The shares do not measure public opinion or causal effects.
 
 ## Evidence and verification
 
@@ -150,6 +158,8 @@ python -m build --wheel --outdir dist_wheels
 python scripts/package-release.py
 node scripts/build.mjs
 node scripts/check-site.mjs
+python scripts/check-publication-privacy.py
+python scripts/check-published-metrics.py
 ```
 
 Rebuild the guide index after maintained documentation changes. Install the wheel outside the checkout and run quickcheck. Inspect the PDF and every responsive website surface. Software verification, source preservation and scientific validation are separate claims.

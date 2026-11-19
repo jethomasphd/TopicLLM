@@ -7,3 +7,6 @@
 .guide-fallback{display:flex;gap:16px;font:10px/1.5 var(--sans);margin:8px 0 0}.guide-fallback a{color:var(--accent)}
 .guide-dialog{bottom:20px;height:min(800px,calc(100dvh - 40px))}.guide-messages .guide-prompts{padding:0}.guide-disclosure{font-size:11px}.guide-status{font-size:11px}.guide-fallback{font-size:11px}
 @media(max-width:720px){.guide-dialog{bottom:12px;height:calc(100dvh - 24px)}}
+
+.guide-launch-short{display:none}@media(max-width:480px){.guide-launch-label{display:none}.guide-launch-short{display:inline}.guide-launcher{gap:7px;padding-right:12px}}
+@media(max-width:360px){.guide-launch-short{display:none}.guide-launcher{width:46px;height:46px;min-height:46px;justify-content:center;padding:0;right:12px}.guide-launch-icon{width:24px;height:24px}}

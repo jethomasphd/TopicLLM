@@ -9,7 +9,7 @@ authors:
 repository-code: "https://github.com/jethomasphd/TopicLLM"
 url: "https://topicllm.dev/"
 license: MIT
-version: "0.6.3"
+version: "0.6.4"
 date-released: "2026-11-19"
 keywords:
   - topic modeling

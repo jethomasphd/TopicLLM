@@ -1,5 +1,6 @@
 """Publish measured campaign evidence and only actually completed research stages."""
-import argparse,csv,hashlib,json,random,shutil,sys,zipfile
+import argparse,csv,hashlib,json,math,random,shutil,sys,zipfile
+from collections import Counter
 import pandas as pd
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
@@ -15,6 +16,8 @@ from dtm_pipeline.demonstration import require_demonstration_exception
 
 def publish(config_path,allow_in_progress=False):
     cfg=PipelineConfig(**json.loads(Path(config_path).read_text(encoding='utf-8')))
+    if cfg.llm_backend=='mock':
+        raise ValueError('Mock outputs cannot be published as measured campaign evidence.')
     if cfg.discovery_window!=CAMPAIGN or cfg.target_window!=PRESIDENCY or not cfg.require_disjoint_windows:
         raise ValueError('This publisher is specific to the declared campaign-to-presidency application.')
     run=Path(cfg.output_dir);stage=run/'stage1';out=ROOT/'docs/data/trump';evidence=out/'campaign'
@@ -164,9 +167,25 @@ def publish(config_path,allow_in_progress=False):
     if complete:
         summary['prevalence']=rows(run/'stage5/theme_counts.csv')
         summary['estimand']=read(run/'stage5/estimand.json')
+        labels=set(cfg.themes+[cfg.none_label])
+        if any(r.get('status')!='matched' or r.get('theme') not in labels for r in classified):
+            raise ValueError('Resolve every classification before publishing aggregate shares.')
+        observed=Counter(r['theme'] for r in classified)
+        if len(summary['prevalence'])!=len(labels) or {r['theme'] for r in summary['prevalence']}!=labels:
+            raise ValueError('Publish every theme and the residual exactly once, including zero counts.')
+        for row in summary['prevalence']:
+            share=float(row['share'])
+            if int(row['documents'])!=observed[row['theme']] or int(row['denominator'])!=len(target) or not math.isfinite(share) or abs(share-observed[row['theme']]/len(target))>1e-12:
+                raise ValueError('Aggregate shares differ from the retained classifications.')
         if sum(int(r['documents']) for r in summary['prevalence'])!=len(target):raise ValueError('Shares must count the complete target corpus.')
         if cfg.demonstration_exception_path and (summary['estimand'].get('model_mode')!='unvalidated-demonstration' or summary['estimand'].get('classifier_validated') is not False):
             raise ValueError('Demonstration shares must preserve their unvalidated status.')
+        if cfg.demonstration_exception_path:
+            verified=read(run/'stage5/demonstration_verification.json')
+            if verified.get('status')!='pass' or verified.get('classifier_validated') is not False or verified.get('missing_or_unresolved')!=0 or verified.get('target_posts')!=len(target):
+                raise ValueError('Complete the independent full-run verification before publication.')
+            if verified.get('classified_corpus_sha256')!=hashlib.sha256((run/'stage4/classified_corpus.csv').read_bytes()).hexdigest() or verified.get('counts_sha256')!=hashlib.sha256((run/'stage5/theme_counts.csv').read_bytes()).hexdigest():
+                raise ValueError('Full-run verification belongs to different classifications or counts.')
         if summary['estimand']['classified_corpus_sha256']!=sha(run/'stage4/classified_corpus.csv'):
             raise ValueError('The classified corpus changed after aggregation.')
     summary['annotation_publication']='Aggregate results only. Independent human labels, adjudication notes and post-level evaluation predictions are retained privately.'
@@ -187,6 +206,9 @@ def publish(config_path,allow_in_progress=False):
             writer=csv.DictWriter(handle,fieldnames=['theme','documents','denominator','share','classifier_validated','interpretation'],lineterminator='\n');writer.writeheader()
             writer.writerows({**row,'classifier_validated':summary['classifier_validated'],'interpretation':summary['estimand']['interpretation']} for row in summary['prevalence'])
         shutil.copy2(run/'stage5/estimand.json',evidence/'estimand.json')
+        for source_path,target_name in [(run/'stage5/demonstration_verification.json','demonstration_verification.json'),
+                (run/'stage4/demonstration_execution_start.json','demonstration_execution_start.json')]:
+            if source_path.exists():shutil.copy2(source_path,evidence/target_name)
     if development:
         dump(evidence/'development_report.json',development)
         if summary.get('evaluation_proceed_decision'):

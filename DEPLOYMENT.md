@@ -18,14 +18,22 @@ Use Node 22+, pnpm 11+, and Python 3.11+. From the repository root:
 
 ```sh
 pnpm install --frozen-lockfile
-python -m pip install ".[dev]"
+python -m pip install ".[dev,docs]"
+node scripts/build-welcome.mjs
+python scripts/build-campaign-evidence.py
+python scripts/build-guide.py
+python scripts/render-methods.py
 python -m pytest dtm_pipeline/tests -q
 python -m build --wheel --outdir dist_wheels
 python scripts/package-release.py
 pnpm check
+python scripts/check-publication-privacy.py
+python scripts/check-published-metrics.py
 pnpm exec wrangler deploy --dry-run
 pnpm exec wrangler deploy
 ```
+
+The `docs` extra pins the tools used to rebuild the guide and working-manuscript PDF. Inspect the rendered pages in `build-qa/methods_pdf_qa/` after manuscript changes; generation alone is not a layout check. Windows uses its installed Times and Arial fonts, with standard PDF fonts as the fallback on other systems. This can change pagination without changing the scientific text.
 
 Keep exactly one wheel for the version declared in `pyproject.toml`; older versions are ignored. The packager includes source, selected public Trump data and licenses, excludes private runs and credentials, and writes the served wheel's download hash. Full repository downloads use GitHub's current-main archive; record its commit for an analysis. The locally generated source ZIP is excluded from static hosting because accumulated research evidence can exceed Cloudflare's [25 MiB per-file limit](https://developers.cloudflare.com/workers/platform/limits/).
 

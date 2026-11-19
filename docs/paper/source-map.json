@@ -32,6 +32,16 @@
       "section": "5",
       "mechanism": "dtm_pipeline/stage5_inference.py",
       "evidence": "complete target classifications, theme counts, denominator and descriptive shares"
+    },
+    {
+      "section": "6.6",
+      "mechanism": "dtm_pipeline/demonstration.py; scripts/verify-recorded-demonstration.py; scripts/publish-campaign-run.py",
+      "evidence": "investigator-authorized exception, unchanged execution specification, complete-run verification and explicitly unvalidated aggregate shares"
+    },
+    {
+      "section": "6.7",
+      "mechanism": "scripts/check-published-metrics.py; scripts/check-publication-privacy.py",
+      "evidence": "public confusion counts, recomputed metrics and artifact hashes; individual benchmark labels, adjudication notes and post-level predictions are retained privately"
     }
   ],
   "references": "Primary methodological and political-communication sources are cited in the standalone manuscript."

@@ -185,7 +185,7 @@
       20
     ]
   },
-  "release": "0.6.3",
+  "release": "0.6.4",
   "tutorial": {
     "source": "https://www.kaggle.com/datasets/codebreaker619/donald-trump-tweets-dataset",
     "window": [
@@ -194,12 +194,12 @@
     ],
     "human_review_performed": true,
     "classifier_validated": false,
-    "prevalence_inference": "requires researcher approval and independent validation; topic-assignment summaries are descriptive only",
-    "current_design": "Campaign discovery followed by independently validated presidential classification.",
+    "prevalence_inference": "Unvalidated model-assigned shares under an explicit investigator exception; held-out acceptance criteria failed.",
+    "current_design": "Campaign discovery, human theme synthesis and independent held-out evaluation, followed by an explicitly unvalidated illustration of presidential model-assigned shares.",
     "prior_diagnostic": "The existing whole-archive reference run is retained separately; it is not the campaign research run."
   },
   "research_application": {
-    "status": "unvalidated_demonstration_authorized",
+    "status": "unvalidated_demonstration_complete",
     "discovery_complete": true,
     "source_posts": 34416,
     "campaign_posts": 7805,
@@ -212,8 +212,8 @@
     "human_reviewers_required": 2,
     "human_review_performed": true,
     "classifier_validated": false,
-    "prevalence_complete": false,
-    "reporting": "overall presidency prevalence only",
+    "prevalence_complete": true,
+    "reporting": "Overall presidential model-assigned shares only; classifier remains unvalidated. No temporal comparisons or causal claims.",
     "selected_candidate": "B",
     "selected_topics": 12,
     "selected_coherence": 0.5405823389348793,
@@ -256,6 +256,12 @@
     "evaluation_evidence": "data/trump/campaign/evaluation_report.json",
     "demonstration_exception": "data/trump/campaign/demonstration_exception.json",
     "annotation_publication": "aggregate_only",
-    "research_budget_usd": 150
+    "research_budget_usd": 150,
+    "classification_complete": true,
+    "classified_target_posts": 26239,
+    "unresolved_classifications": 0,
+    "aggregate_shares": "data/trump/campaign/theme_counts.csv",
+    "classification_verification": "data/trump/campaign/demonstration_verification.json",
+    "research_accounted_usd": 112.4674175
   }
 }

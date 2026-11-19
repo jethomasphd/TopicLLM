@@ -4,6 +4,7 @@ import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const manifest = JSON.parse(await readFile(path.join(root,'source-integrity.json'),'utf8'));
+const release = JSON.parse(await readFile(path.join(root,'package.json'),'utf8')).version;
 for (const file of manifest.files) {
   const bytes = await readFile(path.join(root,file.path));
   if (createHash('sha256').update(bytes).digest('hex') !== file.sha256) throw new Error(`Protected source changed: ${file.path}`);
@@ -15,7 +16,8 @@ await mkdir(dist, {recursive:true});
 // Full source archives include the dissertation and research logs and can
 // exceed the host's 25 MiB per-asset limit. The download route uses GitHub.
 await cp(path.join(root,'docs'), path.join(root,'dist'), {recursive:true,
-  filter:source=>path.basename(source)!=='topicllm-research-source.zip'});
+  filter:source=>path.basename(source)!=='topicllm-research-source.zip' &&
+    (!source.endsWith('.whl') || path.basename(source).startsWith(`topicllm_research-${release}-`))});
 // Version the complete browser code/style set, including module imports, so a
 // returning visitor cannot combine a new page with a cached earlier interface.
 async function siteFiles(dir){

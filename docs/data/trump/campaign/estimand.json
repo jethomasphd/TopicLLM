@@ -1,0 +1,14 @@
+{
+  "unit": "posting event",
+  "denominator": 26239,
+  "target_window": [
+    "2017-01-20",
+    "2021-01-08"
+  ],
+  "periods": {},
+  "pairwise_tests": false,
+  "classified_corpus_sha256": "59b5a04f1ed395cedadef5a88419aba66c07e7ee55842a3c819fa083e30275cc",
+  "model_mode": "unvalidated-demonstration",
+  "classifier_validated": false,
+  "interpretation": "Unvalidated model-assigned shares for methodological illustration. Held-out acceptance criteria failed; these are not validated theme prevalence estimates."
+}

@@ -1,0 +1,122 @@
+{
+  "verified_at": "2026-11-19T23:36:18.563378+00:00",
+  "status": "pass",
+  "interpretation": "Unvalidated model-assigned shares for methodological illustration. Held-out acceptance criteria failed; these are not validated theme prevalence estimates.",
+  "verifier_script": "scripts/verify-recorded-demonstration.py",
+  "verifier_script_sha256": "a2c2eb78133b986d95cd8027cf73faad636c9e638ce5062a87222b98dedb0792",
+  "classifier_validated": false,
+  "heldout_gate_passed": false,
+  "target_posts": 26239,
+  "unique_target_ids": 26239,
+  "source_fields_verified": true,
+  "valid_assignments": 26239,
+  "missing_or_unresolved": 0,
+  "raw_responses_reparsed": 26239,
+  "cached_request_fingerprints_verified": 26239,
+  "codebook_and_classifier_unchanged": true,
+  "execution_source_unchanged_during_run": true,
+  "source_selection": {
+    "role": "target",
+    "source_sha256": "8256646462a1267c5c6e177d3c951a852a17bcbd8553cb0f98e2a89ce5f3206a",
+    "window_inclusive": [
+      "2017-01-20",
+      "2021-01-08"
+    ],
+    "source_records": 34416,
+    "selected_records": 26239,
+    "outside_window_records": 8177,
+    "ordered_selected_ids_sha256": "78169eb3691073650908e2d4b326454ff41b5f233e0391e878afcf067d6583dd"
+  },
+  "corpus_attempts": 26263,
+  "corpus_successful_calls": 26239,
+  "corpus_failed_attempts": 24,
+  "corpus_accounted_usd": 107.24226,
+  "prompt_tokens": 41751475,
+  "completion_tokens": 237030,
+  "cumulative_research_accounted_usd": 112.4674175,
+  "authorized_cumulative_ceiling_usd": 150,
+  "rows": [
+    {
+      "theme": "Republican Primary Campaign Dynamics",
+      "documents": 281,
+      "denominator": 26239,
+      "share": 0.010709249590304509
+    },
+    {
+      "theme": "Immigration Reform and Nationalism",
+      "documents": 1458,
+      "denominator": 26239,
+      "share": 0.055566142002362894
+    },
+    {
+      "theme": "Campaign Rallies and Support in Key States",
+      "documents": 808,
+      "denominator": 26239,
+      "share": 0.030793856473188764
+    },
+    {
+      "theme": "Criticism of Political Opponents",
+      "documents": 6924,
+      "denominator": 26239,
+      "share": 0.2638820076984641
+    },
+    {
+      "theme": "Media Appearances and Personal Life Highlights",
+      "documents": 786,
+      "denominator": 26239,
+      "share": 0.029955409886047488
+    },
+    {
+      "theme": "Terrorism, National Security Concerns, and Criticism of Previous Administration",
+      "documents": 1289,
+      "denominator": 26239,
+      "share": 0.04912534776477762
+    },
+    {
+      "theme": "Expressions of Gratitude and Positivity",
+      "documents": 3182,
+      "denominator": 26239,
+      "share": 0.12126986546743397
+    },
+    {
+      "theme": "Tax and Healthcare Policy",
+      "documents": 524,
+      "denominator": 26239,
+      "share": 0.01997027325736499
+    },
+    {
+      "theme": "Issues related to Military Service and Criticism of John McCain",
+      "documents": 427,
+      "denominator": 26239,
+      "share": 0.01627348603224208
+    },
+    {
+      "theme": "Trump Campaign Merchandise and Book Promotions",
+      "documents": 76,
+      "denominator": 26239,
+      "share": 0.002896451846488052
+    },
+    {
+      "theme": "Macy's Boycott and Consumer Relations",
+      "documents": 30,
+      "denominator": 26239,
+      "share": 0.0011433362551926522
+    },
+    {
+      "theme": "Trump's International Golf Resorts and Openings",
+      "documents": 24,
+      "denominator": 26239,
+      "share": 0.0009146690041541217
+    },
+    {
+      "theme": "The text does not fit into any of these themes",
+      "documents": 10430,
+      "denominator": 26239,
+      "share": 0.3974999047219787
+    }
+  ],
+  "classified_corpus_sha256": "59b5a04f1ed395cedadef5a88419aba66c07e7ee55842a3c819fa083e30275cc",
+  "counts_sha256": "97cb368508d6d505feb710687d4557d9690e2054d04920da11d721ca16c4ee88",
+  "counts_hash_scope": "Raw stage5/theme_counts.csv before publication adds classifier_validated and interpretation columns. The published CSV checksum is in artifact-integrity.json; its count, denominator and share values must match the rows recorded here.",
+  "private_annotation_policy": "Aggregate results only; human labels, adjudication notes and post-level predictions retained privately."
+}

@@ -1,0 +1,27 @@
+{
+  "recorded_at": "2026-11-19T21:18:31.251843+00:00",
+  "mode": "unvalidated-demonstration",
+  "base_commit": "55a4a1788e69863411ec7c5bf176e084517af1b9",
+  "execution_source_sha256": {
+    "dtm_pipeline/config.py": "ec3ad7f9fef9aca66b02015990b33c3e4c87b70cc875efb0eb903570abadd920",
+    "dtm_pipeline/demonstration.py": "d920191962c4c147e05b4161a551a2cbd7114b5ee966d897d7c4b612fc1b4896",
+    "dtm_pipeline/research_validation.py": "9160a7e8cf9806d4ebac6ebe1ad67fddc146abc14e2d43ec5b141b0068d1d927",
+    "dtm_pipeline/stage4_classification.py": "8101c81a1167b154591b1dabfe1a3ceeecd604f693ae7e6ded29715c75d6cd35",
+    "dtm_pipeline/stage5_inference.py": "83b1d518289f77d362a21ef3ea9646598db82912a2710d10462e0afe254f3b6b",
+    "dtm_pipeline/api_budget.py": "b57de7c237d5518228b490ca354c9b87b0bcf46dc6e0a8b6b2adf449c5e5f440",
+    "dtm_pipeline/llm_backend.py": "8a45bfbe83c810f80a437e4598850025207be75417f4de2764d7bafe1e997063",
+    "dtm_pipeline/provenance.py": "89b3db90a1107d4f6ab0a2faec4b875fd8246185bdaf8af632faea1eb5a1e617",
+    "dtm_pipeline/sampling.py": "372effeefe3df78a2a3ba5447cb4e6833b5abd1844b486cbd8a28c3f7b14554c",
+    "dtm_pipeline/review.py": "8818bc348d3e41a6d2f6e87fac5cdb8abd5dbe5d5ea28d17df8ff13e88751096",
+    "dtm_pipeline/run_pipeline.py": "57a8871a48f119037e3b8178143fa891fd51275ce87edc0c62c7193ba536c1aa"
+  },
+  "configuration_sha256": "88528cb770e88e0369d8aa94a6452f4e1d1bd662e00b40ed660e4cb2333db28b",
+  "exception_sha256": "a66df72d39568ee8de4492d5cf2cec4e3bc5b71b836ea1bc52df91b08d5501cc",
+  "classifier_selection_sha256": "86924834442be005cd103a2492c1e5fe6906f20a6e73852b430c86552bb89438",
+  "codebook_sha256": "552617f68c1a7213522df33c5dcf03077400cc698b3788a20d6e5242b8c9f961",
+  "protected_sources_verified": 10,
+  "core_tests_passed": 83,
+  "web_tests_passed": 48,
+  "scope": "Execution hashes identify the actual source even before the maintenance commit. Model prompt, taxonomy, decoding settings and selection are unchanged. Stage 5 executes only after complete valid coverage.",
+  "private_annotation_publication": "none; aggregates only"
+}

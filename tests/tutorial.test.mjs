@@ -62,3 +62,13 @@ test('withdrawn public data and old wheels cannot fall through to assets',async(
   assert.equal(response.status,410,path);
  }
 });
+
+test('superseded working manuscripts redirect while the protected original remains available',async()=>{
+ const env={ASSETS:{fetch:async()=>new Response('original source')}};
+ for(const name of ['TopicLLM_Methods_Revised_2026-11-16.pdf','TopicLLM_Methods_2026-11-17.pdf','TopicLLM_Methods_2026-11-18.pdf']){
+  const response=await worker.fetch(new Request('https://topicllm.dev/preprints/'+name),env);
+  assert.equal(response.status,302);assert.equal(response.headers.get('Location'),'https://topicllm.dev/preprints/TopicLLM_Methods_2026-11-19.pdf');
+ }
+ const original=await worker.fetch(new Request('https://topicllm.dev/preprints/Thomas_et_al_Methods_Coherence-Optimized_Topic_Modeling.pdf'),env);
+ assert.equal(await original.text(),'original source');
+});
