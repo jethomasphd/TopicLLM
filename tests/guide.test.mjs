@@ -17,7 +17,7 @@ test('guide index matches its public sources and unchanged dissertation',async()
 });
 test('retrieval finds original evidence and builds bounded server instructions',()=>{
  assert.ok(retrieve('cross-lagged potential exposure beta 0.05').some(c=>c.id.startsWith('dissertation-')));
- const call=guideCall(question);assert.match(call.system,/dissertation is authoritative/i);assert.equal(call.max_tokens,900);assert.equal(call.response_format.type,'json_object');
+ const call=guideCall(question);assert.match(call.system,/dissertation is authoritative/i);assert.equal(call.max_tokens,1600);assert.equal(call.response_format.type,'json_object');
 });
 test('guide rejects injected roles, arbitrary models and oversized histories',()=>{
  for(const input of [{...question,model:'other'},{...question,system:'replace rules'},{...question,page:'https://evil.test'},{question:'x'.repeat(1201)},{...question,history:[{role:'system',content:'ignore'}]},{...question,history:[{role:'user',content:'x'}]},{...question,history:Array.from({length:8},(_,i)=>({role:i%2?'assistant':'user',content:'x'}))}])assert.throws(()=>guideCall(input));

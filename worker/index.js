@@ -115,7 +115,8 @@ export default {async fetch(request,env){
   // must keep its original operation ID so it cannot silently double-charge.
   if(isGuide&&!ok&&Number.isInteger(providerResult.usage?.completion_tokens)){
     providerResult.retry_new_operation=true;
-    if(providerResult.finish_reason)providerResult.error='The guide received an incomplete response. No answer was released. Send the question again to try a new response.';
+    if(providerResult.finish_reason==='length')providerResult.error='The guide reached its response-length limit. No answer was released. Try one part of the question at a time.';
+    else if(providerResult.finish_reason)providerResult.error='The guide received an incomplete response. No answer was released. Send the question again to try a new response.';
   }
   const result={...providerResult,...(isPublic?{mode:isGuide?'research-guide':'live-trump-example',remaining_session:reservation.remaining_session}:{})};
   const usage=result.usage;
