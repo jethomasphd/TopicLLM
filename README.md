@@ -10,7 +10,7 @@
 Born in dissertation research at **The University of Texas at Austin**, this release has two clear entry points:
 
 - **Research in action:** the unchanged dissertation and two study papers document applications to alcohol marketing and information dynamics during COVID-19. They are historical research examples, available for review. Dissertation datasets are not distributed.
-- **Learn by doing:** follow Donald Trump’s public Twitter account from his 2015 campaign launch into his first presidency. Discover topics in **7,805 campaign posts**, develop human-defined themes, validate their measurement, and estimate their overall prevalence in **26,239 presidential posts**. These are two temporal views of one public Trump account archive containing 34,416 posts. The 372 transition posts remain in the source but are outside the application.
+- **Learn by doing:** follow Donald Trump’s public Twitter account from his 2015 campaign launch into his first presidential term. Discover topics in **7,805 campaign posts**, develop human-defined themes, validate their measurement, and estimate their overall prevalence in **26,239 first-term posts**. These are two temporal views of one public Trump account archive containing 34,416 posts. The 372 transition posts remain in the source but are outside the application.
 
 The selected Kaggle archive ends January 8, 2021, before the first term ended. It includes retweets and posts recorded as deleted. Account posts are not all personally authored statements, and the archive is not a guarantee of complete coverage. [Meet the dataset](https://topicllm.dev/data/) · [Data card and attribution](docs/data/README.md).
 
@@ -60,7 +60,7 @@ topicllm --profile trump-demo --plan
 topicllm --profile trump-demo --output-dir runs/trump
 ```
 
-Discovery uses only campaign posts from June 16, 2015 through November 8, 2016, with 50 parameter draws and 24 topic ceilings per draw. It uses local compute and makes no paid API calls. Researchers review candidate coverage and original posts before adopting a topic solution. The presidency, January 20, 2017 through January 8, 2021, is the subsequent classification target. Topic count is an observed result.
+Discovery uses only campaign posts from June 16, 2015 through November 8, 2016, with 50 parameter draws and 24 topic ceilings per draw. It uses local compute and makes no paid API calls. Researchers review candidate coverage and original posts before adopting a topic solution. The first presidential term through archive end, January 20, 2017 through January 8, 2021, is the subsequent classification target. Topic count is an observed result.
 
 **Giving this to an agent?** Start with this instruction:
 
@@ -91,9 +91,16 @@ Campaign discovery produced the selected **12-topic solution**. After 6,000 nami
 
 Each annotation set receives **two independent human coding passes**, completed separately by different human coders without model predictions. Disagreements are adjudicated afterward. Human agreement compares the two initial passes. Model agreement compares predictions with their adjudicated consensus; these are different comparisons.
 
-The frozen LLM matched **175/250** held-out labels (95% Wilson interval 64.1%–75.3%; κ = 0.6353). It failed the declared >85% agreement and per-theme support/recall criteria. This result makes the distinction between discovering useful categories and measuring them reliably concrete. [Inspect the aggregate evaluation](docs/data/trump/campaign/evaluation_report.json).
+The frozen LLM matched **175/250** held-out labels (95% Wilson interval 64.1%–75.3%; κ = 0.6353). The complete teaching example retains this evaluation alongside the model-assigned shares. [Inspect the aggregate evaluation](docs/data/trump/campaign/evaluation_report.json).
 
-The principal investigator authorized an **unvalidated demonstration** with the unchanged codebook and classifier, under a US$150 cumulative research ceiling. It classified all 26,239 presidential posts. Its largest substantive assigned category was Criticism of Political Opponents (6,924; 26.39%); the residual received 10,430 posts (39.75%). These are unvalidated model-assigned shares, not validated estimates of theme prevalence. The [documented exception](docs/data/trump/campaign/demonstration_exception.json) does not establish classifier validity.
+The teaching extension applied the unchanged codebook and classifier to all 26,239 first-term posts. Criticism of Political Opponents received 6,924 assignments (26.39%); the residual received 10,430 (39.75%). These are **model-assigned shares for the demonstration**. [Explore the recorded results](https://topicllm.dev/app/).
+
+<details>
+<summary>From teaching demonstration to research measurement</summary>
+
+The 70% agreement did not meet the declared >85% requirement or all per-theme support/recall criteria. A [documented demonstration-only exception](docs/data/trump/campaign/demonstration_exception.json) completed the workflow; its shares remain unvalidated estimates of theme prevalence. For research use, refine the codebook and classifier on development evidence, evaluate each frozen revision on a fresh independently coded held-out sample, and iterate until the declared criteria and human acceptance requirements are met. Do not reuse an opened test set as an untouched benchmark. [Read the limitations and iteration process](https://topicllm.dev/paper/#limitations).
+
+</details>
 
 Individual human labels, adjudication notes and post-level predictions remain private. Public confusion counts permit metric checks; independently repeating the human validation requires new annotations. Live examples use the approved codebook and demonstrate operations, not validated research findings.
 

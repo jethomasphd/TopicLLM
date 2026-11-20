@@ -1,6 +1,6 @@
 # One corpus: Trump account posts, 2015–2021
 
-The hands-on TopicLLM tutorial follows Donald Trump’s public Twitter account from his 2015 campaign launch into his first presidency. It uses **34,416 posts from June 16, 2015 through January 8, 2021**, inclusive. The dissertation and its two studies are separate historical research examples. Their datasets are not included in this release.
+The hands-on TopicLLM tutorial follows Donald Trump’s public Twitter account from his 2015 campaign launch into his first presidential term. It uses **34,416 posts from June 16, 2015 through January 8, 2021**, inclusive. The dissertation and its two studies are separate historical research examples. Their datasets are not included in this release.
 
 ## Source and selection
 
@@ -18,7 +18,7 @@ The modeling copy decodes HTML entities, removes URLs and @handles, replaces non
 
 The six added tokens are `rt, https, http, co, amp, realdonaldtrump`. No candidate, policy, opponent or ideological terms are removed. Retaining retweets preserves account amplification behavior; a research sensitivity analysis can separately examine non-retweets with its own declared input hash.
 
-Analytic roles: campaign discovery (2015-06-16–2016-11-08; 7,805 posts), transition retained outside this design (2016-11-09–2017-01-19; 372), and presidential classification through archive end (2017-01-20–2021-01-08; 26,239). The demonstration reports overall unvalidated model-assigned shares only, with its failed held-out evaluation retained alongside them. Repeated activity from one account limits population and causal interpretation.
+Analytic roles: campaign discovery (2015-06-16–2016-11-08; 7,805 posts), transition retained outside this design (2016-11-09–2017-01-19; 372), and presidential classification through archive end (2017-01-20–2021-01-08; 26,239). The teaching demonstration reports overall model-assigned shares for the first term, alongside the recorded evaluation. The [limitations section](https://topicllm.dev/paper/#limitations) explains the further iteration required for research measurement. Repeated activity from one account limits population and causal interpretation.
 
 ## Verify or rebuild
 
@@ -32,7 +32,7 @@ Discovery outputs are measured model results, not human annotations. The site pr
 
 ## Live examples from the same corpus
 
-The live lab uses 1,024 evenly spaced presidential source rows, including that period's endpoints, for classification practice. Naming examples use the 12 adopted campaign topics. These are lightweight views of the same corpus, not probability samples for classifier validation. `live-examples.json` preserves the selected source text and IDs; the complete source remains available in `corpus.csv`. Live classifications use the same frozen 12-theme codebook approved through two-pass human theme review. Its definitions and primary-theme rule are supplied with each call. The classifier remains unvalidated; live outputs are examples to inspect, not independent benchmark labels.
+The live lab uses 1,024 evenly spaced presidential source rows, including that period's endpoints, for classification practice. Naming examples use the 12 adopted campaign topics. These are lightweight views of the same corpus, not probability samples for classifier validation. `live-examples.json` preserves the selected source text and IDs; the complete source remains available in `corpus.csv`. Live classifications use the same frozen 12-theme codebook approved through two-pass human theme review. Its definitions and primary-theme rule are supplied with each call. Live outputs are examples to inspect against the codebook; research-use requirements are explained in the limitations section.
 
 ## Attribution and scope
 

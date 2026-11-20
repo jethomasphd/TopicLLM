@@ -9,8 +9,8 @@ authors:
 repository-code: "https://github.com/jethomasphd/TopicLLM"
 url: "https://topicllm.dev/"
 license: MIT
-version: "0.6.5"
-date-released: "2026-11-19"
+version: "0.6.6"
+date-released: "2026-11-20"
 keywords:
   - topic modeling
   - BERTopic

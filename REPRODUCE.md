@@ -1,6 +1,6 @@
 # Discover in the campaign. Measure in the presidency.
 
-The worked application follows Donald Trump’s public Twitter account from his 2015 campaign launch into his first presidency. It uses one archive with separate temporal roles: **7,805 campaign posts** for topic discovery and **26,239 presidential posts** for prevalence measurement. The original dissertation and papers remain in the research library; their datasets are not distributed.
+The worked application follows Donald Trump’s public Twitter account from the 2015–2016 campaign into his first presidential term, ending at the archive’s January 8, 2021 endpoint. Its final shares complete a teaching walkthrough. For substantive research, follow the iteration and fresh-evaluation requirements in the [limitations section](https://topicllm.dev/paper/#limitations). It uses one archive with separate temporal roles: **7,805 campaign posts** for topic discovery and **26,239 presidential posts** for prevalence measurement. The original dissertation and papers remain in the research library; their datasets are not distributed.
 
 The question is: **which themes emerge from campaign posts, and what share of subsequent presidential posts expresses each theme?** The standalone manuscript connects that question to executable scripts, actual human interpretation, and independent evaluation.
 
@@ -44,7 +44,7 @@ An installed wheel supplies the same tools as console commands. Use these equiva
 | `python scripts/prepare-annotations.py` | `topicllm-annotations` |
 | `python scripts/import-synthesis.py` | `topicllm-import-synthesis` |
 
-Run any command with `--help` for its arguments. To add discovery dependencies to a wheel installation, use `python -m pip install "./topicllm_research-0.6.5-py3-none-any.whl[ml]"` from the directory containing your downloaded wheel. The `.[ml]` commands in this guide instead refer to a repository checkout.
+Run any command with `--help` for its arguments. To add discovery dependencies to a wheel installation, use `python -m pip install "./topicllm_research-0.6.6-py3-none-any.whl[ml]"` from the directory containing your downloaded wheel. The `.[ml]` commands in this guide instead refer to a repository checkout.
 
 ## 3. Collect naming evidence
 

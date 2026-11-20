@@ -1,6 +1,6 @@
 # Find your way through TopicLLM
 
-TopicLLM is a research workflow for turning a collection of text into human-defined themes and testing how reliably those themes can be measured. The worked example follows Donald Trump’s public Twitter posts from his 2015 campaign into his first presidency. The original dissertation and two study papers remain a separate, unchanged research library.
+TopicLLM is a research workflow for turning a collection of text into human-defined themes and testing how reliably those themes can be measured. The worked example follows Donald Trump’s public Twitter posts from his 2015 campaign into his first presidential term. The original dissertation and two study papers remain a separate, unchanged research library.
 
 | Your next step | Start here |
 |---|---|
@@ -34,7 +34,7 @@ Local outputs such as `runs/`, build directories and private credentials are not
 
 **Maintained documentation** explains the current software. **Recorded evidence** describes what actually ran, including its original software versions, parameters and decisions. Updating the release does not rewrite that provenance or make an earlier classifier more accurate. The original publications are preserved byte for byte.
 
-The demonstration retained 12 themes, but its classifier matched only 70% of the 250 held-out reference labels and failed the declared acceptance criteria. Its full-corpus results are **unvalidated model-assigned shares**. Software checks verify execution and arithmetic; they do not substitute for scientific validation.
+The demonstration retained 12 themes and its classifier matched 70% of the 250 held-out reference labels. Its full-corpus results are **model-assigned shares for teaching**. The [limitations and iteration guide](https://topicllm.dev/paper/#limitations) explains the unmet research criteria and the further evaluation required before research use. Software checks verify execution and arithmetic; they do not substitute for scientific validation.
 
 Interpretation uses **two-pass human theme review**. Annotation uses **two independent human coding passes**, each completed by a separate human coder, followed by adjudication. A coding agent executes the scripts and prepares evidence; it cannot supply either human pass or scientific approval.
 

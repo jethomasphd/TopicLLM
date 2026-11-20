@@ -1,5 +1,7 @@
 # TopicLLM Python implementation
 
+The worked example follows Donald Trump’s 2015–2016 campaign and first presidential term through the archive’s January 8, 2021 endpoint. It is a complete teaching walkthrough. For substantive research, iterate on development evidence and evaluate frozen revisions on fresh independent samples until the declared criteria and human acceptance requirements are met. See the [method’s limitations section](https://topicllm.dev/paper/#limitations).
+
 Read [REPRODUCE.md](../REPRODUCE.md), [AGENTS.md](../AGENTS.md) and the [standalone methods](https://topicllm.dev/paper/). The scripts execute the analysis; humans supply interpretation and independent annotation.
 
 The campaign application uses one public Trump archive with two disjoint temporal views. `topicllm --profile quickcheck` checks the canonical source without calls. `topicllm --profile trump-demo` discovers topics only in the 7,805 campaign posts (2015-06-16–2016-11-08). The target is the 26,239 presidential posts (2017-01-20–2021-01-08). Generic `PipelineConfig` requires explicit windows for that design; use [the campaign configuration](../examples/campaign-presidency-config.json).

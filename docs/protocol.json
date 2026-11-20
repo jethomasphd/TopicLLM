@@ -185,7 +185,7 @@
       20
     ]
   },
-  "release": "0.6.5",
+  "release": "0.6.6",
   "tutorial": {
     "source": "https://www.kaggle.com/datasets/codebreaker619/donald-trump-tweets-dataset",
     "window": [
@@ -261,10 +261,17 @@
     "research_accounted_usd": 112.4674175,
     "human_coding_passes": 2
   },
-  "dataset_introduction": "Public posts from Donald Trump’s Twitter account, spanning his 2015 campaign launch through the archive’s January 8, 2021 endpoint. Campaign posts support topic discovery; presidential posts support classifier development, evaluation and overall model-assigned shares.",
+  "dataset_introduction": "Public posts from the Donald Trump account during the 2015–2016 campaign and first presidential term, through the archive endpoint of January 8, 2021. Campaign posts support discovery; first-term posts support development, evaluation and the teaching demonstration of model-assigned shares.",
   "human_review_terminology": {
     "interpretation": "two-pass human theme review",
     "annotation": "two independent human coding passes",
     "independence": "A separate actual human coder completes each pass without access to the other pass’s labels or model predictions; adjudication follows both passes."
+  },
+  "presentation": {
+    "purpose": "Complete methodological demonstration and teaching walkthrough",
+    "output_label": "Model-assigned shares for the teaching demonstration",
+    "research_use": "Iterate on development evidence; freeze each revision; evaluate on fresh independently coded held-out data until declared criteria and actual human acceptance are met.",
+    "limitations_url": "https://topicllm.dev/paper/#limitations",
+    "historical_acceptance_status_unchanged": true
   }
 }
