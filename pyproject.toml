@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "topicllm-research"
-version = "0.6.4"
+version = "0.6.5"
 description = "Auditable topic interpretation and prevalence workflows for research"
 readme = "README.md"
 requires-python = ">=3.11"

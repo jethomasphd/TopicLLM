@@ -10,9 +10,9 @@
 Born in dissertation research at **The University of Texas at Austin**, this release has two clear entry points:
 
 - **Research in action:** the unchanged dissertation and two study papers document applications to alcohol marketing and information dynamics during COVID-19. They are historical research examples, available for review. Dissertation datasets are not distributed.
-- **Learn by doing:** discover topics in **7,805 campaign posts**, develop human-defined themes, validate their measurement, and estimate their overall prevalence in **26,239 presidential posts**. These are two temporal views of one public Trump account archive containing 34,416 posts. The 372 transition posts remain in the source but are outside the application.
+- **Learn by doing:** follow Donald Trump’s public Twitter account from his 2015 campaign launch into his first presidency. Discover topics in **7,805 campaign posts**, develop human-defined themes, validate their measurement, and estimate their overall prevalence in **26,239 presidential posts**. These are two temporal views of one public Trump account archive containing 34,416 posts. The 372 transition posts remain in the source but are outside the application.
 
-The selected Kaggle archive ends January 8, before the first term ended. It includes retweets and posts recorded as deleted. Account posts are not all personally authored statements, and the archive is not a guarantee of complete coverage. [Data card and attribution](docs/data/README.md).
+The selected Kaggle archive ends January 8, 2021, before the first term ended. It includes retweets and posts recorded as deleted. Account posts are not all personally authored statements, and the archive is not a guarantee of complete coverage. [Meet the dataset](https://topicllm.dev/data/) · [Data card and attribution](docs/data/README.md).
 
 ## Explore → fork → run → review
 
@@ -28,6 +28,17 @@ flowchart LR
 A **topic** groups similar language. A **theme** is a researcher-defined interpretation. A **label** assigns a document to a theme. Keeping these distinct prevents an attractive model output from becoming an unsupported scientific claim.
 
 The [visual walkthrough](https://topicllm.dev/app/) lets you inspect recorded discovery, try live OpenAI calls and draft a theme map. Its draft labels are teaching aids. Research requires actual researcher review and an independent benchmark before corpus classification. The website guide explains the program; your fork runs the analysis.
+
+## Find your starting point
+
+A **fork** is your own copy of this repository. A **coding agent** is an assistant working in that copy; it runs Python rather than inventing analysis results.
+
+| You want to… | Start here |
+|---|---|
+| Understand the example | [Dataset introduction](https://topicllm.dev/data/) → [visual walkthrough](https://topicllm.dev/app/) |
+| Understand the method | [Standalone paper](https://topicllm.dev/paper/) |
+| Run your own analysis | [Execution guide](REPRODUCE.md) and [agent contract](AGENTS.md) |
+| Inspect the project | [Documentation and repository map](docs/README.md) |
 
 ## Start locally
 
@@ -63,22 +74,22 @@ Discovery uses only campaign posts from June 16, 2015 through November 8, 2016, 
 |---|---|---|
 | Discover | MiniLM → UMAP → HDBSCAN → c-TF-IDF; select by cᵥ coherence | Every candidate, exclusions, outliers, assignments, fitted model |
 | Name | Independent LLM calls; modal candidate name | Raw ballots, tally, prompts, model and usage |
-| Synthesize | Two researchers interpret and agree | Worksheet, theme map, evidence-bound attestation |
+| Synthesize | Two-pass human theme review | Worksheet, theme map, evidence-bound attestation |
 | Classify | Development selection → untouched evaluation → human acceptance | Independent labels, frozen classifier, per-theme metrics and errors |
 | Estimate | Overall share of presidential posting events | Every theme's count, denominator and prevalence; residual coverage |
 
 ## The recorded demonstration
 
-Campaign discovery produced the selected **12-topic solution**. After 6,000 naming responses, two human reviewers retained **12 distinct themes** and defined their boundaries for presidential language. Inspect the [frozen codebook](docs/data/trump/campaign/codebook.json) and [synthesis record](docs/data/trump/campaign/human_synthesis_submission.json).
+Campaign discovery produced the selected **12-topic solution**. After 6,000 naming responses, two-pass human theme review retained **12 distinct themes** and defined their boundaries for presidential language. Inspect the [frozen codebook](docs/data/trump/campaign/codebook.json) and [synthesis record](docs/data/trump/campaign/human_synthesis_submission.json).
 
 | Measurement | Development · 100 posts | Held-out evaluation · 250 posts |
 |---|---:|---:|
-| Independent human agreement, before adjudication | 85% | 68% |
+| Agreement between independent human coding passes | 85% | 68% |
 | Disagreements resolved by the researchers | 15 | 80 |
 | LLM agreement with final human consensus | 64% | **70%** |
 | Boolean baseline agreement | 30% | Not selected for evaluation |
 
-Human agreement compares the two independent reviewers. Model agreement compares predictions with their adjudicated consensus; these are different comparisons.
+Each annotation set receives **two independent human coding passes**, completed separately by different human coders without model predictions. Disagreements are adjudicated afterward. Human agreement compares the two initial passes. Model agreement compares predictions with their adjudicated consensus; these are different comparisons.
 
 The frozen LLM matched **175/250** held-out labels (95% Wilson interval 64.1%–75.3%; κ = 0.6353). It failed the declared >85% agreement and per-theme support/recall criteria. This result makes the distinction between discovering useful categories and measuring them reliably concrete. [Inspect the aggregate evaluation](docs/data/trump/campaign/evaluation_report.json).
 

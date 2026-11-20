@@ -1,6 +1,6 @@
 # Discover in the campaign. Measure in the presidency.
 
-The worked application uses one public Trump account archive with separate temporal roles: **7,805 campaign posts** for topic discovery and **26,239 presidential posts** for prevalence measurement. The original dissertation and papers remain in the research library; their datasets are not distributed.
+The worked application follows Donald Trump’s public Twitter account from his 2015 campaign launch into his first presidency. It uses one archive with separate temporal roles: **7,805 campaign posts** for topic discovery and **26,239 presidential posts** for prevalence measurement. The original dissertation and papers remain in the research library; their datasets are not distributed.
 
 The question is: **which themes emerge from campaign posts, and what share of subsequent presidential posts expresses each theme?** The standalone manuscript connects that question to executable scripts, actual human interpretation, and independent evaluation.
 
@@ -44,7 +44,7 @@ An installed wheel supplies the same tools as console commands. Use these equiva
 | `python scripts/prepare-annotations.py` | `topicllm-annotations` |
 | `python scripts/import-synthesis.py` | `topicllm-import-synthesis` |
 
-Run any command with `--help` for its arguments. To add discovery dependencies to a wheel installation, use `python -m pip install "./topicllm_research-0.6.4-py3-none-any.whl[ml]"` from the directory containing your downloaded wheel. The `.[ml]` commands in this guide instead refer to a repository checkout.
+Run any command with `--help` for its arguments. To add discovery dependencies to a wheel installation, use `python -m pip install "./topicllm_research-0.6.5-py3-none-any.whl[ml]"` from the directory containing your downloaded wheel. The `.[ml]` commands in this guide instead refer to a repository checkout.
 
 ## 3. Collect naming evidence
 
@@ -59,9 +59,9 @@ topicllm --profile research --config research-config.json --stages 2,3 --budget-
 
 The total includes all attempts and resumed operations in the run directory. The SQLite ledger retains responses and conservative reservations for uncertain calls. Changed inputs/settings require a new declared analysis; incompatible checkpoints are rejected.
 
-## 4. Researchers interpret and freeze the codebook
+## 4. Complete two-pass human theme review
 
-Two actual researchers inspect `stage3/synthesis_workspace.html` (or the Markdown worksheet), original posts, outliers, topic words and naming ballots. The local workspace offers a visible topic-to-theme overview, a **Combine selected topics** control and an **existing theme** selector on each topic. Several topics can share one theme. Original topics, rationales and draft definition text remain intact; changing a decision clears the review confirmations. The workspace keeps drafts separate from completed human review, provides definition fields and both researchers' notes, and exports a JSON decision record. Extend close reading when needed. No theme is approved automatically.
+Two-pass human theme review uses separate human reviewers to inspect `stage3/synthesis_workspace.html` (or the Markdown worksheet), original posts, outliers, topic words and naming ballots. The local workspace offers a visible topic-to-theme overview, a **Combine selected topics** control and an **existing theme** selector on each topic. Several topics can share one theme. Original topics, rationales and draft definition text remain intact; changing a decision clears the review confirmations. The workspace keeps drafts separate from completed human review, provides definition fields and both researchers' notes, and exports a JSON decision record. Extend close reading when needed. No theme is approved automatically.
 
 After both researchers actually complete the review, import their exported record:
 
@@ -80,15 +80,15 @@ topicllm --profile research --config research-config.json --record-review --revi
 
 The record binds source, date windows, assignments, naming, map and codebook. It records an actual attestation; executing a command does not prove someone reviewed the evidence. An agent must never fabricate it.
 
-## 5. Annotate without model suggestions
+## 5. Complete two independent human coding passes
 
-Agree sample sizes before evaluation. The agreed application plan uses 100 development and 250 held-out posts per researcher. Evaluation is drawn first as a simple random sample without replacement from the complete target. Development sampling excludes all exact evaluation texts. No IDs or exact text appear in both sets.
+Agree sample sizes before evaluation. The agreed application plan uses 100 development and 250 held-out posts in each coding pass. A separate human coder completes each pass without seeing the other pass’s labels or model predictions. Evaluation is drawn first as a simple random sample without replacement from the complete target. Development sampling excludes all exact evaluation texts. No IDs or exact text appear in both sets.
 
 ```bash
 python scripts/prepare-annotations.py --config research-approved.json --output runs/annotations --development-n 100 --evaluation-n 250
 ```
 
-With a frozen codebook, this creates standalone local HTML interfaces and blank CSVs. If samples were already drawn, use the same output folder with --render-only to add the approved codebook without resampling. Complete development annotation and freeze the selected classifier before opening evaluation labels. Each researcher works independently without predictions, saves backups, and exports completed labels. Keep evaluation labels unavailable to prompt tuning and classifier selection.
+With a frozen codebook, this creates standalone local HTML interfaces and blank CSVs. If samples were already drawn, use the same output folder with --render-only to add the approved codebook without resampling. Complete development annotation and freeze the selected classifier before opening evaluation labels. Each coding pass is completed independently, with backups and a separate label export. Keep evaluation labels unavailable to prompt tuning and classifier selection.
 
 ```bash
 python scripts/prepare-annotations.py --config research-approved.json --output runs/annotations/development_labels.csv --reviewer-exports reviewer-one-development.csv reviewer-two-development.csv

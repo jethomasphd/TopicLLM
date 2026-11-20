@@ -1,6 +1,6 @@
 {
   "name": "topicllm",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "private": true,
   "type": "module",
   "engines": {
@@ -16,6 +16,6 @@
   },
   "devDependencies": {
     "pdfjs-dist": "^6.5.438",
-    "wrangler": "^4.162.0"
+    "wrangler": "^4.165.0"
   }
 }

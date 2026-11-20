@@ -1,6 +1,6 @@
 # One corpus: Trump account posts, 2015–2021
 
-The hands-on TopicLLM tutorial uses **34,416 posts from June 16, 2015 through January 8, 2021**, inclusive. The dissertation and its two studies are separate historical research examples. Their datasets are not included in this release.
+The hands-on TopicLLM tutorial follows Donald Trump’s public Twitter account from his 2015 campaign launch into his first presidency. It uses **34,416 posts from June 16, 2015 through January 8, 2021**, inclusive. The dissertation and its two studies are separate historical research examples. Their datasets are not included in this release.
 
 ## Source and selection
 
@@ -32,7 +32,7 @@ Discovery outputs are measured model results, not human annotations. The site pr
 
 ## Live examples from the same corpus
 
-The live lab uses 1,024 evenly spaced presidential source rows, including that period's endpoints, for classification practice. Naming examples use the 12 adopted campaign topics. These are lightweight views of the same corpus, not probability samples for classifier validation. `live-examples.json` preserves the selected source text and IDs; the complete source remains available in `corpus.csv`. Live classifications use the same frozen 12-theme codebook approved by Jacob E. Thomas and a human research assistant. Its definitions and primary-theme rule are supplied with each call. The classifier remains unvalidated; live outputs are examples to inspect, not independent benchmark labels.
+The live lab uses 1,024 evenly spaced presidential source rows, including that period's endpoints, for classification practice. Naming examples use the 12 adopted campaign topics. These are lightweight views of the same corpus, not probability samples for classifier validation. `live-examples.json` preserves the selected source text and IDs; the complete source remains available in `corpus.csv`. Live classifications use the same frozen 12-theme codebook approved through two-pass human theme review. Its definitions and primary-theme rule are supplied with each call. The classifier remains unvalidated; live outputs are examples to inspect, not independent benchmark labels.
 
 ## Attribution and scope
 

@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "manuscript": "TopicLLM: From Campaign Topics to Presidential Theme Prevalence",
+  "manuscript": "TopicLLM: A human-guided, agent-executable methodology for topic modeling and theme extraction applied to the Donald Trump Twitter archive",
   "scope": "Standalone campaign-to-presidency application; original materials remain in the separate research library.",
   "sections": [
     {

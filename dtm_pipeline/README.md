@@ -4,7 +4,7 @@ Read [REPRODUCE.md](../REPRODUCE.md), [AGENTS.md](../AGENTS.md) and the [standal
 
 The campaign application uses one public Trump archive with two disjoint temporal views. `topicllm --profile quickcheck` checks the canonical source without calls. `topicllm --profile trump-demo` discovers topics only in the 7,805 campaign posts (2015-06-16–2016-11-08). The target is the 26,239 presidential posts (2017-01-20–2021-01-08). Generic `PipelineConfig` requires explicit windows for that design; use [the campaign configuration](../examples/campaign-presidency-config.json).
 
-Stage 1 retains all candidate evidence and the numerical coherence winner. Researchers inspect model quality and record any alternative selection. Stage 2 collects a declared vote budget; Stage 3 prepares actual human synthesis. The codebook and theme map must be reviewed by two real people.
+Stage 1 retains all candidate evidence and the numerical coherence winner. Researchers inspect model quality and record any alternative selection. Stage 2 collects a declared vote budget; Stage 3 prepares actual human synthesis. The codebook and theme map require two-pass human theme review by separate actual reviewers.
 
 Stage 4 has three separate actions: `development` selects a classifier, `validate` tests the frozen choice against held-out human annotations, and `classify` normally scales only after passing evaluation and actual researcher acceptance. Stage 5 reports overall target-corpus shares, including the residual and zero-count themes. Period comparisons and pairwise tests are opt-in; this application requests overall shares only.
 
