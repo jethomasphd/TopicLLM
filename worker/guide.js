@@ -18,7 +18,7 @@ const stableSources=[
  {id:'dataset',title:'Meet the dataset',url:'/data/'}
 ];
 const pages=new Set(['home','demo','methods','reproduce','validation','provenance','privacy','study1','study2','guide','welcome','data']);
-const titles={'docs/validation/index.html':'Inside the demo','docs/audit/index.html':'Research library','docs/welcome/index.html':'A letter from the creator','README.md':'Repository overview','REPRODUCE.md':'Run the method','AGENTS.md':'Agent research contract','AUDIT.md':'Source provenance','docs/protocol.json':'Machine-readable protocol','docs/paper/index.html':'Five-stage methods','docs/data/README.md':'Trump tutorial data card','docs/data/trump/manifest.json':'Trump corpus manifest','docs/data/trump/reference-run.json':'Recorded Trump discovery'};
+const titles={'docs/data/index.html':'Meet the dataset','docs/README.md':'Documentation and repository map','docs/validation/index.html':'Inside the demo','docs/audit/index.html':'Research library','docs/welcome/index.html':'A letter from the creator','README.md':'Repository overview','REPRODUCE.md':'Run the method','AGENTS.md':'Agent research contract','AUDIT.md':'Source provenance','docs/protocol.json':'Machine-readable protocol','docs/paper/index.html':'Five-stage methods','docs/data/README.md':'Trump tutorial data card','docs/data/trump/manifest.json':'Trump corpus manifest','docs/data/trump/reference-run.json':'Recorded Trump discovery'};
 export function retrieve(query,limit=4){
  const words=tokens(query);
  return indexed.map(c=>({c,score:words.reduce((n,t)=>n+(c.terms.has(t)?Math.log(1+indexed.length/(frequency.get(t)||1)):0),0)}))
