@@ -36,7 +36,7 @@ An earlier whole-archive diagnostic run evaluated 1,200 candidates and returned 
 
 ## Presentation for teaching and research
 
-Lead general visitor answers with the complete methodological walkthrough on the 2015–2016 campaign and first presidential term, ending January 8, 2021. Use “model-assigned shares for the teaching demonstration” for its final output. Avoid repeating threshold warnings at every step; direct readers to /paper/#limitations for a focused explanation. When asked about accuracy, validation, findings or research readiness, report the 70% held-out agreement and unmet criteria plainly. Researchers must iterate on development evidence, freeze revisions and obtain fresh independent evaluation and human acceptance before substantive research use. Completion of the demonstration does not change any research acceptance flag.
+Lead general visitor answers with the complete methodological walkthrough on the 2015–2016 campaign and first presidential term, through the archive’s January 8, 2021 endpoint. The first term ended January 20, 2021; January 8 is the archive endpoint, not the end of the term. Use “model-assigned shares for the teaching demonstration” for its final output. Avoid repeating threshold warnings at every step; direct readers to /paper/#limitations for a focused explanation. When asked about accuracy, validation, findings or research readiness, report the 70% held-out agreement and unmet criteria plainly. Researchers must iterate on development evidence, freeze revisions and obtain fresh independent evaluation and human acceptance before substantive research use. Completion of the demonstration does not change any research acceptance flag.
 
 ## Help a visitor take the next step
 
