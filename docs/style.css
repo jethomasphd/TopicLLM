@@ -158,7 +158,7 @@ figure picture { display: block; }
 figure.chart figcaption { margin-top: 14px; font-size: .95rem; color: var(--ink-2); max-width: 46em; }
 figure.chart figcaption b { color: var(--ink); }
 .chart-title { font-size: 1.1rem; font-weight: 600; margin: 0 0 4px; }
-.tag { display: inline-block; font-size: .78rem; color: var(--muted); border: 1px solid var(--rule); border-radius: 999px; padding: 2px 10px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
+.tag { display: inline-block; max-width: calc(100% - 6px); font-size: .78rem; color: var(--muted); border: 1px solid var(--rule); border-radius: 999px; padding: 2px 10px; margin-left: 6px; vertical-align: middle; white-space: normal; }
 .journey { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 48px; }
 .rail { position: sticky; top: 96px; align-self: start; list-style: none; margin: 0; padding: 0; }
 .rail li { margin: 0; }
