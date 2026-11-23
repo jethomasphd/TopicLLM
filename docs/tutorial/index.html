@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tutorial — TopicLLM</title>
+<meta name="description" content="A tutorial, not a study: discover themes in Donald Trump's 2015–2016 campaign posts, measure them in his first-term posts, and watch the check catch the classifier.">
+<link rel="canonical" href="https://topicllm.dev/tutorial/">
+<!--shell-head--><link rel="icon" href="../assets/topicllm-mark.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap"><link rel="stylesheet" href="../style.css"><script>document.documentElement.classList.remove('no-js')</script><script type="module" src="../js/site.js"></script><link rel="stylesheet" href="../guide.css"><script type="module" src="../js/guide.js"></script><!--/shell-head-->
+<script type="module" src="../js/lab.js"></script>
+</head>
+<body>
+<!--shell-bar--><a class="skip" href="#main">Skip to content</a><header class="bar"><div class="bar-in"><a class="brand" href="../" aria-label="TopicLLM home"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="../assets/topicllm-mark.svg#mark"/></svg>TopicLLM</a><nav id="site-nav" aria-label="Main"><a href="../tutorial/" aria-current="page">Tutorial</a><a href="../use/">Use it</a><a href="../research/">Research</a><a href="../paper/">Paper</a></nav><button class="ask" type="button" data-ask aria-haspopup="dialog">Ask</button><a class="gh" href="https://github.com/jethomasphd/TopicLLM" aria-label="TopicLLM on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><button class="menu" type="button" aria-controls="site-nav" aria-expanded="false" data-menu>Menu</button></div></header><!--/shell-bar-->
+<main id="main">
+  <header class="tut-head" id="finding">
+    <div class="wrap">
+      <p class="kicker">A tutorial, not a study · Donald Trump's Twitter account, 2015–2021</p>
+      <h1>84% of Trump's first-term posts fit a theme found in his campaign.</h1>
+      <p class="ci">From 250 randomly sampled posts coded by two people. 95% confidence interval, 79–88%.</p>
+      <p class="lede">We found themes in 7,805 posts from his campaign, June 2015 to Election Day 2016. Then we looked for them in his first term, January 2017 to January 8, 2021, when the archive ends: two people coded a random sample of 250 of its 26,239 posts. One in three criticized a political opponent.</p>
+      <figure class="chart draw">
+        <p class="chart-title">What two human coders found</p>
+        <picture><source media="(max-width: 640px)" srcset="../assets/figures/finding-narrow.svg"><img src="../assets/figures/finding.svg" width="960" height="570" alt="Share of first-term posts per theme from the human-coded random sample: Criticism of opponents 33%, Gratitude and positivity 13%, National security 7%, Tax and healthcare 7%, Rallies and support 6%, Immigration 6%, Military and McCain 4%, Media and personal life 4%, Republican primary 1.6%, Macy's boycott 1.2%, Golf resorts 0.4%, Merchandise and books 0%, Fits no theme 16%."></picture>
+        <figcaption>Each dot is a theme's share of first-term posts; each line is its 95% confidence interval. Campaign one-offs, such as the Macy's boycott and the golf resorts, nearly vanished. Broad themes such as criticism and gratitude would fit many politicians, so read “fit a campaign theme” as exactly that, not as “the campaign never ended.”</figcaption>
+      </figure>
+    </div>
+  </header>
+
+  <div class="wrap section" style="padding-top:48px">
+    <h2 style="margin-bottom:8px">How we got that number, in five steps.</h2>
+    <p class="note" style="max-width:44em">Machines did the counting. People made four decisions, each marked in amber. Two steps let you try it yourself with the live model.</p>
+    <div class="journey" style="margin-top:40px">
+      <ol class="rail" data-spy aria-label="Tutorial steps">
+        <li><a href="#discover">Discover</a></li>
+        <li><a href="#name">Name</a></li>
+        <li><a href="#define">Define</a></li>
+        <li><a href="#check">Check</a></li>
+        <li><a href="#report">Report</a></li>
+      </ol>
+      <div>
+        <section class="step" id="discover">
+          <p class="num">Step 1 · Discover</p>
+          <h2>The highest score was the wrong answer.</h2>
+          <p>A topic model (BERTopic) grouped campaign posts by meaning. We tried 1,200 settings, which produced 894 distinct solutions, and scored each by coherence, a standard measure of whether a topic's top words belong together. The best-scoring solution had two topics, and one of them held 99.5% of the clustered posts. That is a score, not a finding.</p>
+          <figure class="chart draw">
+            <div class="scroll-x"><img src="../assets/figures/selection.svg" width="960" height="440" alt="Scatter plot of coherence against number of topics for 894 candidate solutions. The highest-coherence solution has 2 topics with 99.5% of posts in one. The highest-coherence solution where no topic holds a majority has 12 topics."></div>
+            <figcaption><b>The rule:</b> no topic may hold a majority of the posts; among the rest, take the highest score. It picks 12 topics, the largest holding 34% of clustered posts: the same solution the researcher chose by reading the posts, and it picks it for any threshold from 34% to 98%. We wrote the rule down after this run; it is now the software's default.</figcaption>
+          </figure>
+          <p class="note" style="margin-top:24px">Half of the campaign posts (49.5%) didn't join any cluster. The clustering method leaves out posts it can't place confidently, so the 12 topics describe the other half. That is one reason step 4 matters.</p>
+          <p class="decided"><b>A person decided:</b> to adopt a solution only after reading the posts behind its clusters, not because of its score.</p>
+        </section>
+
+        <section class="step" id="name">
+          <p class="num">Step 2 · Name</p>
+          <h2>The model proposes.</h2>
+          <p>For each topic, we gave an LLM (GPT-4o) the topic's top words and asked for a name, 500 separate times. The most common answer becomes a proposal. Agreement ranged from 97% (a gratitude topic) down to 8% (golf resorts). Consistent answers aren't necessarily correct ones, so the model only proposes.</p>
+          <figure class="chart draw">
+            <div class="scroll-x"><img src="../assets/figures/naming.svg" width="960" height="342" alt="Vote tally for topic 0's name across 500 calls: republican primary campaign dynamics 175, republican primary campaign dynamics 2015-2016 145, and 29 other wordings."></div>
+          </figure>
+          <div class="lab" id="lab-name" aria-labelledby="lab-name-title">
+            <h3 id="lab-name-title">Name it yourself first.</h3>
+            <p class="intro">Read a topic's words and five of its posts. Type the name you'd give it. Then ask the live model 20 times, and see what 500 votes and the two researchers decided.</p>
+            <label for="name-topic">Topic</label>
+            <select id="name-topic"></select>
+            <p class="kw" id="name-words"></p>
+            <ul class="posts" id="name-posts"></ul>
+            <label for="name-yours">Your name for this topic</label>
+            <input type="text" id="name-yours" maxlength="90" autocomplete="off" placeholder="Type a short name">
+            <div class="row"><button class="btn primary" id="name-run" type="button" disabled>Ask the model 20 times</button></div>
+            <p class="state" id="name-state" role="status"></p>
+            <div class="tally" id="name-tally" aria-live="polite"></div>
+            <div class="reveal" id="name-reveal" hidden>
+              <div><small>You</small><b id="reveal-you"></b></div>
+              <div><small>Model, 500 recorded votes</small><b id="reveal-model"></b></div>
+              <div class="human"><small>Two researchers decided</small><b id="reveal-human"></b></div>
+            </div>
+          </div>
+          <p class="note" style="margin-top:28px">The model's name is an input. Which name survives, if any, is decided in step 3.</p>
+        </section>
+
+        <section class="step" id="define">
+          <p class="num">Step 3 · Define</p>
+          <h2>People decide.</h2>
+          <p>Two researchers read the posts behind each cluster, in two passes. They kept all 12 as separate themes and wrote a codebook: what each theme means, what to include and exclude, and how to pick one theme when a post fits several. The oddities stayed in. Nobody tidied the result.</p>
+          <!--t:topics--><table class="topics"><caption class="small" style="text-align:left;caption-side:bottom;padding-top:10px">Open a theme to read its frozen definition, exactly as the researchers wrote it.</caption><thead><tr><th>Theme the researchers kept · cluster words</th><th class="hide-sm">Model's proposal</th><th class="n">Campaign posts</th></tr></thead><tbody><tr><td><details><summary>Republican Primary Campaign Dynamics</summary><div class="def">Meaning: Related during the election to his republican opponents during the primary as well as specific reactions to debated. 
+Include: During the presidential era, this should generalize to broad criticism of other republicans or former allies. 
+Exclude: criticism of other opponents such as democrats
+Examples and boundaries: &quot;Marco Rubio is totally weak on illegal immigration &amp;amp, in favor of easy amnesty. A lightweight choker - bad for #USA!&quot;</div></details><span class="kw">poll, debate, trump, cruz, rubio, jeb</span></td><td class="hide-sm">Republican Primary Campaign Dynamics</td><td class="n">1,323</td></tr><tr><td><details><summary>Immigration Reform and Nationalism</summary><div class="def">Meaning: Immigration reform is realted to any attack on Hispanic Migrants, proposed law changes, an all things related to the border wall. Nationalism associated with Donald Trump (often tied to his &quot;America First&quot; platform and the broader Trumpism and MAGA movement) centers on prioritizing national sovereignty, protectionist trade, and strict immigration controls over globalist frameworks
+Include: Any MAGA or RNC slogans fit the nationalism flag.
+Exclude: tweets that do not mention immigration, border security, nationalism, MAGA
+Examples and boundaries: Flashback – Jeb Bush says  illegal immigrants breaking our laws is an “act of love” http://t.co/p8yFzVuw8w He will never secure the border.</div></details><span class="kw">makeamericagreatagain, trump, border, america, make, great</span></td><td class="hide-sm">U.S. Immigration and Nationalism During the 2016 Presidential Campaign</td><td class="n">758</td></tr><tr><td><details><summary>Campaign Rallies and Support in Key States</summary><div class="def">Meaning: During the election he promoted early reporting states (e.g., Iowa) heavily. 
+Include: This will generalize to his continued rally&#x27;s during his presidential term. 
+Exclude: Discussion of events that are not political rallies / campaign events / promotional for his policies
+Examples and boundaries: I will be in Indiana on Sunday and Monday at four MAKE AMERICA GREAT AGAIN rallies. See you there!</div></details><span class="kw">iowa, thank, carolina, hampshire, crowd, new</span></td><td class="hide-sm">Campaign Rallies and Support in Key States</td><td class="n">577</td></tr><tr><td><details><summary>Criticism of Political Opponents</summary><div class="def">Meaning: Attacks and critique of all percieved opponents 
+Include: Obama, Clinton, the media, Bush, Biden, China
+Exclude: When he is not attacking or directing at opponents. 
+Examples and boundaries: &quot;Crooked Hillary Clinton made up facts about me, and &quot;&quot;forgot&quot;&quot; to mention the many problems of our country, in her very average scream!&quot;</div></details><span class="kw">hillary, crooked, clinton, sander, bernie, email</span></td><td class="hide-sm">Criticism of Political Opponents and Email Controversy</td><td class="n">358</td></tr><tr><td><details><summary>Media Appearances and Personal Life Highlights</summary><div class="def">Meaning: Largely promoting his media appearances and his family members
+Include: Content related to self promotion, personal brand, etc.
+Exclude: Irrelevant updates that are not promo or praise
+Examples and boundaries: I will be interviewed on @foxandfriends tomorrow morning at 7:00. Enjoy!</div></details><span class="kw">interview, interviewed, enjoy, tonight, morning, melania</span></td><td class="hide-sm">Media Appearances and Personal Life Highlights</td><td class="n">238</td></tr><tr><td><details><summary>Terrorism, National Security Concerns, and Criticism of Previous Administration</summary><div class="def">Meaning: Largely national security concerns related to the Middle East and Immigration at the southern border. A lot of this was associated with criticizing the Obama Administration
+Include: When Terrorism, national security, and Obama&#x27;s foreign policy is mentioned
+Exclude: topics related to domestic / social issues
+Examples and boundaries: Hillary won&#x27;t call out radical Islam! She will be soundly defeated.</div></details><span class="kw">obama, iran, radical, terrorist, islamic, isi</span></td><td class="hide-sm">Terrorism and National Security Concerns During the 2015-2016 Presidential Campaign</td><td class="n">198</td></tr><tr><td><details><summary>Expressions of Gratitude and Positivity</summary><div class="def">Meaning: This is a very broad and general theme that includes a lot of &quot;follow up&quot; messages following media spots, as well as shout outs.
+Include: Positivity, thanksgiving, praise
+Exclude: angry content, attacks, etc.
+Examples and boundaries: HAPPY NEW YEAR &amp;amp, THANK YOU!</div></details><span class="kw">thank, thanks, nice, word, great, job</span></td><td class="hide-sm">Expressions of Gratitude and Positivity</td><td class="n">176</td></tr><tr><td><details><summary>Tax and Healthcare Policy</summary><div class="def">Meaning: Theme is largely focused on his personal taxes, the Clinton&#x27;s taxes, Obamacare, and other tax or healthcare policy. 
+Include: taxes, tax reform, obamacare, healthcare, medicare, medicaid, etc.
+Exclude: irrelevant content
+Examples and boundaries: 1. In interview I told @AP that my taxes are under routine audit and I would release my tax returns when audit is complete, not after election!  | 
+2. I am going to repeal and replace ObamaCare. We will have MUCH less expensive and MUCH better healthcare. With Hillary, costs will triple!</div></details><span class="kw">tax, obamacare, repeal, replace, plan, disaster</span></td><td class="hide-sm">Healthcare Policy and Obamacare Critique During 2015-2016 Campaign</td><td class="n">98</td></tr><tr><td><details><summary>Issues related to Military Service and Criticism of John McCain</summary><div class="def">Meaning: Policy issues related to the VA, military action in recent wars, and sharp critique of then-senator McCain.
+Include: anything military related or related to McCain
+Exclude: irrelevant content, content addressing other senators not related to military
+Examples and boundaries: One of the reasons I am no fan of John McCain is that our Vets are being treated so badly by him and the politicians. I will fix VA quickly.</div></details><span class="kw">veteran, mccain, vet, john, va, care</span></td><td class="hide-sm">Veterans&#x27; Affairs and Military Service</td><td class="n">83</td></tr><tr><td><details><summary>Trump Campaign Merchandise and Book Promotions</summary><div class="def">Meaning: Viral promotion of his MAGA hats, yard signs, other campaign merch and his books.
+Include: any campaign merch or books authored or signed by Trump
+Exclude: non-campaign-related products
+Examples and boundaries: I am signing copies of my book CRIPPLED AMERICA. Makes a great holiday gift. Order yours now!</div></details><span class="kw">book, copy, cripple, signing, sign, order</span></td><td class="hide-sm">Trump Campaign Merchandise and Book Promotions</td><td class="n">43</td></tr><tr><td><details><summary>Macy&#x27;s Boycott and Consumer Relations</summary><div class="def">Meaning: This is largely a 1-off theme related to a Macy&#x27;s boycott. Minimally, other retail-related policy and some of his own merchandise promotion.
+Include: Generalize to other retail related policy and to other consumer relation events
+Exclude: foreign policy, taxes, healthcare... essentially anything not consumer-related
+Examples and boundaries: Boycott @Macys, no guts, no glory. Besides, there are far better stores!</div></details><span class="kw">macy, shop, store, stock, boycott, merchandise</span></td><td class="hide-sm">Macy&#x27;s Boycott and Consumer Relations</td><td class="n">42</td></tr><tr><td><details><summary>Trump&#x27;s International Golf Resorts and Openings</summary><div class="def">Meaning: 1-off theme related to his specific Scottish Golf Resort that opened during the campaign
+Include: Generalize to the promotion of other resorts, hotels, clubs, or Trump brand related.
+Exclude: anything not related to Trump brand or Trump property
+Examples and boundaries: The opening of Trump Turnberry in Scotland was a big success. Good timing, I was here for BREXIT. Very exciting news conference today!</div></details><span class="kw">turnberry, scotland, resort, golf, open, best</span></td><td class="hide-sm">Trump&#x27;s International Golf Resorts and Openings</td><td class="n">31</td></tr></tbody></table><!--/t:topics-->
+          <p class="decided"><b>A person decided:</b> 12 themes, their definitions, and the rule for choosing one, all before any first-term post was coded.</p>
+        </section>
+
+        <section class="step" id="check">
+          <p class="num">Step 4 · Check</p>
+          <h2 class="failed">The classifier scored 70%. The target was 85%. It failed.</h2>
+          <p>Before choosing a classifier, we drew 250 first-term posts at random and set them aside. Two people coded each one with the codebook, separately, without seeing the model's answers. Then they resolved every disagreement together. The LLM classifier, chosen and frozen beforehand on a separate 100-post practice set, matched their consensus on 175 of the 250 posts: 70% (95% CI 64–75%). The target was more than 85%, with every theme found at least once. It missed on both counts.</p>
+          <p><b>The codebook is hard for people too.</b> Before resolving their differences, the two coders agreed with each other on only 68% of posts. A classifier at 70% is roughly as consistent with them as they were with each other, which suggests the definitions are soft, not just the model.</p>
+          <figure class="chart draw">
+            <div class="scroll-x"><img src="../assets/figures/confusion.svg" width="850" height="750" alt="Confusion matrix for 250 held-out posts. The classifier agreed on 175. Most disagreements are posts the humans coded with a theme that the classifier sent to fits no theme."></div>
+            <figcaption>Most misses ran one way: 45 of the 75 disagreements were posts the people coded with a theme and the classifier called “fits no theme.” Individual human labels stay private; these counts are the published aggregate.</figcaption>
+          </figure>
+          <div class="lab" id="lab-code" aria-labelledby="lab-code-title">
+            <h3 id="lab-code-title">Code five posts. Then meet the model.</h3>
+            <p class="intro">Choose a theme for each of five first-term posts, using the codebook below. When you've coded all five, the live model codes the same five and you compare. Five posts is a feeling, not a measurement. Some retweets are cut off in the archive itself; code what you can see.</p>
+            <details class="codebook-panel"><summary>Open the codebook</summary><dl id="code-book"></dl></details>
+            <ol class="code5" id="code-posts"></ol>
+            <div class="row">
+              <button class="btn primary" id="code-run" type="button" disabled>Show me the model's answers</button>
+              <button class="btn quiet" id="code-more" type="button" hidden>Code five more</button>
+            </div>
+            <p class="state" id="code-state" role="status"></p>
+            <div class="score" id="code-score" hidden aria-live="polite"></div>
+          </div>
+          <p class="decided"><b>People decided twice here:</b> how to code each of the 250 posts, and not to accept the classifier's numbers as measurements.</p>
+        </section>
+
+        <section class="step" id="report">
+          <p class="num">Step 5 · Report</p>
+          <h2>The human sample is the finding. The classifier's shares are not.</h2>
+          <p>We ran the failed classifier on all 26,239 first-term posts anyway, so you can see what the last step produces and how far off it is. Theme by theme, it mostly undercounts. On the 250 sampled posts it sent 34% to “fits no theme,” where the people put 16%; across all posts it sent 40%.</p>
+          <figure class="chart draw">
+            <picture><source media="(max-width: 640px)" srcset="../assets/figures/compare-narrow.svg"><img src="../assets/figures/compare.svg" width="960" height="668" alt="Paired bars per theme comparing the human-coded sample with the classifier's model-assigned shares of all first-term posts. Fits no theme: humans 16%, classifier 40%."></picture>
+            <figcaption>Green: two human coders, random sample of 250. Grey: the classifier on all posts <span class="tag">teaching demonstration · model-assigned shares</span> <a href="../paper/#limits">Limitations</a></figcaption>
+          </figure>
+          <p class="note" style="margin-top:24px">If you adjust the classifier's output for the errors measured in step 4, 81% of posts fit a campaign theme, close to the human estimate. That adjustment rests on a 250-post error profile. It illustrates the gap; it isn't an estimate.</p>
+          <p class="note" style="margin-top:28px"><b>What research would do next:</b> revise the codebook, freeze a new classifier and test it on a fresh sample, repeating until it passes and the people accept its errors.</p>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <section class="section" id="dataset">
+    <div class="wrap"><div style="max-width:66ch">
+      <h2>What this tutorial is and isn't.</h2>
+      <p class="limits">It is a complete walk through the method on a familiar archive. It isn't a study of Donald Trump. The posts are archived posting events from one account, including retweets and posts written by staff, so the shares describe the account's activity, not public opinion or his personal authorship. The human coders' individual labels remain private; the published counts let you check every number here.</p>
+      <details class="more">
+        <summary>About the data</summary>
+        <ul>
+          <li>One archive: 34,416 posts from June 16, 2015 to January 8, 2021 (CodeBreaker619, <a href="https://www.kaggle.com/datasets/codebreaker619/donald-trump-tweets-dataset">Kaggle, version 1</a>). Each row is one post with its date, text, retweet and deletion flags.</li>
+          <li>Campaign view for discovery: 7,805 posts, June 16, 2015 – November 8, 2016. 26 became empty after cleaning, leaving 7,779.</li>
+          <li>First-term view for measurement: 26,239 posts, January 20, 2017 – January 8, 2021. The archive ends before the term did.</li>
+          <li>The 372 posts between Election Day and the inauguration are in the archive but in neither view.</li>
+          <li>The archive can't prove it is complete. Text is © its original authors and isn't relicensed by this project.</li>
+          <li><a href="../data/trump/corpus.csv" download>Download the corpus (CSV)</a> · <a href="../data/README.md">Data card</a></li>
+        </ul>
+      </details>
+      <details class="more">
+        <summary>Every number on this page, as files</summary>
+        <ul class="files">
+          <li><a href="../data/trump/campaign/human_sample_prevalence.json">Human-sample shares</a></li>
+          <li><a href="../data/trump/campaign/evaluation_report.json">Held-out check</a></li>
+          <li><a href="../data/trump/campaign/development_report.json">Practice-set comparison</a></li>
+          <li><a href="../data/trump/campaign/codebook.json">Frozen codebook</a></li>
+          <li><a href="../data/trump/campaign/theme_map.csv">Topic-to-theme map</a></li>
+          <li><a href="../data/trump/campaign/selection_rule_retrospective.json">Selection rule, applied</a></li>
+          <li><a href="../data/trump/campaign/all_iteration_results.json">All 1,200 candidates</a></li>
+          <li><a href="../data/trump/campaign/vote_tallies.csv">Naming votes</a></li>
+          <li><a href="../data/trump/campaign/theme_counts.csv">Classifier counts</a></li>
+          <li><a href="../data/trump/campaign/demonstration_exception.json">Decision to run anyway</a></li>
+          <li><a href="../data/trump/campaign-evidence.zip">Everything, zipped</a></li>
+        </ul>
+        <p class="small">Recompute them yourself, with no private data or API calls: <code>python scripts/check-published-metrics.py</code> and <code>python scripts/estimate-human-sample-prevalence.py</code>.</p>
+      </details>
+      <div class="actions"><a class="btn primary" href="../use/">Run it on your own text</a><a href="../paper/">Read the paper</a></div>
+    </div></div>
+  </section>
+</main>
+<!--shell-foot--><footer class="foot"><div class="foot-in"><div><p><b>TopicLLM</b> is pilot software built from Jacob E. Thomas's dissertation research at The University of Texas at Austin. It has not been independently validated. <a href="https://github.com/jethomasphd/TopicLLM/issues">Try to break it</a>.</p><p>Code: MIT. Documentation: CC BY 4.0. Trump posts remain © their original authors.</p></div><ul><li><a href="../tutorial/">Tutorial</a></li><li><a href="../use/">Use it</a></li><li><a href="../research/">Research</a></li><li><a href="../paper/">Paper</a></li><li><a href="../privacy/">Privacy and limits</a></li><li><a href="https://github.com/jethomasphd/TopicLLM">GitHub</a></li></ul></div></footer><!--/shell-foot-->
+</body>
+</html>

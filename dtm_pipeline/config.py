@@ -31,7 +31,11 @@ class PipelineConfig:
     target_window: list | None = None
     require_disjoint_windows: bool = False
     output_dir: str = "pipeline_output"        # all stage artifacts land here
-    stopwords_file: str = os.path.join(DEMO_DIR, "trump", "stopwords.txt")
+    text_column: str = "tweet"                 # input column holding the documents; mapped to
+    id_column: str = "post_id"                 # the internal 'tweet'/'post_id' names at read time
+    # Domain stopwords for the bundled Trump archive; set your own list, or null
+    # for NLTK English stopwords only, when analyzing another corpus.
+    stopwords_file: str | None = os.path.join(DEMO_DIR, "trump", "stopwords.txt")
     strip_platform_artifacts: bool = True  # decode HTML entities; remove URLs and @handles before tokenization
 
     # ----- Stage 1: coherence-optimized topic discovery ---------------------
@@ -50,6 +54,14 @@ class PipelineConfig:
                                                # whole model for every solution.
     save_visualizations: bool = False          # per-iteration HTML (heavy; final model always saved)
     save_candidate_evidence: bool = False       # words, sizes and assignments for actual model review
+    # Declared admissibility rule (selection_rule.py): the selected model is the
+    # highest-coherence candidate with >= min_topics topics whose largest topic
+    # holds <= max_topic_share of assigned (non-outlier) documents. c_v alone can
+    # reward a few topics dominated by common words (Roberts, Stewart & Tingley
+    # 2019), and there is no single right topic count (Grimmer & Stewart 2013).
+    # The unconstrained coherence winner is always recorded beside the selection.
+    max_topic_share: float | None = 0.5        # None disables the cap
+    min_topics: int = 2
 
     # UMAP / HDBSCAN sampling spaces (identical to the reference implementation)
     umap_space: dict = field(default_factory=lambda: {

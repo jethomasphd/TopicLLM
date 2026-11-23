@@ -1,65 +1,57 @@
-/* site.js — landing-page behavior: theme toggle, copy buttons, citation tabs,
- * download sizes, scroll reveal, and scroll reveals. */
+/* Shared page behavior: mobile menu, copy buttons, chart draw-in, and the
+   scroll position markers for the tutorial rail and the paper's contents.
+   No network calls and no stored data. */
 
-const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
-/* ------------------------------------------------------------ theme toggle */
-function currentTheme() {
-  const set = document.documentElement.dataset.theme;
-  if (set) return set;
-  return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+// Mobile menu.
+const menu = document.querySelector('[data-menu]');
+const nav = document.getElementById('site-nav');
+if (menu && nav) {
+  const set = open => { menu.setAttribute('aria-expanded', String(open)); nav.classList.toggle('open', open); };
+  menu.addEventListener('click', () => set(menu.getAttribute('aria-expanded') !== 'true'));
+  nav.addEventListener('click', event => { if (event.target.closest('a')) set(false); });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && nav.classList.contains('open')) { set(false); menu.focus(); }
+  });
 }
-$$("[data-theme-toggle]").forEach(btn => btn.addEventListener("click", () => {
-  const next = currentTheme() === "dark" ? "light" : "dark";
-  document.documentElement.dataset.theme = next;
-  try { localStorage.setItem("topicllm-theme", next); } catch (e) { /* storage unavailable */ }
 
+// Copy buttons: <button class="copy" data-copy="#target">.
+$$('[data-copy]').forEach(button => button.addEventListener('click', async () => {
+  const target = document.querySelector(button.dataset.copy);
+  if (!target) return;
+  const text = target.innerText.replace(/^Copy\s*/,'').trim();
+  try { await navigator.clipboard.writeText(text); button.textContent = 'Copied'; }
+  catch { button.textContent = 'Select and copy'; }
+  setTimeout(() => { button.textContent = 'Copy'; }, 1800);
 }));
 
-/* ------------------------------------------------------------ copy buttons */
-$$(".codeblock").forEach(block => {
-  const pre = $("pre", block);
-  const btn = document.createElement("button");
-  btn.className = "copy"; btn.type = "button"; btn.textContent = "Copy";
-  btn.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(pre.innerText);
-      btn.textContent = "Copied";
-    } catch (e) { btn.textContent = "Select & copy"; }
-    setTimeout(() => (btn.textContent = "Copy"), 1600);
-  });
-  block.appendChild(btn);
-});
+// Charts draw once as they scroll into view.
+const drawables = $$('.draw');
+if ('IntersectionObserver' in window && drawables.length) {
+  const seen = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (entry.isIntersecting) { entry.target.classList.add('in'); seen.unobserve(entry.target); }
+  }), { rootMargin: '0px 0px -8% 0px' });
+  drawables.forEach(el => seen.observe(el));
+} else drawables.forEach(el => el.classList.add('in'));
 
-/* ------------------------------------------------------------- cite tabs */
-$$("[data-cite]").forEach(root => {
-  const tabs = $$("[data-cite-tab]", root);
-  tabs.forEach(tab => tab.addEventListener("click", () => {
-    tabs.forEach(t => t.setAttribute("aria-selected", String(t === tab)));
-    $$("[data-cite-panel]", root).forEach(p => (p.hidden = p.dataset.citePanel !== tab.dataset.citeTab));
-  }));
+// Mark the section in view for any list of in-page links: [data-spy] a[href^="#"].
+$$('[data-spy]').forEach(list => {
+  const links = $$('a[href^="#"]', list);
+  const targets = links.map(a => document.getElementById(a.getAttribute('href').slice(1))).filter(Boolean);
+  if (!targets.length || !('IntersectionObserver' in window)) return;
+  const mark = id => {
+    let passed = true;
+    links.forEach(a => {
+      const on = a.getAttribute('href') === '#' + id;
+      a.classList.toggle('on', on);
+      if (on) { a.setAttribute('aria-current', 'step'); passed = false; } else a.removeAttribute('aria-current');
+      a.classList.toggle('done', passed && !on);
+    });
+  };
+  const spy = new IntersectionObserver(entries => {
+    const visible = entries.filter(e => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+    if (visible[0]) mark(visible[0].target.id);
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  targets.forEach(t => spy.observe(t));
 });
-
-/* ---------------------------------------------------------- download sizes */
-const fmt = n => n > 1e6 ? `${(n / 1e6).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1e3))} KB`;
-$$("a[data-size]").forEach(async a => {
-  try {
-    const r = await fetch(a.getAttribute("href"), { method: "HEAD" });
-    const n = Number(r.headers.get("content-length"));
-    if (!r.ok || !n) return;
-    const slot = a.nextElementSibling && a.nextElementSibling.tagName === "SPAN" ? a.nextElementSibling : null;
-    if (slot) slot.textContent = fmt(n);
-    else a.insertAdjacentHTML("beforeend", ` <span style="opacity:.7;font-weight:400">· ${fmt(n)}</span>`);
-  } catch (e) { /* offline or file:// — sizes are optional */ }
-});
-
-/* ------------------------------------------------------------------ reveal */
-if ("IntersectionObserver" in window) {
-  const io = new IntersectionObserver(entries => entries.forEach(e => {
-    if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
-  }), { rootMargin: "0px 0px -8% 0px" });
-  $$(".reveal").forEach(el => io.observe(el));
-} else {
-  $$(".reveal").forEach(el => el.classList.add("in"));
-}

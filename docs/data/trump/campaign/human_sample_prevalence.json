@@ -1,0 +1,389 @@
+{
+  "schema_version": 1,
+  "question": "What share of Donald Trump's first-term posts express each theme discovered in his 2015-2016 campaign posts?",
+  "design": "Simple random sample without replacement of 250 of the 26,239 first-term posts (2017-01-20 to 2021-01-08). Two independent human coding passes, then adjudication of all 80 differences.",
+  "primary_estimate": "human_sample",
+  "headline": {
+    "fits_a_campaign_theme": {
+      "posts": 209,
+      "of": 250,
+      "share": 0.836,
+      "wilson_95": [
+        0.7853467944819801,
+        0.8765786912206486
+      ]
+    },
+    "largest_theme": "Criticism of Political Opponents",
+    "largest_theme_share": 0.332,
+    "largest_theme_wilson_95": [
+      0.27680231305250746,
+      0.3922349440961783
+    ],
+    "classifier_residual_share": 0.3974999047219787,
+    "classifier_residual_share_in_sample": 0.344,
+    "human_residual_share": 0.164,
+    "calibrated_fits_a_campaign_theme": 0.8104942314697543,
+    "calibrated_fits_bootstrap_95": [
+      0.7681250555788457,
+      0.8520930587081009
+    ]
+  },
+  "human_coder_agreement": 0.68,
+  "human_coder_kappa": 0.6144,
+  "classifier_agreement": 0.7,
+  "themes": [
+    {
+      "theme": "Criticism of Political Opponents",
+      "residual": false,
+      "human_sample": {
+        "posts": 83,
+        "of": 250,
+        "share": 0.332,
+        "wilson_95": [
+          0.27680231305250746,
+          0.3922349440961783
+        ]
+      },
+      "classifier": {
+        "posts": 6924,
+        "of": 26239,
+        "share": 0.2638820076984641,
+        "validated": false
+      },
+      "calibrated": {
+        "share": 0.33173085466984503,
+        "bootstrap_95": [
+          0.2930670037867125,
+          0.37257030637248234
+        ]
+      }
+    },
+    {
+      "theme": "Expressions of Gratitude and Positivity",
+      "residual": false,
+      "human_sample": {
+        "posts": 32,
+        "of": 250,
+        "share": 0.128,
+        "wilson_95": [
+          0.09229220373206554,
+          0.17486172281145268
+        ]
+      },
+      "classifier": {
+        "posts": 3182,
+        "of": 26239,
+        "share": 0.12126986546743397,
+        "validated": false
+      },
+      "calibrated": {
+        "share": 0.11787802162594878,
+        "bootstrap_95": [
+          0.09153444968364531,
+          0.14402238868821693
+        ]
+      }
+    },
+    {
+      "theme": "Terrorism, National Security Concerns, and Criticism of Previous Administration",
+      "residual": false,
+      "human_sample": {
+        "posts": 17,
+        "of": 250,
+        "share": 0.068,
+        "wilson_95": [
+          0.042979372742146034,
+          0.10597357421161713
+        ]
+      },
+      "classifier": {
+        "posts": 1289,
+        "of": 26239,
+        "share": 0.04912534776477762,
+        "validated": false
+      },
+      "calibrated": {
+        "share": 0.07089098288910037,
+        "bootstrap_95": [
+          0.043448407452947695,
+          0.10045057842420548
+        ]
+      }
+    },
+    {
+      "theme": "Tax and Healthcare Policy",
+      "residual": false,
+      "human_sample": {
+        "posts": 17,
+        "of": 250,
+        "share": 0.068,
+        "wilson_95": [
+          0.042979372742146034,
+          0.10597357421161713
+        ]
+      },
+      "classifier": {
+        "posts": 524,
+        "of": 26239,
+        "share": 0.01997027325736499,
+        "validated": false
+      },
+      "calibrated": {
+        "share": 0.0515834425098676,
+        "bootstrap_95": [
+          0.029665392884730326,
+          0.07636763151747664
+        ]
+      }
+    },
+    {
+      "theme": "Campaign Rallies and Support in Key States",
+      "residual": false,
+      "human_sample": {
+        "posts": 16,
+        "of": 250,
+        "share": 0.064,
+        "wilson_95": [
+          0.039864042035427566,
+          0.10120883961235189
+        ]
+      },
+      "classifier": {
+        "posts": 808,
+        "of": 26239,
+        "share": 0.030793856473188764,
+        "validated": false
+      },
+      "calibrated": {
+        "share": 0.062118723953273454,
+        "bootstrap_95": [
+          0.037520215354223806,
+          0.08928117701999891
+        ]
+      }
+    },
+    {
+      "theme": "Immigration Reform and Nationalism",
+      "residual": false,
+      "human_sample": {
+        "posts": 15,
+        "of": 250,
+        "share": 0.06,
+        "wilson_95": [
+          0.0367794298938796,
+          0.09641338644791618
+        ]
+      },
+      "classifier": {
+        "posts": 1458,
+        "of": 26239,
+        "share": 0.055566142002362894,
+        "validated": false
+      },
+      "calibrated": {
+        "share": 0.06678189238411596,
+        "bootstrap_95": [
+          0.04582600599979311,
+          0.08969009738096632
+        ]
+      }
+    },
+    {
+      "theme": "Issues related to Military Service and Criticism of John McCain",
+      "residual": false,
+      "human_sample": {
+        "posts": 11,
+        "of": 250,
+        "share": 0.044,
+        "wilson_95": [
+          0.02481030376349735,
+          0.07686225135436373
+        ]
+      },
+      "classifier": {
+        "posts": 427,
+        "of": 26239,
+        "share": 0.01627348603224208,
+        "validated": false
+      },
+      "calibrated": {
+        "share": 0.04385909822207303,
+        "bootstrap_95": [
+          0.02166067858739073,
+          0.06888944346018795
+        ]
+      }
+    },
+    {
+      "theme": "Media Appearances and Personal Life Highlights",
+      "residual": false,
+      "human_sample": {
+        "posts": 10,
+        "of": 250,
+        "share": 0.04,
+        "wilson_95": [
+          0.021931375086910076,
+          0.07186111472496731
+        ]
+      },
+      "classifier": {
+        "posts": 786,
+        "of": 26239,
+        "share": 0.029955409886047488,
+        "validated": false
+      },
+      "calibrated": {
+        "share": 0.032261264232313895,
+        "bootstrap_95": [
+          0.019257049212459097,
+          0.04755568123074507
+        ]
+      }
+    },
+    {
+      "theme": "Republican Primary Campaign Dynamics",
+      "residual": false,
+      "human_sample": {
+        "posts": 4,
+        "of": 250,
+        "share": 0.016,
+        "wilson_95": [
+          0.006265412603784611,
+          0.040246685372190734
+        ]
+      },
+      "classifier": {
+        "posts": 281,
+        "of": 26239,
+        "share": 0.010709249590304509,
+        "validated": false
+      },
+      "calibrated": {
+        "share": 0.01521160314424943,
+        "bootstrap_95": [
+          0.0033402785784615715,
+          0.03198781223096174
+        ]
+      }
+    },
+    {
+      "theme": "Macy's Boycott and Consumer Relations",
+      "residual": false,
+      "human_sample": {
+        "posts": 3,
+        "of": 250,
+        "share": 0.012,
+        "wilson_95": [
+          0.004108540819772419,
+          0.03452349185021925
+        ]
+      },
+      "classifier": {
+        "posts": 30,
+        "of": 26239,
+        "share": 0.0011433362551926522,
+        "validated": false
+      },
+      "calibrated": {
+        "share": 0.014268137846207873,
+        "bootstrap_95": [
+          0.0011433362551926522,
+          0.03074439298980809
+        ]
+      }
+    },
+    {
+      "theme": "Trump's International Golf Resorts and Openings",
+      "residual": false,
+      "human_sample": {
+        "posts": 1,
+        "of": 250,
+        "share": 0.004,
+        "wilson_95": [
+          0.0007111738599518674,
+          0.022160728198072452
+        ]
+      },
+      "classifier": {
+        "posts": 24,
+        "of": 26239,
+        "share": 0.0009146690041541217,
+        "validated": false
+      },
+      "calibrated": {
+        "share": 0.00391020999275887,
+        "bootstrap_95": [
+          0.0009146690041541217,
+          0.010899805632836617
+        ]
+      }
+    },
+    {
+      "theme": "Trump Campaign Merchandise and Book Promotions",
+      "residual": false,
+      "human_sample": {
+        "posts": 0,
+        "of": 250,
+        "share": 0.0,
+        "wilson_95": [
+          0.0,
+          0.014991836752040645
+        ]
+      },
+      "classifier": {
+        "posts": 76,
+        "of": 26239,
+        "share": 0.002896451846488052,
+        "validated": false
+      },
+      "calibrated": {
+        "share": 0.0,
+        "bootstrap_95": [
+          0.0,
+          0.002896451846488052
+        ]
+      }
+    },
+    {
+      "theme": "The text does not fit into any of these themes",
+      "residual": true,
+      "human_sample": {
+        "posts": 41,
+        "of": 250,
+        "share": 0.164,
+        "wilson_95": [
+          0.12342130877935144,
+          0.21465320551801992
+        ]
+      },
+      "classifier": {
+        "posts": 10430,
+        "of": 26239,
+        "share": 0.3974999047219787,
+        "validated": false
+      },
+      "calibrated": {
+        "share": 0.18950576853024567,
+        "bootstrap_95": [
+          0.14790694129189905,
+          0.23187494442115428
+        ]
+      }
+    }
+  ],
+  "method": {
+    "interval": "Wilson score, 95%, finite-population corrected (N=26,239, n=250).",
+    "calibration": "Corpus classifier counts redistributed by P(human label | classifier label) estimated from the 250 sample pairs; predicted labels absent from the sample keep their label.",
+    "bootstrap": "4000 resamples of the 250 pairs, seed 20261123, percentile interval.",
+    "inputs": [
+      "evaluation_report.json (aggregate confusion counts)",
+      "theme_counts.csv (classifier corpus counts)"
+    ]
+  },
+  "limits": [
+    "Human coders agreed on 68% of posts before adjudication (kappa 0.61); adjudicated labels are a working reference, not error-free truth.",
+    "Themes with fewer than about ten sampled posts have wide intervals.",
+    "Posting events include retweets and staff-mediated posts; shares describe the archived account, not public opinion.",
+    "The calibrated view assumes the sample's error pattern holds across the corpus."
+  ]
+}

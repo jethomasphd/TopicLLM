@@ -1,179 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" class="no-js">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TopicLLM — From language to evidence</title>
-<meta name="description" content="A human-guided topic modeling method born in dissertation research. Explore the public Trump corpus, read the research, then fork an executable Python workflow for your agent.">
-<meta property="og:title" content="TopicLLM — From language to evidence">
-<meta property="og:description" content="Research in action. A public Trump corpus walkthrough. An executable Python protocol for your agent, with scientific decisions in human hands.">
-<meta property="og:type" content="website"><meta property="og:image" content="https://topicllm.dev/assets/text-to-evidence-v2.jpg"><meta property="og:image:alt" content="Conceptual illustration of language fragments becoming themes and measurements."><meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="assets/topicllm-mark.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet">
-<link rel="stylesheet" href="site.css">
-<script>try{var t=localStorage.getItem("topicllm-theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
-<script type="module" src="js/site.js"></script>
-<script>if(location.hostname==='jethomasphd.github.io'&&/^\/TopicLLM(?:\/|$)/.test(location.pathname)){location.replace('https://topicllm.dev'+(location.pathname.replace(/^\/TopicLLM/,'')||'/')+location.search+location.hash);}</script><link rel="stylesheet" href="./platform.css"><link rel="icon" href="./assets/topicllm-mark.svg" type="image/svg+xml"><script>try{const theme=localStorage.getItem('topicllm-theme');if(theme)document.documentElement.dataset.theme=theme;}catch{}</script><script type="module" src="./js/platform.js"></script><link rel="stylesheet" href="home.css"><link rel="stylesheet" href="./guide.css"></head>
-<body class="home-page">
-<a class="skip" href="#main">Skip to content</a>
-
-<header class="topbar"><div class="wrap"><a class="brand" href="./" aria-label="TopicLLM home"><svg viewbox="0 0 64 64" aria-hidden="true"><use href="./assets/topicllm-mark.svg#mark"></use></svg><b>TopicLLM</b></a><button class="menu-toggle" data-menu aria-controls="platform-nav" aria-expanded="false" type="button">Menu</button><nav class="topnav" id="platform-nav" aria-label="Main navigation"><a href="./app/">Explore demo</a><a href="./paper/">Method</a><a href="./reproduce/">Fork + run</a><a class="repo-link" href="https://github.com/jethomasphd/TopicLLM">GitHub ↗</a></nav><button class="theme-toggle" type="button" aria-label="Toggle light and dark theme" data-platform-theme><svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></button></div></header>
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TopicLLM — Turn a pile of text into themes you can measure</title>
+<meta name="description" content="Pilot software from a UT Austin dissertation. A topic model finds clusters, an LLM proposes names, people decide what they mean, and the machine is checked against people before any number is believed.">
+<link rel="canonical" href="https://topicllm.dev/">
+<meta property="og:title" content="TopicLLM">
+<meta property="og:description" content="Turn a pile of text into themes you can measure. People decide; the machine gets checked.">
+<!--shell-head--><link rel="icon" href="./assets/topicllm-mark.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap"><link rel="stylesheet" href="./style.css"><script>document.documentElement.classList.remove('no-js')</script><script type="module" src="./js/site.js"></script><link rel="stylesheet" href="./guide.css"><script type="module" src="./js/guide.js"></script><!--/shell-head-->
+</head>
+<body>
+<!--shell-bar--><a class="skip" href="#main">Skip to content</a><header class="bar"><div class="bar-in"><a class="brand" href="./" aria-label="TopicLLM home"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="./assets/topicllm-mark.svg#mark"/></svg>TopicLLM</a><nav id="site-nav" aria-label="Main"><a href="./tutorial/">Tutorial</a><a href="./use/">Use it</a><a href="./research/">Research</a><a href="./paper/">Paper</a></nav><button class="ask" type="button" data-ask aria-haspopup="dialog">Ask</button><a class="gh" href="https://github.com/jethomasphd/TopicLLM" aria-label="TopicLLM on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><button class="menu" type="button" aria-controls="site-nav" aria-expanded="false" data-menu>Menu</button></div></header><!--/shell-bar-->
 <main id="main">
+  <section class="hero">
+    <div class="wrap">
+      <h1>Turn a pile of text into themes you can measure.</h1>
+      <p class="lede">A topic model finds the clusters. An LLM proposes names. People decide what they mean. Then the machine is checked against the people before any number is believed.</p>
+      <div class="actions">
+        <a class="btn primary" href="tutorial/">Take the tutorial</a>
+        <a href="use/">Use it on your own data</a>
+      </div>
+      <p class="status">Pilot software from a UT Austin dissertation. Not independently validated. <a href="https://github.com/jethomasphd/TopicLLM/issues">Try to break it.</a></p>
+    </div>
+  </section>
 
-<!-- =============================================================== HERO -->
-<section class="platform-hero"><div class="wrap"><div class="hero-copy"><p class="release-label">OPEN SOURCE / RESEARCH SOFTWARE / v0.6.6</p><h1>From language<br>to <span>evidence.</span><br>Built for review.</h1><p class="hero-lede">Discover topics. Interpret with people. Measure how common themes are. A reproducible workflow for public-health researchers and the agents working alongside them.</p><div class="cta"><a class="btn primary" href="reproduce/">Fork + run <span aria-hidden="true">↗</span></a><a class="btn" href="app/">Explore the visual demo <span aria-hidden="true">→</span></a></div><p class="hero-footnote">New here? <button class="hero-guide-link" data-ask-guide="What does TopicLLM do, in plain language?">Ask the research guide →</button></p></div><figure class="hero-art"><img src="assets/text-to-evidence-v2.jpg" alt="Conceptual model of document cards organized into topic groups and an evidence panel." width="1536" height="1024" fetchpriority="high"><figcaption><span>Language → structure → evidence</span><span>Conceptual illustration</span></figcaption></figure></div></section>
-<div class="release-strip"><div class="wrap"><div><a class="release-link" href="validation/">0.6.6 / Inside the demo ↗</a><p>Open methods. Downloadable evidence.</p></div><div><strong>5 stages, fully inspectable</strong><p>Discovery through prevalence</p></div><div><strong>Built for your environment</strong><p>Python package + agent contract</p></div><div><strong>Original sources preserved</strong><p>Dissertation and study papers</p></div></div></div>
+  <section class="section proof">
+    <div class="wrap">
+      <h2>The check is the point.</h2>
+      <figure class="draw">
+        <picture><source media="(max-width: 640px)" srcset="assets/figures/proof-narrow.svg"><img src="assets/figures/proof.svg" width="960" height="250" alt="Share of Donald Trump's first-term posts that fit no campaign theme. On the same 250 posts: 16% according to two human coders, 34% according to the classifier. On all 26,239 posts the classifier said 40%."></picture>
+        <figcaption>In the tutorial, the classifier missed its accuracy target, and the method caught it. Two people coded a random sample of 250 of Donald Trump's first-term posts. On those same posts, the classifier sent about twice as many to “fits no theme”: 34% against the people's 16%. Run on all 26,239 posts, it said 40%. <a href="tutorial/#check">See how the check works →</a></figcaption>
+      </figure>
+    </div>
+  </section>
 
-<section class="research-introduction" id="overview"><div class="wrap"><p class="eyebrow">A method your agent can run. Evidence you can understand.</p><h2>What is the conversation about?<br>Where do those themes recur?</h2><p class="overview-lead">TopicLLM helps researchers answer those questions across thousands of short texts. It finds groups of similar language, asks a large language model (LLM) to suggest names, and gives researchers the evidence to turn those groups into meaningful themes. An independently evaluated classifier can then measure how common each theme is in a new set of texts. The worked example follows Donald Trump’s public Twitter account from his 2015 campaign launch through January 2021. We discover themes during the campaign and test how well they transfer to his first presidential term. The worked example lets you follow each step, inspect the outputs and learn how human review shapes the analysis.</p><div class="overview-roles"><article><span>01 / Explore</span><h3>Get a feel for the method.</h3><p>Explore Donald Trump’s public Twitter posts. Inspect groups of similar language, try OpenAI naming and practice defining themes.</p></article><article><span>02 / Run</span><h3>Give your agent the protocol.</h3><p>Fork the repository or install the package. Your agent checks inputs, runs the analysis and retains the evidence.</p></article><article><span>03 / Review</span><h3>Keep scientific judgment human.</h3><p>Review themes, validation and interpretation before using outputs as research findings.</p></article></div><p class="note">One public tutorial corpus. Open methods. Inspectable results. A fresh run can differ because topic models and LLMs include probabilistic steps, and seeds, model versions and software can change.</p></div></section><!-- ============================================================= METHOD -->
-<section class="platform-section" id="method"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">01 / The conceptual model</p><h2>Automate the work.<br>Keep the judgment.</h2></div><p>One chain from documents to testable prevalence. Software and agents carry out the computations; researchers define the question, approve the themes and assess the evidence.</p></div><div class="method-console"><div class="console-heading"><span>TOPICLLM / RESEARCH WORKFLOW</span><span>Select a stage to inspect ↓</span></div><div class="method-route" aria-label="Explore the five-stage conceptual model"><button type="button" class="method-node" data-method-stage="0" aria-pressed="true" aria-controls="method-detail"><span class="node-meta"><span>01</span><svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7" cy="7" r="2"></circle><circle cx="17" cy="6" r="2"></circle><circle cx="12" cy="16" r="2"></circle><path d="m8 9 3 5m4-6-2 6M5 19h2m11-4h2"></path></svg></span><strong>Discover</strong><small>Search for structure</small></button><button type="button" class="method-node" data-method-stage="1" aria-pressed="false" aria-controls="method-detail"><span class="node-meta"><span>02</span><svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4zM8 9h8M8 12h5"></path></svg></span><strong>Name</strong><small>Collect naming votes</small></button><button type="button" class="method-node human" data-method-stage="2" aria-pressed="false" aria-controls="method-detail"><span class="node-meta"><span>03</span><svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="7" r="3"></circle><circle cx="17" cy="8" r="2"></circle><path d="M2 20v-3a6 6 0 0 1 12 0v3m2-7c3 0 6 2 6 6M5 20h7"></path></svg></span><strong>Synthesize</strong><small>Researchers decide</small></button><button type="button" class="method-node" data-method-stage="3" aria-pressed="false" aria-controls="method-detail"><span class="node-meta"><span>04</span><svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="m8 8 2 2 5-4m-7 10h8m-8-3h5"></path></svg></span><strong>Classify</strong><small>Validate, then scale</small></button><button type="button" class="method-node" data-method-stage="4" aria-pressed="false" aria-controls="method-detail"><span class="node-meta"><span>05</span><svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18M7 17v-5m5 5V6m5 11V9"></path></svg></span><strong>Estimate</strong><small>Measure prevalence</small></button></div><div class="method-detail" id="method-detail" aria-live="polite"><div><span class="role-label" id="method-role">01 / COMPUTATION · RESEARCHER-DESIGNED INPUTS</span><h3 id="method-title">Find structure in the corpus.</h3><p id="method-description">Software groups posts with similar language and compares candidate topic models. Researchers read the original posts and check how much of the collection each model explains before selecting a useful starting point. The method documents the algorithms and all 1,200 candidate settings; the topic count emerges from the analysis.</p></div><div class="artifact-output"><p>Evidence retained</p><div id="method-artifacts" style="display:flex;flex-direction:column"><code>↳ all_iteration_results.json</code><code>↳ topics_for_naming.csv</code><code>↳ fitted_model.pkl + provenance hashes</code></div></div></div></div><p class="method-caption"><b>HUMAN REVIEW IS A GATE</b><span>An agent prepares the evidence. Actual researchers approve interpretation and independently annotate the research benchmark. <a href="paper/">Read the method ↗</a></span></p></div></section><section class="reproduction-feature" id="agent-workflow"><div class="wrap reproduction-grid"><div><p class="eyebrow">02 / Your agent. A shared protocol.</p><h2>Fork the code.<br>Give your agent<br>a method to follow.</h2><p>Begin with the public-corpus integrity check. Then bring your own research question, approved data and model credentials. The repository tells your agent what to run, what to retain, and where to stop for you.</p><div class="cta"><a class="btn primary" href="reproduce/">Start reproducing →</a><a class="btn" href="https://github.com/jethomasphd/TopicLLM/blob/main/AGENTS.md">Read AGENTS.md ↗</a></div></div><div><div class="agent-terminal"><div class="terminal-head"><span>topicllm / your research environment</span><b>Python 3.11+</b></div><div class="codeblock"><pre><span class="c"># In your fork, with an environment activated</span>
-python -m pip install ".[dev]"
-topicllm --profile quickcheck \
-  --output-dir runs/quickcheck
+  <section class="section">
+    <div class="wrap">
+      <h2>Five steps. Four decisions only people can make.</h2>
+      <ol class="steps">
+        <li class="person"><b>Discover.</b><span>A topic model groups similar posts.</span><i>A person adopts a solution</i></li>
+        <li><b>Name.</b><span>An LLM proposes names, hundreds of times.</span></li>
+        <li class="person"><b>Define.</b><span>People turn clusters into a codebook.</span><i>People write the codebook</i></li>
+        <li class="person"><b>Check.</b><span>The classifier is tested against people.</span><i>People code a sample, then accept or reject</i></li>
+        <li><b>Report.</b><span>Theme shares, with their uncertainty.</span></li>
+      </ol>
+    </div>
+  </section>
 
-<span class="c"># Then give your agent AGENTS.md + REPRODUCE.md</span></pre></div><div class="agent-status"><span><strong>Verify</strong> inputs, source hashes and environment</span><span><strong>Retain</strong> results, responses and API usage</span><span><strong>Pause</strong> for researcher interpretation and review</span></div></div><p class="agent-caption">The quickcheck verifies the bundled data and setup. No API calls.</p></div></div></section><!-- ======================================================= DEMONSTRATION -->
-<section class="platform-section" id="demonstration"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">03 / One public corpus. A new application.</p><h2>A familiar archive.<br>A method you can inspect.</h2></div><p>Explore Donald Trump’s public Twitter posts from his June 16, 2015 campaign launch through the archive’s January 8, 2021 endpoint. Follow the computation, question the interpretation, and take the workflow into your own research. The walkthrough connects campaign themes to first-term posts, with recorded evaluation and model-assigned shares to explore.</p></div><div class="release-strip"><div class="wrap"><div><strong>34,416 posts</strong><p>One corpus, preserved source text</p></div><div><strong>Campaign → first term</strong><p>Through the archive’s January 8 endpoint</p></div><div><strong>Live model experiments</strong><p>Naming votes + classification examples</p></div></div></div><div class="cta"><a class="btn primary" href="app/">Open the walkthrough →</a><a class="btn" href="validation/">Inspect the evidence ↗</a></div></div></section>
-<!-- =========================================================== PREPRINTS -->
-<section class="room" id="preprints">
-  <div class="wrap">
-    <div class="room-head reveal">
-      <span class="numeral">IV</span>
-      <div>
-        <p class="label">04 / Read the primary evidence</p>
-        <h2>Research in action</h2>
-        <p>TopicLLM grew from dissertation research on alcohol-related communication during COVID-19. Read the dissertation and two studies as documented applications. The hands-on Trump tutorial transfers their methodology to a new corpus; dissertation datasets are not distributed.</p>
+  <section class="section">
+    <div class="wrap">
+      <h2>Start where you are.</h2>
+      <div class="doors">
+        <a href="tutorial/"><h3>Tutorial</h3><p>Follow Donald Trump's campaign themes into his first term, try the model yourself, and watch the check catch it.</p><span class="go">Take the tutorial →</span></a>
+        <a href="use/"><h3>Use it</h3><p>Install the Python package, hand your coding agent the protocol, and keep the scientific calls for yourself.</p><span class="go">Run it on your text →</span></a>
+        <a href="research/"><h3>Research</h3><p>The dissertation and two papers this software comes from, presented unchanged.</p><span class="go">Read the research →</span></a>
       </div>
     </div>
-
-    <div class="volumes reveal">
-      <article class="volume">
-        <p class="label">Methods · 2026</p>
-        <h3>TopicLLM: A human-guided, agent-executable methodology for topic modeling and theme extraction applied to the Donald Trump Twitter archive</h3>
-        <p class="authors">Jacob E. Thomas</p>
-        <blockquote>A complete worked example: discover topics, define themes with researchers, evaluate classification, and interpret the resulting model-assigned shares.</blockquote>
-        <div class="actions">
-          <a class="btn small primary" href="paper/">Read online</a>
-          <a class="btn small" href="preprints/TopicLLM_Methods_2026-11-20.pdf" data-size>Working manuscript PDF</a>
-          <a class="btn small" href="audit/">Sources &amp; original editions</a>
-        </div>
-      </article>
-      <article class="volume">
-        <p class="label">Study 1 · 2026</p>
-        <h3>Alcohol Marketing on Twitter During the COVID-19 Pandemic: Theme Identification, Prevalence Comparison, and Sentiment Analysis</h3>
-        <blockquote>“This study aimed to identify themes used in tweets by alcohol brands early in the
-          pandemic, determine if the prevalence of these themes differed across time, and characterize
-          the sentiment used in the themes.”</blockquote>
-        <div class="actions">
-          <a class="btn small primary" href="studies/1/">Original chapter</a>
-          <a class="btn small" href="preprints/Thomas_et_al_Paper1_Alcohol_Marketing_on_Twitter_During_COVID-19.pdf" data-size>Reflowed PDF</a>
-          <a class="btn small" href="preprints/Thomas_et_al_Paper1_Alcohol_Marketing_on_Twitter_During_COVID-19.docx" data-size>Reflowed Word</a>
-        </div>
-      </article>
-      <article class="volume">
-        <p class="label">Study 2 · 2026</p>
-        <h3>Alcohol Information Dynamics During Crisis: Bidirectional Influence Between Alcohol Industry Marketing and User-Generated Content on Twitter</h3>
-        <blockquote>“Early potential exposure to alcohol brand tweets significantly predicted subsequent
-          user-generated content about alcohol delivery and isolation drinking … Conversely, early
-          user-generated content did not significantly predict subsequent potential exposure.”</blockquote>
-        <div class="actions">
-          <a class="btn small primary" href="studies/2/">Original chapter</a>
-          <a class="btn small" href="preprints/Thomas_et_al_Paper2_Alcohol_Information_Dynamics_During_Crisis.pdf" data-size>Reflowed PDF</a>
-          <a class="btn small" href="preprints/Thomas_et_al_Paper2_Alcohol_Information_Dynamics_During_Crisis.docx" data-size>Reflowed Word</a>
-        </div>
-      </article>
-    </div>
-    <p class="prose indent reveal" style="margin-top:28px;font-size:16px;color:var(--ink-2)">The full dissertation,
-      <em>Alcohol Marketing on Social Media During the COVID-19 Pandemic: Historical Perspectives, Modern
-      Evidence, and Future Regulation</em> (The University of Texas at Austin, 2025), is
-      <a href="THOMAS-PRIMARY-2025.pdf">available here unchanged</a>.</p>
-  </div>
-</section>
-
-<!-- ========================================================== INSTRUMENT -->
-
-
-<!-- ================================================================ DATA -->
-<section class="room" id="data"><div class="wrap"><div class="room-head reveal"><span class="numeral">V</span><div><p class="label">05 / The public tutorial corpus</p><h2>The starting point is open.</h2><p>A corpus is a collection of texts. This one contains 34,416 posts from Donald Trump’s public Twitter account, June 16, 2015–January 8, 2021. <a href="data/">Meet the dataset</a>, then download its preserved text and preparation record.</p></div></div><div class="two-col indent reveal"><div><ul class="files"><li><a href="data/trump/corpus.csv" download data-size>Download the corpus</a><span></span><p>Selected public archive · source attribution preserved.</p></li><li><a href="data/README.md">Technical data documentation</a><span></span><p>File specifications, preparation and checksums for your agent.</p></li></ul></div><div class="panel"><p class="label">Make it your starting point.</p><p>Follow the example, then bring your own question and approved text corpus. Your agent runs the workflow; researchers review the themes and validation.</p><a class="btn" href="reproduce/">Fork + run →</a></div></div></div></section><!-- ================================================================ CODE -->
-<section class="room" id="code"><div class="wrap"><div class="room-head reveal"><span class="numeral">VI</span><div><p class="label">06 / Build on the implementation</p><h2>Your question. Your environment.</h2><p>Maintained Python scripts, documented prompts, saved results and explicit researcher review gates. Everything your agent needs to begin is in the repository.</p></div></div><div class="indent reveal"><div class="cta"><a class="btn primary" href="https://github.com/jethomasphd/TopicLLM">Open the repository ↗</a><a class="btn" href="https://github.com/jethomasphd/TopicLLM/archive/refs/heads/main.zip">Download source + data</a><a class="btn" href="downloads/topicllm_research-0.6.6-py3-none-any.whl">Download Python package</a></div></div></div></section>
-
-<!-- ================================================================ CITE -->
-<section class="room" id="cite">
-  <div class="wrap">
-    <div class="room-head reveal">
-      <span class="numeral">§</span>
-      <div>
-        <p class="label">Citation</p>
-        <h2>How to cite</h2>
-        <p>Cite the working methods manuscript for the pipeline and the software for the code. For the original studies, use the author lists and citations in their preprints. DOIs will be
-          added here when the preprints are deposited. The repository also carries a
-          <a href="https://github.com/jethomasphd/TopicLLM/blob/main/CITATION.cff"><code>CITATION.cff</code></a>
-          that GitHub reads.</p>
-      </div>
-    </div>
-    <div class="indent reveal" data-cite>
-      <div class="cite-tabs" role="tablist" aria-label="Citation formats">
-        <button role="tab" aria-selected="true" data-cite-tab="apa">APA</button>
-        <button role="tab" aria-selected="false" data-cite-tab="bibtex">BibTeX</button>
-      </div>
-      <div class="cite-panel" data-cite-panel="apa">
-        <div class="codeblock"><pre><code>Thomas, J. E. (2026). TopicLLM: A human-guided, agent-executable methodology for topic modeling and theme extraction applied to the Donald Trump Twitter archive [Working manuscript].
-
-Thomas, J. E. (2026). TopicLLM: Human-guided topic interpretation and prevalence analysis [Computer software]. https://github.com/jethomasphd/TopicLLM
-
-Thomas, J. E. (2025). Alcohol marketing on social media during the COVID-19 pandemic: Historical perspectives, modern evidence, and future regulation [Doctoral dissertation, The University of Texas at Austin].</code></pre></div>
-      </div>
-      <div class="cite-panel" data-cite-panel="bibtex" hidden>
-        <div class="codeblock"><pre><code>@misc{thomas2026topicllm_methods,
-  author = {Thomas, Jacob E.},
-  title  = {TopicLLM: A human-guided, agent-executable methodology for topic modeling and theme extraction applied to the Donald Trump Twitter archive},
-  year   = {2026},
-  note   = {Working manuscript},
-  url    = {https://topicllm.dev/paper/}
-}
-
-@software{thomas2026topicllm,
-  author  = {Thomas, Jacob E.},
-  title   = {TopicLLM: Human-Guided Topic Interpretation and Prevalence Analysis},
-  year    = {2026},
-  url     = {https://github.com/jethomasphd/TopicLLM},
-  license = {MIT}
-}
-
-@phdthesis{thomas2025dissertation,
-  author = {Thomas, Jacob E.},
-  title  = {Alcohol Marketing on Social Media During the COVID-19 Pandemic: Historical Perspectives, Modern Evidence, and Future Regulation},
-  school = {The University of Texas at Austin},
-  year   = {2025}
-}</code></pre></div>
-      </div>
-    </div>
-  </div>
-</section>
-
+  </section>
 </main>
-
-<footer class="colophon">
-  <div class="wrap">
-    <div>
-      <h4>TopicLLM</h4>
-      <p>A measurement instrument for public health surveillance of social media, built from the
-        dissertation research of Jacob E. Thomas at The University of Texas at Austin.</p>
-      <p>Correspondence: <a href="mailto:jethomasphd@gmail.com">jethomasphd@gmail.com</a></p>
-    </div>
-    <div>
-      <h4>Licenses</h4>
-      <p>Code: <a href="https://github.com/jethomasphd/TopicLLM/blob/main/LICENSE">MIT</a></p>
-      <p>Author-created preprints and documentation: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></p>
-    </div>
-    <div>
-      <h4>Elsewhere</h4>
-      <p><a href="https://github.com/jethomasphd/TopicLLM">Source on GitHub</a></p>
-      <p><a href="paper/">Methods preprint, web edition</a></p>
-      <p><a href="app/">The instrument</a></p>
-    </div>
-  </div>
-</footer>
+<!--shell-foot--><footer class="foot"><div class="foot-in"><div><p><b>TopicLLM</b> is pilot software built from Jacob E. Thomas's dissertation research at The University of Texas at Austin. It has not been independently validated. <a href="https://github.com/jethomasphd/TopicLLM/issues">Try to break it</a>.</p><p>Code: MIT. Documentation: CC BY 4.0. Trump posts remain © their original authors.</p></div><ul><li><a href="./tutorial/">Tutorial</a></li><li><a href="./use/">Use it</a></li><li><a href="./research/">Research</a></li><li><a href="./paper/">Paper</a></li><li><a href="./privacy/">Privacy and limits</a></li><li><a href="https://github.com/jethomasphd/TopicLLM">GitHub</a></li></ul></div></footer><!--/shell-foot-->
 </body>
 </html>

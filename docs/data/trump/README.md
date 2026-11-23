@@ -18,7 +18,7 @@ The modeling copy decodes HTML entities, removes URLs and @handles, replaces non
 
 The six added tokens are `rt, https, http, co, amp, realdonaldtrump`. No candidate, policy, opponent or ideological terms are removed. Retaining retweets preserves account amplification behavior; a research sensitivity analysis can separately examine non-retweets with its own declared input hash.
 
-Analytic roles: campaign discovery (2015-06-16–2016-11-08; 7,805 posts), transition retained outside this design (2016-11-09–2017-01-19; 372), and presidential classification through archive end (2017-01-20–2021-01-08; 26,239). The teaching demonstration reports overall model-assigned shares for the first term, alongside the recorded evaluation. The [limitations section](https://topicllm.dev/paper/#limitations) explains the further iteration required for research measurement. Repeated activity from one account limits population and causal interpretation.
+Analytic roles: campaign discovery (2015-06-16–2016-11-08; 7,805 posts), transition retained outside this design (2016-11-09–2017-01-19; 372), and presidential classification through archive end (2017-01-20–2021-01-08; 26,239). The tutorial's finding comes from a human-coded random sample of 250 first-term posts (`campaign/human_sample_prevalence.json`); the classifier's full-corpus counts are an unvalidated teaching demonstration. The paper's [limitations](https://topicllm.dev/paper/#limits) explain what research use would require. Repeated activity from one account limits population and causal interpretation.
 
 ## Verify or rebuild
 

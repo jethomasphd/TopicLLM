@@ -1,17 +1,18 @@
-# TopicLLM Python implementation
+# The `topicllm` Python package
 
-The worked example follows Donald Trump’s 2015–2016 campaign and first presidential term through the archive’s January 8, 2021 endpoint. It is a complete teaching walkthrough. For substantive research, iterate on development evidence and evaluate frozen revisions on fresh independent samples until the declared criteria and human acceptance requirements are met. See the [method’s limitations section](https://topicllm.dev/paper/#limitations).
+This is the code behind TopicLLM's five stages. Install it from the repository root with `python -m pip install ".[dev]"`, adding `".[ml]"` for topic discovery. Commands are in [REPRODUCE.md](../REPRODUCE.md); agent rules are in [AGENTS.md](../AGENTS.md).
 
-Read [REPRODUCE.md](../REPRODUCE.md), [AGENTS.md](../AGENTS.md) and the [standalone methods](https://topicllm.dev/paper/). The scripts execute the analysis; humans supply interpretation and independent annotation.
+| Module | Stage | What it does |
+|---|---|---|
+| `sampling.py` | — | Reads the CSV (configurable `text_column`/`id_column`), applies date windows, rejects duplicate IDs and invalid dates, hashes the selection |
+| `stage1_topic_discovery.py`, `selection_rule.py` | Discover | Randomized BERTopic search over 1,200 candidates; selects the highest c<sub>v</sub> coherence among candidates where no topic holds more than `max_topic_share` of documents and there are at least `min_topics`; records the unconstrained winner and a sensitivity table |
+| `selection.py` | Discover | `topicllm-select-candidate`: a researcher adopts a different saved candidate, with a recorded rationale |
+| `stage2_democratic_naming.py` | Name | Repeated LLM naming with a declared vote budget; raw ballots and tallies |
+| `stage3_synthesis_worksheet.py`, `synthesis_review.py`, `review.py` | Define | Local review workspace, import of the two researchers' decisions, evidence-bound approval |
+| `annotations.py`, `adjudication.py` | Check | Held-out and development samples, local coding pages without model output, merge and adjudication |
+| `research_validation.py`, `stage4_classification.py` | Check | Classifier development, frozen held-out validation, acceptance gate, corpus classification |
+| `stage5_inference.py` | Report | Counts, common denominator and shares for every theme and the residual |
+| `api_budget.py`, `llm_backend.py` | — | Persistent spending ledger, retries and resumable caching; OpenAI, gateway and labeled mock backends |
+| `demonstration.py` | — | Verifies the recorded tutorial's demonstration-only exception; it never marks a classifier validated |
 
-The campaign application uses one public Trump archive with two disjoint temporal views. `topicllm --profile quickcheck` checks the canonical source without calls. `topicllm --profile trump-demo` discovers topics only in the 7,805 campaign posts (2015-06-16–2016-11-08). The target is the 26,239 presidential posts (2017-01-20–2021-01-08). Generic `PipelineConfig` requires explicit windows for that design; use [the campaign configuration](../examples/campaign-presidency-config.json).
-
-Stage 1 retains all candidate evidence and the numerical coherence winner. Researchers inspect model quality and record any alternative selection. Stage 2 collects a declared vote budget; Stage 3 prepares actual human synthesis. The codebook and theme map require two-pass human theme review by separate actual reviewers.
-
-Stage 4 has three separate actions: `development` selects a classifier, `validate` tests the frozen choice against held-out human annotations, and `classify` normally scales only after passing evaluation and actual researcher acceptance. Stage 5 reports overall target-corpus shares, including the residual and zero-count themes. Period comparisons and pairwise tests are opt-in; this application requests overall shares only.
-
-The recorded classifier reached 70% held-out agreement and failed its declared acceptance criteria. The principal investigator explicitly authorized a separate, unvalidated demonstration using the unchanged classifier. `demonstration.py` checks that decision against the frozen evidence, target population and spending ceiling. This exception never marks the classifier validated. Public outputs contain aggregate metrics and model-assigned shares; individual benchmark labels, adjudication notes and post-level predictions remain private. See [the execution guide](../REPRODUCE.md) for the normal gates and the scope of the exception.
-
-Use `--plan` before paid stages and an explicitly approved `--budget-usd`. The example uses 500 naming responses/topic, a 32-token output ceiling and 12 bounded workers; the generic fixed-vote default remains 5,000. Neither setting provides scientific approval. Keep credentials private and preserve raw responses, failures, costs and configuration.
-
-`annotations.py` draws independent packets and merges real reviewer exports without resolving disagreements itself. Its standalone local interface displays no model predictions. An agent must never generate the human benchmark or approve its own output.
+Profiles: `quickcheck` verifies the bundled archive offline. `trump-demo` runs tutorial discovery on the bundled corpus. `research` runs any JSON configuration. `--plan` prints counts, calls and a rough cost without running anything, and paid stages require `--budget-usd`. Mock backends are engineering fixtures and can't supply research findings.

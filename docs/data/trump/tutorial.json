@@ -1,0 +1,586 @@
+{
+ "schema_version": 1,
+ "about": "Tutorial data for the TopicLLM website, built from recorded public evidence by scripts/build-tutorial.py.",
+ "topics": [
+  {
+   "id": 0,
+   "words": [
+    "poll",
+    "debate",
+    "trump",
+    "cruz",
+    "rubio",
+    "jeb",
+    "ted",
+    "say",
+    "marco",
+    "fail"
+   ],
+   "posts": 1323,
+   "examples": [
+    {
+     "date": "2016-10-20",
+     "text": "#BigLeagueTruth #DrainTheSwamp https://t.co/eoBiXFPc5f"
+    },
+    {
+     "date": "2015-09-07",
+     "text": "\"\"\"@soz58: @realDonaldTrump @BOB_EWASHINGTON @club4growth it's good to show the public such things,a lot of nerve to ask for a million dollars\""
+    },
+    {
+     "date": "2015-07-04",
+     "text": "Why would Republican candidates want the support of Mitt Romney. He lost an election against Obama that should NEVER have been lost!"
+    },
+    {
+     "date": "2015-11-12",
+     "text": "\"All seven on-line polls, including Drudge and Time, with thousands of respondents, said I won the debate. @krauthammer said I was \"\"so, so.\"\"\""
+    },
+    {
+     "date": "2015-11-05",
+     "text": "\"\"\"@Destiny: Why didn't @seanhannity correct Jeb when he said @realDonaldTrump has run 4 president 2X B4~Jeb needs 2B corrected b/c he lied.\"\"\""
+    }
+   ],
+   "model_name": "Republican Primary Campaign Dynamics",
+   "model_votes": 175,
+   "model_total": 500,
+   "distinct_names": 31,
+   "theme": "Republican Primary Campaign Dynamics",
+   "short": "Republican primary"
+  },
+  {
+   "id": 1,
+   "words": [
+    "makeamericagreatagain",
+    "trump",
+    "border",
+    "america",
+    "make",
+    "great",
+    "illegal",
+    "thank",
+    "immigration",
+    "mexico"
+   ],
+   "posts": 758,
+   "examples": [
+    {
+     "date": "2016-07-16",
+     "text": "Thank you! #TrumpPence16 https://t.co/RHprMCsGT6"
+    },
+    {
+     "date": "2015-07-09",
+     "text": "\"\"\"@tommyz63 @Reince let Trump speak. He is only saying what the rest of us, including you, already know #Illegals are a huge problem!\"\"\""
+    },
+    {
+     "date": "2015-06-25",
+     "text": "Univision wants to back out of signed @MissUniverse contract because I exposed the terrible trade deals that the U.S. makes with Mexico."
+    },
+    {
+     "date": "2015-10-06",
+     "text": "So, so, so important - MAKE AMERICA GREAT AGAIN!"
+    },
+    {
+     "date": "2015-09-09",
+     "text": "\"\"\"@Chris0u24: @realDonaldTrump I've just lost hope Mr Trump. Hope you put America back the way it was\"\"\""
+    }
+   ],
+   "model_name": "U.S. Immigration and Nationalism During the 2016 Presidential Campaign",
+   "model_votes": 100,
+   "model_total": 500,
+   "distinct_names": 73,
+   "theme": "Immigration Reform and Nationalism",
+   "short": "Immigration"
+  },
+  {
+   "id": 2,
+   "words": [
+    "iowa",
+    "thank",
+    "carolina",
+    "hampshire",
+    "crowd",
+    "new",
+    "south",
+    "great",
+    "makeamericagreatagain",
+    "join"
+   ],
+   "posts": 577,
+   "examples": [
+    {
+     "date": "2015-11-20",
+     "text": "A great evening in Iowa! Thank you Des Moines Area Community College for a great forum! #Trump2016 #IAForums https://t.co/092t2VrMEw"
+    },
+    {
+     "date": "2015-07-27",
+     "text": "\"\"\"@MitchPrefach: DonaldTrump Iowa speech excellent. Particularly the end about Israel and Iran. More foreign policy please. You have my vote.\""
+    },
+    {
+     "date": "2016-02-17",
+     "text": "Thank you  @kayleighmcenany for your nice words - great knowledge and style! We are doing really well in South Carolina. @CNN @donlemon"
+    },
+    {
+     "date": "2016-02-05",
+     "text": "Big storm in New Hampshire. Moved my event to Monday. Will be there next four days."
+    },
+    {
+     "date": "2016-01-29",
+     "text": "An unbelievable night in Iowa with our great Veterans! We raised $6,000,000.00 while the politicians talked! #GOPDebate"
+    }
+   ],
+   "model_name": "Campaign Rallies and Support in Key States",
+   "model_votes": 112,
+   "model_total": 500,
+   "distinct_names": 65,
+   "theme": "Campaign Rallies and Support in Key States",
+   "short": "Rallies and support"
+  },
+  {
+   "id": 3,
+   "words": [
+    "hillary",
+    "crooked",
+    "clinton",
+    "sander",
+    "bernie",
+    "email",
+    "bad",
+    "judgement",
+    "mail",
+    "warren"
+   ],
+   "posts": 358,
+   "examples": [
+    {
+     "date": "2016-10-21",
+     "text": "\"\"\"{Crooked Hillary Clinton} created this mess, and she knows it.\"\" #DrainTheSwamp https://t.co/3cBNYjl5CD https://t.co/sjwkuq3nkk\""
+    },
+    {
+     "date": "2016-04-10",
+     "text": "\"\"\"@AnnCoulter: GOP is trying to steal nomination from the winner (Trump) not block an insurgent catching up 2 frontrunner (Sanders).\""
+    },
+    {
+     "date": "2015-09-01",
+     "text": "150 Clinton E-mails still contain classified information. More sensitive when she was Sec.of State. This is a very big deal."
+    },
+    {
+     "date": "2016-06-23",
+     "text": "\"\"\"Hillary Clinton may be the most corrupt person ever to seek the presidency.\"\"  --   Donald J. Trump\""
+    },
+    {
+     "date": "2016-06-07",
+     "text": "In just out book, Secret Service Agent Gary Byrne doesn't believe that Crooked Hillary has the temperament or integrity to be the president!"
+    }
+   ],
+   "model_name": "Criticism of Political Opponents and Email Controversy",
+   "model_votes": 375,
+   "model_total": 500,
+   "distinct_names": 13,
+   "theme": "Criticism of Political Opponents",
+   "short": "Criticism of opponents"
+  },
+  {
+   "id": 4,
+   "words": [
+    "interview",
+    "interviewed",
+    "enjoy",
+    "tonight",
+    "morning",
+    "melania",
+    "pm",
+    "great",
+    "wife",
+    "watch"
+   ],
+   "posts": 238,
+   "examples": [
+    {
+     "date": "2016-04-03",
+     "text": "I will be interviewed by @jdickerson on @FaceTheNation tomorrow morning. Enjoy! #Trump2016"
+    },
+    {
+     "date": "2015-09-08",
+     "text": "I'm on Bill @oreillyfactor tonight at 8 PM. It will be another lively interview about how to #MakeAmericaGreatAgain!"
+    },
+    {
+     "date": "2015-06-30",
+     "text": "Get ready for @Oreillyfactor tonight at 8- always interesting!"
+    },
+    {
+     "date": "2016-05-18",
+     "text": "\"\"\"@ladytsbrug: Lovely interview, Mr. Trump! @realDonaldTrump\"\" Thanks.\""
+    },
+    {
+     "date": "2015-10-18",
+     "text": "\"\"\"@smr111382: @realDonaldTrump One of the best interviews I have seen!\"\"  @FoxNews\""
+    }
+   ],
+   "model_name": "Media Appearances and Personal Life Highlights",
+   "model_votes": 345,
+   "model_total": 500,
+   "distinct_names": 13,
+   "theme": "Media Appearances and Personal Life Highlights",
+   "short": "Media and personal life"
+  },
+  {
+   "id": 5,
+   "words": [
+    "obama",
+    "iran",
+    "radical",
+    "terrorist",
+    "islamic",
+    "isi",
+    "president",
+    "terrorism",
+    "attack",
+    "refugee"
+   ],
+   "posts": 198,
+   "examples": [
+    {
+     "date": "2016-08-05",
+     "text": "The plane I saw on television was the hostage plane in Geneva, Switzerland, not the plane carrying $400 million in cash going to Iran!"
+    },
+    {
+     "date": "2015-09-08",
+     "text": "\"Via @USATODAY- \"\"Amateur hour with the Iran nuclear deal\"\" http://t.co/vdLxPLPj7i\""
+    },
+    {
+     "date": "2015-07-14",
+     "text": "I can't believe that President Obama isn't able or willing to make just one phone call to the family of Kate Steinle.Come on Pres-MAKE CALL!"
+    },
+    {
+     "date": "2016-10-20",
+     "text": "If elected POTUS - I will stop RADICAL ISLAMIC TERRORISM in this country! In order to do this, we need to... https://t.co/45Vyk6z18m"
+    },
+    {
+     "date": "2015-12-09",
+     "text": "Despite my great respect for King Abdullah II, I will not be visiting Jordan at this time. This is in response to the false @AP report."
+    }
+   ],
+   "model_name": "Terrorism and National Security Concerns During the 2015-2016 Presidential Campaign",
+   "model_votes": 112,
+   "model_total": 500,
+   "distinct_names": 76,
+   "theme": "Terrorism, National Security Concerns, and Criticism of Previous Administration",
+   "short": "National security"
+  },
+  {
+   "id": 6,
+   "words": [
+    "thank",
+    "thanks",
+    "nice",
+    "word",
+    "great",
+    "job",
+    "appreciate",
+    "true",
+    "happy",
+    "much"
+   ],
+   "posts": 176,
+   "examples": [
+    {
+     "date": "2016-09-14",
+     "text": "Thank you @RepReneeEllmers!https://t.co/1DrZpfa6je https://t.co/rzEw8pQhds"
+    },
+    {
+     "date": "2015-07-28",
+     "text": "Thank you @mcuban for your nice words. I am rapidly becoming a @dallasmavs fan!   https://t.co/sLXkCh9qfg"
+    },
+    {
+     "date": "2015-06-24",
+     "text": "Thank you.  https://t.co/H8ZxLh6NCd"
+    },
+    {
+     "date": "2015-10-16",
+     "text": "Nice story from @businessinsider http://t.co/O0snYivV0M"
+    },
+    {
+     "date": "2015-10-08",
+     "text": ".@EWErickson ran @RedState into the ground. A change was necessary. Congratulations to @RedState and good luck in the future!"
+    }
+   ],
+   "model_name": "Expressions of Gratitude and Positivity",
+   "model_votes": 485,
+   "model_total": 500,
+   "distinct_names": 7,
+   "theme": "Expressions of Gratitude and Positivity",
+   "short": "Gratitude and positivity"
+  },
+  {
+   "id": 7,
+   "words": [
+    "tax",
+    "obamacare",
+    "repeal",
+    "replace",
+    "plan",
+    "disaster",
+    "premium",
+    "obamacarefail",
+    "healthcare",
+    "raise"
+   ],
+   "posts": 98,
+   "examples": [
+    {
+     "date": "2016-10-25",
+     "text": "#ObamacareFail https://t.co/5Zvsys8j5w"
+    },
+    {
+     "date": "2015-11-05",
+     "text": "\"\"\"@spiritofshiloh: Carson has the WORST health plan EVER re: Soc Sec and Medicare. @realDonaldTrump  He wants to abolish Medicare - no way!\""
+    },
+    {
+     "date": "2015-08-18",
+     "text": "My H-1B reform plan will transform program so it delivers for country, not lobbyists, &amp, will have bipartisan support: http://t.co/xDay480qfv"
+    },
+    {
+     "date": "2016-11-02",
+     "text": "I am going to repeal and replace ObamaCare. We will have MUCH less expensive and MUCH better healthcare. With Hillary, costs will triple!"
+    },
+    {
+     "date": "2016-03-02",
+     "text": "I am going to repeal and replace ObamaCare! Read more about my positions on healthcare reform here: https://t.co/WwIVhIud06"
+    }
+   ],
+   "model_name": "Healthcare Policy and Obamacare Critique During 2015-2016 Campaign",
+   "model_votes": 63,
+   "model_total": 500,
+   "distinct_names": 79,
+   "theme": "Tax and Healthcare Policy",
+   "short": "Tax and healthcare"
+  },
+  {
+   "id": 8,
+   "words": [
+    "veteran",
+    "mccain",
+    "vet",
+    "john",
+    "va",
+    "care",
+    "military",
+    "treat",
+    "trump",
+    "take"
+   ],
+   "posts": 83,
+   "examples": [
+    {
+     "date": "2016-10-10",
+     "text": ".@HillaryClinton - ITS CALLED EXTREME VETTING! #Debates2016 https://t.co/ueq7cbOg9Y"
+    },
+    {
+     "date": "2015-07-20",
+     "text": "\"\"\"@HL3tweets: McCain epitomizes the career politicians who have gotten us into our $19 TRILLION train-wreck, including the VA debacle.\"\"\""
+    },
+    {
+     "date": "2015-07-18",
+     "text": "Captured or not, all our soldiers are heroes!"
+    },
+    {
+     "date": "2015-07-26",
+     "text": "\"\"\"@Hturne: @realDonaldTrump vets tired of McCain using them as talking points and photo ops, AND NOTHING BEING DONE.\"\"\""
+    },
+    {
+     "date": "2015-07-23",
+     "text": "\"\"\"@RonNussbeck: @Maxinerunner I am a veteran from Arizona John McCain voted to give illegal Aliens benefits &amp, take them from disabled Vets\"\"\""
+    }
+   ],
+   "model_name": "Veterans' Affairs and Military Service",
+   "model_votes": 119,
+   "model_total": 500,
+   "distinct_names": 79,
+   "theme": "Issues related to Military Service and Criticism of John McCain",
+   "short": "Military and McCain"
+  },
+  {
+   "id": 9,
+   "words": [
+    "book",
+    "copy",
+    "cripple",
+    "signing",
+    "sign",
+    "order",
+    "gift",
+    "america",
+    "holiday",
+    "stream"
+   ],
+   "posts": 43,
+   "examples": [
+    {
+     "date": "2016-08-02",
+     "text": "\"LIMITED EDITION signed copies of my book \"\"The Art of the Deal\"\" for your donation of $184 or more.  Get YOURS today! https://t.co/4LnzfKRsqZ\""
+    },
+    {
+     "date": "2015-11-02",
+     "text": "Meet me at @TrumpTowerNY and get your copy of my new book CRIPPLED AMERICA signed on 11/3 at 12pm! https://t.co/9M0C0vc2fv"
+    },
+    {
+     "date": "2015-06-22",
+     "text": ".@DanaPerino  Have you released a copy of the beautiful thank you card you sent me? Would you like to see it? @ericbolling @kimguilfoyle"
+    },
+    {
+     "date": "2015-12-01",
+     "text": "A signed copy of CRIPPLED AMERICA makes a great gift. Order &amp, join my live streaming book signing event on 12/3   https://t.co/TICkBt5xnH"
+    },
+    {
+     "date": "2015-11-21",
+     "text": "\"People are really liking my new book, \"\"Crippled America.\"\" Check it out!\""
+    }
+   ],
+   "model_name": "Trump Campaign Merchandise and Book Promotions",
+   "model_votes": 147,
+   "model_total": 500,
+   "distinct_names": 67,
+   "theme": "Trump Campaign Merchandise and Book Promotions",
+   "short": "Merchandise and books"
+  },
+  {
+   "id": 10,
+   "words": [
+    "macy",
+    "shop",
+    "store",
+    "stock",
+    "boycott",
+    "merchandise",
+    "disloyal",
+    "boycottmacys",
+    "card",
+    "shopping"
+   ],
+   "posts": 42,
+   "examples": [
+    {
+     "date": "2016-07-21",
+     "text": "Limited opportunity to get your OFFICIAL Trump gear! Shop now! https://t.co/3lUaSztKYx https://t.co/ssNVgF7PTt"
+    },
+    {
+     "date": "2015-07-02",
+     "text": "\"\"\"@RunPureMichigan  Macy's stock drops after coming out in support of #illegals dust up with @realDonaldTrump and public #BoycottMacys\"\"\""
+    },
+    {
+     "date": "2015-07-02",
+     "text": "\"\"\"@JewNamedLew: @realDonaldTrump @Macys to pay $650,000 settlement over racial profiling... http://t.co/bT6S8F9NnK\"\"  Boycott Macy's.\""
+    },
+    {
+     "date": "2015-07-08",
+     "text": "\"\"\"@CrystalPrebola @realDonaldTrump @MARCMODE @CNNPolitics @mj_lee @Macys Me too. No more shopping at Macy's.\"\"\""
+    },
+    {
+     "date": "2015-07-07",
+     "text": "Wow! I hear that thousands of people are cutting up their @Macys credit card. That's great. #MakeAmericaGreatAgain!"
+    }
+   ],
+   "model_name": "Macy's Boycott and Consumer Relations",
+   "model_votes": 97,
+   "model_total": 500,
+   "distinct_names": 72,
+   "theme": "Macy's Boycott and Consumer Relations",
+   "short": "Macy's boycott"
+  },
+  {
+   "id": 11,
+   "words": [
+    "turnberry",
+    "scotland",
+    "resort",
+    "golf",
+    "open",
+    "best",
+    "ireland",
+    "british",
+    "great",
+    "opening"
+   ],
+   "posts": 31,
+   "examples": [
+    {
+     "date": "2016-06-03",
+     "text": "RT @IvankaTrump: Beautiful article about @realDonaldTrump written by my friend, the incredibly talented golfer Natalie Gulbis:https://t.co..."
+    },
+    {
+     "date": "2015-07-27",
+     "text": "Be in Turnberry on Thurs AM for start of Women's British Open, one of  world's great golf tournaments. Back soon to #MakeAmericaGreatAgain!"
+    },
+    {
+     "date": "2015-06-22",
+     "text": "\"\"\"@SovAdjEast  The USA is like Wollman Rink or Ferrypoint before DJT. You came you saw and built a masterpiece. Now it's the USA' s turn.\"\"\""
+    },
+    {
+     "date": "2016-06-03",
+     "text": "After @TrumpScotland, I will visit @TrumpDoonbeg in Ireland, the magnificent resort fronting on the Atlantic Ocean."
+    },
+    {
+     "date": "2015-09-12",
+     "text": "\"\"\"@ArthurOHara: #Trump International Hotel &amp, Golf Links. Luxury resort in #Doonbeg on Ireland's @wildatlanticway https://t.co/JYRWwMdSwG\"\"\""
+    }
+   ],
+   "model_name": "Trump's International Golf Resorts and Openings",
+   "model_votes": 40,
+   "model_total": 500,
+   "distinct_names": 108,
+   "theme": "Trump's International Golf Resorts and Openings",
+   "short": "Golf resorts"
+  }
+ ],
+ "themes": [
+  "Republican Primary Campaign Dynamics",
+  "Immigration Reform and Nationalism",
+  "Campaign Rallies and Support in Key States",
+  "Criticism of Political Opponents",
+  "Media Appearances and Personal Life Highlights",
+  "Terrorism, National Security Concerns, and Criticism of Previous Administration",
+  "Expressions of Gratitude and Positivity",
+  "Tax and Healthcare Policy",
+  "Issues related to Military Service and Criticism of John McCain",
+  "Trump Campaign Merchandise and Book Promotions",
+  "Macy's Boycott and Consumer Relations",
+  "Trump's International Golf Resorts and Openings"
+ ],
+ "residual": "The text does not fit into any of these themes",
+ "short_names": {
+  "Criticism of Political Opponents": "Criticism of opponents",
+  "Expressions of Gratitude and Positivity": "Gratitude and positivity",
+  "Terrorism, National Security Concerns, and Criticism of Previous Administration": "National security",
+  "Tax and Healthcare Policy": "Tax and healthcare",
+  "Campaign Rallies and Support in Key States": "Rallies and support",
+  "Immigration Reform and Nationalism": "Immigration",
+  "Issues related to Military Service and Criticism of John McCain": "Military and McCain",
+  "Media Appearances and Personal Life Highlights": "Media and personal life",
+  "Republican Primary Campaign Dynamics": "Republican primary",
+  "Macy's Boycott and Consumer Relations": "Macy's boycott",
+  "Trump's International Golf Resorts and Openings": "Golf resorts",
+  "Trump Campaign Merchandise and Book Promotions": "Merchandise and books",
+  "The text does not fit into any of these themes": "Fits no theme"
+ },
+ "codebook": {
+  "themes": {
+   "Republican Primary Campaign Dynamics": "Meaning: Related during the election to his republican opponents during the primary as well as specific reactions to debated. \nInclude: During the presidential era, this should generalize to broad criticism of other republicans or former allies. \nExclude: criticism of other opponents such as democrats\nExamples and boundaries: \"Marco Rubio is totally weak on illegal immigration &amp, in favor of easy amnesty. A lightweight choker - bad for #USA!\"",
+   "Immigration Reform and Nationalism": "Meaning: Immigration reform is realted to any attack on Hispanic Migrants, proposed law changes, an all things related to the border wall. Nationalism associated with Donald Trump (often tied to his \"America First\" platform and the broader Trumpism and MAGA movement) centers on prioritizing national sovereignty, protectionist trade, and strict immigration controls over globalist frameworks\nInclude: Any MAGA or RNC slogans fit the nationalism flag.\nExclude: tweets that do not mention immigration, border security, nationalism, MAGA\nExamples and boundaries: Flashback – Jeb Bush says  illegal immigrants breaking our laws is an “act of love” http://t.co/p8yFzVuw8w He will never secure the border.",
+   "Campaign Rallies and Support in Key States": "Meaning: During the election he promoted early reporting states (e.g., Iowa) heavily. \nInclude: This will generalize to his continued rally's during his presidential term. \nExclude: Discussion of events that are not political rallies / campaign events / promotional for his policies\nExamples and boundaries: I will be in Indiana on Sunday and Monday at four MAKE AMERICA GREAT AGAIN rallies. See you there!",
+   "Criticism of Political Opponents": "Meaning: Attacks and critique of all percieved opponents \nInclude: Obama, Clinton, the media, Bush, Biden, China\nExclude: When he is not attacking or directing at opponents. \nExamples and boundaries: \"Crooked Hillary Clinton made up facts about me, and \"\"forgot\"\" to mention the many problems of our country, in her very average scream!\"",
+   "Media Appearances and Personal Life Highlights": "Meaning: Largely promoting his media appearances and his family members\nInclude: Content related to self promotion, personal brand, etc.\nExclude: Irrelevant updates that are not promo or praise\nExamples and boundaries: I will be interviewed on @foxandfriends tomorrow morning at 7:00. Enjoy!",
+   "Terrorism, National Security Concerns, and Criticism of Previous Administration": "Meaning: Largely national security concerns related to the Middle East and Immigration at the southern border. A lot of this was associated with criticizing the Obama Administration\nInclude: When Terrorism, national security, and Obama's foreign policy is mentioned\nExclude: topics related to domestic / social issues\nExamples and boundaries: Hillary won't call out radical Islam! She will be soundly defeated.",
+   "Expressions of Gratitude and Positivity": "Meaning: This is a very broad and general theme that includes a lot of \"follow up\" messages following media spots, as well as shout outs.\nInclude: Positivity, thanksgiving, praise\nExclude: angry content, attacks, etc.\nExamples and boundaries: HAPPY NEW YEAR &amp, THANK YOU! ",
+   "Tax and Healthcare Policy": "Meaning: Theme is largely focused on his personal taxes, the Clinton's taxes, Obamacare, and other tax or healthcare policy. \nInclude: taxes, tax reform, obamacare, healthcare, medicare, medicaid, etc.\nExclude: irrelevant content\nExamples and boundaries: 1. In interview I told @AP that my taxes are under routine audit and I would release my tax returns when audit is complete, not after election!  | \n2. I am going to repeal and replace ObamaCare. We will have MUCH less expensive and MUCH better healthcare. With Hillary, costs will triple!",
+   "Issues related to Military Service and Criticism of John McCain": "Meaning: Policy issues related to the VA, military action in recent wars, and sharp critique of then-senator McCain.\nInclude: anything military related or related to McCain\nExclude: irrelevant content, content addressing other senators not related to military\nExamples and boundaries: One of the reasons I am no fan of John McCain is that our Vets are being treated so badly by him and the politicians. I will fix VA quickly.",
+   "Trump Campaign Merchandise and Book Promotions": "Meaning: Viral promotion of his MAGA hats, yard signs, other campaign merch and his books.\nInclude: any campaign merch or books authored or signed by Trump\nExclude: non-campaign-related products\nExamples and boundaries: I am signing copies of my book CRIPPLED AMERICA. Makes a great holiday gift. Order yours now!",
+   "Macy's Boycott and Consumer Relations": "Meaning: This is largely a 1-off theme related to a Macy's boycott. Minimally, other retail-related policy and some of his own merchandise promotion.\nInclude: Generalize to other retail related policy and to other consumer relation events\nExclude: foreign policy, taxes, healthcare... essentially anything not consumer-related\nExamples and boundaries: Boycott @Macys, no guts, no glory. Besides, there are far better stores!",
+   "Trump's International Golf Resorts and Openings": "Meaning: 1-off theme related to his specific Scottish Golf Resort that opened during the campaign\nInclude: Generalize to the promotion of other resorts, hotels, clubs, or Trump brand related.\nExclude: anything not related to Trump brand or Trump property\nExamples and boundaries: The opening of Trump Turnberry in Scotland was a big success. Good timing, I was here for BREXIT. Very exciting news conference today!"
+  },
+  "decision_rule": "When multiple themes are present, extrapolate the primary theme by evaluating the proportion of words that could reasonable be attributed to a theme, as well as inspecting the #. Use the residual label when there is nothing closely related. [Added after discussion with Second Researcher: We have concerns about transferability of themes, given that some of them are closely tied to the election itself or a on-off event. When coding the presidential-era content we can be more liberal in classification (e.g., attacking other republicans may stand-in for the republican primary dynamics; his Scottish golf resort may stand-in for later general promotion of any of his hotels or other businesses)."
+ },
+ "yardstick": {
+  "human_agreement": 0.68,
+  "classifier_agreement": 0.7,
+  "sample": 250
+ }
+}

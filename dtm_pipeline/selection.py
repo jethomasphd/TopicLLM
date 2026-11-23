@@ -1,8 +1,10 @@
-"""Adopt an actually reviewed candidate, preserving the coherence winner.
+"""Adopt an actually reviewed candidate, preserving the automatic selection.
 
 Reconstruct the saved candidate in the recorded ML environment, then require
 exact assignment and word equality before promoting it for naming. This is an
-explicit researcher selection, never an automatic coherence override.
+explicit researcher selection, never an automatic coherence override. Stage 1
+now saves the declared-rule selection (selection_rule.py) as best_model/;
+runs from before the rule saved the bare coherence winner there.
 """
 import argparse
 import gzip
@@ -44,8 +46,12 @@ def main():
     assert [int(t) for t in base.topics_]==candidate['assignments'], 'Reconstructed assignments differ; nothing promoted.'
     for topic in candidate['topics']:
         assert [w for w,_ in base.get_topic(topic['topic']) if w]==topic['words'], 'Reconstructed words differ; nothing promoted.'
-    winner=root/'best_model'; preserved=root/'coherence_winner'
-    if preserved.exists():raise ValueError('Coherence winner already preserved; inspect the previous selection attempt.')
+    winner=root/'best_model'
+    automatic=json.loads((winner/'parameters.json').read_text(encoding='utf-8'))
+    # Name the preserved directory for what best_model/ actually held.
+    preserved=root/('rule_selection' if 'selection_rule' in automatic else 'coherence_winner')
+    if (root/'rule_selection').exists() or (root/'coherence_winner').exists():
+        raise ValueError('Automatic selection already preserved; inspect the previous selection attempt.')
     shutil.copytree(winner,preserved)
     shutil.copy2(root/'topics_for_naming.csv',preserved/'topics_for_naming.csv')
     shutil.copy2(root/'coherence_curve.png',preserved/'coherence_curve.png')
@@ -68,14 +74,17 @@ def main():
     rows=[{'topic':t['topic'],'words':', '.join(t['words']),'n_documents':candidate['topic_sizes'][str(t['topic'])]} for t in candidate['topics']]
     pd.DataFrame(rows).to_csv(root/'topics_for_naming.csv',index=False)
     parameters={key:candidate[key] for key in ['iteration','umap_params','hdbscan_params','max_topics','coherence']}
-    parameters.update(n_topics=candidate['n_topics_found'],seed=cfg['random_seed'],seed_umap=cfg['seed_umap'])
+    parameters.update(n_topics=candidate['n_topics_found'],seed=cfg['random_seed'],seed_umap=cfg['seed_umap'],
+                      largest_topic_share_of_assigned=candidate.get('largest_topic_share_of_assigned'),selection_status='researcher_selected')
     (winner/'parameters.json').write_text(json.dumps(parameters,indent=2),encoding='utf-8')
     record={'decision':'researcher-selected-candidate','researcher':args.researcher,'rationale':args.rationale,
             'recorded_at':datetime.now(timezone.utc).isoformat(),'candidate_sha256':hashlib.sha256(candidate_path.read_bytes()).hexdigest(),
-            'exact_assignment_reconstruction_verified':True,'selected_model_reload_verified':True,'coherence_winner':json.loads((preserved/'parameters.json').read_text()),
+            'exact_assignment_reconstruction_verified':True,'selected_model_reload_verified':True,'coherence_winner':automatic.get('selection_rule',{}).get('unconstrained_winner',automatic),
+            'automatic_selection':automatic,
             'selected_candidate':parameters,'scope':'campaign evidence only; no presidential outcomes used'}
     (root/'selection_record.json').write_text(json.dumps(record,indent=2),encoding='utf-8')
-    manifest.update(selected_iteration=args.iteration,selected_coherence=candidate['coherence'],selection_decision=record,
+    manifest.update(selected_iteration=args.iteration,selected_max_topics=args.max_topics,selected_coherence=candidate['coherence'],
+                    selection_status='researcher_selected',selection_decision=record,
                     fitted_model_sha256=hashlib.sha256((winner/'fitted_model.pkl').read_bytes()).hexdigest())
     (root/'run_manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
     import matplotlib.pyplot as plt
@@ -84,6 +93,6 @@ def main():
     xs,ys=zip(*iteration['results']);plt.figure(figsize=(10,6));plt.plot(xs,ys,'o-');plt.axvline(args.max_topics,color='#176b67',linestyle='--')
     plt.xlabel('Maximum topic setting');plt.ylabel('c_v coherence');plt.title('Researcher-selected campaign configuration')
     plt.tight_layout();plt.savefig(root/'coherence_curve.png',dpi=200);plt.close()
-    print('Candidate adopted with exact reconstruction; numerical coherence winner preserved.')
+    print(f'Candidate adopted with exact reconstruction; automatic selection preserved in {preserved.name}/.')
 
 if __name__=='__main__':main()

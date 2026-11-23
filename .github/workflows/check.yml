@@ -25,6 +25,9 @@ jobs:
       - run: node scripts/check-site.mjs
       - run: python scripts/check-publication-privacy.py
       - run: python scripts/check-published-metrics.py
+      - run: python scripts/estimate-human-sample-prevalence.py
+      - run: python scripts/apply-selection-rule.py
+      - run: git diff --exit-code -- docs/data
   installed-package:
     runs-on: ${{ matrix.os }}
     strategy:

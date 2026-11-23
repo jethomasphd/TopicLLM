@@ -1,0 +1,825 @@
+{
+  "rule": {
+    "text": "Select the highest c_v coherence among scored candidates with at least 2 topics and the largest topic holding at most 0.5 of assigned (non-outlier) documents; ties go to the earliest iteration, then the smallest max_topics. The unconstrained coherence winner is reported alongside.",
+    "max_topic_share": 0.5,
+    "min_topics": 2
+  },
+  "source": {
+    "path": "docs/data/trump/campaign/all_iteration_results.json",
+    "sha256": "b2c7796489a17c3d73db5006f91c2e095c6aef8c5d9c7f71de3b95471bd25f51"
+  },
+  "status": "rule_selected",
+  "scored_candidates": 1155,
+  "unique_solutions": 894,
+  "deduplication": "scored candidates keyed by (iteration, sorted topic sizes); best-ranked duplicate kept",
+  "admissible_count": 535,
+  "unconstrained_winner": {
+    "iteration": 5,
+    "max_topics": 3,
+    "n_topics": 2,
+    "coherence": 0.6090481572980635,
+    "largest_topic_share_of_assigned": 0.9952861952861953,
+    "outlier_share": 0.0455
+  },
+  "selected": {
+    "iteration": 10,
+    "max_topics": 13,
+    "n_topics": 12,
+    "coherence": 0.5405823389348793,
+    "largest_topic_share_of_assigned": 0.3370700636942675,
+    "outlier_share": 0.4954,
+    "umap_params": {
+      "n_neighbors": 35,
+      "n_components": 9,
+      "min_dist": 0.05,
+      "metric": "cosine"
+    },
+    "hdbscan_params": {
+      "min_cluster_size": 25,
+      "metric": "euclidean",
+      "cluster_selection_method": "eom"
+    }
+  },
+  "rule_changed_selection": true,
+  "sensitivity": {
+    "unchanged_grid_range": {
+      "max_topic_share": [
+        0.35,
+        0.95
+      ],
+      "min_topics": [
+        2,
+        12
+      ]
+    },
+    "unchanged_exact_interval": {
+      "max_topic_share": {
+        "from_inclusive": 0.3370700636942675,
+        "to_exclusive": 0.9884538818845389,
+        "note": "to_exclusive null means unchanged up to and including no cap"
+      },
+      "min_topics": {
+        "from_inclusive": 1,
+        "to_inclusive": 12
+      },
+      "min_topics_without_cap": {
+        "from_inclusive": 4,
+        "to_inclusive": 12
+      }
+    },
+    "default_selected_without_cap": {
+      "min_topics": [
+        [
+          4,
+          12
+        ]
+      ]
+    },
+    "by_max_topic_share": [
+      {
+        "max_topic_share": 0.3,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 15,
+          "n_topics": 14,
+          "coherence": 0.5377062376390739,
+          "largest_topic_share_of_assigned": 0.20521172638436483,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 315
+      },
+      {
+        "max_topic_share": 0.35,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 357
+      },
+      {
+        "max_topic_share": 0.4,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 398
+      },
+      {
+        "max_topic_share": 0.45,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 457
+      },
+      {
+        "max_topic_share": 0.5,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 535
+      },
+      {
+        "max_topic_share": 0.55,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 556
+      },
+      {
+        "max_topic_share": 0.6,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 576
+      },
+      {
+        "max_topic_share": 0.65,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 590
+      },
+      {
+        "max_topic_share": 0.7,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 615
+      },
+      {
+        "max_topic_share": 0.75,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 635
+      },
+      {
+        "max_topic_share": 0.8,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 644
+      },
+      {
+        "max_topic_share": 0.85,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 701
+      },
+      {
+        "max_topic_share": 0.9,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 778
+      },
+      {
+        "max_topic_share": 0.95,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 845
+      },
+      {
+        "max_topic_share": 1.0,
+        "selected": {
+          "iteration": 5,
+          "max_topics": 3,
+          "n_topics": 2,
+          "coherence": 0.6090481572980635,
+          "largest_topic_share_of_assigned": 0.9952861952861953,
+          "outlier_share": 0.0455
+        },
+        "admissible_count": 894
+      }
+    ],
+    "by_min_topics": [
+      {
+        "min_topics": 2,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 535
+      },
+      {
+        "min_topics": 3,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 535
+      },
+      {
+        "min_topics": 4,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 535
+      },
+      {
+        "min_topics": 5,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 534
+      },
+      {
+        "min_topics": 6,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 529
+      },
+      {
+        "min_topics": 7,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 520
+      },
+      {
+        "min_topics": 8,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 506
+      },
+      {
+        "min_topics": 9,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 488
+      },
+      {
+        "min_topics": 10,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 465
+      },
+      {
+        "min_topics": 11,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 440
+      },
+      {
+        "min_topics": 12,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 415
+      },
+      {
+        "min_topics": 13,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 15,
+          "n_topics": 14,
+          "coherence": 0.5377062376390739,
+          "largest_topic_share_of_assigned": 0.20521172638436483,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 389
+      },
+      {
+        "min_topics": 14,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 15,
+          "n_topics": 14,
+          "coherence": 0.5377062376390739,
+          "largest_topic_share_of_assigned": 0.20521172638436483,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 362
+      },
+      {
+        "min_topics": 15,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 18,
+          "n_topics": 17,
+          "coherence": 0.5339299007017292,
+          "largest_topic_share_of_assigned": 0.17060260586319217,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 334
+      },
+      {
+        "min_topics": 16,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 18,
+          "n_topics": 17,
+          "coherence": 0.5339299007017292,
+          "largest_topic_share_of_assigned": 0.17060260586319217,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 305
+      },
+      {
+        "min_topics": 17,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 18,
+          "n_topics": 17,
+          "coherence": 0.5339299007017292,
+          "largest_topic_share_of_assigned": 0.17060260586319217,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 275
+      },
+      {
+        "min_topics": 18,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 19,
+          "n_topics": 18,
+          "coherence": 0.5321964898097815,
+          "largest_topic_share_of_assigned": 0.17060260586319217,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 242
+      },
+      {
+        "min_topics": 19,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 24,
+          "n_topics": 23,
+          "coherence": 0.5295439850768006,
+          "largest_topic_share_of_assigned": 0.14128664495114007,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 209
+      },
+      {
+        "min_topics": 20,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 24,
+          "n_topics": 23,
+          "coherence": 0.5295439850768006,
+          "largest_topic_share_of_assigned": 0.14128664495114007,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 175
+      },
+      {
+        "min_topics": 21,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 24,
+          "n_topics": 23,
+          "coherence": 0.5295439850768006,
+          "largest_topic_share_of_assigned": 0.14128664495114007,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 141
+      },
+      {
+        "min_topics": 22,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 24,
+          "n_topics": 23,
+          "coherence": 0.5295439850768006,
+          "largest_topic_share_of_assigned": 0.14128664495114007,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 107
+      },
+      {
+        "min_topics": 23,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 24,
+          "n_topics": 23,
+          "coherence": 0.5295439850768006,
+          "largest_topic_share_of_assigned": 0.14128664495114007,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 72
+      },
+      {
+        "min_topics": 24,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 25,
+          "n_topics": 24,
+          "coherence": 0.5202814051766532,
+          "largest_topic_share_of_assigned": 0.14128664495114007,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 36
+      }
+    ],
+    "by_min_topics_without_cap": [
+      {
+        "min_topics": 2,
+        "selected": {
+          "iteration": 5,
+          "max_topics": 3,
+          "n_topics": 2,
+          "coherence": 0.6090481572980635,
+          "largest_topic_share_of_assigned": 0.9952861952861953,
+          "outlier_share": 0.0455
+        },
+        "admissible_count": 894
+      },
+      {
+        "min_topics": 3,
+        "selected": {
+          "iteration": 3,
+          "max_topics": 4,
+          "n_topics": 3,
+          "coherence": 0.5578744320815167,
+          "largest_topic_share_of_assigned": 0.9884538818845389,
+          "outlier_share": 0.0314
+        },
+        "admissible_count": 844
+      },
+      {
+        "min_topics": 4,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 802
+      },
+      {
+        "min_topics": 5,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 762
+      },
+      {
+        "min_topics": 6,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 723
+      },
+      {
+        "min_topics": 7,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 684
+      },
+      {
+        "min_topics": 8,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 646
+      },
+      {
+        "min_topics": 9,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 608
+      },
+      {
+        "min_topics": 10,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 570
+      },
+      {
+        "min_topics": 11,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 532
+      },
+      {
+        "min_topics": 12,
+        "selected": {
+          "iteration": 10,
+          "max_topics": 13,
+          "n_topics": 12,
+          "coherence": 0.5405823389348793,
+          "largest_topic_share_of_assigned": 0.3370700636942675,
+          "outlier_share": 0.4954
+        },
+        "admissible_count": 494
+      },
+      {
+        "min_topics": 13,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 15,
+          "n_topics": 14,
+          "coherence": 0.5377062376390739,
+          "largest_topic_share_of_assigned": 0.20521172638436483,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 456
+      },
+      {
+        "min_topics": 14,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 15,
+          "n_topics": 14,
+          "coherence": 0.5377062376390739,
+          "largest_topic_share_of_assigned": 0.20521172638436483,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 418
+      },
+      {
+        "min_topics": 15,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 18,
+          "n_topics": 17,
+          "coherence": 0.5339299007017292,
+          "largest_topic_share_of_assigned": 0.17060260586319217,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 380
+      },
+      {
+        "min_topics": 16,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 18,
+          "n_topics": 17,
+          "coherence": 0.5339299007017292,
+          "largest_topic_share_of_assigned": 0.17060260586319217,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 342
+      },
+      {
+        "min_topics": 17,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 18,
+          "n_topics": 17,
+          "coherence": 0.5339299007017292,
+          "largest_topic_share_of_assigned": 0.17060260586319217,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 304
+      },
+      {
+        "min_topics": 18,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 19,
+          "n_topics": 18,
+          "coherence": 0.5321964898097815,
+          "largest_topic_share_of_assigned": 0.17060260586319217,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 266
+      },
+      {
+        "min_topics": 19,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 24,
+          "n_topics": 23,
+          "coherence": 0.5295439850768006,
+          "largest_topic_share_of_assigned": 0.14128664495114007,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 228
+      },
+      {
+        "min_topics": 20,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 24,
+          "n_topics": 23,
+          "coherence": 0.5295439850768006,
+          "largest_topic_share_of_assigned": 0.14128664495114007,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 190
+      },
+      {
+        "min_topics": 21,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 24,
+          "n_topics": 23,
+          "coherence": 0.5295439850768006,
+          "largest_topic_share_of_assigned": 0.14128664495114007,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 152
+      },
+      {
+        "min_topics": 22,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 24,
+          "n_topics": 23,
+          "coherence": 0.5295439850768006,
+          "largest_topic_share_of_assigned": 0.14128664495114007,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 114
+      },
+      {
+        "min_topics": 23,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 24,
+          "n_topics": 23,
+          "coherence": 0.5295439850768006,
+          "largest_topic_share_of_assigned": 0.14128664495114007,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 76
+      },
+      {
+        "min_topics": 24,
+        "selected": {
+          "iteration": 27,
+          "max_topics": 25,
+          "n_topics": 24,
+          "coherence": 0.5202814051766532,
+          "largest_topic_share_of_assigned": 0.14128664495114007,
+          "outlier_share": 0.6843
+        },
+        "admissible_count": 38
+      }
+    ]
+  },
+  "researcher_selection": {
+    "iteration": 10,
+    "max_topics": 13,
+    "n_topics": 12,
+    "source": "docs/data/trump/campaign/selection_record.json"
+  },
+  "matches_researcher_selection": true,
+  "disclosure": "Formalized after the tutorial run, in which the unconstrained coherence winner was degenerate and the researcher selected this 12-topic candidate by inspection. Applied retrospectively to every saved solution, the rule selects the same candidate."
+}
