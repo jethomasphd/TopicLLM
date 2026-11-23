@@ -26,7 +26,7 @@ topicllm-select-candidate = "dtm_pipeline.selection:main"
 
 [project.urls]
 Repository = "https://github.com/jethomasphd/TopicLLM"
-Documentation = "https://topicllm.dev/reproduce/"
+Documentation = "https://topicllm.dev/use/"
 
 [tool.setuptools]
 packages = ["dtm_pipeline"]

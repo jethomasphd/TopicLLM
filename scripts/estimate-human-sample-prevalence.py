@@ -151,7 +151,7 @@ def main() -> None:
         ],
     }
     out = CAMPAIGN / "human_sample_prevalence.json"
-    out.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    out.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
 
     print(f"Human-coded random sample: n={n} of N={N_POPULATION}")
     head = result["headline"]["fits_a_campaign_theme"]

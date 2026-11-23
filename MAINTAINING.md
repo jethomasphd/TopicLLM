@@ -98,7 +98,7 @@ Operator research has separate daily/monthly caps, twelve concurrent calls and a
 
 ## Check and operate
 
-After deployment, run the tutorial's two lab exercises (name a topic, code five posts) and ask the guide one question. Inspect model, request ID and usage; download the record. Verify guided calculations, original chapter checksums, downloads and the reproduction guide. A controlled duplicate-ID smoke check should produce only one provider charge. Repeat these checks after changes to Worker code or bindings.
+After deployment, run the tutorial's two lab exercises (name a topic, code five posts) and ask the guide one question. Inspect the API responses for model, request ID and token usage, and retain the smoke-test record. Verify guided calculations, original chapter checksums, downloads and the reproduction guide. A controlled duplicate-ID smoke check should produce only one provider charge. Repeat these checks after changes to Worker code or bindings.
 
 `/api/health` returns HTTP 200 when configuration and storage work. This does not mean every visitor or the site has remaining allowance. Privately set `TOPICLLM_RESEARCH_TOKEN` in your shell environment, then inspect aggregate counters:
 

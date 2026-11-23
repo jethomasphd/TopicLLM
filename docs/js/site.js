@@ -20,7 +20,9 @@ if (menu && nav) {
 $$('[data-copy]').forEach(button => button.addEventListener('click', async () => {
   const target = document.querySelector(button.dataset.copy);
   if (!target) return;
-  const text = target.innerText.replace(/^Copy\s*/,'').trim();
+  const content = target.cloneNode(true);
+  content.querySelectorAll('button').forEach(node => node.remove());
+  const text = content.textContent.trim();
   try { await navigator.clipboard.writeText(text); button.textContent = 'Copied'; }
   catch { button.textContent = 'Select and copy'; }
   setTimeout(() => { button.textContent = 'Copy'; }, 1800);

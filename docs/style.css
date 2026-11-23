@@ -213,7 +213,7 @@ details.more li { margin: 6px 0; }
 .lab input[type=text]:focus, .lab select:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
 .lab .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 18px; }
 .lab .kw { font-size: .95rem; color: var(--ink-2); margin: 10px 0 0; }
-.lab .posts { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 8px; }
+.lab .posts { list-style: none; padding: 0; margin: 14px 0 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; overflow-wrap: anywhere; }
 .lab .posts li { background: var(--bg); border-radius: 8px; padding: 10px 14px; font-size: .92rem; line-height: 1.45; color: var(--ink-2); }
 .lab .state { font-size: .9rem; color: var(--muted); margin-top: 14px; min-height: 1.4em; }
 .lab .err { color: var(--amber); }
@@ -229,7 +229,7 @@ details.more li { margin: 6px 0; }
 .reveal b { font-weight: 600; font-size: 1rem; line-height: 1.35; display: block; }
 .reveal .human { box-shadow: inset 3px 0 0 var(--amber); }
 @media (max-width: 720px) { .reveal { grid-template-columns: 1fr; } }
-.code5 { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 14px; counter-reset: post; }
+.code5 { list-style: none; padding: 0; margin: 20px 0 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; counter-reset: post; overflow-wrap: anywhere; }
 .code5 > li { background: var(--bg); border-radius: 12px; padding: 18px 18px 14px; counter-increment: post; }
 .code5 blockquote { margin: 0 0 12px; font-size: 1rem; line-height: 1.5; }
 .code5 blockquote::before { content: counter(post) ". "; color: var(--muted); font-weight: 600; }
@@ -264,7 +264,7 @@ details.more li { margin: 6px 0; }
 .numbered > li { counter-increment: n; position: relative; padding: 0 0 48px 64px; }
 .numbered > li::before { content: counter(n); position: absolute; left: 0; top: -2px; width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--ink); display: grid; place-items: center; font-weight: 600; }
 .numbered h3 { font-size: 1.3rem; }
-pre.cmd { position: relative; background: var(--navy); color: #e6eef2; border-radius: 12px; padding: 18px 20px; overflow-x: auto; line-height: 1.6; font-size: .9rem; margin: 14px 0 0; }
+pre.cmd { position: relative; background: var(--navy); color: #e6eef2; border-radius: 12px; padding: 54px 20px 18px; overflow-x: auto; line-height: 1.6; font-size: .9rem; margin: 14px 0 0; }
 pre.cmd .c { color: #8aa3b1; }
 .copy { position: absolute; top: 10px; right: 10px; font: 500 .78rem var(--font); color: #cfe0e7; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); border-radius: 6px; padding: 5px 10px; cursor: pointer; min-height: 32px; }
 .copy:hover { background: rgba(255,255,255,.16); }
@@ -277,7 +277,7 @@ table.plain th { font-weight: 500; color: var(--muted); font-size: .84rem; }
 table.plain td.n, table.plain th.n { text-align: right; font-variant-numeric: tabular-nums; }
 
 /* ------------------------------------------------------------ research --- */
-.quiet-page { padding: 112px 0 96px; }
+.quiet-page { padding-block: 112px 96px; }
 .quiet-page h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); }
 .works { list-style: none; padding: 0; margin: 56px 0; }
 .works li { padding: 28px 0; border-top: 1px solid var(--rule); }
@@ -338,6 +338,6 @@ table.plain td.n, table.plain th.n { text-align: right; font-variant-numeric: ta
 .no-js .draw { opacity: 1; transform: none; }
 
 /* Simple pages (privacy, 404, studies) */
-.page { padding: 96px 0; }
+.page { padding-block: 96px; }
 .page h2 { font-size: 1.4rem; margin-top: 2em; }
 .page ul { padding-left: 1.2em; }

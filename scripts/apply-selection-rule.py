@@ -92,7 +92,7 @@ def main() -> None:
     if tutorial and not (report["selected"] and all(report["selected"][k] == v for k, v in TUTORIAL_EXPECTED.items())
                          and report.get("matches_researcher_selection")):
         sys.exit(f"The rule did not reproduce the recorded tutorial choice {TUTORIAL_EXPECTED}; nothing written.")
-    output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8", newline="\n")
 
     s = report["sensitivity"]
     exact = s["unchanged_exact_interval"] or {}

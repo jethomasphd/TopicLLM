@@ -57,7 +57,7 @@ def main() -> None:
             "sample": 250,
         },
     }
-    (TRUMP / "tutorial.json").write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    (TRUMP / "tutorial.json").write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
 
     rows = []
     for t in topics:
