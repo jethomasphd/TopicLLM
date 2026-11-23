@@ -12,10 +12,16 @@
 <body>
 <!--shell-bar--><a class="skip" href="#main">Skip to content</a><header class="bar"><div class="bar-in"><a class="brand" href="../" aria-label="TopicLLM home"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="../assets/topicllm-mark.svg#mark"/></svg>TopicLLM</a><nav id="site-nav" aria-label="Main"><a href="../tutorial/" aria-current="page">Tutorial</a><a href="../use/">Use it</a><a href="../research/">Research</a><a href="../paper/">Paper</a></nav><button class="ask" type="button" data-ask aria-haspopup="dialog">Ask</button><a class="gh" href="https://github.com/jethomasphd/TopicLLM" aria-label="TopicLLM on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><button class="menu" type="button" aria-controls="site-nav" aria-expanded="false" data-menu>Menu</button></div></header><!--/shell-bar-->
 <main id="main">
-  <header class="tut-head" id="finding">
+  <header class="tut-head">
     <div class="wrap">
-      <p class="kicker">A tutorial, not a study · Donald Trump's Twitter account, 2015–2021</p>
-      <h1>84% of Trump's first-term posts fit a theme found in his campaign.</h1>
+      <p class="kicker">A worked example · First campaign and first term, 2015–2021</p>
+      <h1>Follow a theme from campaign to presidency.</h1>
+      <p class="lede">How much of what Donald Trump's account posted during his first term fits themes found in his campaign? This tutorial uses that question to walk through TopicLLM, from discovering patterns to checking their measurement.</p>
+      <p class="orientation">Follow the recorded analysis of a public Twitter archive, inspect the researchers' decisions, and try naming a topic or coding five posts yourself. The charts show the recorded run; your practice does not change it. No installation is needed.</p>
+      <p><a class="btn primary" href="#discover">Start the five-step walkthrough</a></p>
+      <section class="tutorial-finding" aria-labelledby="finding">
+      <p class="kicker">The recorded example · Human-coded sample</p>
+      <h2 id="finding">84% of Trump's first-term posts fit a theme found in his campaign.</h2>
       <p class="ci">From 250 randomly sampled posts coded by two people. 95% confidence interval, 79–88%.</p>
       <p class="lede">We found themes in 7,805 posts from his campaign, June 2015 to Election Day 2016. Then we looked for them in his first term, January 2017 to January 8, 2021, when the archive ends: two people coded a random sample of 250 of its 26,239 posts. One in three criticized a political opponent.</p>
       <figure class="chart draw">
@@ -23,6 +29,7 @@
         <picture><source media="(max-width: 640px)" srcset="../assets/figures/finding-narrow.svg"><img src="../assets/figures/finding.svg" width="960" height="570" alt="Share of first-term posts per theme from the human-coded random sample: Criticism of opponents 33%, Gratitude and positivity 13%, National security 7%, Tax and healthcare 7%, Rallies and support 6%, Immigration 6%, Military and McCain 4%, Media and personal life 4%, Republican primary 1.6%, Macy's boycott 1.2%, Golf resorts 0.4%, Merchandise and books 0%, Fits no theme 16%."></picture>
         <figcaption>Each dot is a theme's share of first-term posts; each line is its 95% confidence interval. Campaign one-offs, such as the Macy's boycott and the golf resorts, nearly vanished. Broad themes such as criticism and gratitude would fit many politicians, so read “fit a campaign theme” as exactly that, not as “the campaign never ended.”</figcaption>
       </figure>
+      </section>
     </div>
   </header>
 

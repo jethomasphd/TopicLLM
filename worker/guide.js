@@ -10,7 +10,7 @@ const frequency=new Map();for(const c of indexed)for(const t of c.terms)frequenc
 const stableSources=[
  {id:'welcome',title:'About the author',url:'/research/#author'},
  {id:'guide',title:'Research guide briefing',url:'/guide/knowledge.md'},
- {id:'methods',title:'Five-stage methods',url:'/paper/'},
+ {id:'methods',title:'Current software paper',url:'/paper/'},
  {id:'reproduce',title:'Use it on your own data',url:'/use/'},
  {id:'validation',title:'Tutorial · the check',url:'/tutorial/#check'},
  {id:'provenance',title:'Research library',url:'/research/'},
@@ -24,7 +24,7 @@ const stableSources=[
 // Page contexts: current pages plus retired ones that older cached clients may still send.
 const pages=new Set(['home','tutorial','use','research','methods','privacy','study1','study2','demo','reproduce','validation','provenance','guide','welcome','data']);
 // The Ask panel shows these first; tests keep docs/js/guide.js in step.
-export const GUIDE_STARTERS=['What did the tutorial find?','Why did the classifier fail?','Can I use this on my own data?','What do the humans have to do?'];
+export const GUIDE_STARTERS=['What is TopicLLM, and where should I start?','What did the tutorial find?','Can I use this on my own data?','What do the humans have to do?'];
 const titles={'docs/tutorial/index.html':'Tutorial','docs/use/index.html':'Use it on your own data','docs/research/index.html':'The research','docs/privacy/index.html':'Privacy and limits','docs/README.md':'Documentation map','README.md':'Repository overview','REPRODUCE.md':'Run TopicLLM','AGENTS.md':'Rules for coding agents','MAINTAINING.md':'Maintain TopicLLM','docs/protocol.json':'Machine-readable protocol','docs/paper/index.html':'Software paper','docs/data/README.md':'Trump tutorial data card','docs/data/trump/manifest.json':'Trump corpus manifest','docs/data/trump/campaign/human_sample_prevalence.json':'Human-sample theme shares','docs/data/trump/campaign/selection_rule_retrospective.json':'Topic selection rule, applied'};
 export function retrieve(query,limit=4){
  const words=tokens(query);

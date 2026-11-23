@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TopicLLM — Turn a pile of text into themes you can measure</title>
-<meta name="description" content="Pilot software from a UT Austin dissertation. A topic model finds clusters, an LLM proposes names, people decide what they mean, and the machine is checked against people before any number is believed.">
+<meta name="description" content="Open-source research software for discovering topics, defining themes with human review, and checking their measurement. Explore a worked example, read the software paper, or run the Python workflow with a coding agent.">
 <link rel="canonical" href="https://topicllm.dev/">
 <meta property="og:title" content="TopicLLM">
 <meta property="og:description" content="Turn a pile of text into themes you can measure. People decide; the machine gets checked.">
@@ -15,29 +15,34 @@
 <main id="main">
   <section class="hero">
     <div class="wrap">
+      <p class="kicker">Open-source text analysis · Guided by researchers</p>
       <h1>Turn a pile of text into themes you can measure.</h1>
-      <p class="lede">A topic model finds the clusters. An LLM proposes names. People decide what they mean. Then the machine is checked against the people before any number is believed.</p>
+      <p class="lede">TopicLLM is open-source research software for discovering what a collection of short texts is about and measuring how often its themes appear.</p>
+      <p class="orientation">A topic model finds patterns. A large language model proposes names. You define the themes and check the results. Run the documented Python workflow yourself or with a coding agent.</p>
       <div class="actions">
-        <a class="btn primary" href="tutorial/">Take the tutorial</a>
+        <a class="btn primary" href="tutorial/">Explore the worked example</a>
         <a href="use/">Use it on your own data</a>
       </div>
-      <p class="status">Pilot software from a UT Austin dissertation. Not independently validated. <a href="https://github.com/jethomasphd/TopicLLM/issues">Try to break it.</a></p>
+      <p class="status">Pilot software developed through dissertation research at The University of Texas at Austin. Not independently validated. <a href="research/">Read the original research.</a></p>
     </div>
   </section>
 
-  <section class="section proof">
+  <section class="section" aria-labelledby="start-here">
     <div class="wrap">
-      <h2>The check is the point.</h2>
-      <figure class="draw">
-        <picture><source media="(max-width: 640px)" srcset="assets/figures/proof-narrow.svg"><img src="assets/figures/proof.svg" width="960" height="250" alt="Share of Donald Trump's first-term posts that fit no campaign theme. On the same 250 posts: 16% according to two human coders, 34% according to the classifier. On all 26,239 posts the classifier said 40%."></picture>
-        <figcaption>In the tutorial, the classifier missed its accuracy target, and the method caught it. Two people coded a random sample of 250 of Donald Trump's first-term posts. On those same posts, the classifier sent about twice as many to “fits no theme”: 34% against the people's 16%. Run on all 26,239 posts, it said 40%. <a href="tutorial/#check">See how the check works →</a></figcaption>
-      </figure>
+      <h2 id="start-here">New here? Start with the example.</h2>
+      <p class="orientation">The website walks through a completed analysis of Donald Trump's Twitter archive: find themes in his first presidential campaign, then look for them in his first-term posts. You can inspect each decision and try two small exercises without installing anything. The same workflow can then be adapted to your own text collection.</p>
+      <div class="doors">
+        <a href="tutorial/"><h3>Explore the tutorial</h3><p>See the source posts, topic clusters, human-defined themes and the check against human coding. Try naming a topic and coding five posts.</p><span class="go">Start in your browser</span></a>
+        <a href="paper/"><h3>Read the software paper</h3><p>The current methods reference: why the workflow works this way, how each stage is implemented, and what the example can tell us.</p><span class="go">Read the method</span></a>
+        <a href="use/"><h3>Run your own analysis</h3><p>Fork the repository or install the Python package. Give a coding agent the protocol, or run the commands yourself.</p><span class="go">Set up your project</span></a>
+      </div>
     </div>
   </section>
 
   <section class="section">
     <div class="wrap">
       <h2>Five steps. Four decisions only people can make.</h2>
+      <p class="orientation">A <b>topic</b> is a cluster of texts with similar language. A <b>theme</b> is a meaning researchers define after reading those texts. A <b>codebook</b> records each theme's definition and rules so that people and the classifier can apply it consistently.</p>
       <ol class="steps">
         <li class="person"><b>Discover.</b><span>A topic model groups similar posts.</span><i>A person adopts a solution</i></li>
         <li><b>Name.</b><span>An LLM proposes names, hundreds of times.</span></li>
@@ -48,14 +53,14 @@
     </div>
   </section>
 
-  <section class="section">
+  <section class="section proof">
     <div class="wrap">
-      <h2>Start where you are.</h2>
-      <div class="doors">
-        <a href="tutorial/"><h3>Tutorial</h3><p>Follow Donald Trump's campaign themes into his first term, try the model yourself, and watch the check catch it.</p><span class="go">Take the tutorial →</span></a>
-        <a href="use/"><h3>Use it</h3><p>Install the Python package, hand your coding agent the protocol, and keep the scientific calls for yourself.</p><span class="go">Run it on your text →</span></a>
-        <a href="research/"><h3>Research</h3><p>The dissertation and two papers this software comes from, presented unchanged.</p><span class="go">Read the research →</span></a>
-      </div>
+      <h2>What does checking the model reveal?</h2>
+      <p class="orientation">After researchers defined the campaign themes, the same 250 first-term posts were classified through two independent human coding passes and by the model. This chart compares how often the posts were judged to fit none of those themes. It shows why the human check matters before scaling an analysis.</p>
+      <figure class="draw">
+        <picture><source media="(max-width: 640px)" srcset="assets/figures/proof-narrow.svg"><img src="assets/figures/proof.svg" width="960" height="250" alt="Share of Donald Trump's first-term posts that fit no campaign theme. On the same 250 posts: 16% according to two human coders, 34% according to the classifier. On all 26,239 posts the classifier said 40%."></picture>
+        <figcaption>In this example, the classifier missed its accuracy target. On the same sample, it assigned 34% of posts to “fits no theme,” compared with the human consensus of 16%. The final bar shows its assignments across all 26,239 first-term posts, retained as a teaching demonstration. <a href="tutorial/#check">Explore the check and its implications.</a></figcaption>
+      </figure>
     </div>
   </section>
 </main>

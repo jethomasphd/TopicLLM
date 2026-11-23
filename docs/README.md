@@ -2,6 +2,8 @@
 
 This folder is the published website (https://topicllm.dev), plus the tutorial's public data and evidence.
 
+For a first visit, start at the [home page](https://topicllm.dev/) and [worked example](https://topicllm.dev/tutorial/). The [software paper](https://topicllm.dev/paper/) is the current methods reference, replacing the earlier methods draft. The research page introduces that paper and then presents the unchanged dissertation and two original studies. Older protected files remain archival sources, not current implementation instructions.
+
 | Path | What it is |
 |---|---|
 | `index.html`, `tutorial/`, `use/`, `research/`, `paper/`, `privacy/`, `studies/` | Pages. The shared navigation is stamped in by `scripts/site_shell.py` |

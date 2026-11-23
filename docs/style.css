@@ -129,6 +129,13 @@ main { display: block; }
 .hero { padding: 112px 0 88px; }
 .hero h1 { font-size: clamp(2.6rem, 6.6vw, 4.6rem); max-width: 13em; }
 .hero .lede { margin-top: 10px; }
+.orientation { max-width: 44em; color: var(--ink-2); font-size: 1.05rem; }
+.tutorial-finding { margin-top: 56px; padding-top: 36px; border-top: 1px solid var(--rule); }
+.tutorial-finding h2 { max-width: 26em; }
+.current-paper { margin: 40px 0 56px; padding: 26px; border: 1px solid var(--rule); border-left: 4px solid var(--accent); border-radius: 12px; background: var(--surface); }
+.current-paper h2 { font-size: 1.6rem; line-height: 1.25; }
+.current-paper .links { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-bottom: 0; }
+.archive-heading { font-size: 1.8rem; }
 .proof figure { margin: 0; }
 .proof img { width: 100%; display: block; }
 .proof figcaption { margin-top: 18px; color: var(--ink-2); max-width: 44em; }
@@ -272,7 +279,7 @@ pre.cmd .c { color: #8aa3b1; }
 .only-you li { padding: 12px 0 12px 22px; border-bottom: 1px solid var(--rule); position: relative; }
 .only-you li::before { content: ""; position: absolute; left: 0; top: 22px; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); }
 table.plain { width: 100%; border-collapse: collapse; font-size: .95rem; margin-top: 18px; }
-table.plain th, table.plain td { text-align: left; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.plain th, table.plain td { text-align: left; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--rule); vertical-align: top; overflow-wrap: anywhere; }
 table.plain th { font-weight: 500; color: var(--muted); font-size: .84rem; }
 table.plain td.n, table.plain th.n { text-align: right; font-variant-numeric: tabular-nums; }
 

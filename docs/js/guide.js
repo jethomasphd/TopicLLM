@@ -4,8 +4,8 @@
 import { publicSession } from './live-session.js';
 
 const API='/api/guide';
-const STARTERS=['What did the tutorial find?','Why did the classifier fail?','Can I use this on my own data?','What do the humans have to do?'];
-const GREETING='I’m the TopicLLM guide, an AI. I can explain the method, the tutorial’s numbers, or how to run this on your own data. What are you trying to do?';
+const STARTERS=['What is TopicLLM, and where should I start?','What did the tutorial find?','Can I use this on my own data?','What do the humans have to do?'];
+const GREETING='I’m the TopicLLM guide, an AI. New here? I can explain what the software does, walk you through the Trump example, or help you find the steps for your own research. What would you like to understand?';
 const FOOTER='AI-generated explanations of public materials. Not a reviewer.';
 const MAX_FOLLOW_UPS=3;
 

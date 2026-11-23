@@ -1,6 +1,17 @@
 # The `topicllm` Python package
 
-This is the code behind TopicLLM's five stages. Install it from the repository root with `python -m pip install ".[dev]"`, adding `".[ml]"` for topic discovery. Commands are in [REPRODUCE.md](../REPRODUCE.md); agent rules are in [AGENTS.md](../AGENTS.md).
+This package runs TopicLLM's five stages: discover topics, propose names, define themes through human review, check classifications, and report theme shares. If you are new to the workflow, start with the [browser tutorial](https://topicllm.dev/tutorial/) or the [current software paper](https://topicllm.dev/paper/).
+
+For a project you will adapt with a coding agent, fork or clone the repository and install from its root with `python -m pip install ".[dev]"`, adding `".[ml]"` for topic discovery. Commands are in [REPRODUCE.md](../REPRODUCE.md); agent rules are in [AGENTS.md](../AGENTS.md).
+
+For the package alone, download the wheel from the [release page](https://github.com/jethomasphd/TopicLLM/releases) and run these commands in the download directory:
+
+```sh
+python -m pip install ./topicllm_research-0.7.0-py3-none-any.whl
+topicllm --profile quickcheck --output-dir runs/quickcheck
+```
+
+The offline check verifies the bundled archive without model calls. It is the first installation check, not a completed research analysis. The package is distributed through GitHub releases; it is not published on PyPI.
 
 | Module | Stage | What it does |
 |---|---|---|

@@ -96,7 +96,7 @@ test('the Ask panel client is self-mounting, opens only on request and keeps the
  const client=await readFile(new URL('../docs/js/guide.js',import.meta.url),'utf8');
  const starters=JSON.parse(client.match(/const STARTERS=(\[[^\]]+\]);/)[1].replace(/'/g,'"'));
  assert.deepEqual(starters,GUIDE_STARTERS);
- assert.deepEqual(GUIDE_STARTERS,['What did the tutorial find?','Why did the classifier fail?','Can I use this on my own data?','What do the humans have to do?']);
+ assert.deepEqual(GUIDE_STARTERS,['What is TopicLLM, and where should I start?','What did the tutorial find?','Can I use this on my own data?','What do the humans have to do?']);
  assert.match(client,/const API='\/api\/guide'/);assert.match(client,/'X-Request-ID':operation\.id/);assert.match(client,/retry_new_operation===true/);
  assert.match(client,/I’m the TopicLLM guide, an AI\./);assert.match(client,/AI-generated explanations of public materials\./);assert.match(client,/href:'\/privacy\/'/);
  assert.match(client,/'aria-label':'Close guide'/);assert.match(client,/querySelectorAll\('\[data-ask\]'\)/);

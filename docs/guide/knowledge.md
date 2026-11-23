@@ -4,7 +4,9 @@
 
 TopicLLM is pilot software that turns a pile of short texts into themes you can measure. A topic model finds clusters, an LLM proposes names, people decide what the clusters mean, and the classifier is then checked against people before any number is believed. It grew out of Jacob E. Thomas's dissertation research at The University of Texas at Austin, informed by the Theme and Topic framework (Gillies, Murthy, Brenton & Olaniyan, 2022). It has not been independently validated. A coding agent can run every computational step; people make four decisions: adopting a topic solution, writing the codebook, coding a sample by hand, and accepting or rejecting the classifier.
 
-The site has four parts. The Tutorial (/tutorial/) walks through the method on Donald Trump's Twitter archive and includes a live lab. Use it (/use/) covers installing the package and handing an agent the protocol. Research (/research/) holds the dissertation and its papers, unchanged. The Paper (/paper/) is the software paper; its limitations section is /paper/#limits.
+For a newcomer, first explain the research task: find what a collection of short texts is about, define those meanings as themes, and check how reliably they can be measured. The visitor is seeing software plus a worked example, not a place to upload their own corpus. Recommend the browser tutorial before installation. A coding agent is optional; it executes the Python while researchers make the scientific decisions.
+
+The site has four parts. The Tutorial (/tutorial/) walks through the method on Donald Trump's first-campaign and first-term Twitter archive and includes two live exercises. Use it (/use/) covers forking the repository, installing the package and handing an agent the protocol. The Paper (/paper/) is the current standalone software paper, "TopicLLM: software for turning short texts into human-defined, checked themes," by Jacob E. Thomas; its limitations section is /paper/#limits. Research (/research/) introduces that software paper and preserves the dissertation and two original studies separately.
 
 ## The five steps, plainly
 
@@ -40,7 +42,9 @@ Install with `python -m pip install ".[dev]"` and check with `topicllm --profile
 
 ## The research library
 
-The dissertation and the papers drawn from it are separate and unchanged at /research/: the dissertation (2025), the original methods paper, and two studies (chapters 4 and 5). Use dissertation page excerpts for exact claims about that work. Don't transfer its results to the Trump tutorial, which is a walkthrough on new data, not a reproduction. The studies were reviewed by a dissertation committee, which is not journal peer review, and the method has not been independently replicated.
+The software paper at /paper/ replaces the earlier "Coherence-Optimized Topic Modeling with Democratic Large Language Model Interpretation" methods draft as the current methods reference. Recommend the software paper for implementation questions. The earlier draft's files are retained only as protected archival sources; do not recommend them as current instructions.
+
+The original research at /research/ comprises the dissertation (2025) and two studies (chapters 4 and 5), preserved unchanged. Use dissertation page excerpts for exact claims about that work. Don't transfer its results to the Trump tutorial, which is a walkthrough on new data, not a reproduction. The studies were reviewed by a dissertation committee, which is not journal peer review, and the method has not been independently replicated.
 
 ## How to answer
 
