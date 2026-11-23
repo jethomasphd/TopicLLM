@@ -1,113 +1,213 @@
+"""Render the software paper's PDF from its web edition.
+
+    python -m pip install ".[docs]"
+    python scripts/render-methods.py
+
+Reads docs/paper/index.html (the maintained source) and writes
+docs/preprints/TopicLLM_Software_Paper_2026-11-23.pdf, embedding the same SVG
+figures the website uses as vector drawings. Renders every page to
+build-qa/paper_pdf_qa/ for visual review.
+"""
+from __future__ import annotations
+
+import html
+import re
 from pathlib import Path
 from urllib.parse import urljoin
-import re,html
+
+import pypdfium2 as pdfium
 from lxml import html as LH
-from reportlab.platypus import SimpleDocTemplate,Paragraph,Spacer,KeepTogether,Flowable,LongTable,TableStyle,PageBreak
-from reportlab.lib.styles import getSampleStyleSheet,ParagraphStyle
-from reportlab.lib.enums import TA_LEFT
+from reportlab.graphics.shapes import Drawing
 from reportlab.lib import colors
+from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-import pypdfium2 as pdfium
+from reportlab.platypus import (Flowable, KeepTogether, LongTable, Paragraph, SimpleDocTemplate, Spacer,
+                                TableStyle)
+from svglib.svglib import svg2rlg
 
-repo=Path(__file__).resolve().parents[1];base=repo/'build-qa'
-base.mkdir(exist_ok=True)
-out=repo/'docs/preprints/TopicLLM_Methods_2026-11-20.pdf'
-for name,file in [('Text','times.ttf'),('TextBold','timesbd.ttf'),('TextItalic','timesi.ttf'),('TextBI','timesbi.ttf'),('UI','arial.ttf')]:
-    fontfile=Path('C:/Windows/Fonts')/file
-    if fontfile.exists():
-        pdfmetrics.registerFont(TTFont(name,str(fontfile)))
+REPO = Path(__file__).resolve().parents[1]
+SOURCE = REPO / "docs" / "paper" / "index.html"
+OUT = REPO / "docs" / "preprints" / "TopicLLM_Software_Paper_2026-11-23.pdf"
+QA = REPO / "build-qa" / "paper_pdf_qa"
+WIDTH = 468  # text block, points
+
+# Fonts with Greek and typographic glyphs (κ, ᵥ, –, “ ”). Liberation/DejaVu ship
+# with most Linux systems; Windows and macOS fall back to their Times/Arial.
+CANDIDATES = {
+    "Text": ["/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf", "C:/Windows/Fonts/times.ttf", "/Library/Fonts/Times New Roman.ttf"],
+    "TextBold": ["/usr/share/fonts/truetype/liberation/LiberationSerif-Bold.ttf", "C:/Windows/Fonts/timesbd.ttf", "/Library/Fonts/Times New Roman Bold.ttf"],
+    "TextItalic": ["/usr/share/fonts/truetype/liberation/LiberationSerif-Italic.ttf", "C:/Windows/Fonts/timesi.ttf", "/Library/Fonts/Times New Roman Italic.ttf"],
+    "TextBI": ["/usr/share/fonts/truetype/liberation/LiberationSerif-BoldItalic.ttf", "C:/Windows/Fonts/timesbi.ttf", "/Library/Fonts/Times New Roman Bold Italic.ttf"],
+    "UI": ["/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf", "C:/Windows/Fonts/arial.ttf", "/Library/Fonts/Arial.ttf"],
+    "UIBold": ["/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf", "C:/Windows/Fonts/arialbd.ttf", "/Library/Fonts/Arial Bold.ttf"],
+    "Mono": ["/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", "C:/Windows/Fonts/consola.ttf", "/Library/Fonts/Courier New.ttf"],
+}
+FALLBACK = {"Text": "Times-Roman", "TextBold": "Times-Bold", "TextItalic": "Times-Italic", "TextBI": "Times-BoldItalic",
+            "UI": "Helvetica", "UIBold": "Helvetica-Bold", "Mono": "Courier"}
+for name, files in CANDIDATES.items():
+    found = next((f for f in files if Path(f).exists()), None)
+    if found:
+        pdfmetrics.registerFont(TTFont(name, found))
     else:
-        standard={'Text':'Times-Roman','TextBold':'Times-Bold','TextItalic':'Times-Italic','TextBI':'Times-BoldItalic','UI':'Helvetica'}
-        pdfmetrics.registerFont(pdfmetrics.Font(name,standard[name],'WinAnsiEncoding'))
-pdfmetrics.registerFontFamily('Text',normal='Text',bold='TextBold',italic='TextItalic',boldItalic='TextBI')
-styles=getSampleStyleSheet()
-styles.add(ParagraphStyle('Body',fontName='Text',fontSize=11,leading=14.5,spaceAfter=8,allowWidows=0,allowOrphans=0))
-styles.add(ParagraphStyle('Subtitle',fontName='TextItalic',fontSize=14,leading=18,spaceAfter=16))
-styles.add(ParagraphStyle('Caption',fontName='TextBold',fontSize=9,leading=12,spaceAfter=8,keepWithNext=True))
-styles.add(ParagraphStyle('Title2',fontName='TextBold',fontSize=22,leading=26,spaceAfter=16,keepWithNext=True))
-styles.add(ParagraphStyle('Section',fontName='TextBold',fontSize=16,leading=20,spaceBefore=16,spaceAfter=8,keepWithNext=True))
-styles.add(ParagraphStyle('Sub',fontName='TextBold',fontSize=12,leading=16,spaceBefore=12,spaceAfter=6,keepWithNext=True))
-styles.add(ParagraphStyle('Small2',fontName='Text',fontSize=9,leading=12,spaceAfter=8))
-styles.add(ParagraphStyle('Prompt2',fontName='UI',fontSize=9,leading=13,spaceAfter=12,leftIndent=12,rightIndent=12))
-styles.add(ParagraphStyle('Formula',fontName='Text',fontSize=11,leading=22,spaceBefore=5,spaceAfter=14,leftIndent=12,rightIndent=12))
-styles.add(ParagraphStyle('Reference',fontName='Text',fontSize=9,leading=12,spaceAfter=5,leftIndent=18,firstLineIndent=-18))
-def clean(text):
-    return re.sub(r'\s+',' ',text).strip().replace('\u00a0',' ')
-def markup(el):
-    # Keep scientific emphasis; navigation links stay readable in the PDF.
-    value=html.escape(el.text or '')
+        pdfmetrics.registerFont(pdfmetrics.Font(name, FALLBACK[name], "WinAnsiEncoding"))
+pdfmetrics.registerFontFamily("Text", normal="Text", bold="TextBold", italic="TextItalic", boldItalic="TextBI")
+pdfmetrics.registerFontFamily("UI", normal="UI", bold="UIBold", italic="UI", boldItalic="UIBold")
+
+INK = colors.HexColor("#0f2436")
+MUTED = colors.HexColor("#5b6b78")
+S = {
+    "edition": ParagraphStyle("edition", fontName="UI", fontSize=8.5, leading=11, textColor=MUTED, spaceAfter=10),
+    "title": ParagraphStyle("title", fontName="UIBold", fontSize=20, leading=24, textColor=INK, spaceAfter=10),
+    "byline": ParagraphStyle("byline", fontName="UI", fontSize=10, leading=13, textColor=INK, spaceAfter=18),
+    "abstract_h": ParagraphStyle("abstract_h", fontName="UIBold", fontSize=10, leading=13, textColor=INK, spaceAfter=4),
+    "abstract": ParagraphStyle("abstract", fontName="Text", fontSize=10, leading=13.4, textColor=INK, spaceAfter=6,
+                               leftIndent=14, rightIndent=14),
+    "h2": ParagraphStyle("h2", fontName="UIBold", fontSize=13, leading=16, textColor=INK, spaceBefore=16, spaceAfter=6, keepWithNext=True),
+    "h3": ParagraphStyle("h3", fontName="UIBold", fontSize=10.5, leading=13, textColor=INK, spaceBefore=10, spaceAfter=4, keepWithNext=True),
+    "body": ParagraphStyle("body", fontName="Text", fontSize=10.5, leading=14.2, textColor=INK, spaceAfter=7, allowWidows=0, allowOrphans=0),
+    "small": ParagraphStyle("small", fontName="UI", fontSize=8.5, leading=11, textColor=MUTED, spaceAfter=6),
+    "caption": ParagraphStyle("caption", fontName="UI", fontSize=8.5, leading=11.2, textColor=INK, spaceBefore=4, spaceAfter=12),
+    "cell": ParagraphStyle("cell", fontName="UI", fontSize=8, leading=10, textColor=INK),
+    "cellr": ParagraphStyle("cellr", fontName="UI", fontSize=8, leading=10, textColor=INK, alignment=2),
+    "prompt": ParagraphStyle("prompt", fontName="Mono", fontSize=8.3, leading=11.5, textColor=INK, leftIndent=14, rightIndent=14,
+                             spaceBefore=4, spaceAfter=10, backColor=colors.HexColor("#f2f5f7"), borderPadding=(6, 6, 6, 6)),
+    "ref": ParagraphStyle("ref", fontName="Text", fontSize=9, leading=11.6, textColor=INK, leftIndent=16, firstLineIndent=-16, spaceAfter=4),
+}
+
+
+def markup(el) -> str:
+    """Inline HTML → ReportLab paragraph markup."""
+    out = html.escape(el.text or "")
     for child in el:
-        if child.tag in ['style','script']:continue
-        inside=markup(child)
-        tag={'strong':'b','em':'i','code':'font','sub':'sub','sup':'super','b':'b','i':'i'}.get(child.tag)
-        if child.tag=='br':value+='<br/>'
-        elif tag=='font':value+=f'<font name="UI">{inside}</font>'
-        elif child.tag=='a' and child.get('href'):
-            target=html.escape(urljoin('https://topicllm.dev/paper/',child.get('href')),quote=True)
-            value+=f'<link href="{target}">{inside}</link>'
-        elif tag:value+=f'<{tag}>{inside}</{tag}>'
-        else:value+=inside
-        value+=html.escape(child.tail or '')
-    value=re.sub(r'(\d{4}-\d{2}-\d{2})[\u2013\u2014](\d{4}-\d{2}-\d{2})',r'\1 to \2',value)
-    return re.sub('[\u2010-\u2015]', '-', value)
+        inner = markup(child)
+        tag = child.tag
+        if tag == "br":
+            out += "<br/>"
+        elif tag in ("b", "strong"):
+            out += f"<b>{inner}</b>"
+        elif tag in ("i", "em"):
+            out += f"<i>{inner}</i>"
+        elif tag == "sub":
+            out += f"<sub>{inner}</sub>"
+        elif tag == "sup":
+            out += f"<super>{inner}</super>"
+        elif tag == "code":
+            out += f'<font name="Mono" size="8.6">{inner}</font>'
+        elif tag == "a" and child.get("href"):
+            href = urljoin("https://topicllm.dev/paper/", child.get("href"))
+            out += f'<link href="{html.escape(href, quote=True)}" color="#0d7d62">{inner}</link>'
+        else:
+            out += inner
+        out += html.escape(child.tail or "")
+    return re.sub(r"\s+", " ", out).strip()
 
-class Concept(Flowable):
-    def __init__(self): Flowable.__init__(self);self.width=468;self.height=112
+
+class Figure(Flowable):
+    """An SVG figure scaled to the text width."""
+
+    def __init__(self, svg_path: Path):
+        super().__init__()
+        drawing: Drawing = svg2rlg(str(svg_path))
+        # Fit the text width, but keep tall charts short enough to share a page.
+        tallest = {"finding": 225, "compare": 250, "confusion": 400}.get(svg_path.stem, 260)
+        scale = min(WIDTH / drawing.width, tallest / drawing.height)
+        drawing.scale(scale, scale)
+        drawing.width, drawing.height = drawing.width * scale, drawing.height * scale
+        self.drawing = drawing
+        self.width, self.height = WIDTH, drawing.height
+        self.offset = (WIDTH - drawing.width) / 2
+
     def draw(self):
-        c=self.canv
-        for row,labels in enumerate([['Campaign posts','Topics + names','Human codebook'],['Presidential posts','Validate + classify','Overall prevalence']]):
-            y=70-row*48
-            for i,label in enumerate(labels):
-                x=i*160
-                c.setStrokeColor(colors.HexColor('#9cb8b3'));c.roundRect(x,y,148,30,4,stroke=1,fill=0)
-                c.setFont('UI',9);c.setFillColor(colors.HexColor('#173b39'));c.drawCentredString(x+74,y+11,label)
-                if i<2:c.drawString(x+151,y+11,'>')
-        c.setDash(2,2);c.line(394,70,234,52);c.setDash()
+        self.drawing.drawOn(self.canv, self.offset, 0)
 
-doc=LH.fromstring((repo/'docs/paper/index.html').read_text(encoding='utf-8'))
-page=doc.xpath('//*[contains(concat(" ",normalize-space(@class)," ")," page ")]')[0]
-edition=clean(page.xpath('./div[@class="banner"]/span')[0].text_content()).replace(' · ',' | ')
-story=[]
-for el in page:
-    cls=el.get('class','')
-    if el.tag=='style' or cls=='banner':continue
-    if el.tag=='h1':story.append(Paragraph(markup(el),styles['Title2']));continue
-    if cls=='subtitle':story.append(Paragraph(markup(el),styles['Subtitle']));continue
-    if cls=='formula':
-        formula=[Paragraph(markup(el),styles['Formula'])]
-        if story and isinstance(story[-1],Paragraph):formula.insert(0,story.pop())
-        story.append(KeepTogether(formula));continue
-    if cls in ['authors','affil']:
-        story.append(Paragraph(markup(el),styles['Small2']));continue
-    if cls=='abstract':
-        story.extend([Spacer(1,10),Paragraph(html.escape(edition),styles['Small2'])])
-        for c in el:story.append(Paragraph(markup(c),styles['Sub' if c.tag=='h2' else 'Body']))
-    elif cls=='prompt':story.append(KeepTogether([Paragraph(markup(el).replace('\n','<br/>'),styles['Prompt2'])]))
-    elif cls=='tablewrap':
-        table=el.find('table')
-        caption=Paragraph(markup(table.find('caption')),styles['Caption'])
-        rows=[[Paragraph(markup(c),styles['Small2']) for c in r] for r in table.xpath('.//tr')]
-        widths={2:[280,188],3:[126,190,152],4:[270,66,66,66]}.get(len(rows[0]),[468/len(rows[0])]*len(rows[0]))
-        if table.find('caption').text_content().startswith('Table 4.'):widths=[66,402]
-        if table.find('caption').text_content().startswith('Table 7.'):widths=[288,72,108]
-        tab=LongTable(rows,colWidths=widths,repeatRows=1,hAlign='LEFT')
-        tab.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),colors.HexColor('#eeeeee')),('GRID',(0,0),(-1,-1),.5,colors.HexColor('#cccccc')),('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),8),('RIGHTPADDING',(0,0),(-1,-1),8),('TOPPADDING',(0,0),(-1,-1),7),('BOTTOMPADDING',(0,0),(-1,-1),3)]))
-        group=[caption,tab]
-        if story and isinstance(story[-1],Paragraph) and story[-1].style.name in ['Section','Sub']:
-            group.insert(0,story.pop())
-        story.extend([KeepTogether(group),Spacer(1,12)])
-    elif cls=='refs':
-        for c in el:story.append(KeepTogether([Paragraph(markup(c),styles['Reference'])]))
-    elif el.tag=='figure':story.append(KeepTogether([Concept(),Paragraph(markup(el.find('figcaption')),styles['Small2'])]))
-    elif el.tag in ['h2','h3','p']:
-        story.append(Paragraph(markup(el),styles[{'h2':'Section','h3':'Sub','p':'Body'}[el.tag]]))
-def footer(canvas,doc):
-    canvas.saveState();canvas.setFont('UI',8);canvas.setFillColor(colors.HexColor('#666666'))
-    canvas.drawString(72,36,'TopicLLM | Working manuscript | 20 November 2026');canvas.drawRightString(540,36,str(doc.page));canvas.restoreState()
-SimpleDocTemplate(str(out),pagesize=(612,792),leftMargin=72,rightMargin=72,topMargin=54,bottomMargin=58,title=page.find('h1').text_content(),author='Jacob E. Thomas').build(story,onFirstPage=footer,onLaterPages=footer)
-qa=base/'methods_pdf_qa';qa.mkdir(exist_ok=True)
-pdf=pdfium.PdfDocument(str(out))
-for i in range(len(pdf)):
-    pdf[i].render(scale=1.5).to_pil().save(qa/f'page-{i+1}.png')
-print(f'Wrote revised PDF and rendered {len(pdf)} pages for review.')
+
+def table(el):
+    caption = el.find("caption")
+    rows = el.xpath(".//tr")
+    ncols = len(rows[0])
+    data = []
+    for r in rows:
+        data.append([Paragraph(markup(c), S["cellr"] if "n" in (c.get("class") or "").split() else S["cell"]) for c in r])
+    widths = {4: [180, 180, 48, 60]}.get(ncols, [WIDTH / ncols] * ncols)
+    if caption is not None and "Table 2" in caption.text_content():
+        widths = [258, 70, 70, 70]
+    t = LongTable(data, colWidths=widths, repeatRows=1, hAlign="LEFT")
+    t.setStyle(TableStyle([
+        ("LINEBELOW", (0, 0), (-1, 0), 0.8, INK), ("LINEBELOW", (0, 1), (-1, -1), 0.3, colors.HexColor("#d5dce1")),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"), ("LEFTPADDING", (0, 0), (-1, -1), 3), ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+        ("TOPPADDING", (0, 0), (-1, -1), 3), ("BOTTOMPADDING", (0, 0), (-1, -1), 3)]))
+    parts = [Paragraph(markup(caption), S["caption"])] if caption is not None else []
+    return [KeepTogether(parts + [t]), Spacer(1, 10)]
+
+
+def pull_heading(story: list) -> list:
+    """Keep a section heading on the same page as the figure or table that follows it."""
+    if story and isinstance(story[-1], Paragraph) and story[-1].style.name in ("h2", "h3"):
+        return [story.pop()]
+    return []
+
+
+def main() -> None:
+    doc = LH.fromstring(SOURCE.read_text(encoding="utf-8"))
+    header = doc.xpath('//header[@class="ph"]')[0]
+    article = doc.xpath("//article")[0]
+    story = [
+        Paragraph(html.escape(header.xpath('.//p[@class="edition"]')[0].text_content()), S["edition"]),
+        Paragraph(markup(header.find("h1")), S["title"]),
+        Paragraph("Jacob E. Thomas · jethomasphd@gmail.com · https://topicllm.dev/paper/", S["byline"]),
+    ]
+    figures_dir = REPO / "docs" / "paper"
+    for el in article.iter():
+        if el.getparent() is not article and not (el.getparent() is not None and el.getparent().get("class") == "abstract"):
+            continue
+        cls = el.get("class") or ""
+        if el.tag == "section" and "abstract" in cls:
+            continue
+        if el.getparent() is not None and el.getparent().get("class") == "abstract":
+            if el.tag == "h2":
+                story.append(Paragraph("Summary", S["abstract_h"]))
+            elif el.tag == "p":
+                story.append(Paragraph(markup(el), S["small"] if "small" in cls else S["abstract"]))
+            continue
+        if el.tag == "h2":
+            story.append(Paragraph(markup(el), S["h2"]))
+        elif el.tag == "h3":
+            story.append(Paragraph(markup(el), S["h3"]))
+        elif el.tag == "p":
+            story.append(Paragraph(markup(el), S["prompt"] if "prompt" in cls else S["body"]))
+        elif el.tag == "figure":
+            img = el.find("img")
+            svg = (figures_dir / img.get("src")).resolve()
+            story.append(KeepTogether(pull_heading(story) + [Figure(svg), Paragraph(markup(el.find("figcaption")), S["caption"])]))
+        elif el.tag == "table":
+            head = pull_heading(story)
+            parts = table(el)
+            if head:
+                parts[0] = KeepTogether(head + [parts[0]])
+            story.extend(parts)
+        elif el.tag == "ol" and "refs" in cls:
+            story.extend(Paragraph(markup(li), S["ref"]) for li in el.findall("li"))
+
+    def footer(canvas, document):
+        canvas.saveState()
+        canvas.setFont("UI", 7.5)
+        canvas.setFillColor(MUTED)
+        canvas.drawString(72, 36, "TopicLLM · software paper · pilot release 0.7.0 · 23 November 2026")
+        canvas.drawRightString(540, 36, str(document.page))
+        canvas.restoreState()
+
+    SimpleDocTemplate(str(OUT), pagesize=(612, 792), leftMargin=72, rightMargin=72, topMargin=60, bottomMargin=60,
+                      title=header.find("h1").text_content(), author="Jacob E. Thomas",
+                      subject="TopicLLM software paper").build(story, onFirstPage=footer, onLaterPages=footer)
+    QA.mkdir(parents=True, exist_ok=True)
+    for old in QA.glob("page-*.png"):
+        old.unlink()
+    pdf = pdfium.PdfDocument(str(OUT))
+    for i in range(len(pdf)):
+        pdf[i].render(scale=1.4).to_pil().save(QA / f"page-{i + 1}.png")
+    print(f"Wrote {OUT.relative_to(REPO)} ({len(pdf)} pages); QA renders in {QA.relative_to(REPO)}")
+
+
+if __name__ == "__main__":
+    main()

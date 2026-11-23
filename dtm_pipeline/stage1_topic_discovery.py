@@ -2,27 +2,44 @@
 stage1_topic_discovery.py — Coherence-optimized topic discovery (Stage 1).
 
 Discovers topics with BERTopic under randomized hyperparameter search and
-selects the configuration maximizing c_v coherence. The search space,
-components, and scoring are those of the archival implementation
-(Supplementary File S1). This version adds:
+scores every candidate by c_v coherence. The search space, components, and
+scoring are those of the archival implementation (Supplementary File S1).
+Selection follows a declared admissibility rule (selection_rule.py): the
+highest-coherence candidate with at least `min_topics` topics whose largest
+topic holds at most `max_topic_share` of assigned documents. Coherence alone
+can reward a few topics dominated by common words (Roberts, Stewart & Tingley
+2019); in the recorded Trump tutorial the unconstrained winner put 99.5% of
+assigned posts in one of two topics. The unconstrained winner is always
+recorded, and the selected solution still goes to researchers for inspection
+of original documents. This version adds:
 
   * a seeded search (hyperparameter draws AND each UMAP fit), so a run can
     be repeated within a fixed, recorded environment;
-  * the winning model is the fitted candidate that earned the best score —
-    not a fresh, re-randomized refit that may yield different topics;
+  * the selected model is the fitted candidate that earned its score — not a
+    fresh, re-randomized refit that may yield different topics. Only two
+    fitted models are retained during the search: the best admissible
+    candidate and the unconstrained coherence winner;
   * fit-once-then-reduce: each sampled (UMAP, HDBSCAN) configuration is fit
     once and then reduced to every maximum topic solution. With a seeded
     UMAP this is intended to avoid redundant fits. Equivalence must be checked
     in the recorded dependency environment; this does not assert historical numerical equivalence. Set
     `refit_per_solution = True` to refit per solution exactly as S1 did;
   * per-candidate audit fields: topics actually found (HDBSCAN often finds
-    fewer clusters than the maximum solution) and the outlier share.
+    fewer clusters than the maximum solution), the outlier share, the largest
+    topic's share of assigned documents, and top-10 topic diversity (reported
+    for inspection only; not used for selection).
 
-Inputs   : tweet_data.csv (column 'tweet'), custom_stopwords.txt
+If no candidate is admissible, the unconstrained winner is saved with
+selection status `selection_rule_unmet` and a warning; researchers then
+choose by inspection (topicllm-select-candidate) and record why.
+
+Inputs   : corpus CSV (text_column, id_column; mapped to tweet/post_id), stopwords file
 Artifacts: pipeline_output/stage1/
              preprocessed_tweets.csv
              all_iteration_results.json      (full audit trail of the search)
-             best_model/                     (topics, assignments, visualizations)
+             selection_sensitivity.json      (rule outcome across caps and topic floors)
+             best_model/                     (selected topics, assignments, visualizations;
+                                              parameters.json carries the selection_rule block)
              coherence_curve.png
              topics_for_naming.csv           (input to Stage 2)
 """
@@ -65,9 +82,11 @@ else:
 if __package__:
     from .provenance import environment
     from .sampling import read_selected
+    from . import selection_rule as rule
 else:
     from provenance import environment
     from sampling import read_selected
+    import selection_rule as rule
 
 NLTK_PACKAGES = {  # resource path -> downloadable package
     "tokenizers/punkt": "punkt",
@@ -109,7 +128,7 @@ def ensure_nltk_data() -> None:
             f"is set; otherwise run nltk.download() for these packages manually.")
 
 
-def build_preprocessor(stopwords_file: str, strip_platform_artifacts: bool = False) -> tuple[Callable[[str], str], set]:
+def build_preprocessor(stopwords_file: str | None, strip_platform_artifacts: bool = False) -> tuple[Callable[[str], str], set]:
     """Return a tweet -> cleaned-string function and the full stopword set.
 
     The stopword set combines NLTK English stopwords with the analyst's
@@ -118,7 +137,9 @@ def build_preprocessor(stopwords_file: str, strip_platform_artifacts: bool = Fal
     ensure_nltk_data()
 
     custom = set()
-    if os.path.exists(stopwords_file):
+    if not stopwords_file:
+        print("[stage1] No domain stopword file declared — using NLTK English stopwords only.")
+    elif os.path.exists(stopwords_file):
         with open(stopwords_file, "r", encoding="utf-8") as f:
             custom = {w.strip().lower() for w in re.split(r"[,\n]", f.read()) if w.strip()}
         print(f"[stage1] Loaded {len(custom)} domain stopwords from {stopwords_file}")
@@ -235,14 +256,15 @@ def evaluate_configuration(docs: list[str], embeddings: np.ndarray,
                            umap_params: dict, hdbscan_params: dict,
                            topic_range: range, scorer: CoherenceScorer,
                            seed: int | None, refit_per_solution: bool,
-                           save_candidate=None):
+                           on_scored: Callable[[BERTopic, dict], None] | None = None) -> list[dict]:
     """Score one sampled (UMAP, HDBSCAN) configuration across all maximum
     topic solutions.
 
-    Returns (results, best_model) where results is a list of dicts
-    {max_topics, coherence, n_topics_found, outlier_share} for valid models
-    and best_model is the fitted model with the highest coherence."""
-    results, best_model, best_c = [], None, -np.inf
+    Returns one dict per solution {max_topics, status, coherence,
+    n_topics_found, outlier_share, ...}. Each scored model is handed to
+    `on_scored(model, info)` (evidence saving, selection tracking) and then
+    released, so the caller decides which fitted models to retain."""
+    results = []
 
     base = None
     if not refit_per_solution:
@@ -254,7 +276,7 @@ def evaluate_configuration(docs: list[str], embeddings: np.ndarray,
             base.fit_transform(docs, embeddings=embeddings)
         except Exception as e:
             print(f"[stage1]   configuration failed to fit ({e})")
-            return [{"max_topics": n, "status": "failed_fit", "error": str(e), "coherence": None} for n in topic_range], None
+            return [{"max_topics": n, "status": "failed_fit", "error": str(e), "coherence": None} for n in topic_range]
 
     for n_topics in topic_range:
         try:
@@ -274,18 +296,38 @@ def evaluate_configuration(docs: list[str], embeddings: np.ndarray,
             if not np.isfinite(coherence):
                 results.append({"max_topics": n_topics, "status": "nonfinite_coherence", "coherence": None, **summarize(model)})
                 continue
-            info = {"max_topics": n_topics, "status": "scored", "coherence": coherence, **summarize(model)}
+            info = {"max_topics": n_topics, "status": "scored", "coherence": coherence, **summarize(model),
+                    "topic_diversity_top10": rule.topic_diversity(tw, 10)}
             results.append(info)
-            if save_candidate:
-                save_candidate(model, info)
             print(f"[stage1]   max_topics={n_topics:>2}  found={info['n_topics_found']:>2}  "
-                  f"outliers={info['outlier_share']:.1%}  coherence={coherence:.4f}")
-            if coherence > best_c:
-                best_c, best_model = coherence, model
+                  f"outliers={info['outlier_share']:.1%}  largest={info['largest_topic_share_of_assigned']:.1%}  "
+                  f"coherence={coherence:.4f}")
+            if on_scored:
+                on_scored(model, info)
         except Exception as e:
             results.append({"max_topics": n_topics, "status": "failed", "error": str(e), "coherence": None})
             print(f"[stage1]   max_topics={n_topics:>2}  skipped ({e})")
-    return results, best_model
+    return results
+
+
+class SelectionTracker:
+    """Retain only the fitted models the declared rule may need at the end:
+    the best admissible candidate and the unconstrained coherence winner
+    (often the same object). Comparisons reuse selection_rule's ranking, so
+    the retained models always match the post-hoc selection over all scores."""
+
+    def __init__(self, max_topic_share: float | None, min_topics: int):
+        rule.validate_rule(max_topic_share, min_topics)
+        self.max_topic_share, self.min_topics = max_topic_share, min_topics
+        self.admissible: tuple[dict, BERTopic] | None = None
+        self.unconstrained: tuple[dict, BERTopic] | None = None
+
+    def offer(self, candidate: dict, model: BERTopic) -> None:
+        if rule.outranks(candidate, self.unconstrained and self.unconstrained[0]):
+            self.unconstrained = (candidate, model)
+        if rule.is_admissible(candidate, self.max_topic_share, self.min_topics) and \
+                rule.outranks(candidate, self.admissible and self.admissible[0]):
+            self.admissible = (candidate, model)
 
 
 # --------------------------------------------------------------------------- #
@@ -307,6 +349,7 @@ def run_stage1(cfg=CONFIG) -> str:
     os.makedirs(out, exist_ok=True)
     if Path(out, "run_manifest.json").exists():
         raise ValueError("Stage 1 already has a run manifest. Use a new output directory; do not overwrite research evidence.")
+    rule.validate_rule(cfg.max_topic_share, cfg.min_topics)  # fail before the costly embedding pass
     rng = np.random.default_rng(cfg.random_seed)
     umap_seed = cfg.random_seed if cfg.seed_umap else None
 
@@ -358,7 +401,8 @@ def run_stage1(cfg=CONFIG) -> str:
           f"(seed={cfg.random_seed}, seed_umap={cfg.seed_umap}, "
           f"refit_per_solution={cfg.refit_per_solution})")
 
-    all_iterations, best, best_model = [], {"max_coherence": -np.inf}, None
+    tracker = SelectionTracker(cfg.max_topic_share, cfg.min_topics)
+    all_iterations = []
     for i in range(cfg.search_iterations):
         umap_cfg = _draw(rng, cfg.umap_space)
         hdb_cfg = _draw(rng, cfg.hdbscan_space)
@@ -367,20 +411,21 @@ def run_stage1(cfg=CONFIG) -> str:
         print(f"[stage1]   UMAP    : {umap_cfg}")
         print(f"[stage1]   HDBSCAN : {hdb_cfg}")
 
-        def save_candidate(model, info):
-            candidate = {"iteration": i + 1, "umap_params": umap_cfg,
-                         "hdbscan_params": hdb_cfg, **info,
-                         "topics": [{"topic": int(t), "words": [w for w, _ in model.get_topic(t) if w]}
-                                    for t in sorted(set(model.topics_)) if t != -1],
-                         "assignments": [int(t) for t in model.topics_]}
-            # Assignment order is bound to preprocessed_tweets.csv; retain every scored candidate.
-            payload = json.dumps(candidate, separators=(",", ":")).encode("utf-8")
-            Path(out, "candidates", f"iteration-{i+1:03d}-max-{info['max_topics']:02d}.json.gz").write_bytes(gzip.compress(payload, mtime=0))
+        def on_scored(model, info):
+            candidate = {"iteration": i + 1, "umap_params": umap_cfg, "hdbscan_params": hdb_cfg, **info}
+            if cfg.save_candidate_evidence:
+                evidence = {**candidate,
+                            "topics": [{"topic": int(t), "words": [w for w, _ in model.get_topic(t) if w]}
+                                       for t in sorted(set(model.topics_)) if t != -1],
+                            "assignments": [int(t) for t in model.topics_]}
+                # Assignment order is bound to preprocessed_tweets.csv; retain every scored candidate.
+                payload = json.dumps(evidence, separators=(",", ":")).encode("utf-8")
+                Path(out, "candidates", f"iteration-{i+1:03d}-max-{info['max_topics']:02d}.json.gz").write_bytes(gzip.compress(payload, mtime=0))
+            tracker.offer(candidate, model)
 
-        details, model = evaluate_configuration(
+        details = evaluate_configuration(
             docs, embeddings, embedder, stop_words, umap_cfg, hdb_cfg,
-            topic_range, scorer, umap_seed, cfg.refit_per_solution,
-            save_candidate if cfg.save_candidate_evidence else None)
+            topic_range, scorer, umap_seed, cfg.refit_per_solution, on_scored)
         scored = [d for d in details if d["status"] == "scored"]
         top = max(scored, key=lambda d: d["coherence"]) if scored else None
         record = {
@@ -391,16 +436,17 @@ def run_stage1(cfg=CONFIG) -> str:
             # the browser app — plus the per-candidate audit details.
             "results": [(d["max_topics"], d["coherence"]) for d in scored],
             "details": details,
+            # Unconstrained per-iteration maximum, kept for continuity with S1.
             "max_coherence": top["coherence"] if top else None,
             "best_max_topics": top["max_topics"] if top else None,
             "best_n_topics_found": top["n_topics_found"] if top else None,
         }
         all_iterations.append(record)
         Path(out, "search_progress.json").write_text(json.dumps({"completed_iterations": i + 1, "planned_iterations": cfg.search_iterations, "iterations": all_iterations}, indent=2), encoding="utf-8")
-        if top and record["max_coherence"] > best["max_coherence"]:
-            best, best_model = record, model
-            print(f"[stage1]   ** New best coherence: {best['max_coherence']:.4f} "
-                  f"({top['n_topics_found']} topics) **")
+        if tracker.admissible and tracker.admissible[0]["iteration"] == i + 1:
+            c = tracker.admissible[0]
+            print(f"[stage1]   ** New best admissible candidate: coherence {c['coherence']:.4f} "
+                  f"({c['n_topics_found']} topics, largest {c['largest_topic_share_of_assigned']:.1%}) **")
 
     # Full audit trail: every iteration's parameters and scores
     with open(os.path.join(out, "all_iteration_results.json"), "w") as f:
@@ -409,16 +455,49 @@ def run_stage1(cfg=CONFIG) -> str:
                    "n_documents": len(docs), "embedding_model": cfg.embedding_model,
                    "iterations": all_iterations}, f, indent=2)
 
-    if best_model is None:
+    if tracker.unconstrained is None:
         raise RuntimeError("No valid models across all iterations — inspect all_iteration_results.json.")
 
-    # ---- Persist the winning model (the candidate that earned the score) --
-    final = best_model
-    topics = list(final.topics_)
-    print(f"\n[stage1] Best configuration: iteration {best['iteration']}, "
-          f"max_topics={best['best_max_topics']}, topics found={best['best_n_topics_found']}, "
-          f"coherence={best['max_coherence']:.4f}")
+    # ---- Apply the declared rule to every recorded score ---------------------
+    candidates = rule.flatten_iterations(all_iterations)
+    unique = rule.dedupe_solutions(candidates)
+    choice = rule.select_candidate(unique, cfg.max_topic_share, cfg.min_topics)
+    tracked = tracker.admissible or tracker.unconstrained
+    expected = choice["selected"] or choice["unconstrained_winner"]
+    if (tracked[0]["iteration"], tracked[0]["max_topics"]) != (expected["iteration"], expected["max_topics"]):
+        raise RuntimeError("Retained model differs from the rule applied to recorded scores; inspect all_iteration_results.json.")
+    best, final = tracked
+    rule_met = choice["status"] == "rule_selected"
+    sensitivity = rule.sensitivity(unique, max_topic_share=cfg.max_topic_share, min_topics=cfg.min_topics)
+    sensitivity.update(scored_candidates=sum(rule.is_scored(c) for c in candidates), unique_solutions=len(unique),
+                       note="Solutions deduplicated by (iteration, sorted topic sizes).")
+    Path(out, "selection_sensitivity.json").write_text(json.dumps(sensitivity, indent=2), encoding="utf-8")
+    selection_rule = {
+        "rule": choice["rule"], "max_topic_share": cfg.max_topic_share, "min_topics": cfg.min_topics,
+        "status": choice["status"],
+        "selected": rule.summarize_candidate(best),
+        "unconstrained_winner": rule.summarize_candidate(choice["unconstrained_winner"]),
+        "rule_changed_selection": choice["rule_changed_selection"],
+        "scored_candidates": sensitivity["scored_candidates"], "unique_solutions": len(unique),
+        "admissible_count": choice["admissible_count"],
+        "admissible_count_basis": "unique solutions",
+        "sensitivity": {"file": "selection_sensitivity.json",
+                        "unchanged_grid_range": sensitivity["unchanged_grid_range"],
+                        "unchanged_exact_interval": sensitivity["unchanged_exact_interval"]},
+        "topic_diversity_top10": "reported per candidate for inspection; not used for selection",
+    }
+    if rule_met:
+        print(f"\n[stage1] Selected (declared rule): iteration {best['iteration']}, "
+              f"max_topics={best['max_topics']}, topics found={best['n_topics_found']}, "
+              f"coherence={best['coherence']:.4f}")
+    else:
+        selection_rule["fallback"] = "unconstrained coherence winner saved; researcher selection required"
+        print(f"\n[stage1] WARNING: no candidate satisfies the declared selection rule ({rule_summary(cfg)}). "
+              f"Saving the unconstrained coherence winner with status selection_rule_unmet. Inspect "
+              f"candidates and record a researcher selection (topicllm-select-candidate) before naming.")
 
+    # ---- Persist the selected model (the candidate that earned the score) --
+    topics = list(final.topics_)
     best_dir = os.path.join(out, "best_model")
     os.makedirs(best_dir, exist_ok=True)
     # Full serialization retains the scored UMAP/HDBSCAN candidate as well as
@@ -433,23 +512,28 @@ def run_stage1(cfg=CONFIG) -> str:
         json.dump({"iteration": best["iteration"],
                    "umap_params": best["umap_params"],
                    "hdbscan_params": best["hdbscan_params"],
-                   "max_topics": int(best["best_max_topics"]),
-                   "n_topics": int(best["best_n_topics_found"]),
-                   "coherence": best["max_coherence"],
-                   "seed": cfg.random_seed, "seed_umap": cfg.seed_umap}, f, indent=2)
+                   "max_topics": int(best["max_topics"]),
+                   "n_topics": int(best["n_topics_found"]),
+                   "coherence": best["coherence"],
+                   "largest_topic_share_of_assigned": best["largest_topic_share_of_assigned"],
+                   "seed": cfg.random_seed, "seed_umap": cfg.seed_umap,
+                   "selection_status": choice["status"],
+                   "selection_rule": selection_rule}, f, indent=2)
     try:  # intertopic distance + similarity matrix for the audit record
         final.visualize_topics().write_html(os.path.join(best_dir, "topic_visualization.html"))
         final.visualize_heatmap().write_html(os.path.join(best_dir, "topic_similarity.html"))
     except Exception as e:
         print(f"[stage1] Visualization skipped: {e}")
 
-    # ---- Coherence curve (paper Figure 1 analogue) -------------------------
-    xs, ys = zip(*sorted(best["results"]))
+    # ---- Coherence curve of the selected configuration (paper Figure 1 analogue)
+    selected_record = next(r for r in all_iterations if r["iteration"] == best["iteration"])
+    xs, ys = zip(*sorted(selected_record["results"]))
     plt.figure(figsize=(10, 6))
     plt.plot(xs, ys, marker="o")
+    plt.axvline(best["max_topics"], color="#176b67", linestyle="--")
     plt.xlabel("Maximum topic solution (nr_topics)")
     plt.ylabel("Coherence Score (c_v)")
-    plt.title("Topic Coherence Scores (Best Configuration)")
+    plt.title("Topic Coherence Scores (Selected Configuration)")
     plt.tight_layout()
     plt.savefig(os.path.join(out, "coherence_curve.png"), dpi=200)
     plt.close()
@@ -463,11 +547,28 @@ def run_stage1(cfg=CONFIG) -> str:
         rows.append({"topic": t, "words": ", ".join(words),
                      "n_documents": int(sum(1 for x in topics if x == t))})
     pd.DataFrame(rows).to_csv(os.path.join(out, "topics_for_naming.csv"), index=False)
-    manifest.update(status="complete", selected_iteration=best["iteration"], selected_coherence=best["max_coherence"])
+    # The search itself completed; the selection status is recorded separately
+    # so an unmet rule still allows an explicit researcher selection.
+    manifest.update(status="complete", selected_iteration=best["iteration"], selected_max_topics=best["max_topics"],
+                    selected_coherence=best["coherence"], selection_status=choice["status"],
+                    selection_rule=selection_rule)
     Path(out, "run_manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    unconstrained = choice["unconstrained_winner"]
+    print(f"[stage1] Selection rule ({rule_summary(cfg)}): {choice['status']} — "
+          f"iteration {best['iteration']}/max {best['max_topics']} ({best['n_topics_found']} topics, "
+          f"c_v {best['coherence']:.4f}, largest {best['largest_topic_share_of_assigned']:.1%}); "
+          f"unconstrained winner iteration {unconstrained['iteration']}/max {unconstrained['max_topics']} "
+          f"({unconstrained['n_topics_found']} topics, c_v {unconstrained['coherence']:.4f}, "
+          f"largest {unconstrained['largest_topic_share_of_assigned']:.1%}); "
+          f"{choice['admissible_count']}/{len(unique)} unique solutions admissible.")
     print(f"[stage1] Wrote {len(rows)} topics to topics_for_naming.csv")
     print(f"[stage1] DONE — artifacts in {out}/")
     return out
+
+
+def rule_summary(cfg) -> str:
+    cap = "no cap" if cfg.max_topic_share is None else f"largest topic <= {cfg.max_topic_share:.0%} of assigned"
+    return f"{cap}, >= {cfg.min_topics} topics"
 
 
 if __name__ == "__main__":

@@ -40,19 +40,39 @@ def read_selected(cfg, role):
 
     Never silently drop invalid dates, duplicate IDs or blank text. The caller
     decides how to handle genuinely empty modeled documents after selection.
+    The configured text_column/id_column are renamed to the internal
+    'tweet'/'post_id' fields, so every later stage reads one schema.
     """
     if role not in ("discovery", "target"):
         raise ValueError("Unknown sampling role.")
     validate_design(cfg)
     path = Path((cfg.discovery_input_csv or cfg.input_csv) if role == "discovery" else cfg.input_csv)
     window = parse_window(getattr(cfg, f"{role}_window"))
+    text_column = getattr(cfg, "text_column", "tweet") or "tweet"
+    id_column = getattr(cfg, "id_column", "post_id") or "post_id"
     with path.open(encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle)
-        if not reader.fieldnames or "tweet" not in reader.fieldnames:
-            raise ValueError(f"{path} needs a tweet column.")
+        columns = reader.fieldnames or []
+        if text_column not in columns:
+            raise ValueError(f"{path.name} needs a '{text_column}' column (set \"text_column\" in your config "
+                             f"to the column holding your documents). Columns found: {', '.join(columns) or 'none'}.")
+        # Only the bundled default may fall back to positional IDs; a declared ID column must exist.
+        if id_column != "post_id" and id_column not in columns:
+            raise ValueError(f"{path.name} needs an '{id_column}' column (set \"id_column\" in your config "
+                             f"to the column holding unique document IDs). Columns found: {', '.join(columns)}.")
+        for source, internal in ((text_column, "tweet"), (id_column, "post_id")):
+            if source != internal and internal in columns:
+                raise ValueError(f"{path.name} has both '{source}' and '{internal}' columns; '{internal}' is the "
+                                 f"internal name the configured column is mapped to. Rename one of them.")
         rows = list(reader)
     if not rows:
         raise ValueError("The source corpus is empty.")
+    # Map the researcher's columns onto the internal names every stage reads.
+    for row in rows:
+        if text_column != "tweet":
+            row["tweet"] = row.pop(text_column)
+        if id_column != "post_id" and id_column in row:
+            row["post_id"] = row.pop(id_column)
     if "post_id" in rows[0]:
         ids = [row["post_id"] for row in rows]
         if any(not value or not value.strip() for value in ids) or len(set(ids)) != len(ids):

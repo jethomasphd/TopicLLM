@@ -11,6 +11,14 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+PRICED_MODEL = 'gpt-4o-2024-08-06'
+PRICE_DATE = '2026-11-16'
+INPUT_USD_PER_MILLION = 2.5
+OUTPUT_USD_PER_MILLION = 10
+# Integer nano-USD per token keeps ledger arithmetic exact.
+INPUT_NANO_USD_PER_TOKEN = round(INPUT_USD_PER_MILLION * 1000)    # 2500
+OUTPUT_NANO_USD_PER_TOKEN = round(OUTPUT_USD_PER_MILLION * 1000)  # 10000
+
 
 class BudgetExceeded(RuntimeError):
     pass
@@ -18,7 +26,7 @@ class BudgetExceeded(RuntimeError):
 
 class ApiBudget:
     def __init__(self, cfg):
-        if cfg.llm_model != 'gpt-4o-2024-08-06':
+        if cfg.llm_model != PRICED_MODEL:
             raise ValueError('Update and verify the budget price schedule before using another model.')
         if cfg.api_budget_usd is None or not 0 < cfg.api_budget_usd <= 1000:
             raise ValueError('Set an explicit positive --budget-usd before paid calls.')
@@ -42,7 +50,7 @@ class ApiBudget:
 
     def reserve(self, key, digest, system, user, max_tokens):
         # A UTF-8 byte bound plus message framing conservatively bounds input tokens.
-        upper = (len(system.encode()) + len(user.encode()) + 256) * 2500 + max_tokens * 10000
+        upper = (len(system.encode()) + len(user.encode()) + 256) * INPUT_NANO_USD_PER_TOKEN + max_tokens * OUTPUT_NANO_USD_PER_TOKEN
         call_id = str(uuid.uuid4())
         with self.connect() as db:
             db.execute('BEGIN IMMEDIATE')
@@ -58,7 +66,7 @@ class ApiBudget:
             usage = (result or {}).get('usage') or {}
             # Ignore caching discounts: conservatively charge the ordinary input rate.
             known = isinstance(usage.get('prompt_tokens'), int) and isinstance(usage.get('completion_tokens'), int)
-            actual = usage['prompt_tokens']*2500 + usage['completion_tokens']*10000 if known else reserved
+            actual = usage['prompt_tokens']*INPUT_NANO_USD_PER_TOKEN + usage['completion_tokens']*OUTPUT_NANO_USD_PER_TOKEN if known else reserved
             exceeded_reservation = actual > reserved
             if exceeded_reservation:
                 error = 'Provider usage exceeded the reservation; review the price/token bound.'
@@ -77,7 +85,8 @@ class ApiBudget:
         records = [dict(zip(['id','operation','input_sha256','at','reserved_nano_usd','charged_nano_usd','status','response'],row)) for row in rows]
         for row in records:
             row['response'] = json.loads(row['response']) if row['response'] else None
-        summary = {'price_date':'2026-11-16','model':self.cfg.llm_model,'input_usd_per_million':2.5,'output_usd_per_million':10,
+        summary = {'price_date':PRICE_DATE,'model':self.cfg.llm_model,'input_usd_per_million':INPUT_USD_PER_MILLION,
+                   'output_usd_per_million':OUTPUT_USD_PER_MILLION,
                    'budget_usd':self.cfg.api_budget_usd,'call_ceiling':self.cfg.max_api_calls,'attempted_calls':len(records),
                    'successful_calls':sum(r['status']=='success' for r in records),
                    'failed_calls':sum(r['status']=='failed' for r in records),

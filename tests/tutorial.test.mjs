@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {parseCSV,toCSV} from '../docs/js/util.js';
-import worker from '../worker/index.js';
+import worker,{CURRENT_METHODS_PDF} from '../worker/index.js';
 
 test('CSV preserves string identifiers and quoted multiline text',()=>{
  const records=[{post_id:'1234567890123456789',tweet:'hello, "world"\nagain'}];
@@ -67,8 +67,11 @@ test('superseded working manuscripts redirect while the protected original remai
  const env={ASSETS:{fetch:async()=>new Response('original source')}};
  for(const name of ['TopicLLM_Methods_Revised_2026-11-16.pdf','TopicLLM_Methods_2026-11-17.pdf','TopicLLM_Methods_2026-11-18.pdf','TopicLLM_Methods_2026-11-19.pdf']){
   const response=await worker.fetch(new Request('https://topicllm.dev/preprints/'+name),env);
-  assert.equal(response.status,302);assert.equal(response.headers.get('Location'),'https://topicllm.dev/preprints/TopicLLM_Methods_2026-11-20.pdf');
+  assert.equal(response.status,302);assert.equal(response.headers.get('Location'),'https://topicllm.dev'+CURRENT_METHODS_PDF);
  }
+ // The configured current manuscript is served, never redirected to itself.
+ const current=await worker.fetch(new Request('https://topicllm.dev'+CURRENT_METHODS_PDF),env);
+ assert.equal(current.status,200);assert.equal(await current.text(),'original source');
  const original=await worker.fetch(new Request('https://topicllm.dev/preprints/Thomas_et_al_Methods_Coherence-Optimized_Topic_Modeling.pdf'),env);
  assert.equal(await original.text(),'original source');
 });

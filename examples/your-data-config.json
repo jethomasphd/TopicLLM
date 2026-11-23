@@ -1,0 +1,22 @@
+{
+  "input_csv": "examples/sample-reviews.csv",
+  "text_column": "text",
+  "id_column": "id",
+  "stopwords_file": null,
+  "output_dir": "runs/your-data",
+  "discovery_window": null,
+  "target_window": null,
+  "require_disjoint_windows": false,
+  "save_candidate_evidence": true,
+  "search_iterations": 50,
+  "topic_min": 2,
+  "topic_max": 25,
+  "random_seed": 42,
+  "max_topic_share": 0.5,
+  "min_topics": 2,
+  "api_budget_usd": null,
+  "max_api_calls": 10000,
+  "votes_per_topic": 200,
+  "domain_context": "short customer reviews of household products; describe the content neutrally",
+  "themes": []
+}

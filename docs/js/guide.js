@@ -1,66 +1,222 @@
-/* Questions send only on submit; conversation stays in page memory. */
-const contexts={
- data:['data','Meet the material before the model.','One public Twitter archive follows Donald Trump’s campaign and first presidential term. Learn what each row represents, why the dates are separated, and how to read the results.','Why use this archive, and how are campaign and presidential posts separated?'],
- welcome:['welcome','The question, the method, and the invitation.','Read why TopicLLM exists, what the demonstration can show, and how you and your agent can build on the research.','Why was TopicLLM created, and what should I use it for?'],
- notfound:['guide','Let’s find your next step.','Return to the homepage, explore the demonstration, or ask the guide to help you find the method or research you need.','Help me find my way around TopicLLM.'],
- home:['home','A collection of text. A question worth answering.','TopicLLM turns many short texts into themes you can interpret and patterns you can measure. Start with the demonstration; take the reproducible workflow into your own environment when you are ready.','What does TopicLLM do, in plain language?'],
- app:['demo','You are exploring a worked example.','Use Donald Trump’s public Twitter posts to learn the method: find themes in the 2015–2016 campaign, then test them on his first-term posts. Start with Discover; the five stages explain each decision.','Walk me through the demo with a simple example.'],
- paper:['methods','This is the recipe behind the demonstration.','This standalone paper explains the method through Donald Trump’s public Twitter archive. It follows campaign topic discovery, human theme review and evaluation on first-term posts, with links to the Python implementation.','Explain the five stages without technical jargon.'],
- reproduce:['reproduce','Take the method into your own environment.','Start with a free installation check. Then give your coding agent the research contract and a question. The guide explains the setup; your fork or Python environment runs the analysis.','How do I start with a fork and a coding agent?'],
- validation:['validation','Look inside the demonstration.','This page shows what happened when campaign themes were applied to Donald Trump’s first-term posts. Start with the result summary, then inspect how the model and human coding were evaluated.','What does this validation establish?'],
- audit:['provenance','Go straight to the source.','Read the dissertation, study chapters and methods. Technical records are available when you need them.','Why can a fresh run find a different number of topics?'],
- privacy:['privacy','Choose what you share, before you send it.','The recorded walkthrough displays in your browser. Live examples and guide questions use the hosted OpenAI service. Keep private research records and credentials in your approved environment.','What happens when I send the guide a question?'],
- study1:['study1','Read the original alcohol-marketing study.','This reader displays the unchanged dissertation chapter. It asks how brand messaging changed across the pandemic periods. Use the page controls to explore the source, or ask for a plain-language summary.','What did Study 1 find?'],
- study2:['study2','Read the original longitudinal study.','This chapter examines potential exposure to brand messages and later user-generated posts. The guide can explain the design and interpretation; the reader preserves the original pages.','What did Study 2 find, and what does potential exposure mean?'],
- guide:['guide','A guide to the whole research program.','Ask in your own words. The guide draws on the dissertation and public repository, with source links you can inspect.','Give me an overview of the dissertation.']
+/* TopicLLM guide: one Ask panel, opened only from a [data-ask] control or the
+ * #ask address. It never opens itself. Questions are sent only on submit and the
+ * conversation lives in page memory only: nothing is stored in the browser. */
+const API='/api/guide';
+const STARTERS=['What did the tutorial find?','Why did the classifier fail?','Can I use this on my own data?','What do the humans have to do?'];
+const GREETING='I’m the TopicLLM guide, an AI. I can explain the method, the tutorial’s numbers, or how to run this on your own data. What are you trying to do?';
+const FOOTER='AI-generated explanations of public materials. Not a reviewer.';
+const MAX_FOLLOW_UPS=3;
+
+// Page context sent with each question; retired pages map to the names older servers know.
+function pageContext(){
+  const parts=location.pathname.replace(/^\/TopicLLM(?=\/)/,'').split('/').filter(p=>p&&p!=='index.html');
+  if(parts[0]==='studies')return parts[1]==='1'?'study1':parts[1]==='2'?'study2':'home';
+  return {tutorial:'tutorial',use:'use',research:'research',paper:'methods',privacy:'privacy',app:'demo',data:'data',validation:'validation',reproduce:'reproduce',audit:'provenance',welcome:'welcome',guide:'guide'}[parts[0]]||'home';
+}
+
+function el(tag,attrs={},...children){
+  const node=document.createElement(tag);
+  for(const [key,value] of Object.entries(attrs))if(value!==false&&value!=null)node.setAttribute(key,value===true?'':value);
+  node.append(...children);
+  return node;
+}
+const hidden=text=>el('span',{class:'ask-sr'},text);
+const closeIcon=()=>{
+  const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg'),path=document.createElementNS(ns,'path');
+  for(const [k,v] of Object.entries({viewBox:'0 0 24 24',width:'20',height:'20','aria-hidden':'true',focusable:'false'}))svg.setAttribute(k,v);
+  for(const [k,v] of Object.entries({d:'M6 6l12 12M18 6L6 18',fill:'none',stroke:'currentColor','stroke-width':'2','stroke-linecap':'round'}))path.setAttribute(k,v);
+  svg.append(path);return svg;
 };
-const route=location.pathname.replace(/^\/TopicLLM/,'').replace(/\/?index\.html$/,'/');
-const key=route.startsWith('/studies/1')?'study1':route.startsWith('/studies/2')?'study2':route.split('/').filter(Boolean)[0]||'home',context=contexts[key]||contexts.notfound;
-const make=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;};
-const orientation=make('aside','page-orientation');orientation.setAttribute('aria-label','Page orientation');
-const inner=make('div','orientation-inner'),copy=make('div','orientation-copy');copy.append(make('span','orientation-eyebrow','A place to start'),make('strong','',context[1]),make('p','',context[2]));
-const orientButton=make('button','orientation-ask','Ask the guide ↗');orientButton.type='button';
-const orientActions=make('div','orientation-actions'),welcomeButton=make('button','orientation-welcome','Author’s welcome');welcomeButton.type='button';welcomeButton.dataset.openWelcome='';welcomeButton.setAttribute('aria-haspopup','dialog');welcomeButton.setAttribute('aria-controls','author-welcome');orientActions.append(orientButton,welcomeButton);inner.append(copy,orientActions);orientation.append(inner);
-const main=document.querySelector('main')||document.querySelector('.page');if(key==='home'){const strip=document.querySelector('.release-strip');if(strip)strip.after(orientation);else main?.prepend(orientation);}else main?.prepend(orientation);
-const launcher=make('button','guide-launcher');launcher.type='button';launcher.setAttribute('aria-controls','research-guide');launcher.setAttribute('aria-expanded','false');launcher.setAttribute('aria-label','Ask the research guide');launcher.append(make('span','guide-launch-icon','?'),make('span','guide-launch-label','Ask the research guide'),make('span','guide-launch-short','Ask guide'));
-const invitation=make('aside','guide-invitation');invitation.setAttribute('aria-label','Meet the research guide');
-const dismiss=make('button','guide-invitation-dismiss','×');dismiss.type='button';dismiss.setAttribute('aria-label','Dismiss guide introduction');
-invitation.append(dismiss,make('span','orientation-eyebrow','Your research companion'),make('strong','','Hi, I’m the TopicLLM guide.'),make('p','','Curious what this does, what the research found, or how to get started? Ask me — we can take it one step at a time.'));
-const start=make('button','guide-invitation-start','Start a conversation →');start.type='button';invitation.append(start);try{invitation.hidden=sessionStorage.getItem('topicllm-guide-introduced')==='yes';}catch{}
-const dialog=make('dialog','guide-dialog');dialog.id='research-guide';dialog.setAttribute('aria-labelledby','guide-title');
-const top=make('div','guide-header'),identity=make('div','guide-identity'),title=make('h2','','TopicLLM guide');title.id='guide-title';identity.append(title,make('p','','AI explanations · sources included'));
-const close=make('button','guide-close','×');close.type='button';close.setAttribute('aria-label','Close research guide');top.append(identity,close);
-const messages=make('div','guide-messages');messages.setAttribute('role','log');messages.setAttribute('aria-label','Conversation');messages.setAttribute('aria-live','polite');
-const greeting=make('div','guide-message guide-answer');greeting.append(make('span','guide-speaker','TopicLLM guide'),make('p','','Hi, I’m your AI guide to TopicLLM. I can explain the software, walk through the 2015–2016 campaign and first-term example, or help you explore the original research library. What would you like to understand?'));messages.append(greeting);
-const prompts=make('div','guide-prompts'),starters=[context[3],'How are topics different from themes?','How can I reproduce this with an agent?'];
-const form=make('form','guide-form'),label=make('label','','Your question');label.htmlFor='guide-question';
-const input=make('textarea','');input.id='guide-question';input.rows=2;input.maxLength=1200;input.placeholder='Ask about the method, research, or getting started…';input.required=true;
-const disclosure=make('p','guide-disclosure');disclosure.append(document.createTextNode('Sending shares your question and recent chat with OpenAI. No private data or keys. '));const privacy=make('a','','Data handling');privacy.href='/privacy/';privacy.target='_blank';privacy.rel='noopener';disclosure.append(privacy);
-const controls=make('div','guide-controls'),clear=make('button','guide-clear','Clear conversation'),send=make('button','guide-send','Send question →');clear.type='button';send.type='submit';controls.append(clear,send);
-const status=make('p','guide-status','AI can make mistakes. Check the linked sources.');status.setAttribute('role','status');const fallback=make('p','guide-fallback');for(const [name,url] of [['Read the briefing','/guide/knowledge.md'],['Explore the demo','/app/']]){const a=make('a','',name);a.href=url;a.target='_blank';a.rel='noopener';fallback.append(a);}form.append(label,input,disclosure,controls,status,fallback);messages.append(prompts);dialog.append(top,messages,form);document.body.append(invitation,launcher,dialog);
-let history=[],busy=false,op=null,lastFocused;
-function introduced(){invitation.hidden=true;try{sessionStorage.setItem('topicllm-guide-introduced','yes');}catch{}}
-function openGuide(question){introduced();lastFocused=document.activeElement;if(!dialog.open)dialog.showModal();launcher.setAttribute('aria-expanded','true');if(question)input.value=question;input.focus();}
-function closeGuide(){dialog.close();launcher.setAttribute('aria-expanded','false');lastFocused?.focus();}
-function suggestions(items){prompts.replaceChildren();for(const question of items){const b=make('button','',question);b.type='button';b.disabled=busy;b.addEventListener('click',()=>{input.value=question;input.focus();});prompts.append(b);}}
-suggestions(starters);launcher.addEventListener('click',()=>openGuide());start.addEventListener('click',()=>openGuide());orientButton.addEventListener('click',()=>openGuide(context[3]));dismiss.addEventListener('click',introduced);close.addEventListener('click',closeGuide);dialog.addEventListener('close',()=>launcher.setAttribute('aria-expanded','false'));
-document.addEventListener('click',e=>{const b=e.target.closest('[data-ask-guide]');if(b)openGuide(b.dataset.askGuide||'');});
-clear.addEventListener('click',()=>{if(busy)return;history=[];op=null;messages.replaceChildren(greeting,prompts);input.value='';status.textContent='Conversation cleared from this page. Short server receipts expire within 30 minutes.';suggestions(starters);input.focus();});
-input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();form.requestSubmit();}});
-async function request(path,options={}){const r=await fetch(path,{credentials:'same-origin',cache:'no-store',...options});let body;try{body=await r.json();}catch{throw new Error('The guide could not connect.');}if(!r.ok)throw Object.assign(new Error(body.error||'The guide is unavailable.'),{retryNewOperation:body.retry_new_operation===true});return body;}
-form.addEventListener('submit',async e=>{
- e.preventDefault();if(busy||!input.value.trim())return;const question=input.value.trim(),recent=[];let size=0;
- for(let i=history.length-2;i>=0&&recent.length<6;i-=2){const pair=history.slice(i,i+2),chars=pair.reduce((n,m)=>n+m.content.length,0);if(size+chars>8500)break;recent.unshift(...pair);size+=chars;}
- const serialized=JSON.stringify({question,history:recent,page:context[0]});if(!op||op.payload!==serialized)op={id:crypto.randomUUID(),payload:serialized};
- busy=true;send.disabled=clear.disabled=input.disabled=true;prompts.querySelectorAll('button').forEach(b=>b.disabled=true);status.textContent='Reading the research notes and preparing a clear answer…';
- const asked=make('div','guide-message guide-question');asked.append(make('span','guide-speaker','You'),make('p','',question));messages.insertBefore(asked,prompts);messages.scrollTop=messages.scrollHeight;
- let receivedAnswer=null;
- try{
-  const config=await request('/api/config');if(!config.guideLive)throw new Error('The live guide is unavailable right now.');await request('/api/session');
-  const result=await request('/api/guide',{method:'POST',headers:{'Content-Type':'application/json','X-Request-ID':op.id},body:serialized,signal:AbortSignal.timeout(60000)});
-  const answer=make('div','guide-message guide-answer');receivedAnswer=answer;answer.append(make('span','guide-speaker','TopicLLM guide'));for(const p of result.text.split(/\n\s*\n/))answer.append(make('p','',p));
-  const links=make('div','guide-sources');links.setAttribute('aria-label','Sources for this answer');for(const source of result.sources||[]){const a=make('a','',source.title);a.href=source.url;a.target='_blank';a.rel='noopener';links.append(a);}answer.append(links);messages.insertBefore(answer,prompts);history.push({role:'user',content:question},{role:'assistant',content:result.text});input.value='';op=null;
-  status.textContent=`${result.remaining_session} shared live calls remain today. AI can make mistakes; check the sources.`;busy=false;suggestions(result.suggestions?.length?result.suggestions:starters);
- }catch(error){asked.remove();if(error.retryNewOperation)op=null;status.textContent=(error.name==='TimeoutError'?'The request took too long. Retry the same question to recover a completed response safely.':error.message)+' The visual demo and research briefing remain available.';}
- finally{busy=false;send.disabled=clear.disabled=input.disabled=false;prompts.querySelectorAll('button').forEach(b=>b.disabled=false);input.focus({preventScroll:true});if(receivedAnswer)messages.scrollTop+=receivedAnswer.getBoundingClientRect().top-messages.getBoundingClientRect().top-18;}
-});
+// Only same-origin pages and HTTPS sources become links; anything else renders as text.
+function safeHref(url){
+  try{const u=new URL(String(url),location.origin);if(u.origin===location.origin)return u.pathname+u.search+u.hash;if(u.protocol==='https:')return u.href;}catch{}
+  return null;
+}
+// randomUUID needs a secure context; getRandomValues covers plain-HTTP previews.
+const operationId=()=>crypto.randomUUID?.()||[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('');
+const reducedMotion=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function mount(){
+  if(globalThis.__topicllmAsk)return;
+  globalThis.__topicllmAsk=true;
+  if(!document.querySelector('link[href$="guide.css"]'))document.head.append(el('link',{rel:'stylesheet',href:new URL('../guide.css',import.meta.url).href}));
+
+  const page=pageContext();
+  const title=el('h2',{class:'ask-title',id:'ask-title',tabindex:'-1'},'TopicLLM guide');
+  const close=el('button',{type:'button',class:'ask-close','aria-label':'Close guide'},closeIcon());
+  const greeting=el('div',{class:'ask-msg ask-msg--guide'},el('p',{id:'ask-greeting'},GREETING));
+  const log=el('div',{class:'ask-log',role:'log','aria-live':'polite','aria-label':'Conversation'},greeting);
+  const chips=el('div',{class:'ask-chips',role:'group','aria-label':'Suggested questions'});
+  const scroll=el('div',{class:'ask-scroll'},log,chips);
+  const input=el('textarea',{id:'ask-input',class:'ask-input',rows:'1',maxlength:'1200',required:true,placeholder:'Ask a question…',autocomplete:'off'});
+  const send=el('button',{type:'submit',class:'ask-send'},'Send');
+  const privacy=el('a',{href:'/privacy/',target:'_blank',rel:'noopener'},'How questions are handled');
+  const form=el('form',{class:'ask-form'},
+    el('label',{class:'ask-sr',for:'ask-input'},'Your question for the guide'),
+    el('div',{class:'ask-row'},input,send),
+    el('p',{class:'ask-foot'},FOOTER.replace(/ Not a reviewer\.$/,' '),el('span',{class:'ask-nowrap'},'Not a reviewer.'),' ',privacy));
+  const dialog=el('dialog',{class:'ask-panel',id:'topicllm-ask','aria-labelledby':'ask-title','aria-describedby':'ask-greeting'},
+    el('header',{class:'ask-head'},title,close),scroll,form);
+  document.body.append(dialog);
+
+  let history=[],busy=false,op=null,ready=false,opener=null,closing=false,pressedBackdrop=false;
+
+  const askButtons=()=>document.querySelectorAll('[data-ask]');
+  const setExpanded=open=>{for(const b of askButtons()){b.setAttribute('aria-controls','topicllm-ask');b.setAttribute('aria-expanded',String(open));}};
+  setExpanded(false);
+
+  function showChips(list){
+    chips.replaceChildren();
+    for(const question of list){
+      const b=el('button',{type:'button',class:'ask-chip'},question);
+      b.disabled=busy;b.addEventListener('click',()=>ask(question));chips.append(b);
+    }
+    chips.hidden=!list.length;
+  }
+  showChips(STARTERS);
+
+  function lockScroll(on){
+    const root=document.documentElement;
+    if(on){root.classList.toggle('ask-gutter',innerWidth>root.clientWidth);root.classList.add('ask-open');}
+    else root.classList.remove('ask-open','ask-gutter');
+  }
+  function openPanel(from){
+    if(dialog.open)return;
+    opener=from||document.activeElement;closing=false;dialog.classList.remove('is-closing');
+    lockScroll(true);
+    if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');
+    setExpanded(true);
+    // Keep the phone keyboard closed until the visitor chooses to type.
+    (matchMedia('(max-width: 640px)').matches?title:input).focus({preventScroll:true});
+  }
+  function finishClose(){
+    if(typeof dialog.close==='function'&&dialog.open)dialog.close();
+    else if(dialog.hasAttribute('open')){dialog.removeAttribute('open');onClosed();}
+  }
+  function closePanel(){
+    if(!dialog.open||closing)return;
+    if(reducedMotion())return finishClose();
+    closing=true;dialog.classList.add('is-closing');
+    const done=event=>{
+      if(event&&event.target!==dialog)return;
+      clearTimeout(timer);dialog.removeEventListener('animationend',done);
+      closing=false;dialog.classList.remove('is-closing');finishClose();
+    };
+    const timer=setTimeout(done,260);
+    dialog.addEventListener('animationend',done);
+  }
+  function onClosed(){
+    closing=false;dialog.classList.remove('is-closing');lockScroll(false);setExpanded(false);
+    if(location.hash==='#ask')clearAskHash();
+    const target=opener&&opener.isConnected&&opener!==document.body?opener:askButtons()[0];
+    target?.focus?.({preventScroll:true});opener=null;
+  }
+  // Clear #ask so the same link can open the panel again.
+  function clearAskHash(){try{window.history.replaceState(window.history.state,'',location.pathname+location.search);}catch{}}
+
+  dialog.addEventListener('close',onClosed);
+  dialog.addEventListener('cancel',event=>{event.preventDefault();closePanel();});
+  close.addEventListener('click',closePanel);
+  // A click that both starts and ends outside the panel box is a backdrop click.
+  const outside=event=>{if(event.target!==dialog)return false;const r=dialog.getBoundingClientRect();return event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom;};
+  dialog.addEventListener('pointerdown',event=>{pressedBackdrop=outside(event);});
+  dialog.addEventListener('click',event=>{if(pressedBackdrop&&outside(event))closePanel();pressedBackdrop=false;});
+  dialog.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&typeof dialog.showModal!=='function'){event.preventDefault();closePanel();return;}
+    if(event.key!=='Tab')return;
+    const focusable=[...dialog.querySelectorAll('button:not([disabled]),a[href],textarea:not([disabled])')].filter(n=>n.getClientRects().length);
+    if(!focusable.length)return;
+    const first=focusable[0],last=focusable[focusable.length-1],active=document.activeElement;
+    if(event.shiftKey&&(active===first||active===title||!dialog.contains(active))){event.preventDefault();last.focus();}
+    else if(!event.shiftKey&&(active===last||!dialog.contains(active))){event.preventDefault();first.focus();}
+  });
+
+  document.addEventListener('click',event=>{
+    const trigger=event.target instanceof Element&&event.target.closest('[data-ask]');
+    if(!trigger||dialog.contains(trigger))return;
+    event.preventDefault();openPanel(trigger);
+  });
+  addEventListener('hashchange',()=>{if(location.hash==='#ask')openPanel();});
+  if(location.hash==='#ask')openPanel();
+
+  input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,140)+'px';});
+  input.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();form.requestSubmit();}});
+  form.addEventListener('submit',event=>{event.preventDefault();const question=input.value;input.value='';input.style.height='';ask(question,true);});
+
+  function setBusy(on){
+    busy=on;send.disabled=on;log.setAttribute('aria-busy',String(on));
+    for(const b of chips.querySelectorAll('button'))b.disabled=on;
+  }
+  function revealStart(node){scroll.scrollTop+=node.getBoundingClientRect().top-scroll.getBoundingClientRect().top-16;}
+  function addNote(text){const note=el('div',{class:'ask-msg ask-msg--note'},el('p',{},text));log.append(note);scroll.scrollTop=scroll.scrollHeight;return note;}
+  function addAnswer(result){
+    const message=el('div',{class:'ask-msg ask-msg--guide'},hidden('The guide said: '));
+    for(const paragraph of String(result.text||'').split(/\n\s*\n/))if(paragraph.trim())message.append(el('p',{},paragraph.trim()));
+    // The server releases at most one validated source; it becomes the answer's link.
+    const source=(Array.isArray(result.sources)?result.sources:[]).map(s=>({title:typeof s?.title==='string'?s.title:'',href:safeHref(s?.url)})).find(s=>s.title&&s.href);
+    if(source)message.append(el('p',{class:'ask-source'},el('a',{href:source.href,target:'_blank',rel:'noopener'},source.title+' ↗')));
+    log.append(message);
+    if(Number.isInteger(result.remaining_session)&&result.remaining_session<=10)addNote(`${result.remaining_session} live questions left today.`);
+    return message;
+  }
+
+  async function request(path,options={}){
+    const response=await fetch(path,{credentials:'same-origin',cache:'no-store',...options});
+    let body;try{body=await response.json();}catch{throw new Error('The guide could not connect.');}
+    if(!response.ok)throw Object.assign(new Error(body?.error||'The guide is unavailable.'),{status:response.status,retryNewOperation:body?.retry_new_operation===true});
+    return body;
+  }
+  async function startSession(){
+    const config=await request('/api/config');
+    if(!config.guideLive)throw new Error('The live guide is unavailable right now.');
+    await request('/api/session');ready=true;
+  }
+  // The operation ID stays the same when an unchanged question is retried, so a
+  // response that completed but was not delivered is recovered, not charged twice.
+  async function post(operation){
+    const call=()=>request(API,{method:'POST',headers:{'Content-Type':'application/json','X-Request-ID':operation.id},body:operation.payload,signal:AbortSignal.timeout?.(60000)});
+    if(!ready)await startSession();
+    try{return await call();}
+    // An expired session is refused before any allowance is reserved, so one renewal is safe.
+    catch(error){if(error.status!==401)throw error;ready=false;await startSession();return call();}
+  }
+
+  async function ask(raw,typed=false){
+    const question=String(raw||'').trim();
+    if(busy||!question)return;
+    const recent=[];let size=0;
+    for(let i=history.length-2;i>=0&&recent.length<6;i-=2){
+      const pair=history.slice(i,i+2),chars=pair.reduce((n,m)=>n+m.content.length,0);
+      if(size+chars>8500)break;recent.unshift(...pair);size+=chars;
+    }
+    const payload=JSON.stringify({question,history:recent,page});
+    if(!op||op.payload!==payload)op={id:operationId(),payload};
+    const previousChips=[...chips.querySelectorAll('button')].map(b=>b.textContent);
+    showChips([]);setBusy(true);
+    const asked=el('div',{class:'ask-msg ask-msg--user'},hidden('You asked: '),el('p',{},question));
+    const typing=el('div',{class:'ask-typing'},hidden('The guide is writing an answer.'),el('i',{'aria-hidden':'true'}),el('i',{'aria-hidden':'true'}),el('i',{'aria-hidden':'true'}));
+    log.append(asked,typing);scroll.scrollTop=scroll.scrollHeight;
+    try{
+      const result=await post(op);
+      typing.remove();
+      const answer=addAnswer(result);
+      history.push({role:'user',content:question},{role:'assistant',content:String(result.text||'')});op=null;
+      setBusy(false);
+      showChips((Array.isArray(result.suggestions)?result.suggestions:[]).filter(s=>typeof s==='string'&&s.trim()).map(s=>s.trim()).slice(0,MAX_FOLLOW_UPS));
+      revealStart(answer);
+    }catch(error){
+      typing.remove();asked.remove();
+      if(error.retryNewOperation)op=null;
+      if(typed&&!input.value.trim())input.value=question;
+      const message=error.name==='TimeoutError'?'The request took too long. Send the same question again to recover a completed answer safely.'
+        :error instanceof TypeError?'The guide could not connect. Check your connection and try again.':error.message;
+      setBusy(false);addNote(message);showChips(previousChips);
+    }finally{
+      setBusy(false);
+      if(dialog.open&&!matchMedia('(max-width: 640px)').matches)input.focus({preventScroll:true});
+    }
+  }
+}
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});
+else mount();

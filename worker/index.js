@@ -5,6 +5,17 @@ import {guideCall,guideResult,GUIDE_VERSION} from './guide.js';
 import {publicLimits} from './limits.js';
 export {validateCall};
 export {DemoQuota} from './quota.js';
+// The current methods manuscript. Superseded working PDFs redirect here; rename it in this one place.
+export const CURRENT_METHODS_PDF='/preprints/TopicLLM_Software_Paper_2026-11-23.pdf';
+const SUPERSEDED_METHODS_PDFS=['/preprints/TopicLLM_Methods_Revised_2026-11-16.pdf','/preprints/TopicLLM_Methods_2026-11-17.pdf','/preprints/TopicLLM_Methods_2026-11-18.pdf','/preprints/TopicLLM_Methods_2026-11-19.pdf','/preprints/TopicLLM_Methods_2026-11-20.pdf'];
+const CANONICAL_HOSTS=['topicllm.dev','www.topicllm.dev','topicllm.jethomasphd.workers.dev'];
+// Retired pages move permanently into the new site map. Only the page itself
+// moves (`/data`, `/data/`, `/data/index.html`); files beneath it are untouched.
+export const MOVED_PAGES={'/app':'/tutorial/','/data':'/tutorial/#dataset','/validation':'/tutorial/#check','/reproduce':'/use/','/audit':'/research/','/welcome':'/research/#author','/guide':'/#ask'};
+export function movedPage(path){
+  const page=/^(\/[a-z]+)(?:\/(?:index\.html)?)?$/.exec(path)?.[1];
+  return page&&Object.hasOwn(MOVED_PAGES,page)?MOVED_PAGES[page]:null;
+}
 const json=(data,status=200,headers={})=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers}});
 const configured=env=>!!(env.OPENAI_API_KEY&&env.RESEARCH_ACCESS_TOKEN&&env.OPENAI_MODEL==='gpt-4o-2024-08-06'&&env.RATE_LIMITER&&env.QUOTAS);
 const operator=async(request,env)=>equal(request.headers.get('Authorization')||'',`Bearer ${env.RESEARCH_ACCESS_TOKEN}`);
@@ -34,16 +45,22 @@ export function demoCall(input){
 export default {async fetch(request,env){
   const url=new URL(request.url),path=url.pathname;
   if(/^\/data\/trump\/campaign\/(?:development|evaluation)_(?:annotations(?:\.review)?\.(?:csv|json)|predictions\.csv)$/.test(path))
-    return new Response('Individual research annotations and evaluation predictions are private. Aggregate results are available at /validation/.',{status:410,headers:{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'}});
+    return new Response('Individual research annotations and evaluation predictions are private. Aggregate results are available at /tutorial/#check.',{status:410,headers:{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'}});
   // Withdrawn dissertation data must not be served by stale asset paths.
   if(path==='/S4_liwc_output.csv'||path.startsWith('/data/reference_run/')||path.startsWith('/data/study1/')||path==='/data/live-examples.json'||path.startsWith('/downloads/topicllm_research-0.4.0')||path==='/validation/results.json'||path.startsWith('/data/demonstration_')||path==='/data/study-demo.json'||path==='/data/study.json'||path.startsWith('/validation/synthetic-')||path==='/validation/legacy-synthetic-results.json')
     return new Response('This dataset or download has been withdrawn. Visit https://topicllm.dev for the current public demonstration.',{status:410,headers:{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'}});
-  if(['/preprints/TopicLLM_Methods_Revised_2026-11-16.pdf','/preprints/TopicLLM_Methods_2026-11-17.pdf','/preprints/TopicLLM_Methods_2026-11-18.pdf','/preprints/TopicLLM_Methods_2026-11-19.pdf'].includes(path))return Response.redirect('https://topicllm.dev/preprints/TopicLLM_Methods_2026-11-20.pdf',302);
+  if(path!==CURRENT_METHODS_PDF&&SUPERSEDED_METHODS_PDFS.includes(path))return Response.redirect('https://topicllm.dev'+CURRENT_METHODS_PDF,302);
   if(path==='/downloads/topicllm-research-source.zip')return Response.redirect('https://github.com/jethomasphd/TopicLLM/archive/refs/heads/main.zip',302);
   // Keep existing API clients on their origin; browser navigation uses the primary domain.
-  if(env.CANONICAL_REDIRECTS!=='false'&&!path.startsWith('/api/')&&['GET','HEAD'].includes(request.method)&&
-     ['topicllm.dev','www.topicllm.dev','topicllm.jethomasphd.workers.dev'].includes(url.hostname)&&
-     (url.hostname!=='topicllm.dev'||url.protocol!=='https:')){
+  const navigation=['GET','HEAD'].includes(request.method)&&!path.startsWith('/api/');
+  const canonical=navigation&&env.CANONICAL_REDIRECTS!=='false'&&CANONICAL_HOSTS.includes(url.hostname);
+  const moved=navigation&&movedPage(path);
+  if(moved){
+    // One permanent hop to the new page (and the primary domain), keeping the query.
+    const [page,fragment]=moved.split('#');
+    return Response.redirect((canonical?'https://topicllm.dev':url.origin)+page+url.search+(fragment?'#'+fragment:''),301);
+  }
+  if(canonical&&(url.hostname!=='topicllm.dev'||url.protocol!=='https:')){
     url.hostname='topicllm.dev';url.protocol='https:';url.port='';
     return Response.redirect(url.href,308);
   }
@@ -80,7 +97,7 @@ export default {async fetch(request,env){
   const isGuide=path==='/api/guide',isPublic=path==='/api/demo'||isGuide;
   let identity;
   if(isPublic){
-    if(isGuide&&!guideLive)return json({error:'The live guide is temporarily unavailable. Explore the walkthrough or read the research briefing.',retryable:false},503);
+    if(isGuide&&!guideLive)return json({error:'The live guide is temporarily unavailable. The tutorial and the paper remain available.',retryable:false},503);
     if(!publicLive)return json({error:'Live examples are temporarily paused.'},503);
     if(origin!==url.origin)return json({error:'Open the live demo on this website.'},403);
     identity=await session(request,env);if(!identity)return json({error:'Start a new demo session.',retryable:false},401);

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Use it — TopicLLM</title>
+<meta name="description" content="Run TopicLLM on your own text: install the Python package, hand your coding agent the protocol, and keep the four human decisions for yourself.">
+<link rel="canonical" href="https://topicllm.dev/use/">
+<!--shell-head--><link rel="icon" href="../assets/topicllm-mark.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap"><link rel="stylesheet" href="../style.css"><script>document.documentElement.classList.remove('no-js')</script><script type="module" src="../js/site.js"></script><link rel="stylesheet" href="../guide.css"><script type="module" src="../js/guide.js"></script><!--/shell-head-->
+</head>
+<body>
+<!--shell-bar--><a class="skip" href="#main">Skip to content</a><header class="bar"><div class="bar-in"><a class="brand" href="../" aria-label="TopicLLM home"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="../assets/topicllm-mark.svg#mark"/></svg>TopicLLM</a><nav id="site-nav" aria-label="Main"><a href="../tutorial/">Tutorial</a><a href="../use/" aria-current="page">Use it</a><a href="../research/">Research</a><a href="../paper/">Paper</a></nav><button class="ask" type="button" data-ask aria-haspopup="dialog">Ask</button><a class="gh" href="https://github.com/jethomasphd/TopicLLM" aria-label="TopicLLM on GitHub"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a><button class="menu" type="button" aria-controls="site-nav" aria-expanded="false" data-menu>Menu</button></div></header><!--/shell-bar-->
+<main id="main">
+  <section class="tut-head">
+    <div class="wrap">
+      <h1>Run it on your own text.</h1>
+      <p class="lede">Your coding agent runs the Python and keeps every output. You make the four decisions that turn its output into a measurement.</p>
+      <p class="status">Pilot software. Not independently validated. Python 3.11 or newer.</p>
+    </div>
+  </section>
+
+  <section class="wrap" style="padding-bottom:40px">
+    <ol class="numbered">
+      <li>
+        <h3>Install and check.</h3>
+        <p class="note">Free, offline, and done in seconds. The check verifies the bundled tutorial data byte for byte; it doesn't judge any science.</p>
+        <pre class="cmd" id="cmd-install"><button class="copy" type="button" data-copy="#cmd-install">Copy</button>git clone https://github.com/jethomasphd/TopicLLM
+cd TopicLLM
+python -m venv .venv
+<span class="c"># macOS/Linux: source .venv/bin/activate   Windows: .venv\Scripts\Activate.ps1</span>
+python -m pip install ".[dev]"
+topicllm --profile quickcheck --output-dir runs/quickcheck</pre>
+        <p class="small" style="margin-top:12px">Topic discovery needs the machine-learning extra: <code>python -m pip install ".[ml]"</code>. It runs on your computer and makes no paid calls.</p>
+      </li>
+      <li>
+        <h3>Hand your agent the task.</h3>
+        <p class="note">Paste this into Claude Code, Codex or any coding agent working in your copy of the repository.</p>
+        <pre class="cmd" id="cmd-agent"><button class="copy" type="button" data-copy="#cmd-agent">Copy</button>Read AGENTS.md and REPRODUCE.md in this repository.
+Run the free quickcheck, then show me the plan and its estimated cost before any paid step.
+Use my data at PATH/TO/FILE.csv; the text is in the column named TEXT_COLUMN.
+Run the maintained scripts and keep every output. Never invent results.
+Stop and ask me at each human step: topics, codebook, human coding, accepting the classifier.</pre>
+      </li>
+      <li>
+        <h3>Do what only you can do.</h3>
+        <ul class="only-you">
+          <li><b>Read the posts</b> behind the clusters before accepting a topic solution.</li>
+          <li><b>Write and approve the codebook</b> with a second researcher: definitions, inclusions, exclusions, and a rule for posts that fit several themes.</li>
+          <li><b>Have two people code a random sample</b> separately, without seeing the model's answers, then resolve their differences.</li>
+          <li><b>Accept or reject the classifier</b> after reading its errors. Passing the 85% target is necessary, not sufficient.</li>
+        </ul>
+      </li>
+    </ol>
+  </section>
+
+  <section class="section" id="your-data">
+    <div class="wrap">
+      <h2>Your data, in one CSV.</h2>
+      <div style="max-width:66ch">
+        <p>One row per document. You need a text column and an ID column; dates are optional unless you want separate discovery and measurement periods, as the tutorial does.</p>
+        <table class="plain">
+          <thead><tr><th>Column</th><th>Required</th><th>What it holds</th></tr></thead>
+          <tbody>
+            <tr><td><code>text</code> (any name)</td><td>Yes</td><td>The document. Name it in your config with <code>"text_column"</code>.</td></tr>
+            <tr><td><code>id</code> (any name)</td><td>Recommended</td><td>A stable, unique identifier. Set <code>"id_column"</code>.</td></tr>
+            <tr><td><code>date</code></td><td>Only for time windows</td><td><code>YYYY-MM-DD</code>, used by <code>"discovery_window"</code> and <code>"target_window"</code>.</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:24px">Start from the example configuration, point it at your file, and ask for a plan. The plan counts records and paid calls and gives a rough cost before anything runs.</p>
+        <pre class="cmd" id="cmd-plan"><button class="copy" type="button" data-copy="#cmd-plan">Copy</button>cp examples/your-data-config.json my-config.json
+<span class="c"># edit input_csv, text_column, id_column, domain_context</span>
+topicllm --profile research --config my-config.json --stages all --plan</pre>
+        <p class="small" style="margin-top:12px">Set your own stopwords with <code>"stopwords_file"</code>; the default list was written for Twitter. Paid steps refuse to run without an explicit <code>--budget-usd</code>, and keys stay in your environment, never in the config.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2>What it cost in the tutorial.</h2>
+      <div style="max-width:66ch">
+        <p>OpenAI GPT-4o calls, at recorded list prices. Topic discovery is free; it runs on your machine.</p>
+        <table class="plain">
+          <thead><tr><th>Step</th><th class="n">Calls</th><th class="n">Cost</th></tr></thead>
+          <tbody>
+            <tr><td>Naming: 500 votes for each of 12 topics, plus two discarded attempts</td><td class="n">9,808</td><td class="n">$3.80</td></tr>
+            <tr><td>Choosing the classifier on 100 practice posts</td><td class="n">100</td><td class="n">$0.41</td></tr>
+            <tr><td>The held-out check on 250 posts</td><td class="n">250</td><td class="n">$1.02</td></tr>
+            <tr><td>Classifying all 26,239 first-term posts</td><td class="n">26,263</td><td class="n">$107.24</td></tr>
+            <tr><td><b>Total</b></td><td class="n"><b>36,421</b></td><td class="n"><b>$112.47</b></td></tr>
+          </tbody>
+        </table>
+        <p class="small" style="margin-top:12px">Classifying the full corpus is the expensive step, and in research it only happens after the check passes. A smaller naming budget (100–200 votes per topic) usually shows the same leading names.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2>Take it with you.</h2>
+      <div class="actions" style="margin-top:16px">
+        <a class="btn primary" href="https://github.com/jethomasphd/TopicLLM">Open the repository</a>
+        <a href="https://github.com/jethomasphd/TopicLLM/archive/refs/heads/main.zip">Download source and data (zip)</a>
+        <a href="../downloads/topicllm_research-0.7.0-py3-none-any.whl">Python package (wheel)</a>
+      </div>
+      <details class="more" style="margin-top:48px">
+        <summary>How to cite</summary>
+        <p>Thomas, J. E. (2026). <i>TopicLLM: Software for turning short texts into human-defined, checked themes</i> [Software paper and computer software, version 0.7.0]. https://topicllm.dev/paper/</p>
+        <p>For the original research, cite the dissertation: Thomas, J. E. (2025). <i>Alcohol marketing on social media during the COVID-19 pandemic: Historical perspectives, modern evidence, and future regulation</i> [Doctoral dissertation, The University of Texas at Austin]. The repository's <a href="https://github.com/jethomasphd/TopicLLM/blob/main/CITATION.cff">CITATION.cff</a> carries both.</p>
+      </details>
+      <details class="more">
+        <summary>For maintainers and agents</summary>
+        <ul>
+          <li><a href="https://github.com/jethomasphd/TopicLLM/blob/main/AGENTS.md">AGENTS.md</a>: the rules a coding agent follows in this repository.</li>
+          <li><a href="https://github.com/jethomasphd/TopicLLM/blob/main/REPRODUCE.md">REPRODUCE.md</a>: every command, from quickcheck to the final report.</li>
+          <li><a href="../protocol.json">protocol.json</a>: the same protocol, machine-readable.</li>
+          <li><a href="https://github.com/jethomasphd/TopicLLM/blob/main/MAINTAINING.md">MAINTAINING.md</a>: building and publishing the site, paper and package.</li>
+        </ul>
+      </details>
+    </div>
+  </section>
+</main>
+<!--shell-foot--><footer class="foot"><div class="foot-in"><div><p><b>TopicLLM</b> is pilot software built from Jacob E. Thomas's dissertation research at The University of Texas at Austin. It has not been independently validated. <a href="https://github.com/jethomasphd/TopicLLM/issues">Try to break it</a>.</p><p>Code: MIT. Documentation: CC BY 4.0. Trump posts remain © their original authors.</p></div><ul><li><a href="../tutorial/">Tutorial</a></li><li><a href="../use/">Use it</a></li><li><a href="../research/">Research</a></li><li><a href="../paper/">Paper</a></li><li><a href="../privacy/">Privacy and limits</a></li><li><a href="https://github.com/jethomasphd/TopicLLM">GitHub</a></li></ul></div></footer><!--/shell-foot-->
+</body>
+</html>

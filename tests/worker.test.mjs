@@ -7,17 +7,55 @@ const env=environment();
 const req=(data={},headers={})=>new Request('https://example.org/api/llm',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer research-code',Origin:'https://example.org',...headers},body:JSON.stringify(data)});
 test('public navigation uses the HTTPS primary domain and preserves paths and queries',async()=>{
   for(const host of ['www.topicllm.dev','topicllm.jethomasphd.workers.dev']){
-    const result=await worker.fetch(new Request(`https://${host}/app/?view=inference`),{});
+    const result=await worker.fetch(new Request(`https://${host}/paper/?view=inference`),{});
     assert.equal(result.status,308);
-    assert.equal(result.headers.get('Location'),'https://topicllm.dev/app/?view=inference');
+    assert.equal(result.headers.get('Location'),'https://topicllm.dev/paper/?view=inference');
+    // A retired page reaches its new home on the primary domain in one permanent hop.
+    const moved=await worker.fetch(new Request(`https://${host}/app/?view=inference`),{});
+    assert.equal(moved.status,301);
+    assert.equal(moved.headers.get('Location'),'https://topicllm.dev/tutorial/?view=inference');
   }
   const assets={ASSETS:{fetch:async()=>new Response('asset')}};
   for(const host of ['topicllm.dev','localhost:8787','unrelated.example']){
-    const result=await worker.fetch(new Request(`https://${host}/app/`),assets);
+    const result=await worker.fetch(new Request(`https://${host}/tutorial/`),assets);
     assert.equal(await result.text(),'asset');
   }
-  const secure=await worker.fetch(new Request('http://topicllm.dev/reproduce/'),{});
-  assert.equal(secure.headers.get('Location'),'https://topicllm.dev/reproduce/');
+  const secure=await worker.fetch(new Request('http://topicllm.dev/paper/'),{});
+  assert.equal(secure.status,308);assert.equal(secure.headers.get('Location'),'https://topicllm.dev/paper/');
+  const movedSecure=await worker.fetch(new Request('http://topicllm.dev/reproduce/'),{});
+  assert.equal(movedSecure.status,301);assert.equal(movedSecure.headers.get('Location'),'https://topicllm.dev/use/');
+});
+const movedPages={'/app':'/tutorial/','/data':'/tutorial/#dataset','/validation':'/tutorial/#check','/reproduce':'/use/','/audit':'/research/','/welcome':'/research/#author','/guide':'/#ask'};
+test('retired pages redirect permanently with or without a trailing slash or index.html',async()=>{
+  const assets={ASSETS:{fetch(){throw new Error('A retired page reached asset storage');}}};
+  for(const [page,target] of Object.entries(movedPages)){
+    const [path,fragment]=target.split('#'),hash=fragment?'#'+fragment:'';
+    for(const variant of [page,page+'/',page+'/index.html']){
+      for(const method of ['GET','HEAD']){
+        const response=await worker.fetch(new Request('https://topicllm.dev'+variant,{method}),assets);
+        assert.equal(response.status,301,`${method} ${variant}`);
+        assert.equal(response.headers.get('Location'),'https://topicllm.dev'+path+hash,variant);
+      }
+      const query=await worker.fetch(new Request('https://topicllm.dev'+variant+'?ref=old&x=1'),assets);
+      assert.equal(query.headers.get('Location'),'https://topicllm.dev'+path+'?ref=old&x=1'+hash,variant+' with query');
+    }
+    // Local previews keep their own origin.
+    const local=await worker.fetch(new Request('http://localhost:8787'+page+'/'),assets);
+    assert.equal(local.status,301);assert.equal(local.headers.get('Location'),'http://localhost:8787'+path+hash);
+  }
+});
+test('redirects leave data files, new pages, non-navigation methods and withdrawn assets alone',async()=>{
+  const served=[];const assets={ASSETS:{fetch:async request=>{served.push(new URL(request.url).pathname);return new Response('asset');}}};
+  const kept=['/data/trump/corpus.csv','/data/trump/manifest.json','/data/README.md','/guide/knowledge.md','/','/tutorial/','/use/','/research/','/paper/','/privacy/','/studies/1/','/studies/2/','/application/','/data.csv','/datasets/'];
+  for(const path of kept){
+    const response=await worker.fetch(new Request('https://topicllm.dev'+path),assets);
+    assert.equal(response.status,200,path);assert.equal(response.headers.get('Location'),null,path);
+  }
+  assert.deepEqual(served,kept);
+  const post=await worker.fetch(new Request('https://topicllm.dev/app/',{method:'POST'}),assets);
+  assert.equal(post.status,200);assert.equal(post.headers.get('Location'),null);
+  for(const path of ['/validation/results.json','/validation/synthetic-results.json','/data/trump/campaign/evaluation_annotations.csv'])
+    assert.equal((await worker.fetch(new Request('https://topicllm.dev'+path),assets)).status,410,path);
 });
 test('domain migration keeps API requests on their original origin',async()=>{
   const config=await worker.fetch(new Request('https://www.topicllm.dev/api/config'),env);
