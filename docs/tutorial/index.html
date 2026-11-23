@@ -17,7 +17,7 @@
       <p class="kicker">A tutorial, not a study · Donald Trump's Twitter account, 2015–2021</p>
       <h1>84% of Trump's first-term posts fit a theme found in his campaign.</h1>
       <p class="ci">From 250 randomly sampled posts coded by two people. 95% confidence interval, 79–88%.</p>
-      <p class="lede">We found themes in 7,805 posts from his campaign, June 2015 to Election Day 2016. Then we measured them in 26,239 posts from his first term, January 2017 to January 8, 2021, when the archive ends. One in three first-term posts criticized a political opponent.</p>
+      <p class="lede">We found themes in 7,805 posts from his campaign, June 2015 to Election Day 2016. Then we looked for them in his first term, January 2017 to January 8, 2021, when the archive ends: two people coded a random sample of 250 of its 26,239 posts. One in three criticized a political opponent.</p>
       <figure class="chart draw">
         <p class="chart-title">What two human coders found</p>
         <picture><source media="(max-width: 640px)" srcset="../assets/figures/finding-narrow.svg"><img src="../assets/figures/finding.svg" width="960" height="570" alt="Share of first-term posts per theme from the human-coded random sample: Criticism of opponents 33%, Gratitude and positivity 13%, National security 7%, Tax and healthcare 7%, Rallies and support 6%, Immigration 6%, Military and McCain 4%, Media and personal life 4%, Republican primary 1.6%, Macy's boycott 1.2%, Golf resorts 0.4%, Merchandise and books 0%, Fits no theme 16%."></picture>
@@ -28,7 +28,7 @@
 
   <div class="wrap section" style="padding-top:48px">
     <h2 style="margin-bottom:8px">How we got that number, in five steps.</h2>
-    <p class="note" style="max-width:44em">Machines did the counting. People made the decisions, each marked in amber. Two steps let you try it yourself with the live model.</p>
+    <p class="note" style="max-width:44em">Machines did the counting. People made four decisions, each marked in amber. Two steps let you try it yourself with the live model.</p>
     <div class="journey" style="margin-top:40px">
       <ol class="rail" data-spy aria-label="Tutorial steps">
         <li><a href="#discover">Discover</a></li>
@@ -41,13 +41,13 @@
         <section class="step" id="discover">
           <p class="num">Step 1 · Discover</p>
           <h2>The highest score was the wrong answer.</h2>
-          <p>A topic model (BERTopic) grouped campaign posts by meaning. We tried 1,200 settings and scored each by coherence, a standard measure of whether a topic's top words belong together. The best-scoring solution had two topics, and one of them held 99.5% of the posts. That is a score, not a finding.</p>
+          <p>A topic model (BERTopic) grouped campaign posts by meaning. We tried 1,200 settings, which produced 894 distinct solutions, and scored each by coherence, a standard measure of whether a topic's top words belong together. The best-scoring solution had two topics, and one of them held 99.5% of the clustered posts. That is a score, not a finding.</p>
           <figure class="chart draw">
             <div class="scroll-x"><img src="../assets/figures/selection.svg" width="960" height="440" alt="Scatter plot of coherence against number of topics for 894 candidate solutions. The highest-coherence solution has 2 topics with 99.5% of posts in one. The highest-coherence solution where no topic holds a majority has 12 topics."></div>
-            <figcaption><b>The rule:</b> no topic may hold a majority of the posts; among the rest, take the highest score. It picks 12 topics, the same solution the researcher chose by reading the posts, and it picks it for any threshold from 34% to 98%. We wrote the rule down after this run; it is now the software's default.</figcaption>
+            <figcaption><b>The rule:</b> no topic may hold a majority of the posts; among the rest, take the highest score. It picks 12 topics, the largest holding 34% of clustered posts: the same solution the researcher chose by reading the posts, and it picks it for any threshold from 34% to 98%. We wrote the rule down after this run; it is now the software's default.</figcaption>
           </figure>
           <p class="note" style="margin-top:24px">Half of the campaign posts (49.5%) didn't join any cluster. The clustering method leaves out posts it can't place confidently, so the 12 topics describe the other half. That is one reason step 4 matters.</p>
-          <p class="decided"><b>A person decided:</b> to read the posts behind the clusters instead of trusting the top score.</p>
+          <p class="decided"><b>A person decided:</b> to adopt a solution only after reading the posts behind its clusters, not because of its score.</p>
         </section>
 
         <section class="step" id="name">
@@ -75,7 +75,7 @@
               <div class="human"><small>Two researchers decided</small><b id="reveal-human"></b></div>
             </div>
           </div>
-          <p class="decided"><b>A person decided:</b> which name, if any, survives into the codebook.</p>
+          <p class="note" style="margin-top:28px">The model's name is an input. Which name survives, if any, is decided in step 3.</p>
         </section>
 
         <section class="step" id="define">
@@ -127,14 +127,14 @@ Examples and boundaries: The opening of Trump Turnberry in Scotland was a big su
           <p class="num">Step 4 · Check</p>
           <h2 class="failed">The classifier scored 70%. The target was 85%. It failed.</h2>
           <p>Before choosing a classifier, we drew 250 first-term posts at random and set them aside. Two people coded each one with the codebook, separately, without seeing the model's answers. Then they resolved every disagreement together. The LLM classifier, chosen and frozen beforehand on a separate 100-post practice set, matched their consensus on 175 of the 250 posts: 70% (95% CI 64–75%). The target was more than 85%, with every theme found at least once. It missed on both counts.</p>
-          <p><b>The codebook is hard for people too.</b> Before resolving their differences, the two coders agreed with each other on only 68% of posts. A classifier at 70% is roughly as consistent with them as they were with each other, which says the definitions are soft, not just the model.</p>
+          <p><b>The codebook is hard for people too.</b> Before resolving their differences, the two coders agreed with each other on only 68% of posts. A classifier at 70% is roughly as consistent with them as they were with each other, which suggests the definitions are soft, not just the model.</p>
           <figure class="chart draw">
             <div class="scroll-x"><img src="../assets/figures/confusion.svg" width="850" height="750" alt="Confusion matrix for 250 held-out posts. The classifier agreed on 175. Most disagreements are posts the humans coded with a theme that the classifier sent to fits no theme."></div>
             <figcaption>Most misses ran one way: 45 of the 75 disagreements were posts the people coded with a theme and the classifier called “fits no theme.” Individual human labels stay private; these counts are the published aggregate.</figcaption>
           </figure>
           <div class="lab" id="lab-code" aria-labelledby="lab-code-title">
             <h3 id="lab-code-title">Code five posts. Then meet the model.</h3>
-            <p class="intro">Choose a theme for each of five first-term posts, using the codebook below. When you've coded all five, the live model codes the same five and you compare. Five posts is a feeling, not a measurement.</p>
+            <p class="intro">Choose a theme for each of five first-term posts, using the codebook below. When you've coded all five, the live model codes the same five and you compare. Five posts is a feeling, not a measurement. Some retweets are cut off in the archive itself; code what you can see.</p>
             <details class="codebook-panel"><summary>Open the codebook</summary><dl id="code-book"></dl></details>
             <ol class="code5" id="code-posts"></ol>
             <div class="row">
@@ -144,19 +144,19 @@ Examples and boundaries: The opening of Trump Turnberry in Scotland was a big su
             <p class="state" id="code-state" role="status"></p>
             <div class="score" id="code-score" hidden aria-live="polite"></div>
           </div>
-          <p class="decided"><b>A person decided:</b> not to accept the classifier's numbers as measurements.</p>
+          <p class="decided"><b>People decided twice here:</b> how to code each of the 250 posts, and not to accept the classifier's numbers as measurements.</p>
         </section>
 
         <section class="step" id="report">
           <p class="num">Step 5 · Report</p>
           <h2>The human sample is the finding. The classifier's shares are not.</h2>
-          <p>We ran the failed classifier on all 26,239 first-term posts anyway, so you can see what the last step produces and how far off it is. Theme by theme, it mostly undercounts. And it sends 40% of posts to “fits no theme,” where the people put 16%.</p>
+          <p>We ran the failed classifier on all 26,239 first-term posts anyway, so you can see what the last step produces and how far off it is. Theme by theme, it mostly undercounts. On the 250 sampled posts it sent 34% to “fits no theme,” where the people put 16%; across all posts it sent 40%.</p>
           <figure class="chart draw">
             <picture><source media="(max-width: 640px)" srcset="../assets/figures/compare-narrow.svg"><img src="../assets/figures/compare.svg" width="960" height="668" alt="Paired bars per theme comparing the human-coded sample with the classifier's model-assigned shares of all first-term posts. Fits no theme: humans 16%, classifier 40%."></picture>
             <figcaption>Green: two human coders, random sample of 250. Grey: the classifier on all posts <span class="tag">teaching demonstration · model-assigned shares</span> <a href="../paper/#limits">Limitations</a></figcaption>
           </figure>
           <p class="note" style="margin-top:24px">If you adjust the classifier's output for the errors measured in step 4, 81% of posts fit a campaign theme, close to the human estimate. That adjustment rests on a 250-post error profile. It illustrates the gap; it isn't an estimate.</p>
-          <p class="decided"><b>A person decides</b> what to do next. For real research, you would revise the codebook, freeze a new classifier and test it on a fresh sample, repeating until it passes and the people accept its errors.</p>
+          <p class="note" style="margin-top:28px"><b>What research would do next:</b> revise the codebook, freeze a new classifier and test it on a fresh sample, repeating until it passes and the people accept its errors.</p>
         </section>
       </div>
     </div>

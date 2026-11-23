@@ -20,6 +20,7 @@
       0.3922349440961783
     ],
     "classifier_residual_share": 0.3974999047219787,
+    "classifier_residual_share_in_sample": 0.344,
     "human_residual_share": 0.164,
     "calibrated_fits_a_campaign_theme": 0.8104942314697543,
     "calibrated_fits_bootstrap_95": [

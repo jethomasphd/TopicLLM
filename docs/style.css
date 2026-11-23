@@ -239,7 +239,11 @@ details.more li { margin: 6px 0; }
 .code5 .answer .match { color: var(--accent); font-weight: 600; }
 .code5 .answer .miss { color: var(--amber); font-weight: 600; }
 .code5 .answer details { color: var(--ink-2); font-size: .88rem; }
-.code5 .answer details p { white-space: pre-line; margin: 6px 0 0; }
+.code5 .answer details h4 { font-size: .86rem; font-weight: 600; margin: 12px 0 2px; color: var(--ink); }
+.defn p { margin: 4px 0 0; white-space: normal; }
+.defn ul { margin: 4px 0 0; padding-left: 1.1em; }
+.defn li { margin: 2px 0; }
+.defn b { font-weight: 600; color: var(--ink); }
 .score { margin-top: 24px; padding: 22px; background: var(--bg); border-radius: 12px; }
 .score .big { font-size: 1.8rem; font-weight: 600; letter-spacing: -.02em; line-height: 1.2; }
 .score p { margin: 8px 0 0; color: var(--ink-2); font-size: 1rem; }
@@ -250,7 +254,7 @@ details.more li { margin: 6px 0; }
 .codebook-panel[open] summary::after { content: "−"; }
 .codebook-panel dl { margin: 6px 0 0; font-size: .9rem; }
 .codebook-panel dt { font-weight: 600; margin-top: 12px; }
-.codebook-panel dd { margin: 4px 0 0; color: var(--ink-2); white-space: pre-line; line-height: 1.5; }
+.codebook-panel dd { margin: 4px 0 0; color: var(--ink-2); line-height: 1.5; }
 @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @media (prefers-reduced-motion: reduce) { .tally .t .bar-v i { animation: none; } }
 @media (max-width: 640px) { .lab { padding: 22px 18px; margin-inline: -8px; } }

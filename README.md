@@ -5,9 +5,9 @@
 
 > **Status: pilot software** from Jacob E. Thomas's dissertation research at The University of Texas at Austin. It has not been independently validated. [Try to break it.](https://github.com/jethomasphd/TopicLLM/issues)
 
-<img src="docs/assets/figures/proof.svg" alt="Share of Donald Trump's first-term posts that fit no campaign theme: 16% according to two human coders, 40% according to the classifier." width="100%">
+<img src="docs/assets/figures/proof.svg" alt="Share of Donald Trump's first-term posts that fit no campaign theme. On the same 250 posts: 16% according to two human coders, 34% according to the classifier. On all 26,239 posts the classifier said 40%." width="100%">
 
-In the [tutorial](https://topicllm.dev/tutorial/), themes found in Donald Trump's campaign posts are measured in his first-term posts. Two people coded a random sample of 250 posts: **84% fit a campaign theme** (95% CI 79–88%), and a third criticized political opponents. The LLM classifier matched them only 70% of the time, short of its 85% target, and it sent two and a half times as many posts to "fits no theme." The method caught it, and it showed why: the two coders agreed with each other only 68% of the time, so the codebook itself needs work. That check is the point.
+In the [tutorial](https://topicllm.dev/tutorial/), themes found in Donald Trump's campaign posts are looked for in his first-term posts. Two people coded a random sample of 250 posts: **84% fit a campaign theme** (95% CI 79–88%), and a third criticized political opponents. The LLM classifier matched them only 70% of the time, short of its 85% target, and on those same posts it sent about twice as many to "fits no theme" (34% against 16%). The method caught it, and it hinted why: the two coders agreed with each other only 68% of the time, which suggests the codebook itself needs work. That check is the point.
 
 ## Run it
 

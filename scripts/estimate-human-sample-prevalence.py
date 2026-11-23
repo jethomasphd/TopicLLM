@@ -128,6 +128,7 @@ def main() -> None:
             "largest_theme_share": rows[0]["human_sample"]["share"],
             "largest_theme_wilson_95": rows[0]["human_sample"]["wilson_95"],
             "classifier_residual_share": corpus[RESIDUAL] / N_POPULATION,
+            "classifier_residual_share_in_sample": sum(confusion[h][RESIDUAL] for h in labels) / n,
             "human_residual_share": human_counts[RESIDUAL] / n,
             "calibrated_fits_a_campaign_theme": 1 - calibrated[RESIDUAL],
             "calibrated_fits_bootstrap_95": [percentile(covered, 0.025), percentile(covered, 0.975)],

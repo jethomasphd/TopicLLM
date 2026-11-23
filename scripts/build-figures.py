@@ -89,7 +89,7 @@ def pct(x: float, digits: int | None = None) -> str:
 def fig_pipeline() -> str:
     """Five stages; the two stages where people decide are marked in amber."""
     W, H = 960, 196
-    stages = [("Discover", "A topic model groups", "similar posts", False),
+    stages = [("Discover", "A topic model groups", "similar posts", True),
               ("Name", "An LLM proposes a name", "500 times per topic", False),
               ("Define", "Two people write", "the codebook", True),
               ("Check", "Classifier vs. two", "human coders", True),
@@ -110,7 +110,7 @@ def fig_pipeline() -> str:
             body.append(f'<path d="M{ax + gap - 12:.1f},{top + 51} l7,5 l-7,5z" fill="{LIGHT["grey"]}" class="f-grey"/>')
     body.append(text(2, 18, "Machines compute. People decide what it means and whether to believe it.", "muted", 13))
     return svg(W, H, body, "The TopicLLM workflow",
-               "Five stages: discover, name, define, check, report. People decide at define and check.")
+               "Five stages: discover, name, define, check, report. People decide at discover, define and check.")
 
 
 def unique_candidates() -> list[dict]:
@@ -199,7 +199,8 @@ def fig_finding() -> str:
         lo, hi = h["wilson_95"]
         body.append(line(scale(lo), y, scale(hi), y, role, 2.5))
         body.append(circle(scale(h["share"]), y, 6.5, role))
-        body.append(text(scale(hi) + 10, y + 5, pct(h["share"]), "ink2", 13, weight=600 if i == 0 else 400))
+        label = f"0 of {h['of']}" if h["posts"] == 0 else pct(h["share"])
+        body.append(text(scale(hi) + 10, y + 5, label, "ink2", 13, weight=600 if i == 0 else 400))
     body.append(text(L, 22, "Share of first-term posts (dot) with 95% confidence interval (line)", "muted", 12))
     body.append(text(L, H - 6, f"Two people coded a random sample of {rows[0]['human_sample']['of']} of 26,239 posts.",
                      "muted", 12))
@@ -209,25 +210,26 @@ def fig_finding() -> str:
 
 
 def fig_proof() -> str:
-    """The residual: humans 16%, classifier 40%."""
+    """The residual on the same 250 posts (humans vs classifier), plus the classifier on all posts."""
     data, rows = prevalence_rows()
-    resid = next(r for r in rows if r["residual"])
-    human, model = resid["human_sample"]["share"], resid["classifier"]["share"]
-    W, H, L, R = 960, 200, 190, 90
+    human = data["headline"]["human_residual_share"]
+    same = data["headline"]["classifier_residual_share_in_sample"]
+    model = data["headline"]["classifier_residual_share"]
+    W, H, L, R = 960, 250, 280, 90
     scale = lambda v: (W - L - R) * v / 0.45
     body = [text(0, 22, "Posts that fit no campaign theme", "ink", 16, weight=600)]
-    for i, (label, value, role) in enumerate([("Two human coders", human, "accent"),
-                                              ("The classifier", model, "amber")]):
-        y = 52 + i * 62
-        body.append(text(L - 16, y + 27, label, "ink", 15, "end", 500))
-        body.append(rect(L, y, W - L - R, 40, "greysoft", rx=6))
-        body.append(rect(L, y, scale(value), 40, role, rx=6))
-        body.append(text(L + scale(value) + 12, y + 27, pct(value), role, 20, weight=700))
-    body.append(text(L, H - 10, "Humans: random sample of 250 first-term posts. Classifier: all 26,239 (teaching demonstration).",
-                     "muted", 12))
+    bars = [("Two human coders · 250 posts", human, "accent"), ("Classifier · the same 250 posts", same, "amber"),
+            ("Classifier · all 26,239 posts", model, "grey")]
+    for i, (label, value, role) in enumerate(bars):
+        y = 46 + i * 58
+        body.append(text(L - 16, y + 25, label, "ink", 15, "end", 500))
+        body.append(rect(L, y, W - L - R, 36, "greysoft", rx=6))
+        body.append(rect(L, y, scale(value), 36, role, rx=6))
+        body.append(text(L + scale(value) + 12, y + 25, pct(value), "ink2" if role == "grey" else role, 19, weight=700))
+    body.append(text(L, H - 10, "Human coders and classifier on one random sample of first-term posts; grey: the classifier on every post.", "muted", 12))
     return svg(W, H, body, "The check that caught the classifier",
-               f"Share of first-term posts that fit no campaign theme: {pct(human)} according to two human coders, "
-               f"{pct(model)} according to the classifier.")
+               f"Share of first-term posts that fit no campaign theme. On the same 250 posts: {pct(human)} by two human coders, "
+               f"{pct(same)} by the classifier. On all 26,239 posts the classifier said {pct(model)}.")
 
 
 def fig_compare() -> str:
@@ -249,7 +251,7 @@ def fig_compare() -> str:
         h, c = r["human_sample"]["share"], r["classifier"]["share"]
         body.append(rect(L, y + 6, scale(h), 13, "accent", rx=3))
         body.append(rect(L, y + 21, scale(c), 13, "grey", rx=3))
-        body.append(text(L + scale(h) + 8, y + 17, pct(h), "ink2", 12))
+        body.append(text(L + scale(h) + 8, y + 17, "0 of 250" if h == 0 else pct(h), "ink2", 12))
         body.append(text(L + scale(c) + 8, y + 32, pct(c), "muted", 12))
     body += [rect(L, 18, 14, 12, "accent", rx=2), text(L + 20, 29, "Two human coders (random sample, n = 250)", "ink2", 12),
              rect(L + 300, 18, 14, 12, "grey", rx=2),
@@ -265,6 +267,7 @@ def fig_confusion() -> str:
     conf = report["metrics"]["confusion"]
     _, rows = prevalence_rows()
     order = [r["theme"] for r in rows]
+    order = order[-1:] + order[:-1]  # "Fits no theme" first, so the main error column is visible on any screen
     n = len(order)
     cell, L, T = 40, 200, 170
     W, H = L + cell * n + 130, T + cell * n + 60
@@ -294,7 +297,7 @@ def fig_confusion() -> str:
                 role = "ink" if (i == j or v / peak < 0.5) else "bg"
                 body.append(text(x + cell / 2, y + cell / 2 + 5, str(v), role, 13, "middle", 600))
     body.append(text(L, H - 26, "Rows: what the two human coders agreed. Columns: what the classifier said.", "muted", 12))
-    body.append(text(L, H - 8, "Diagonal = agreement (175 of 250). Amber = disagreement; darker = more posts.", "muted", 12))
+    body.append(text(L, H - 8, "Diagonal = agreement (175 of 250). Amber = disagreement; the first column holds 45 of the 75 misses.", "muted", 12))
     return svg(W, H, body, "Where the classifier disagreed with the human coders",
                "Confusion matrix for the 250 held-out posts. Most disagreements are human-coded theme posts that the "
                "classifier sent to 'fits no theme'.")
@@ -344,27 +347,31 @@ def fig_finding_narrow() -> str:
         lo, hi = h["wilson_95"]
         body.append(line(scale(lo), y + 32, scale(hi), y + 32, role, 3))
         body.append(circle(scale(h["share"]), y + 32, 7, role))
-        body.append(text(scale(hi) + 8, y + 37, pct(h["share"]), "ink2", 14, weight=600 if i == 0 else 400))
+        label = f"0 of {h['of']}" if h["posts"] == 0 else pct(h["share"])
+        body.append(text(scale(hi) + 8, y + 37, label, "ink2", 14, weight=600 if i == 0 else 400))
     return svg(W, H, body, "What two human coders found",
                "Share of first-term posts per campaign theme, human-coded random sample of 250, with 95% intervals.")
 
 
 def fig_proof_narrow() -> str:
     data, rows = prevalence_rows()
-    resid = next(r for r in rows if r["residual"])
-    human, model = resid["human_sample"]["share"], resid["classifier"]["share"]
-    W, H, L = 400, 230, 4
+    human = data["headline"]["human_residual_share"]
+    same = data["headline"]["classifier_residual_share_in_sample"]
+    model = data["headline"]["classifier_residual_share"]
+    W, H, L = 400, 290, 4
     scale = lambda v: (W - 70) * v / 0.45
     body = [text(L, 18, "Posts that fit no campaign theme", "ink", 16, weight=600)]
-    for i, (label, value, role) in enumerate([("Two human coders", human, "accent"), ("The classifier", model, "amber")]):
-        y = 44 + i * 78
-        body.append(text(L, y + 14, label, "ink", 15, weight=500))
-        body.append(rect(L, y + 24, W - 70, 34, "greysoft", rx=6))
-        body.append(rect(L, y + 24, scale(value), 34, role, rx=6))
-        body.append(text(L + scale(value) + 8, y + 48, pct(value), role, 18, weight=700))
-    body.append(text(L, H - 8, "Humans: sample of 250. Classifier: all 26,239.", "muted", 12))
+    bars = [("Two human coders · 250 posts", human, "accent"), ("Classifier · the same 250 posts", same, "amber"),
+            ("Classifier · all 26,239 posts", model, "grey")]
+    for i, (label, value, role) in enumerate(bars):
+        y = 40 + i * 76
+        body.append(text(L, y + 14, label, "ink", 14, weight=500))
+        body.append(rect(L, y + 22, W - 70, 32, "greysoft", rx=6))
+        body.append(rect(L, y + 22, scale(value), 32, role, rx=6))
+        body.append(text(L + scale(value) + 8, y + 45, pct(value), "ink2" if role == "grey" else role, 17, weight=700))
     return svg(W, H, body, "The check that caught the classifier",
-               f"Fits no campaign theme: {pct(human)} by two human coders, {pct(model)} by the classifier.")
+               f"Fits no campaign theme on the same 250 posts: {pct(human)} by two human coders, {pct(same)} by the classifier; "
+               f"{pct(model)} by the classifier on all posts.")
 
 
 def fig_compare_narrow() -> str:
@@ -382,7 +389,7 @@ def fig_compare_narrow() -> str:
         body.append(text(L, y + 14, SHORT[r["theme"]], "ink", 15))
         body.append(rect(L, y + 22, scale(h), 12, "accent", rx=3))
         body.append(rect(L, y + 37, scale(c), 12, "grey", rx=3))
-        body.append(text(L + scale(h) + 6, y + 32, pct(h), "ink2", 12))
+        body.append(text(L + scale(h) + 6, y + 32, "0 of 250" if h == 0 else pct(h), "ink2", 12))
         body.append(text(L + scale(c) + 6, y + 47, pct(c), "muted", 12))
     return svg(W, H, body, "Humans and the classifier, theme by theme",
                "Per theme: human-coded sample share and classifier model-assigned share of all first-term posts.")

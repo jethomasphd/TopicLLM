@@ -29,20 +29,20 @@
     <div class="wrap">
       <h2>The check is the point.</h2>
       <figure class="draw">
-        <picture><source media="(max-width: 640px)" srcset="assets/figures/proof-narrow.svg"><img src="assets/figures/proof.svg" width="960" height="200" alt="Share of Donald Trump's first-term posts that fit no campaign theme: 16% according to two human coders, 40% according to the classifier."></picture>
-        <figcaption>In the tutorial, the classifier missed its accuracy target. The method caught it. Two people coded a random sample of Donald Trump's first-term posts; the classifier, run on all of them, sent two and a half times as many to “fits no theme.” <a href="tutorial/#check">See how the check works →</a></figcaption>
+        <picture><source media="(max-width: 640px)" srcset="assets/figures/proof-narrow.svg"><img src="assets/figures/proof.svg" width="960" height="250" alt="Share of Donald Trump's first-term posts that fit no campaign theme. On the same 250 posts: 16% according to two human coders, 34% according to the classifier. On all 26,239 posts the classifier said 40%."></picture>
+        <figcaption>In the tutorial, the classifier missed its accuracy target, and the method caught it. Two people coded a random sample of 250 of Donald Trump's first-term posts. On those same posts, the classifier sent about twice as many to “fits no theme”: 34% against the people's 16%. Run on all 26,239 posts, it said 40%. <a href="tutorial/#check">See how the check works →</a></figcaption>
       </figure>
     </div>
   </section>
 
   <section class="section">
     <div class="wrap">
-      <h2>Five steps. Two of them are human.</h2>
+      <h2>Five steps. Four decisions only people can make.</h2>
       <ol class="steps">
-        <li><b>Discover.</b><span>A topic model groups similar posts.</span></li>
+        <li class="person"><b>Discover.</b><span>A topic model groups similar posts.</span><i>A person adopts a solution</i></li>
         <li><b>Name.</b><span>An LLM proposes names, hundreds of times.</span></li>
-        <li class="person"><b>Define.</b><span>People turn clusters into a codebook.</span><i>A person decides</i></li>
-        <li class="person"><b>Check.</b><span>The classifier is tested against people.</span><i>A person decides</i></li>
+        <li class="person"><b>Define.</b><span>People turn clusters into a codebook.</span><i>People write the codebook</i></li>
+        <li class="person"><b>Check.</b><span>The classifier is tested against people.</span><i>People code a sample, then accept or reject</i></li>
         <li><b>Report.</b><span>Theme shares, with their uncertainty.</span></li>
       </ol>
     </div>

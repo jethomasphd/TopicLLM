@@ -15,8 +15,35 @@ const el = (tag, props = {}, ...children) => {
 };
 // Archive text sometimes carries doubled CSV quotes; tidy them for reading only.
 const entities = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" };
-const readable = text => text.replace(/&(amp|lt|gt|quot|#39);/g, m => entities[m]).replace(/""/g, '"').replace(/^"+(?=\S)|(?<=\S)"+$/g, '').trim();
+const readable = text => text.replace(/&amp(?!;)/g, '&amp;').replace(/&(amp|lt|gt|quot|#39);/g, m => entities[m]).replace(/""/g, '"').replace(/^"+(?=\S)|(?<=\S)"+$/g, '').trim();
 const normalise = label => label.trim().replace(/^["'“”]+|["'“”]+$/g, '').replace(/\.+$/, '').trim();
+
+// Show a codebook entry as labelled lines, keeping the researchers' words.
+const LABELS = ['Meaning', 'Include', 'Exclude', 'Examples and boundaries'];
+function definitionBlock(text) {
+  const block = el('div', { className: 'defn' });
+  let current = null;
+  for (const raw of text.split('\n')) {
+    const line = raw.replace(/\s*\|\s*$/, '').trim();
+    if (!line) continue;
+    const label = LABELS.find(l => line.startsWith(l + ':'));
+    if (label) {
+      const rest = line.slice(label.length + 1).trim();
+      if (label.startsWith('Examples')) {
+        block.append(el('p', {}, el('b', { textContent: `${label}:` })));
+        current = el('ul');
+        if (rest) current.append(el('li', { textContent: rest.replace(/^\d+\.\s*/, '') }));
+        block.append(current);
+      } else {
+        current = el('p', {}, el('b', { textContent: `${label}: ` }), rest);
+        block.append(current);
+      }
+    } else if (current && current.tagName === 'UL') {
+      current.append(el('li', { textContent: line.replace(/^\d+\.\s*/, '') }));
+    } else block.append(el('p', { textContent: line }));
+  }
+  return block;
+}
 
 let tutorial, live, config, sessionReady = false;
 
@@ -131,7 +158,7 @@ function initCoding() {
 
   // The codebook panel.
   const book = $('code-book');
-  for (const theme of tutorial.themes) book.append(el('dt', { textContent: theme }), el('dd', { textContent: definition(theme) }));
+  for (const theme of tutorial.themes) book.append(el('dt', { textContent: theme }), el('dd', {}, definitionBlock(definition(theme))));
   book.append(el('dt', { textContent: 'Fits no theme' }), el('dd', { textContent: definition(tutorial.residual) }));
   book.append(el('dt', { textContent: 'When a post fits several themes' }), el('dd', { textContent: tutorial.codebook.decision_rule.trim() }));
 
@@ -147,7 +174,7 @@ function initCoding() {
   const ready = () => { run.disabled = !current.length || current.some(c => !c.select.value) || !liveOn; };
 
   const deal = () => {
-    score.hidden = true; more.hidden = true; state.textContent = liveOn ? '' : 'The live model is paused right now. You can still code the posts with the codebook.';
+    score.hidden = true; more.hidden = true; state.textContent = liveOn ? '' : 'The live model is off right now. You can still code the five posts and compare your choices with the matrix above.';
     current = pick().map((example, i) => {
       const select = el('select');
       select.setAttribute('aria-label', `Theme for post ${i + 1}`);
@@ -162,7 +189,7 @@ function initCoding() {
       return { example, select, answer, item };
     });
     list.replaceChildren(...current.map(c => c.item));
-    run.hidden = false; ready();
+    run.hidden = !liveOn; ready();
   };
 
   const showAnswer = (c, model) => {
@@ -171,8 +198,8 @@ function initCoding() {
       el('span', { className: agree ? 'match' : 'miss', textContent: agree ? `The model agrees: ${label(model)}` : `The model chose: ${label(model)}` }));
     if (!agree) {
       const details = el('details', {}, el('summary', { textContent: 'Compare the two definitions' }),
-        el('p', { textContent: `${label(mine)}: ${definition(mine)}` }),
-        el('p', { textContent: `${label(model)}: ${definition(model)}` }));
+        el('h4', { textContent: `Your choice: ${label(mine)}` }), definitionBlock(definition(mine)),
+        el('h4', { textContent: `The model's choice: ${label(model)}` }), definitionBlock(definition(model)));
       c.answer.append(details);
     }
     return agree;
