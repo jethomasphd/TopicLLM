@@ -1,6 +1,8 @@
 /* TopicLLM guide: one Ask panel, opened only from a [data-ask] control or the
  * #ask address. It never opens itself. Questions are sent only on submit and the
  * conversation lives in page memory only: nothing is stored in the browser. */
+import { publicSession } from './live-session.js';
+
 const API='/api/guide';
 const STARTERS=['What did the tutorial find?','Why did the classifier fail?','Can I use this on my own data?','What do the humans have to do?'];
 const GREETING='I’m the TopicLLM guide, an AI. I can explain the method, the tutorial’s numbers, or how to run this on your own data. What are you trying to do?';
@@ -169,7 +171,7 @@ function mount(){
   async function startSession(){
     const config=await request('/api/config');
     if(!config.guideLive)throw new Error('The live guide is unavailable right now.');
-    await request('/api/session');ready=true;
+    await publicSession.ensure();ready=true;
   }
   // The operation ID stays the same when an unchanged question is retried, so a
   // response that completed but was not delivered is recovered, not charged twice.
@@ -178,7 +180,7 @@ function mount(){
     if(!ready)await startSession();
     try{return await call();}
     // An expired session is refused before any allowance is reserved, so one renewal is safe.
-    catch(error){if(error.status!==401)throw error;ready=false;await startSession();return call();}
+    catch(error){if(error.status!==401)throw error;ready=false;publicSession.invalidate();await startSession();return call();}
   }
 
   async function ask(raw,typed=false){

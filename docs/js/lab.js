@@ -7,6 +7,8 @@
    server-approved tasks: name a recorded topic, classify an archived post.
    Nothing you type is sent anywhere; only topic and post identifiers are. */
 
+import { publicSession } from './live-session.js';
+
 const $ = id => document.getElementById(id);
 const el = (tag, props = {}, ...children) => {
   const node = Object.assign(document.createElement(tag), props);
@@ -45,7 +47,7 @@ function definitionBlock(text) {
   return block;
 }
 
-let tutorial, live, config, sessionReady = false;
+let tutorial, live, config;
 
 async function loadData() {
   const [a, b] = await Promise.all([fetch('../data/trump/tutorial.json'), fetch('../data/trump/live-examples.json')]);
@@ -58,11 +60,7 @@ async function loadData() {
 }
 
 async function call(input) {
-  if (!sessionReady) {
-    const session = await fetch('/api/session', { credentials: 'same-origin' });
-    if (!session.ok) throw new Error((await session.json().catch(() => ({}))).error || 'The live model is unavailable right now.');
-    sessionReady = true;
-  }
+  await publicSession.ensure();
   const response = await fetch('/api/demo', {
     method: 'POST', credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json', 'X-Request-ID': crypto.randomUUID() },
